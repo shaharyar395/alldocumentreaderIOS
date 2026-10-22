@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">جستجو</string>
+    <string name="widget_recent">اخیر</string>
+    <string name="widget_bookmarks">نشانک‌ها</string>
+    <string name="widget_edit_pdf">ویرایش PDF</string>
+    <string name="widget_tools_label">ابزارهای سریع</string>
+    <string name="widget_home">خانه</string>
+    <string name="w_tools_title">ابزارهای سریع</string>
+    <string name="w_tools_desc">از صفحه اصلی جستجو کنید، فایل‌های اخیر و نشانک‌ها را باز کنید یا یک PDF را ویرایش کنید</string>
+    <string name="w_reader_title">نمایشگر اسناد</string>
+    <string name="w_reader_desc">باز کردن فایل‌های PDF، Word، Excel و PowerPoint با یک لمس</string>
+    <string name="w_editor_title">ویرایشگر PDF</string>
+    <string name="w_editor_desc">مستقیم به ویرایش PDF بروید</string>
+</resources>

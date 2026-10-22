@@ -1,0 +1,225 @@
+Tambah halaman
+Tambah tangkapan
+Tambah teks
+Agenda
+Semua
+Semua dokumen
+Semua file
+Anotasi
+Tema aplikasi
+Naik
+Tanya setiap kali
+Pangkas otomatis
+Manfaat
+Nilai terbaik
+Tempat sampah dikosongkan
+Tulis di sini
+Markah
+Markah dihapus
+Ditandai
+Markah
+Ringkasan
+Batal
+Sertifikat
+Bug
+Desain
+Ide
+Lainnya
+Lambat
+Ketuk + untuk mengimpor, memindai, atau membuat PDF.
+Lanjut
+Konversi
+Konversi dan buat
+Mengonversi {percent}%
+Surat lamaran
+Buat
+Buat file
+Buat PDF
+Gelap
+{days} hari tersisa
+Hapus
+Hapus permanen
+Dipindah ke tempat sampah
+Dihapus permanen
+Turun
+Detail
+Direktori
+Ubah foto dan halaman kosong menjadi PDF dalam beberapa ketukan.
+Fitur baru: Buat PDF
+Selesai
+Pilih Google Drive, atau aplikasi lain, di lembar berbagi.
+Edit dan kelola
+Edit teks
+Kosongkan tempat sampah
+Hapus permanen semua isi tempat sampah?
+Tidak ada file di kategori ini
+Folder ini kosong
+Excel
+Aplikasi lain dari pengembang ini akan muncul di sini.
+Jelajahi aplikasi lain
+FAQ
+PDF, Word, Excel, PowerPoint, TXT, dan gambar umum. Impor file atau buka dari aplikasi lain.
+Impor dan file yang dibuat tetap di pustaka aplikasi pada perangkat ini.
+Tempat sampah menyimpan file 30 hari. Pulihkan atau hapus permanen.
+Premium menghapus iklan dan membuka templat bermahkota. Konversi, edit, gabung, dan pisah tetap gratis.
+Tanya setiap kali memberi pilihan di tiap pindaian. Pangkas otomatis menyesuaikan halaman. Tanpa pangkas menyimpan seluruh foto.
+Buka Dapatkan Premium lalu ketuk Pulihkan. Gunakan akun toko yang sama.
+File
+Umum
+Premium
+File apa yang bisa saya buka?
+Di mana file saya disimpan?
+Berapa lama file terhapus tersimpan?
+Apa yang berubah dengan Premium?
+Apa fungsi opsi pangkas?
+Bagaimana memulihkan Premium?
+Pindai
+Masukan
+Beri tahu apa yang perlu diperbaiki
+Pengelola file
+Filter
+Selebaran
+Galeri
+Umum
+Dapatkan Premium
+Mulai
+Ke halaman
+Mengerti
+Horizontal
+Gambar
+Gambar ke PDF
+Impor file
+Diimpor
+Faktur
+Bahasa
+Surat
+Terang
+Kelola halaman
+Kelola langganan
+Catatan rapat
+Memo
+Gabungkan PDF
+Diubah
+Bulanan
+Pindahkan ke tempat sampah
+Nama file
+Baru
+Nawala
+Berikutnya
+Tandai file agar tetap di sini.
+Belum ada markah
+Tanpa pangkas
+Dokumen yang Anda buka akan muncul di sini.
+Tidak ada file terbaru
+Tidak ada file yang cocok
+Tidak ada langganan yang valid.
+File ini tidak punya lapisan teks yang bisa dibaca.
+Belum ada yang ditampilkan
+{current} / {total}
+Buka PDF, Word, Excel, PowerPoint, TXT, dan gambar tanpa keluar dari aplikasi.
+Semua file, satu pembaca
+Ubah foto, pindaian, Word, dan PPT menjadi PDF, atau PDF kembali menjadi Word.
+Konversi dan buat
+Anotasi, tambah teks, tanda tangan, gabung, pisah, dan kelola halaman.
+Edit, tanda tangan, dan atur
+Buka
+Lainnya
+Jumlah halaman
+Halaman {count}
+Jalur
+PDF
+PDF ke Word
+Hapus file ini permanen?
+Poster
+PPT
+PPT ke PDF
+Premium aktif
+Premium dipulihkan
+Siap untuk uji coba gratis 7 hari
+Cetak
+Cetak PDF
+Kebijakan privasi
+Proposal
+Bagaimana pengalaman Anda?
+Terbaru
+Baru ditambahkan +{count}
+Tempat sampah
+Hapus iklan
+Hapus markah
+Ubah nama
+Nama diubah
+Tahan dan seret untuk mengubah urutan
+Laporan
+Pulihkan
+Pulihkan
+Dipulihkan
+Resume
+Pembaca yang rapi, dan tempat sampah menyelamatkan saya lebih dari sekali.
+Amina
+Gambar ke PDF cepat, dan tema gelap enak dilihat.
+Luis
+Saya menyimpan Word dan PDF bersama. Markah membantu.
+Hana
+Ulasan
+Gunakan pembelian sandbox di build debug ini?
+Toko tidak tersedia
+Buka kunci sandbox
+Simpan PDF
+Simpan ke Drive
+Pengaturan pindai
+Pindai ke PDF
+Jadwal
+Cari
+Cari file
+Pilih bahasa
+{count} dipilih
+Kirim masukan
+Pengaturan
+Uji coba gratis 7 hari
+Bagikan
+Bagikan
+Coba All Document Reader — semua dokumen dalam satu aplikasi.
+Tanda tangan
+Ukuran
+Lewati
+Konversi
+Beralih antara PDF, Word, gambar, dan slide.
+Edit dan tanda tangan
+Tandai halaman, tambah teks, dan letakkan tanda tangan.
+Gabung dan pisah
+Gabungkan file atau ambil hanya halaman yang Anda butuhkan.
+Kelola halaman
+Ubah urutan, putar, sisipkan, dan hapus halaman.
+Hapus iklan
+Gunakan setiap layar tanpa spanduk dan gangguan.
+Templat
+Mulai dari resume, surat, ringkasan, atau poster.
+Tanggal
+Nama
+Ukuran
+Baca, edit, dan konversi setiap dokumen
+Pisahkan PDF
+Penyimpanan
+Langganan gagal
+File Anda siap
+Sistem
+Ambil foto
+Fitur yang Anda inginkan belum ada? Beri tahu kami
+Templat
+Premium membuka templat ini
+Ketentuan
+All Document Reader menyimpan dokumen yang Anda impor di perangkat ini. Premium adalah langganan opsional yang ditagih Google Play atau App Store. Batalkan kapan saja di akun toko. Konversi, edit, gabung, dan pisah tetap gratis. Iklan disembunyikan selama Premium aktif.
+Catatan terima kasih
+Judul
+Alat
+TXT
+Jenis
+Buka Premium
+{used} / {total}
+Versi
+Vertikal
+Selamat datang kembali
+Lanjutkan dari tempat Anda berhenti.
+Word
+Word ke PDF
+Tahunan

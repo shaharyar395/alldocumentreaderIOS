@@ -1,0 +1,140 @@
+{
+ "en": {
+  "pressBackAgain": "Press back again to exit",
+  "saveFailed": "Could not save the PDF",
+  "splitFixedRange": "Fixed range",
+  "splitCustomRange": "Custom range"
+ },
+ "ar": {
+  "pressBackAgain": "اضغط رجوع مرة أخرى للخروج",
+  "saveFailed": "تعذّر حفظ ملف PDF",
+  "splitFixedRange": "نطاق ثابت",
+  "splitCustomRange": "نطاق مخصص"
+ },
+ "de": {
+  "pressBackAgain": "Zum Beenden erneut „Zurück\" drücken",
+  "saveFailed": "Die PDF konnte nicht gespeichert werden",
+  "splitFixedRange": "Fester Bereich",
+  "splitCustomRange": "Eigener Bereich"
+ },
+ "es": {
+  "pressBackAgain": "Pulsa Atrás de nuevo para salir",
+  "saveFailed": "No se pudo guardar el PDF",
+  "splitFixedRange": "Rango fijo",
+  "splitCustomRange": "Rango personalizado"
+ },
+ "fa": {
+  "pressBackAgain": "برای خروج دوباره دکمه بازگشت را بزنید",
+  "saveFailed": "ذخیره PDF ممکن نشد",
+  "splitFixedRange": "بازه ثابت",
+  "splitCustomRange": "بازه دلخواه"
+ },
+ "fr": {
+  "pressBackAgain": "Appuyez à nouveau sur Retour pour quitter",
+  "saveFailed": "Impossible d'enregistrer le PDF",
+  "splitFixedRange": "Plage fixe",
+  "splitCustomRange": "Plage personnalisée"
+ },
+ "id": {
+  "pressBackAgain": "Tekan kembali sekali lagi untuk keluar",
+  "saveFailed": "Tidak dapat menyimpan PDF",
+  "splitFixedRange": "Rentang tetap",
+  "splitCustomRange": "Rentang khusus"
+ },
+ "it": {
+  "pressBackAgain": "Premi di nuovo Indietro per uscire",
+  "saveFailed": "Impossibile salvare il PDF",
+  "splitFixedRange": "Intervallo fisso",
+  "splitCustomRange": "Intervallo personalizzato"
+ },
+ "ja": {
+  "pressBackAgain": "もう一度戻るを押すと終了します",
+  "saveFailed": "PDFを保存できませんでした",
+  "splitFixedRange": "固定範囲",
+  "splitCustomRange": "カスタム範囲"
+ },
+ "ko": {
+  "pressBackAgain": "종료하려면 뒤로 버튼을 한 번 더 누르세요",
+  "saveFailed": "PDF를 저장하지 못했습니다",
+  "splitFixedRange": "고정 범위",
+  "splitCustomRange": "사용자 지정 범위"
+ },
+ "ms": {
+  "pressBackAgain": "Tekan kembali sekali lagi untuk keluar",
+  "saveFailed": "Tidak dapat menyimpan PDF",
+  "splitFixedRange": "Julat tetap",
+  "splitCustomRange": "Julat tersuai"
+ },
+ "pl": {
+  "pressBackAgain": "Naciśnij Wstecz ponownie, aby wyjść",
+  "saveFailed": "Nie udało się zapisać pliku PDF",
+  "splitFixedRange": "Stały zakres",
+  "splitCustomRange": "Własny zakres"
+ },
+ "pt": {
+  "pressBackAgain": "Pressione Voltar novamente para sair",
+  "saveFailed": "Não foi possível salvar o PDF",
+  "splitFixedRange": "Intervalo fixo",
+  "splitCustomRange": "Intervalo personalizado"
+ },
+ "ru": {
+  "pressBackAgain": "Нажмите «Назад» ещё раз для выхода",
+  "saveFailed": "Не удалось сохранить PDF",
+  "splitFixedRange": "Фиксированный",
+  "splitCustomRange": "Свой диапазон"
+ },
+ "th": {
+  "pressBackAgain": "กดย้อนกลับอีกครั้งเพื่อออก",
+  "saveFailed": "ไม่สามารถบันทึก PDF ได้",
+  "splitFixedRange": "ช่วงคงที่",
+  "splitCustomRange": "ช่วงที่กำหนดเอง"
+ },
+ "tl": {
+  "pressBackAgain": "Pindutin ulit ang back para lumabas",
+  "saveFailed": "Hindi ma-save ang PDF",
+  "splitFixedRange": "Nakapirming hanay",
+  "splitCustomRange": "Sariling hanay"
+ },
+ "tr": {
+  "pressBackAgain": "Çıkmak için tekrar geri tuşuna basın",
+  "saveFailed": "PDF kaydedilemedi",
+  "splitFixedRange": "Sabit aralık",
+  "splitCustomRange": "Özel aralık"
+ },
+ "uk": {
+  "pressBackAgain": "Натисніть «Назад» ще раз, щоб вийти",
+  "saveFailed": "Не вдалося зберегти PDF",
+  "splitFixedRange": "Фіксований",
+  "splitCustomRange": "Власний діапазон"
+ },
+ "ur": {
+  "pressBackAgain": "باہر نکلنے کے لیے دوبارہ واپس دبائیں",
+  "saveFailed": "PDF محفوظ نہیں ہو سکی",
+  "splitFixedRange": "مقررہ رینج",
+  "splitCustomRange": "اپنی مرضی کی رینج"
+ },
+ "uz": {
+  "pressBackAgain": "Chiqish uchun yana Orqaga tugmasini bosing",
+  "saveFailed": "PDFni saqlab boʻlmadi",
+  "splitFixedRange": "Belgilangan oraliq",
+  "splitCustomRange": "Maxsus oraliq"
+ },
+ "vi": {
+  "pressBackAgain": "Nhấn quay lại lần nữa để thoát",
+  "saveFailed": "Không thể lưu PDF",
+  "splitFixedRange": "Khoảng cố định",
+  "splitCustomRange": "Khoảng tùy chỉnh"
+ },
+ "zh_Hans": {
+  "pressBackAgain": "再按一次返回键退出",
+  "saveFailed": "无法保存 PDF",
+  "splitFixedRange": "固定范围",
+  "splitCustomRange": "自定义范围"
+ },
+ "zh_Hant": {
+  "pressBackAgain": "再按一次返回鍵即可退出",
+  "saveFailed": "無法儲存 PDF",
+  "splitFixedRange": "固定範圍",
+  "splitCustomRange": "自訂範圍"
+ }
+}

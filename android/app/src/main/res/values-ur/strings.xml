@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">تلاش</string>
+    <string name="widget_recent">حالیہ</string>
+    <string name="widget_bookmarks">بُک مارکس</string>
+    <string name="widget_edit_pdf">PDF میں ترمیم</string>
+    <string name="widget_tools_label">فوری ٹولز</string>
+    <string name="widget_home">ہوم</string>
+    <string name="w_tools_title">فوری ٹولز</string>
+    <string name="w_tools_desc">اپنی ہوم اسکرین سے تلاش کریں، حالیہ فائلیں اور بُک مارکس کھولیں یا PDF میں ترمیم کریں</string>
+    <string name="w_reader_title">دستاویز ریڈر</string>
+    <string name="w_reader_desc">PDF، Word، Excel اور PowerPoint فائلیں ایک ٹیپ میں کھولیں</string>
+    <string name="w_editor_title">PDF ایڈیٹر</string>
+    <string name="w_editor_desc">سیدھے PDF میں ترمیم شروع کریں</string>
+</resources>

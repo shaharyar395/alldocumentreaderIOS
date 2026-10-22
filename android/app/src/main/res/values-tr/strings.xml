@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Ara</string>
+    <string name="widget_recent">Son</string>
+    <string name="widget_bookmarks">Yer imleri</string>
+    <string name="widget_edit_pdf">PDF\'yi düzenle</string>
+    <string name="widget_tools_label">Hızlı araçlar</string>
+    <string name="widget_home">Ana sayfa</string>
+    <string name="w_tools_title">Hızlı araçlar</string>
+    <string name="w_tools_desc">Ana ekranınızdan arama yapın, son dosyaları ve yer imlerini açın veya PDF düzenleyin</string>
+    <string name="w_reader_title">Belge okuyucu</string>
+    <string name="w_reader_desc">PDF, Word, Excel ve PowerPoint dosyalarını tek dokunuşla açın</string>
+    <string name="w_editor_title">PDF düzenleyici</string>
+    <string name="w_editor_desc">Doğrudan PDF düzenlemeye başlayın</string>
+</resources>

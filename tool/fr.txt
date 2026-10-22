@@ -1,0 +1,225 @@
+Ajouter des pages
+Ajouter des captures
+Ajouter du texte
+Ordre du jour
+Tout
+Tous les documents
+Tous les fichiers
+Annoter
+Thème de l'app
+Croissant
+Demander à chaque fois
+Recadrage auto
+Avantages
+Meilleure offre
+Corbeille vidée
+Écrivez ici
+Signet
+Signet retiré
+Ajouté aux signets
+Signets
+Note de synthèse
+Annuler
+Certificat
+Bug
+Design
+Idée
+Autre
+Lent
+Touchez + pour importer, numériser ou créer un PDF.
+Continuer
+Convertir
+Convertir et créer
+Conversion {percent}%
+Lettre de motivation
+Créer
+Créer des fichiers
+Créer un PDF
+Sombre
+{days} jours restants
+Supprimer
+Supprimer définitivement
+Déplacé vers la corbeille
+Supprimé définitivement
+Décroissant
+Détails
+Dossiers
+Transformez des photos et des pages vierges en PDF en quelques touches.
+Découvrir : Créer un PDF
+Terminé
+Choisissez Google Drive, ou une autre app, dans la feuille de partage.
+Modifier et gérer
+Modifier le texte
+Vider la corbeille
+Supprimer définitivement tout le contenu de la corbeille ?
+Aucun fichier dans cette catégorie
+Ce dossier est vide
+Excel
+D'autres apps de cet éditeur apparaîtront ici.
+Découvrir d'autres apps
+FAQ
+PDF, Word, Excel, PowerPoint, TXT et images courantes. Importez un fichier ou ouvrez-le depuis une autre app.
+Les imports et les fichiers créés restent dans la bibliothèque de l'app sur cet appareil.
+La corbeille conserve les fichiers 30 jours. Restaurez-les ou supprimez-les définitivement.
+Premium retire les pubs et débloque les modèles couronnés. Convertir, modifier, fusionner et scinder restent gratuits.
+Demander à chaque fois vous laisse choisir à chaque scan. Le recadrage auto ajuste à la page. Sans recadrage, la photo entière est gardée.
+Ouvrez Obtenir Premium et touchez Restaurer. Utilisez le même compte de la boutique.
+Fichiers
+Général
+Premium
+Quels fichiers puis-je ouvrir ?
+Où sont conservés mes fichiers ?
+Combien de temps les fichiers supprimés restent-ils ?
+Que change Premium ?
+À quoi servent les options de recadrage ?
+Comment restaurer Premium ?
+Numérisation
+Avis
+Dites-nous quoi améliorer
+Gestionnaire de fichiers
+Filtre
+Prospectus
+Galerie
+Général
+Obtenir Premium
+Commencer
+Aller à la page
+Compris
+Horizontal
+Image
+Image en PDF
+Importer des fichiers
+Importé
+Facture
+Langue
+Lettre
+Clair
+Gérer les pages
+Gérer les abonnements
+Notes de réunion
+Mémo
+Fusionner le PDF
+Modifié
+Mensuel
+Déplacer vers la corbeille
+Nom du fichier
+Nouveau
+Newsletter
+Suivant
+Ajoutez un signet et le fichier restera ici.
+Pas encore de signets
+Sans recadrage
+Les documents que vous ouvrez apparaîtront ici.
+Aucun fichier récent
+Aucun fichier correspondant
+Aucun abonnement valide trouvé.
+Ce fichier n'a pas de couche de texte lisible.
+Rien à afficher pour le moment
+{current} / {total}
+Ouvrez PDF, Word, Excel, PowerPoint, TXT et des images sans quitter l'app.
+Tous vos fichiers, un seul lecteur
+Transformez photos, scans, Word et PPT en PDF, ou un PDF de nouveau en Word.
+Convertir et créer
+Annotez, ajoutez du texte, signez, fusionnez, scindez et gérez les pages.
+Modifier, signer et organiser
+Ouvrir
+Autres
+Nombre de pages
+Page {count}
+Chemin
+PDF
+PDF vers Word
+Supprimer ce fichier définitivement ?
+Affiche
+PPT
+PPT en PDF
+Premium est actif
+Premium restauré
+Préparez-vous à votre essai gratuit de 7 jours
+Imprimer
+Imprimer le PDF
+Politique de confidentialité
+Proposition
+Comment s'est passée votre expérience ?
+Récents
+Ajoutés récemment +{count}
+Corbeille
+Supprimer les pubs
+Retirer le signet
+Renommer
+Renommé
+Maintenez et faites glisser pour réordonner
+Rapport
+Restaurer
+Restaurer
+Restauré
+CV
+Lecteur clair, et la corbeille m'a sauvé plus d'une fois.
+Amina
+Image en PDF est rapide, et le thème sombre est réussi.
+Luis
+Je garde Word et PDF ensemble. Les signets sont pratiques.
+Hana
+Avis des utilisateurs
+Utiliser un achat bac à sable sur cette version de débogage ?
+Boutique indisponible
+Déverrouillage bac à sable
+Enregistrer le PDF
+Enregistrer dans Drive
+Réglages de scan
+Scanner en PDF
+Planning
+Rechercher
+Rechercher des fichiers
+Choisir la langue
+{count} sélectionnés
+Envoyer un avis
+Réglages
+Essai gratuit de 7 jours
+Partager
+Partager
+Essayez All Document Reader — tous les documents dans une app.
+Signer
+Taille
+Ignorer
+Convertir
+Passez du PDF au Word, aux images et aux diapositives.
+Modifier et signer
+Annotez les pages, ajoutez du texte et placez votre signature.
+Fusionner et scinder
+Combinez des fichiers ou ne gardez que les pages utiles.
+Gérer les pages
+Réordonnez, faites pivoter, insérez et supprimez des pages.
+Supprimer les pubs
+Utilisez chaque écran sans bannières ni interruptions.
+Modèles
+Partez d'un CV, d'une lettre, d'une note ou d'une affiche.
+Date
+Nom
+Taille
+Lire, modifier et convertir chaque document
+Scinder le PDF
+Stockage
+Échec de l'abonnement
+Votre fichier est prêt
+Système
+Prendre une photo
+La fonction vous manque ? Dites-le-nous
+Modèles
+Premium débloque ce modèle
+Conditions
+All Document Reader conserve sur cet appareil les documents que vous importez. Premium est un abonnement facultatif facturé par Google Play ou l'App Store. Annulez-le à tout moment dans votre compte. Convertir, modifier, fusionner et scinder restent gratuits. Les pubs restent masquées tant que Premium est actif.
+Mot de remerciement
+Titre
+Outils
+TXT
+Type
+Débloquer Premium
+{used} / {total}
+Version
+Vertical
+Bon retour
+Reprenez là où vous vous étiez arrêté.
+Word
+Word en PDF
+Annuel

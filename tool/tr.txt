@@ -1,0 +1,225 @@
+Sayfa ekle
+Ekran görüntüsü ekle
+Metin ekle
+Gündem
+Tümü
+Tüm belgeler
+Tüm dosyalar
+Not ekle
+Uygulama teması
+Artan
+Her seferinde sor
+Otomatik kırp
+Avantajlar
+En iyi değer
+Geri dönüşüm boşaltıldı
+Buraya yazın
+Yer işareti
+Yer işareti kaldırıldı
+İşaretlendi
+Yer işaretleri
+Brifing
+İptal
+Sertifika
+Hata
+Tasarım
+Fikir
+Diğer
+Yavaş
+PDF içe aktarmak, taramak veya oluşturmak için + simgesine dokunun.
+Devam
+Dönüştür
+Dönüştür ve oluştur
+Dönüştürülüyor {percent}%
+Ön yazı
+Oluştur
+Dosya oluştur
+PDF oluştur
+Koyu
+{days} gün kaldı
+Sil
+Kalıcı olarak sil
+Geri dönüşüme taşındı
+Kalıcı olarak silindi
+Azalan
+Ayrıntılar
+Dizinler
+Fotoğrafları ve boş sayfaları birkaç dokunuşla PDF yapın.
+Yeni özellik: PDF oluştur
+Bitti
+Paylaşım sayfasından Google Drive veya başka bir uygulama seçin.
+Düzenle ve yönet
+Metni düzenle
+Geri dönüşümü boşalt
+Geri dönüşümdeki her şey kalıcı olarak silinsin mi?
+Bu kategoride dosya yok
+Bu klasör boş
+Excel
+Bu geliştiricinin diğer uygulamaları burada görünecek.
+Diğer uygulamalar
+SSS
+PDF, Word, Excel, PowerPoint, TXT ve yaygın görseller. Bir dosya içe aktarın veya başka bir uygulamadan açın.
+İçe aktarılan ve oluşturulan dosyalar bu cihazda uygulama kitaplığında kalır.
+Geri dönüşüm dosyaları 30 gün tutar. Geri yükleyebilir veya kalıcı olarak silebilirsiniz.
+Premium reklamları kaldırır ve taçlı şablonları açar. Dönüştürme, düzenleme, birleştirme ve bölme ücretsiz kalır.
+Her seferinde sor, her taramada seçim yaptırır. Otomatik kırp sayfaya uyar. Kırpma yok tüm fotoğrafı korur.
+Premium Al sayfasını açın ve Geri yükle öğesine dokunun. Aynı mağaza hesabını kullanın.
+Dosyalar
+Genel
+Premium
+Hangi dosyaları açabilirim?
+Dosyalarım nerede duruyor?
+Silinen dosyalar ne kadar kalır?
+Premium neyi değiştirir?
+Kırpma seçenekleri ne işe yarar?
+Premium nasıl geri yüklenir?
+Tarama
+Geri bildirim
+Neyi geliştirelim
+Dosya yöneticisi
+Filtre
+El ilanı
+Galeri
+Genel
+Premium Al
+Başla
+Sayfaya git
+Anladım
+Yatay
+Görsel
+Görselden PDF
+Dosya içe aktar
+İçe aktarıldı
+Fatura
+Dil
+Mektup
+Açık
+Sayfaları yönet
+Abonelikleri yönet
+Toplantı notları
+Not
+PDF birleştir
+Değiştirildi
+Aylık
+Geri dönüşüme taşı
+Dosya adı
+Yeni
+Bülten
+İleri
+Bir dosyayı işaretleyin, burada kalsın.
+Henüz yer işareti yok
+Kırpma yok
+Açtığınız belgeler burada görünür.
+Son dosya yok
+Eşleşen dosya yok
+Geçerli abonelik bulunamadı.
+Bu dosyada okunabilir bir metin katmanı yok.
+Henüz gösterilecek bir şey yok
+{current} / {total}
+Uygulamadan çıkmadan PDF, Word, Excel, PowerPoint, TXT ve görselleri açın.
+Tüm dosyalar, tek okuyucu
+Fotoğrafları, taramaları, Word ve PPT dosyalarını PDF yapın veya PDF dosyasını yeniden Word yapın.
+Dönüştür ve oluştur
+Not ekleyin, metin yazın, imzalayın, birleştirin, bölün ve sayfaları yönetin.
+Düzenle, imzala ve düzenle
+Aç
+Diğer
+Sayfa sayısı
+Sayfa {count}
+Yol
+PDF
+PDF'den Word
+Bu dosya kalıcı olarak silinsin mi?
+Poster
+PPT
+PPT'den PDF
+Premium etkin
+Premium geri yüklendi
+7 günlük ücretsiz denemeye hazır olun
+Yazdır
+PDF yazdır
+Gizlilik politikası
+Teklif
+Deneyiminiz nasıldı?
+Son kullanılanlar
+Yeni eklenenler +{count}
+Geri dönüşüm
+Reklamları kaldır
+Yer işaretini kaldır
+Yeniden adlandır
+Yeniden adlandırıldı
+Sırayı değiştirmek için basılı tutup sürükleyin
+Rapor
+Geri yükle
+Geri yükle
+Geri yüklendi
+Özgeçmiş
+Temiz bir okuyucu, geri dönüşüm beni birden fazla kez kurtardı.
+Amina
+Görselden PDF hızlı, koyu tema da yerinde.
+Luis
+Word ve PDF artık bir arada. Yer işaretleri işe yarıyor.
+Hana
+Yorumlar
+Bu hata ayıklama sürümünde deneme satın alması kullanılsın mı?
+Mağaza kullanılamıyor
+Deneme kilidi
+PDF kaydet
+Drive'a kaydet
+Tarama ayarları
+PDF olarak tara
+Program
+Ara
+Dosya ara
+Dil seçin
+{count} seçildi
+Geri bildirim gönder
+Ayarlar
+7 günlük ücretsiz deneme
+Paylaş
+Paylaş
+All Document Reader'ı deneyin — tüm belgeler tek uygulamada.
+İmzala
+Boyut
+Atla
+Dönüştür
+PDF, Word, görseller ve slaytlar arasında geçin.
+Düzenle ve imzala
+Sayfaları işaretleyin, metin ekleyin ve imzanızı koyun.
+Birleştir ve böl
+Dosyaları birleştirin veya yalnızca gereken sayfaları çıkarın.
+Sayfaları yönet
+Sırayı değiştirin, döndürün, ekleyin ve silin.
+Reklamları kaldır
+Her ekranı banner ve kesinti olmadan kullanın.
+Şablonlar
+Bir özgeçmiş, mektup, brifing veya posterle başlayın.
+Tarih
+Ad
+Boyut
+Her belgeyi okuyun, düzenleyin ve dönüştürün
+PDF böl
+Depolama
+Abonelik başarısız
+Dosyanız hazır
+Sistem
+Fotoğraf çek
+İstediğiniz özellik yok mu? Bize yazın
+Şablonlar
+Premium bu şablonu açar
+Koşullar
+All Document Reader, içe aktardığınız belgeleri bu cihazda tutar. Premium, Google Play veya App Store tarafından ücretlendirilen isteğe bağlı bir aboneliktir. Mağaza hesabınızdan istediğiniz zaman iptal edin. Dönüştürme, düzenleme, birleştirme ve bölme ücretsiz kalır. Premium etkinken reklamlar gizlenir.
+Teşekkür notu
+Başlık
+Araçlar
+TXT
+Tür
+Premium'u aç
+{used} / {total}
+Sürüm
+Dikey
+Tekrar hoş geldiniz
+Kaldığınız yerden devam edin.
+Word
+Word'den PDF
+Yıllık

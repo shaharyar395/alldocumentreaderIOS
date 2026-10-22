@@ -1,0 +1,225 @@
+Aggiungi pagine
+Aggiungi screenshot
+Aggiungi testo
+Ordine del giorno
+Tutti
+Tutti i documenti
+Tutti i file
+Annota
+Tema dell'app
+Crescente
+Chiedi ogni volta
+Ritaglio automatico
+Vantaggi
+Miglior valore
+Cestino svuotato
+Scrivi qui
+Segnalibro
+Segnalibro rimosso
+Nei segnalibri
+Segnalibri
+Briefing
+Annulla
+Certificato
+Bug
+Design
+Idea
+Altro
+Lento
+Tocca + per importare, scansionare o creare un PDF.
+Continua
+Converti
+Converti e crea
+Conversione {percent}%
+Lettera di presentazione
+Crea
+Crea file
+Crea PDF
+Scuro
+{days} giorni rimasti
+Elimina
+Elimina per sempre
+Spostato nel cestino
+Eliminato per sempre
+Decrescente
+Dettagli
+Directory
+Trasforma foto e pagine vuote in un PDF in pochi tocchi.
+Scopri la novità: Crea PDF
+Fatto
+Scegli Google Drive, o un'altra app, dal foglio di condivisione.
+Modifica e gestisci
+Modifica testo
+Svuota cestino
+Eliminare per sempre tutto ciò che è nel cestino?
+Nessun file in questa categoria
+Questa cartella è vuota
+Excel
+Altre app di questo sviluppatore appariranno qui.
+Esplora altre app
+FAQ
+PDF, Word, Excel, PowerPoint, TXT e immagini comuni. Importa un file o aprilo da un'altra app.
+Importazioni e file creati restano nella libreria dell'app su questo dispositivo.
+Il cestino conserva i file per 30 giorni. Puoi ripristinarli o eliminarli per sempre.
+Premium toglie gli annunci e sblocca i modelli con corona. Converti, modifica, unisci e dividi restano gratis.
+Chiedi ogni volta ti fa scegliere a ogni scansione. Il ritaglio automatico aderisce alla pagina. Nessun ritaglio tiene l'intera foto.
+Apri Ottieni Premium e tocca Ripristina. Usa lo stesso account dello store.
+File
+Generale
+Premium
+Quali file posso aprire?
+Dove sono conservati i miei file?
+Per quanto restano i file eliminati?
+Cosa cambia Premium?
+Cosa fanno le opzioni di ritaglio?
+Come ripristino Premium?
+Scansione
+Feedback
+Dicci cosa migliorare
+Gestione file
+Filtro
+Volantino
+Galleria
+Generale
+Ottieni Premium
+Inizia
+Vai alla pagina
+Capito
+Orizzontale
+Immagine
+Immagine in PDF
+Importa file
+Importato
+Fattura
+Lingua
+Lettera
+Chiaro
+Gestisci pagine
+Gestisci abbonamenti
+Note della riunione
+Memo
+Unisci PDF
+Modificato
+Mensile
+Sposta nel cestino
+Nome file
+Nuovo
+Newsletter
+Avanti
+Aggiungi un segnalibro e il file resterà qui.
+Nessun segnalibro
+Nessun ritaglio
+I documenti che apri compariranno qui.
+Nessun file recente
+Nessun file corrispondente
+Nessun abbonamento valido trovato.
+Questo file non ha un livello di testo leggibile.
+Niente da mostrare
+{current} / {total}
+Apri PDF, Word, Excel, PowerPoint, TXT e immagini senza uscire dall'app.
+Tutti i file, un lettore
+Trasforma foto, scansioni, Word e PPT in PDF, o un PDF di nuovo in Word.
+Converti e crea
+Annota, aggiungi testo, firma, unisci, dividi e gestisci le pagine.
+Modifica, firma e organizza
+Apri
+Altro
+Numero di pagine
+Pagina {count}
+Percorso
+PDF
+PDF in Word
+Eliminare questo file per sempre?
+Poster
+PPT
+PPT in PDF
+Premium è attivo
+Premium ripristinato
+Preparati alla prova gratuita di 7 giorni
+Stampa
+Stampa PDF
+Informativa sulla privacy
+Proposta
+Com'è stata la tua esperienza?
+Recenti
+Aggiunti di recente +{count}
+Cestino
+Rimuovi annunci
+Rimuovi segnalibro
+Rinomina
+Rinominato
+Tieni premuto e trascina per riordinare
+Report
+Ripristina
+Ripristina
+Ripristinato
+Curriculum
+Lettore pulito, e il cestino mi ha salvato più di una volta.
+Amina
+Immagine in PDF è veloce e il tema scuro è azzeccato.
+Luis
+Ora tengo Word e PDF insieme. I segnalibri sono comodi.
+Hana
+Recensioni
+Usare un acquisto sandbox in questa build di debug?
+Store non disponibile
+Sblocco sandbox
+Salva PDF
+Salva in Drive
+Impostazioni di scansione
+Scansione in PDF
+Programma
+Cerca
+Cerca file
+Seleziona lingua
+{count} selezionati
+Invia feedback
+Impostazioni
+Prova gratuita di 7 giorni
+Condividi
+Condividi
+Prova All Document Reader — ogni documento in un'app.
+Firma
+Dimensione
+Salta
+Converti
+Passa tra PDF, Word, immagini e diapositive.
+Modifica e firma
+Segna le pagine, aggiungi testo e metti la firma.
+Unisci e dividi
+Unisci i file o estrai solo le pagine che ti servono.
+Gestisci pagine
+Riordina, ruota, inserisci ed elimina pagine.
+Rimuovi annunci
+Usa ogni schermata senza banner né interruzioni.
+Modelli
+Parti da un curriculum, una lettera, un briefing o un poster.
+Data
+Nome
+Dimensione
+Leggi, modifica e converti ogni documento
+Dividi PDF
+Archivio
+Iscrizione non riuscita
+Il file è pronto
+Sistema
+Scatta foto
+Manca la funzione che vuoi? Diccelo
+Modelli
+Premium sblocca questo modello
+Termini
+All Document Reader conserva su questo dispositivo i documenti che importi. Premium è un abbonamento facoltativo addebitato da Google Play o dall'App Store. Annullalo quando vuoi nell'account dello store. Converti, modifica, unisci e dividi restano gratis. Gli annunci restano nascosti finché Premium è attivo.
+Biglietto di ringraziamento
+Titolo
+Strumenti
+TXT
+Tipo
+Sblocca Premium
+{used} / {total}
+Versione
+Verticale
+Bentornato
+Riprendi da dove avevi lasciato.
+Word
+Word in PDF
+Annuale

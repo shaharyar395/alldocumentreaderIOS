@@ -1,0 +1,225 @@
+Tambah halaman
+Tambah tangkapan
+Tambah teks
+Agenda
+Semua
+Semua dokumen
+Semua fail
+Anotasi
+Tema apl
+Menaik
+Tanya setiap kali
+Pangkas automatik
+Manfaat
+Nilai terbaik
+Tong kitar semula dikosongkan
+Tulis di sini
+Tanda buku
+Tanda buku dibuang
+Ditanda
+Tanda buku
+Taklimat
+Batal
+Sijil
+Pepijat
+Reka bentuk
+Idea
+Lain-lain
+Perlahan
+Ketik + untuk import, imbas, atau cipta PDF.
+Teruskan
+Tukar
+Tukar dan cipta
+Menukar {percent}%
+Surat iringan
+Cipta
+Cipta fail
+Cipta PDF
+Gelap
+{days} hari lagi
+Padam
+Padam kekal
+Dialihkan ke tong kitar semula
+Dipadam kekal
+Menurun
+Butiran
+Direktori
+Jadikan foto dan halaman kosong PDF dengan beberapa ketikan.
+Ciri baharu: Cipta PDF
+Selesai
+Pilih Google Drive, atau apl lain, pada helaian kongsi.
+Edit dan urus
+Edit teks
+Kosongkan tong
+Padam kekal semua kandungan tong?
+Tiada fail dalam kategori ini
+Folder ini kosong
+Excel
+Apl lain daripada pembangun ini akan muncul di sini.
+Terokai apl lain
+Soalan lazim
+PDF, Word, Excel, PowerPoint, TXT, dan imej biasa. Import fail atau buka daripada apl lain.
+Import dan fail yang dicipta kekal dalam pustaka apl pada peranti ini.
+Tong kitar semula menyimpan fail 30 hari. Pulihkan atau padam kekal.
+Premium membuang iklan dan membuka templat bermahkota. Tukar, edit, gabung, dan pisah kekal percuma.
+Tanya setiap kali memberi pilihan pada setiap imbasan. Pangkas automatik menyesuaikan halaman. Tanpa pangkas mengekalkan seluruh foto.
+Buka Dapatkan Premium lalu ketik Pulihkan. Gunakan akaun kedai yang sama.
+Fail
+Umum
+Premium
+Fail apa yang boleh saya buka?
+Di mana fail saya disimpan?
+Berapa lama fail dipadam kekal?
+Apa yang Premium ubah?
+Apa fungsi pilihan pangkas?
+Bagaimana memulihkan Premium?
+Imbas
+Maklum balas
+Beritahu apa yang perlu diperbaiki
+Pengurus fail
+Tapis
+Risalah
+Galeri
+Umum
+Dapatkan Premium
+Mula
+Ke halaman
+Faham
+Mendatar
+Imej
+Imej ke PDF
+Import fail
+Diimport
+Invois
+Bahasa
+Surat
+Cerah
+Urus halaman
+Urus langganan
+Nota mesyuarat
+Memo
+Gabungkan PDF
+Diubah
+Bulanan
+Alih ke tong kitar semula
+Nama fail
+Baharu
+Surat berita
+Seterusnya
+Tanda fail dan ia akan kekal di sini.
+Belum ada tanda buku
+Tanpa pangkas
+Dokumen yang anda buka akan muncul di sini.
+Tiada fail terbaharu
+Tiada fail sepadan
+Tiada langganan yang sah dijumpai.
+Fail ini tiada lapisan teks yang boleh dibaca.
+Belum ada apa-apa untuk ditunjukkan
+{current} / {total}
+Buka PDF, Word, Excel, PowerPoint, TXT, dan imej tanpa keluar dari apl.
+Semua fail, satu pembaca
+Jadikan foto, imbasan, Word, dan PPT sebagai PDF, atau PDF kembali menjadi Word.
+Tukar dan cipta
+Anotasi, tambah teks, tandatangan, gabung, pisah, dan urus halaman.
+Edit, tandatangan, dan susun
+Buka
+Lain-lain
+Bilangan halaman
+Halaman {count}
+Laluan
+PDF
+PDF ke Word
+Padam fail ini kekal?
+Poster
+PPT
+PPT ke PDF
+Premium aktif
+Premium dipulihkan
+Bersedia untuk percubaan percuma 7 hari
+Cetak
+Cetak PDF
+Dasar privasi
+Cadangan
+Bagaimana pengalaman anda?
+Terbaharu
+Baru ditambah +{count}
+Tong kitar semula
+Buang iklan
+Buang tanda buku
+Namakan semula
+Nama diubah
+Tahan dan seret untuk susun semula
+Laporan
+Pulihkan
+Pulihkan
+Dipulihkan
+Resume
+Pembaca yang kemas, dan tong kitar semula menyelamatkan saya lebih daripada sekali.
+Amina
+Imej ke PDF pantas, dan tema gelap kelihatan baik.
+Luis
+Saya simpan Word dan PDF bersama. Tanda buku membantu.
+Hana
+Ulasan
+Guna pembelian sandbox pada binaan nyahpepijat ini?
+Kedai tidak tersedia
+Buka kunci sandbox
+Simpan PDF
+Simpan ke Drive
+Tetapan imbas
+Imbas ke PDF
+Jadual
+Cari
+Cari fail
+Pilih bahasa
+{count} dipilih
+Hantar maklum balas
+Tetapan
+Percubaan percuma 7 hari
+Kongsi
+Kongsi
+Cuba All Document Reader — semua dokumen dalam satu apl.
+Tandatangan
+Saiz
+Langkau
+Tukar
+Beralih antara PDF, Word, imej, dan slaid.
+Edit dan tandatangan
+Tanda halaman, tambah teks, dan letak tandatangan anda.
+Gabung dan pisah
+Gabungkan fail atau ambil hanya halaman yang anda perlukan.
+Urus halaman
+Susun semula, putar, sisip, dan padam halaman.
+Buang iklan
+Guna setiap skrin tanpa sepanduk dan gangguan.
+Templat
+Mulakan dengan resume, surat, taklimat, atau poster.
+Tarikh
+Nama
+Saiz
+Baca, edit, dan tukar setiap dokumen
+Pisahkan PDF
+Storan
+Langganan gagal
+Fail anda sedia
+Sistem
+Ambil foto
+Ciri yang anda mahu tiada? Beritahu kami
+Templat
+Premium membuka templat ini
+Terma
+All Document Reader menyimpan dokumen yang anda import pada peranti ini. Premium ialah langganan pilihan yang dibilkan oleh Google Play atau App Store. Batalkan bila-bila masa pada akaun kedai. Tukar, edit, gabung, dan pisah kekal percuma. Iklan disembunyikan semasa Premium aktif.
+Nota terima kasih
+Tajuk
+Alatan
+TXT
+Jenis
+Buka Premium
+{used} / {total}
+Versi
+Menegak
+Selamat kembali
+Sambung dari tempat anda berhenti.
+Word
+Word ke PDF
+Tahunan

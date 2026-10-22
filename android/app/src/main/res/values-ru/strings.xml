@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Поиск</string>
+    <string name="widget_recent">Недавние</string>
+    <string name="widget_bookmarks">Закладки</string>
+    <string name="widget_edit_pdf">Редактировать PDF</string>
+    <string name="widget_tools_label">Быстрые инструменты</string>
+    <string name="widget_home">Главная</string>
+    <string name="w_tools_title">Быстрые инструменты</string>
+    <string name="w_tools_desc">Поиск, недавние файлы, закладки и редактирование PDF прямо с главного экрана</string>
+    <string name="w_reader_title">Просмотр документов</string>
+    <string name="w_reader_desc">Открывайте PDF, Word, Excel и PowerPoint одним касанием</string>
+    <string name="w_editor_title">Редактор PDF</string>
+    <string name="w_editor_desc">Сразу перейти к редактированию PDF</string>
+</resources>

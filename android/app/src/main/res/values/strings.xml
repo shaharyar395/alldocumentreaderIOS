@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Search</string>
+    <string name="widget_recent">Recent</string>
+    <string name="widget_bookmarks">Bookmarks</string>
+    <string name="widget_edit_pdf">Edit PDF</string>
+    <string name="widget_tools_label">Quick tools</string>
+    <string name="widget_home">Home</string>
+    <string name="widget_pdf" translatable="false">PDF</string>
+    <string name="widget_word" translatable="false">Word</string>
+    <string name="widget_excel" translatable="false">Excel</string>
+    <string name="widget_ppt" translatable="false">PPT</string>
+    <string name="w_tools_title">Quick tools</string>
+    <string name="w_tools_desc">Search, open recent files and bookmarks, or edit a PDF from your home screen</string>
+    <string name="w_reader_title">Document reader</string>
+    <string name="w_reader_desc">Open PDF, Word, Excel and PowerPoint files in one tap</string>
+    <string name="w_editor_title">PDF editor</string>
+    <string name="w_editor_desc">Jump straight into editing a PDF</string>
+</resources>

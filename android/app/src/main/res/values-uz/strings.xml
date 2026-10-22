@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Qidirish</string>
+    <string name="widget_recent">Soʻnggi</string>
+    <string name="widget_bookmarks">Xatcho\'plar</string>
+    <string name="widget_edit_pdf">PDF tahrirlash</string>
+    <string name="widget_tools_label">Tezkor vositalar</string>
+    <string name="widget_home">Bosh sahifa</string>
+    <string name="w_tools_title">Tezkor vositalar</string>
+    <string name="w_tools_desc">Bosh ekrandan qidiring, soʻnggi fayllar va xatchoʻplarni oching yoki PDFni tahrirlang</string>
+    <string name="w_reader_title">Hujjat oʻqigich</string>
+    <string name="w_reader_desc">PDF, Word, Excel va PowerPoint fayllarini bir bosishda oching</string>
+    <string name="w_editor_title">PDF muharriri</string>
+    <string name="w_editor_desc">Darhol PDFni tahrirlashga oʻting</string>
+</resources>

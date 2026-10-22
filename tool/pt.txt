@@ -1,0 +1,225 @@
+Adicionar páginas
+Adicionar capturas
+Adicionar texto
+Agenda
+Tudo
+Todos os documentos
+Todos os arquivos
+Anotar
+Tema do app
+Crescente
+Perguntar sempre
+Recorte automático
+Vantagens
+Melhor valor
+Lixeira esvaziada
+Escreva aqui
+Favorito
+Favorito removido
+Nos favoritos
+Favoritos
+Briefing
+Cancelar
+Certificado
+Erro
+Design
+Ideia
+Outro
+Lento
+Toque em + para importar, digitalizar ou criar um PDF.
+Continuar
+Converter
+Converter e criar
+Convertendo {percent}%
+Carta de apresentação
+Criar
+Criar arquivos
+Criar PDF
+Escuro
+{days} dias restantes
+Excluir
+Excluir para sempre
+Movido para a lixeira
+Excluído para sempre
+Decrescente
+Detalhes
+Diretórios
+Transforme fotos e páginas em branco em um PDF em poucos toques.
+Descubra: Criar PDF
+Concluído
+Escolha o Google Drive, ou outro app, na folha de compartilhamento.
+Editar e gerenciar
+Editar texto
+Esvaziar lixeira
+Excluir para sempre tudo o que está na lixeira?
+Nenhum arquivo nesta categoria
+Esta pasta está vazia
+Excel
+Mais apps deste desenvolvedor aparecerão aqui.
+Explorar mais apps
+FAQ
+PDF, Word, Excel, PowerPoint, TXT e imagens comuns. Importe um arquivo ou abra-o de outro app.
+Importações e arquivos criados ficam na biblioteca do app neste dispositivo.
+A lixeira guarda os arquivos por 30 dias. Restaure-os ou exclua-os para sempre.
+O Premium remove anúncios e libera os modelos com coroa. Converter, editar, unir e dividir continuam grátis.
+Perguntar sempre deixa você escolher em cada digitalização. O recorte automático ajusta à página. Sem recorte mantém a foto inteira.
+Abra Obter Premium e toque em Restaurar. Use a mesma conta da loja.
+Arquivos
+Geral
+Premium
+Quais arquivos posso abrir?
+Onde meus arquivos ficam?
+Por quanto tempo os arquivos excluídos permanecem?
+O que o Premium muda?
+O que as opções de recorte fazem?
+Como restaurar o Premium?
+Digitalização
+Feedback
+Diga o que melhorar
+Gerenciador de arquivos
+Filtro
+Panfleto
+Galeria
+Geral
+Obter Premium
+Começar
+Ir para a página
+Entendi
+Horizontal
+Imagem
+Imagem para PDF
+Importar arquivos
+Importado
+Fatura
+Idioma
+Carta
+Claro
+Gerenciar páginas
+Gerenciar assinaturas
+Notas da reunião
+Memo
+Unir PDF
+Modificado
+Mensal
+Mover para a lixeira
+Nome do arquivo
+Novo
+Newsletter
+Avançar
+Favorite um arquivo e ele ficará aqui.
+Ainda não há favoritos
+Sem recorte
+Os documentos que você abrir aparecerão aqui.
+Nenhum arquivo recente
+Nenhum arquivo correspondente
+Nenhuma assinatura válida encontrada.
+Este arquivo não tem uma camada de texto legível.
+Nada para mostrar ainda
+{current} / {total}
+Abra PDF, Word, Excel, PowerPoint, TXT e imagens sem sair do app.
+Todos os seus arquivos, um leitor
+Transforme fotos, digitalizações, Word e PPT em PDF, ou um PDF de volta em Word.
+Converter e criar
+Anote, adicione texto, assine, una, divida e gerencie páginas.
+Editar, assinar e organizar
+Abrir
+Outros
+Número de páginas
+Página {count}
+Caminho
+PDF
+PDF para Word
+Excluir este arquivo para sempre?
+Pôster
+PPT
+PPT para PDF
+O Premium está ativo
+Premium restaurado
+Prepare-se para o teste grátis de 7 dias
+Imprimir
+Imprimir PDF
+Política de privacidade
+Proposta
+Como foi sua experiência?
+Recentes
+Adicionados recentemente +{count}
+Lixeira
+Remover anúncios
+Remover favorito
+Renomear
+Renomeado
+Segure e arraste para reordenar
+Relatório
+Restaurar
+Restaurar
+Restaurado
+Currículo
+Leitor limpo, e a lixeira me salvou mais de uma vez.
+Amina
+Imagem para PDF é rápido e o tema escuro fica certo.
+Luis
+Agora mantenho Word e PDF juntos. Os favoritos ajudam.
+Hana
+Avaliações
+Usar uma compra sandbox nesta versão de depuração?
+Loja indisponível
+Desbloqueio sandbox
+Salvar PDF
+Salvar no Drive
+Ajustes de digitalização
+Digitalizar para PDF
+Agenda
+Pesquisar
+Pesquisar arquivos
+Selecionar idioma
+{count} selecionados
+Enviar feedback
+Ajustes
+Teste grátis de 7 dias
+Compartilhar
+Compartilhar
+Experimente o All Document Reader — todos os documentos em um app.
+Assinar
+Tamanho
+Pular
+Converter
+Alterne entre PDF, Word, imagens e slides.
+Editar e assinar
+Marque páginas, adicione texto e coloque sua assinatura.
+Unir e dividir
+Combine arquivos ou extraia só as páginas que precisa.
+Gerenciar páginas
+Reordene, gire, insira e exclua páginas.
+Remover anúncios
+Use cada tela sem banners nem interrupções.
+Modelos
+Comece com um currículo, uma carta, um briefing ou um pôster.
+Data
+Nome
+Tamanho
+Leia, edite e converta cada documento
+Dividir PDF
+Armazenamento
+Falha na assinatura
+Seu arquivo está pronto
+Sistema
+Tirar foto
+Não tem o recurso que você quer? Conte para nós
+Modelos
+O Premium libera este modelo
+Termos
+O All Document Reader guarda neste dispositivo os documentos que você importa. O Premium é uma assinatura opcional cobrada pelo Google Play ou pela App Store. Cancele quando quiser na conta da loja. Converter, editar, unir e dividir continuam grátis. Os anúncios ficam ocultos enquanto o Premium estiver ativo.
+Bilhete de agradecimento
+Título
+Ferramentas
+TXT
+Tipo
+Desbloquear Premium
+{used} / {total}
+Versão
+Vertical
+Bem-vindo de volta
+Continue de onde parou.
+Word
+Word para PDF
+Anual

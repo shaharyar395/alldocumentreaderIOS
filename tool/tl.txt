@@ -1,0 +1,225 @@
+Magdagdag ng mga pahina
+Magdagdag ng mga screenshot
+Magdagdag ng teksto
+Agenda
+Lahat
+Lahat ng dokumento
+Lahat ng file
+I-annotate
+Tema ng app
+Pataas
+Tanungin tuwing beses
+Awtomatikong crop
+Mga benepisyo
+Pinakamahusay na halaga
+Na-empty ang recycle bin
+Isulat dito
+Bookmark
+Tinanggal ang bookmark
+Na-bookmark
+Mga bookmark
+Buod
+Kanselahin
+Sertipiko
+Bug
+Disenyo
+Ideya
+Iba pa
+Mabagal
+I-tap ang + para mag-import, mag-scan, o gumawa ng PDF.
+Magpatuloy
+I-convert
+I-convert at gumawa
+Kino-convert {percent}%
+Cover letter
+Gumawa
+Gumawa ng mga file
+Gumawa ng PDF
+Madilim
+{days} araw ang natitira
+Tanggalin
+Tanggalin nang permanente
+Inilipat sa recycle bin
+Permanenteng tinanggal
+Pababa
+Mga detalye
+Mga direktoryo
+Gawing PDF ang mga larawan at blankong pahina sa ilang tap.
+Bagong feature: Gumawa ng PDF
+Tapos na
+Piliin ang Google Drive, o ibang app, sa share sheet.
+I-edit at pamahalaan
+I-edit ang teksto
+I-empty ang recycle bin
+Permanenteng tanggalin ang lahat sa recycle bin?
+Walang file sa kategoryang ito
+Walang laman ang folder na ito
+Excel
+Lilitaw dito ang iba pang app ng developer na ito.
+Tuklasin ang iba pang app
+FAQ
+PDF, Word, Excel, PowerPoint, TXT, at karaniwang larawan. Mag-import ng file o buksan ito mula sa ibang app.
+Ang mga na-import at nagawang file ay nananatili sa library ng app sa device na ito.
+Itinatago ng recycle bin ang mga file nang 30 araw. Ibalik o permanenteng tanggalin.
+Inaalis ng Premium ang mga ad at binubuksan ang mga template na may korona. Libre pa rin ang convert, edit, merge, at split.
+Ang Tanungin tuwing beses ay nagpapapili sa bawat scan. Inaangkop ng awtomatikong crop ang pahina. Pinapanatili ng walang crop ang buong larawan.
+Buksan ang Kunin ang Premium at i-tap ang Ibalik. Gamitin ang parehong account sa store.
+Mga file
+Pangkalahatan
+Premium
+Anong mga file ang mabubuksan ko?
+Saan itinatago ang mga file ko?
+Gaano katagal nananatili ang mga tinanggal na file?
+Ano ang binabago ng Premium?
+Ano ang ginagawa ng mga opsyon sa crop?
+Paano ibalik ang Premium?
+Scan
+Feedback
+Sabihin kung ano ang dapat pagbutihin
+File manager
+Filter
+Flyer
+Gallery
+Pangkalahatan
+Kunin ang Premium
+Magsimula
+Pumunta sa pahina
+Naintindihan
+Pahiga
+Larawan
+Larawan papuntang PDF
+Mag-import ng mga file
+Na-import
+Invoice
+Wika
+Liham
+Maliwanag
+Pamahalaan ang mga pahina
+Pamahalaan ang mga subscription
+Mga tala ng pulong
+Memo
+Pagsamahin ang PDF
+Binago
+Buwanan
+Ilipat sa recycle bin
+Pangalan ng file
+Bago
+Newsletter
+Susunod
+I-bookmark ang file at mananatili ito rito.
+Wala pang bookmark
+Walang crop
+Lilitaw dito ang mga dokumentong bubuksan mo.
+Walang kamakailang file
+Walang tumutugmang file
+Walang nahanap na wastong subscription.
+Walang nababasang text layer ang file na ito.
+Wala pang ipapakita
+{current} / {total}
+Buksan ang PDF, Word, Excel, PowerPoint, TXT, at mga larawan nang hindi umaalis sa app.
+Lahat ng file, isang reader
+Gawing PDF ang mga larawan, scan, Word, at PPT, o ibalik ang PDF sa Word.
+I-convert at gumawa
+Mag-annotate, magdagdag ng teksto, pumirma, magsama, maghiwalay, at pamahalaan ang mga pahina.
+I-edit, pumirma, at ayusin
+Buksan
+Iba pa
+Bilang ng pahina
+Pahina {count}
+Landas
+PDF
+PDF papuntang Word
+Permanenteng tanggalin ang file na ito?
+Poster
+PPT
+PPT papuntang PDF
+Aktibo ang Premium
+Naibalik ang Premium
+Maghanda para sa 7-araw na libreng trial
+I-print
+I-print ang PDF
+Patakaran sa privacy
+Panukala
+Kumusta ang karanasan mo?
+Kamakailan
+Bagong idinagdag +{count}
+Recycle bin
+Alisin ang mga ad
+Alisin ang bookmark
+Palitan ang pangalan
+Napalitan ang pangalan
+Pindutin nang matagal at i-drag para ayusin ang pagkakasunod
+Ulat
+Ibalik
+Ibalik
+Naibalik
+Resume
+Malinis na reader, at ilang beses na ako nailigtas ng recycle bin.
+Amina
+Mabilis ang Larawan papuntang PDF, at maganda ang madilim na tema.
+Luis
+Magkasama na ang Word at PDF ko. Nakakatulong ang mga bookmark.
+Hana
+Mga review
+Gamitin ang sandbox na pagbili sa debug build na ito?
+Hindi available ang store
+Sandbox unlock
+I-save ang PDF
+I-save sa Drive
+Mga setting ng scan
+I-scan papuntang PDF
+Iskedyul
+Hanapin
+Maghanap ng mga file
+Pumili ng wika
+{count} ang napili
+Ipadala ang feedback
+Mga setting
+7-araw na libreng trial
+Ibahagi
+Ibahagi
+Subukan ang All Document Reader — lahat ng dokumento sa isang app.
+Pirmahan
+Laki
+Laktawan
+I-convert
+Lumipat sa PDF, Word, larawan, at slide.
+I-edit at pumirma
+Markahan ang mga pahina, magdagdag ng teksto, at ilagay ang pirma.
+Pagsamahin at paghiwalayin
+Pagsamahin ang mga file o kunin lang ang mga pahinang kailangan mo.
+Pamahalaan ang mga pahina
+Ayusin, i-rotate, magpasok, at magtanggal ng mga pahina.
+Alisin ang mga ad
+Gamitin ang bawat screen nang walang banner at abala.
+Mga template
+Magsimula sa resume, liham, buod, o poster.
+Petsa
+Pangalan
+Laki
+Basahin, i-edit, at i-convert ang bawat dokumento
+Hatiin ang PDF
+Storage
+Hindi nagtagumpay ang subscription
+Handa na ang file mo
+System
+Kumuha ng larawan
+Wala ang feature na gusto mo? Sabihin sa amin
+Mga template
+Binubuksan ng Premium ang template na ito
+Mga tuntunin
+Itinatago ng All Document Reader sa device na ito ang mga dokumentong ini-import mo. Opsyonal na subscription ang Premium na sisingilin ng Google Play o App Store. Kanselahin ito anumang oras sa account ng store. Libre pa rin ang convert, edit, merge, at split. Nakatago ang mga ad habang aktibo ang Premium.
+Paalala ng pasasalamat
+Pamagat
+Mga tool
+TXT
+Uri
+I-unlock ang Premium
+{used} / {total}
+Bersyon
+Patayo
+Maligayang pagbabalik
+Ipagpatuloy kung saan ka huminto.
+Word
+Word papuntang PDF
+Taunan

@@ -1,0 +1,225 @@
+Añadir páginas
+Añadir capturas
+Añadir texto
+Agenda
+Todo
+Todos los documentos
+Todos los archivos
+Anotar
+Tema de la app
+Ascendente
+Preguntar siempre
+Recorte automático
+Ventajas
+Mejor valor
+Papelera vaciada
+Escribe aquí
+Marcador
+Marcador quitado
+Marcado
+Marcadores
+Informe breve
+Cancelar
+Certificado
+Error
+Diseño
+Idea
+Otro
+Lento
+Toca + para importar, escanear o crear un PDF.
+Continuar
+Convertir
+Convertir y crear
+Convirtiendo {percent}%
+Carta de presentación
+Crear
+Crear archivos
+Crear PDF
+Oscuro
+{days} días restantes
+Eliminar
+Eliminar para siempre
+Movido a la papelera
+Eliminado para siempre
+Descendente
+Detalles
+Directorios
+Convierte fotos y páginas en blanco en un PDF en unos toques.
+Descubre una función nueva: Crear PDF
+Listo
+Elige Google Drive, u otra app, en la hoja de compartir.
+Editar y gestionar
+Editar texto
+Vaciar papelera
+¿Eliminar todo lo de la papelera para siempre?
+No hay archivos en esta categoría
+Esta carpeta está vacía
+Excel
+Aquí aparecerán más apps de este desarrollador.
+Explorar más apps
+FAQ
+PDF, Word, Excel, PowerPoint, TXT e imágenes habituales. Importa un archivo o ábrelo desde otra app.
+Lo que importas y creas se queda en la biblioteca de la app en este dispositivo.
+La papelera guarda los archivos 30 días. Puedes restaurarlos o eliminarlos para siempre.
+Premium quita los anuncios y abre las plantillas con corona. Convertir, editar, unir y dividir siguen gratis.
+Preguntar siempre te deja elegir en cada escaneo. El recorte automático ajusta a la página. Sin recorte conserva la foto completa.
+Abre Obtener Premium y toca Restaurar. Usa la misma cuenta de la tienda.
+Archivos
+General
+Premium
+¿Qué archivos puedo abrir?
+¿Dónde se guardan mis archivos?
+¿Cuánto tiempo permanecen los archivos eliminados?
+¿Qué cambia Premium?
+¿Qué hacen las opciones de recorte?
+¿Cómo restauro Premium?
+Escaneo
+Comentarios
+Cuéntanos qué mejorar
+Administrador de archivos
+Filtro
+Folleto
+Galería
+General
+Obtener Premium
+Empezar
+Ir a la página
+Entendido
+Horizontal
+Imagen
+Imagen a PDF
+Importar archivos
+Importado
+Factura
+Idioma
+Carta
+Claro
+Gestionar páginas
+Gestionar suscripciones
+Notas de reunión
+Memo
+Unir PDF
+Modificado
+Mensual
+Mover a la papelera
+Nombre del archivo
+Nuevo
+Boletín
+Siguiente
+Marca un archivo y se quedará aquí.
+Aún no hay marcadores
+Sin recorte
+Los documentos que abras aparecerán aquí.
+No hay archivos recientes
+No hay archivos coincidentes
+No se encontró una suscripción válida.
+Este archivo no tiene una capa de texto legible.
+Nada que mostrar todavía
+{current} / {total}
+Abre PDF, Word, Excel, PowerPoint, TXT e imágenes sin salir de la app.
+Todos tus archivos, un lector
+Convierte fotos, escaneos, Word y PPT en PDF, o un PDF de nuevo en Word.
+Convertir y crear
+Anota, añade texto, firma, une, divide y gestiona páginas.
+Editar, firmar y organizar
+Abrir
+Otros
+Número de páginas
+Página {count}
+Ruta
+PDF
+PDF a Word
+¿Eliminar este archivo para siempre?
+Póster
+PPT
+PPT a PDF
+Premium está activo
+Premium restaurado
+Prepárate para tu prueba gratis de 7 días
+Imprimir
+Imprimir PDF
+Política de privacidad
+Propuesta
+¿Cómo fue tu experiencia?
+Recientes
+Añadidos recientemente +{count}
+Papelera
+Quitar anuncios
+Quitar marcador
+Renombrar
+Renombrado
+Mantén y arrastra para reordenar
+Informe
+Restaurar
+Restaurar
+Restaurado
+Currículum
+Lector claro, y la papelera me salvó más de una vez.
+Amina
+Imagen a PDF es rápido y el tema oscuro se ve bien.
+Luis
+Ahora tengo Word y PDF juntos. Los marcadores ayudan.
+Hana
+Opiniones
+¿Usar una compra de prueba en esta compilación de depuración?
+Tienda no disponible
+Desbloqueo de prueba
+Guardar PDF
+Guardar en Drive
+Ajustes de escaneo
+Escanear a PDF
+Horario
+Buscar
+Buscar archivos
+Seleccionar idioma
+{count} seleccionados
+Enviar comentarios
+Ajustes
+Prueba gratis de 7 días
+Compartir
+Compartir
+Prueba All Document Reader: todos los documentos en una app.
+Firmar
+Tamaño
+Omitir
+Convertir
+Pasa entre PDF, Word, imágenes y diapositivas.
+Editar y firmar
+Marca páginas, añade texto y coloca tu firma.
+Unir y dividir
+Combina archivos o extrae solo las páginas que necesitas.
+Gestionar páginas
+Reordena, gira, inserta y elimina páginas.
+Quitar anuncios
+Usa cada pantalla sin banners ni interrupciones.
+Plantillas
+Empieza con un currículum, una carta, un informe breve o un póster.
+Fecha
+Nombre
+Tamaño
+Lee, edita y convierte cada documento
+Dividir PDF
+Almacenamiento
+Error al suscribirse
+Tu archivo está listo
+Sistema
+Tomar foto
+¿No está la función que quieres? Cuéntanos
+Plantillas
+Premium abre esta plantilla
+Términos
+All Document Reader guarda en este dispositivo los documentos que importas. Premium es una suscripción opcional cobrada por Google Play o la App Store. Cancélala cuando quieras en tu cuenta de la tienda. Convertir, editar, unir y dividir siguen gratis. Los anuncios se ocultan mientras Premium está activo.
+Nota de agradecimiento
+Título
+Herramientas
+TXT
+Tipo
+Desbloquear premium
+{used} / {total}
+Versión
+Vertical
+Bienvenido de nuevo
+Continúa donde lo dejaste.
+Word
+Word a PDF
+Anual

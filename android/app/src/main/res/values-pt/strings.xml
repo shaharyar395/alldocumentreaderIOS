@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Pesquisar</string>
+    <string name="widget_recent">Recentes</string>
+    <string name="widget_bookmarks">Favoritos</string>
+    <string name="widget_edit_pdf">Editar PDF</string>
+    <string name="widget_tools_label">Ferramentas rápidas</string>
+    <string name="widget_home">Início</string>
+    <string name="w_tools_title">Ferramentas rápidas</string>
+    <string name="w_tools_desc">Pesquise, abra arquivos recentes e favoritos ou edite um PDF direto da tela inicial</string>
+    <string name="w_reader_title">Leitor de documentos</string>
+    <string name="w_reader_desc">Abra arquivos PDF, Word, Excel e PowerPoint com um toque</string>
+    <string name="w_editor_title">Editor de PDF</string>
+    <string name="w_editor_desc">Comece a editar um PDF na hora</string>
+</resources>

@@ -1,0 +1,236 @@
+All Document Reader — context for another coding agent
+
+Flutter 3.x / Dart app. One codebase for Android and iOS. Package name alldocreader.
+Application id and iOS bundle id: com.theoccess.alldocreader
+Display name: All Document Reader
+Version: 1.0.0+1
+Workspace: this folder. Flutter SDK on the author's PC: C:\Users\shaharyar\flutter
+
+What it is
+A document reader: splash, first-launch language, 3-page onboarding, then a 3-tab home (All files, Tools, Settings).
+In-app viewers and editors for PDF, Word, Excel, PowerPoint, TXT, and images.
+Create, convert, scan, PDF edit/pages/merge/split, 16 crowned templates, Premium, ads, FAQ, feedback, explore.
+Privacy policy: https://sites.google.com/view/mob-apps-inc/privacy-policy
+Do not invent a support email.
+
+Launch
+First launch: Splash -> Language -> Onboarding -> Home.
+Later: Splash -> App Open ad if not Premium -> last tab.
+Welcome back after the app was in the background about 3 seconds, then an App Open ad.
+Do not show welcome-back after the file picker, share sheet, or an incoming file (ResumeGuard).
+Theme: System / Light / Dark, instant, no black flash. Splash stays light #F7F8FC. Dark scaffold #10141C.
+themeAnimationDuration is Duration.zero. Portrait-first. The reader may rotate; do not lock the Android activity to portrait in the manifest.
+
+State
+AppSettings and FileLibrary are ChangeNotifiers held by AppScope (InheritedWidget).
+MaterialApp is a child so setState does not reset the Navigator.
+Do not call notifyListeners from outside FileLibrary (use setStorage).
+Do not use AppScope.of in initState. Use didChangeDependencies or a post-frame callback.
+setFlag uses if/else so flags stay independent: coachSeen, discoverSeen, horizontalHintSeen, pageTipSeen, mergePromptShown, markupTipSeen.
+
+Files
+Android: real files are used IN PLACE (DocEntry.relativePath is the absolute path; DocEntry.fullPath).
+App outputs go to public Documents/AllDocumentReader/<import|convert|create|merged|split> (private
+library/<folder> only as a fallback when that folder is not writable).
+iOS: outputs and imports in Documents/library/<folder> (visible in Files: UIFileSharingEnabled +
+LSSupportsOpeningDocumentsInPlace); files in Documents are listed in place; paths are stored relative to
+Documents/library because the iOS container path changes on updates.
+Older versions' private copies in Documents/library/<folder> stay listed (relative paths).
+Index and lists: <ApplicationSupport>/library_meta/index.json + state.json (recent, bookmarks, "new",
+known paths). Recycle bin: <ApplicationSupport>/RecycleBin, 30 days, restore to the original path.
+Unique names are "stem (n).ext".
+FileLibrary.memory() is for tests. In memory mode, rescan returns after scan().
+Open-in uses MethodChannel com.theoccess.alldocreader/platform.
+Android opens incoming content:// URIs in place when they map to a readable path, else copies them into
+Documents/AllDocumentReader/import (same name+size reused). iOS copies "Open in" URLs into
+Documents/library/import (same name+size reused, "name (n).ext", extension from the type when missing).
+
+Localization
+English plus ar, de, es, fa, fr, id, it, ja, ko, ms, pl, pt, ru, th, tl, tr, uk, ur, uz, vi, zh_Hans, zh_Hant.
+Custom S class and JSON in assets/l10n (23 files). S.preload() loads every language. Fallback is English.
+RTL for ar, fa, ur. Keep PDF, Word, Excel, PPT, TXT untranslated.
+Placeholders that must remain: {percent} {days} {count} {current} {total} {used}
+l10n tests expect exactly 23 JSON files, the same keys as en, all non-empty.
+Widget tests must not use pumpAndSettle (SlidingProgress loops). The brand title stays English.
+JSON files must be UTF-8 without a BOM.
+
+Monetization
+Tools are free. Only ads and the crowned templates need Premium.
+Product ids: premium_yearly (7-day trial) and premium_monthly. StoreKit 2 and Play Billing.
+Debug unlock only in kDebugMode when the store has no product. Do not remove that unless asked.
+Do NOT invent production AdMob or IAP ids.
+Ads use Google TEST unit ids unless the user supplies real ones via --dart-define or the empty local* overrides in AdUnits / ProductIds.
+Android manifest APPLICATION_ID and iOS GADApplicationIdentifier stay the Google test app id
+ca-app-pub-3940256099942544~3347511713 until the user supplies a real one.
+Never show on-screen "Ads:" toasts. Log only. UMP then MobileAds. iOS ATT after 400ms. Skip ads when FLUTTER_TEST.
+
+Device scan
+MANAGE_EXTERNAL_STORAGE IS declared (decision of the parity round, same as the native Android app).
+Android access = Environment.isExternalStorageManager() (11+) / READ_EXTERNAL_STORAGE (10 and older).
+Allow -> ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION (11+) / runtime READ+WRITE dialog (10 and older).
+No permission prompt at splash / language / onboarding: the custom dialog shows once on the All files tab.
+Scan (MainActivity.scanDevice): MediaStore.Files DATA LIKE '%.ext' for every extension + folder walk from
+/storage/emulated/0, 8 levels, no dot names, top-level Android/ skipped except Android/media. No size or
+count limit. ContentObserver -> "onMediaChanged" (2.5 s debounce); rescan on resume when older than 8 s.
+More than 300 new files in one scan are not tagged "New". Without access only the app's own outputs.
+iOS: FilePicker getDirectoryPath stored in prefs key ios_scan_root (copied in once, not again after
+delete/rename), plus a security-scoped bookmark. Memory mode returns first.
+
+PDF and Office
+PDF create uses package:pdf. Hide PdfDocument from package:pdf/pdf.dart because pdfx also exports it.
+Viewing uses pdfx PdfViewPinch. Text extraction is lib/services/pdf_text.dart.
+rewritePdf in lib/services/pdf_rewrite.dart appends an incremental classic xref.
+It supports classic xref and xref streams, expands type-2 object streams, and scans objects if xref parse fails.
+Text edits, vector marks, and JPEG image stamps stay in the text layer. Raster bake is only if rewritePdf returns null.
+Office uses archive + xml. Word and PowerPoint rendering is richer than plain text (headers, footers, styles, numbering, text boxes, columns, slide tables) but it is not Microsoft's layout engine.
+OCR: ML Kit scripts latin, chinese, devanagiri, japanese, korean. Arabic, Persian, Urdu, and Thai use Tesseract (assets/tessdata). OCR only pages whose text layer is empty.
+
+Android build notes that already bit us
+minSdk 24. Release is signed with the debug keystore, so the APK installs on a device and is not Play-upload-ready.
+MainActivity extends FlutterFragmentActivity so the storage-tree picker can use registerForActivityResult.
+LaunchTheme and NormalTheme must parent Theme.AppCompat.Light.NoActionBar. A platform theme crashes on launch.
+ML Kit language packs are implementation dependencies in android/app/build.gradle.kts (chinese, devanagari, japanese, korean 16.0.1).
+Library modules are forced to compileSdk 36 in android/build.gradle.kts.
+Tesseract is com.googlecode via JitPack: cz.adaptech.tesseract4android:tesseract4android:4.9.0
+(the plugin's local AAR cannot be packaged by current AGP). JitPack is in android/build.gradle.kts.
+Two pub-cache Gradle patches are NOT in git and are lost on a clean pub get:
+  flutter_tesseract_ocr 0.4.31 android/build.gradle (no jcenter, Maven Tesseract dependency)
+  google_mobile_ads 5.3.1 android/build.gradle (configurations instead of configurations.all)
+R8 full mode is off (android.enableR8.fullMode=false). android/app/proguard-rules.pro keeps WorkManager/Room.
+Without that, release builds crash at startup: Failed to create an instance of androidx.work.impl.WorkDatabase.
+AGP 9.1.0, Kotlin 2.4.0, Gradle 9.3.1. android.newDsl=false and android.builtInKotlin=false.
+
+iOS
+Deployment target 15.5. Podfile also lists the four GoogleMLKit text-recognition language pods.
+CocoaPods has not been run on this Windows PC. No Pods directory. DEVELOPMENT_TEAM is empty.
+App Group group.com.theoccess.alldocreader is in Runner and ReaderWidget entitlements.
+An IPA cannot be built here. It needs a Mac, pod install, Xcode, and the App Group enabled for the Apple team.
+
+Tests
+Analyzer treats warnings and infos as issues. Do not pumpAndSettle.
+Passing tests before the APK work: l10n (23 locales including scanStorage), pdf text round trip, PDF text-layer edit, image stamp keeps text layer, widget test.
+
+Do not
+Do not commit unless asked. Do not invent AdMob or IAP ids. Do not copy third-party icons or assets.
+
+Changes by Claude — phase 1 (bugs, launch, ads, back, Premium), to match the native Android app
+- Merge / Split / Extract / Manage pages copy the REAL pages (text, fonts, pictures stay; no quality loss):
+  native method channel "assemblePdf" — Android MainActivity.kt with pdfbox-android 2.0.27.0 (gradle dep +
+  proguard -dontwarn com.gemalto.jp2.**), iOS AppDelegate.swift with PDFKit. Dart: assemblePdf / SourcePage /
+  tempPdf / pdfPageCount / stampName in lib/services/pdf_tools.dart. The old picture rebuild (rebuildPdf) is only
+  a fallback when the native call fails. Inserted blank pages are made with blankPdf() as a temp PDF and copied in.
+- File names like the Android app: Merged_yyyyMMdd_HHmm.pdf, Split_..., Extract_....
+- Split mode labels fixed (Every page / Fixed range / Custom range); errors show "Could not save the PDF".
+- Tools and Settings tabs no longer add their own BannerSlot (the shell already shows one) — no double banner.
+- App Open after the loading screen on EVERY start (first run too, like Android): AdService.showAppOpen waits up
+  to 10 s for the SDK (consent included) and the ad, only while it is still loading, retries once, falls back to
+  a ready interstitial. App Open ads expire after 4 h. Welcome back waits up to 4 s.
+- Welcome back: only paused/hidden count as background (not inactive), never after a full-screen ad
+  (AdService.fullScreenActive), and not after print / privacy link / store purchase sheet (guard.arm).
+- BannerSlot waits for the ads SDK to start (first-run Language screen banner).
+- Back on the main screen: closes coach mark → All files tab → "Press back again to exit" (2 s) → exit.
+- Premium: debug test unlock lasts 30 / 365 days (AppSettings.setTestPremium, prefs premium_test_until) and ends
+  by itself; Android re-checks Google Play at launch and switches Premium off when no subscription is active.
+- Restore with no subscription: orange top pill with ⓘ (showTopPill in widgets/chrome.dart).
+- New l10n keys (all 23 files): pressBackAgain, saveFailed, splitEveryPage, splitFixedRange, splitCustomRange
+  (tool/add_phase1_keys.py; translations taken from the Android app).
+
+Changes by Claude — phases 2–4 (reader, screens, tools), to match the native Android app
+- NOT compiled here (no Flutter SDK). Run: flutter pub get (pubspec.lock is stale), flutter analyze, build Android,
+  and on a Mac: cd ios && pod install, then Xcode.
+- New dependency: cunning_document_scanner ^3.0.3 (Image to PDF → Scan, ML Kit on Android / VisionKit on iOS).
+- Reader (lib/features/reader/): reader_page.dart rewritten; new doc_pages, paged_view, pdf_pages, sheet_parser,
+  sheet_view, reader_search, reader_menu, image_viewer, text_decode. office_view.dart removed.
+  Page chip, page slider, zoom, vertical/horizontal mode for every type; PDF search highlights with prev/next and
+  count (readPdfTextLines / PdfTextLine in services/pdf_rewrite.dart); all Excel sheets as tabs; Word/PPT laid out
+  as pages via services/office_pdf.dart (officeFileToPdf, runs in an isolate). .tsv is read as Excel.
+- Screens: Recently added + New tags, access banner, coach mark, rating/helpful sheets (shell/rating_sheets.dart),
+  exit sheet with native ad (widgets/explore_sheet.dart), select mode / sort / refresh in lists, search tabs,
+  recycle bin select, FAQ + Terms (widgets/html_text.dart), Add widget, feedback screenshots, Premium carousel /
+  Start trial (premium/start_trial_page.dart, purchase_flow.dart), Language screen Default + notification ask.
+- Tools: Scan + image editing (create/scan_flow, scan_edit_page), PDF picker with thumbnails, select pages, blank
+  pages, templates editor (template_model / template_painter / template_editor_page), signature pad + saved
+  signatures, real-page Merge/Split/Manage. image_edit_page.dart removed.
+- New channel methods (Android MainActivity.kt + iOS AppDelegate.swift): assemblePdf, appVersion,
+  pinShortcut{path,name}, pinWidget{kind}, takePendingAction, onWidgetAction (native → Dart).
+- Android home-screen Tools widget: res/layout/tools_widget.xml, res/xml/tools_widget_info.xml (+ strings).
+  iOS widget link: alldocreader://widget/home.
+- AdService.showInterstitial({force, untilClosed}) returns Future<bool>. FileLibrary.importBytes(isNew, modified).
+- l10n: new keys came from tool/new_keys_*.json, merged by tool/merge_new_keys.py (536 keys, 23 files identical).
+- Known limits: non-Latin text in Office→PDF on iOS may show "?" when no system font covers it; Excel has no page
+  chip (sheet tabs instead); template PDFs are images; template art is simple stand-ins; iOS store rating needs the
+  App Store id; To home screen / widget pin and the Premium launch re-check are Android-only.
+
+Changes by Claude — parity round (agent 1: file types, storage model, access flow, All files tab, launch, native)
+- File types (lib/data/doc_entry.dart): docExtensions = the native FileType.kt lists (+ tsv as Excel);
+  OTHER files are never scanned / listed / counted. mimeForName, extensionForMime, DocEntry.fullPath,
+  DocEntry.originalPath (recycle bin), DocEntry.size.
+- FileLibrary rewritten (lib/data/file_library.dart): in-place real files on Android (see Files / Device
+  scan above), recentOpened (opened or saved files only, max 100, openedAt = open time), bookmarks by path,
+  "New" like NewFiles.kt (first scan = baseline, >300 = no tags, 30 days), renameChecked/RenameResult,
+  addFile, rescan/refreshIfStale/startWatching, scanning/deviceScanned/scannedWithAccess, pendingReload
+  ("Loading files…" row). Deleted / renamed files do not come back. Old private import/ copies whose
+  original (same name+size) is found on the phone are merged into the original and removed.
+- Access flow (lib/features/files/storage_access.dart + home_tab.dart): hasStorageAccess, ensureAccess,
+  requestStorageAccess, showStorageAccessDialog (layout of dialog_permission.xml), pickScanRoot (Android:
+  asks for access). Access-missing view in the list area, no tile counts, pull-to-refresh does nothing,
+  tapped category opens after access is given, coach mark / Discover tip only when loaded with access.
+- All files tab: Recently added row above the grid, "Loading files…" / "Loaded successfully" row after
+  saves, "N files" with a spinner while the first scan runs, used/total, paper-plane loading, one "Empty"
+  state (lib/widgets/home_art.dart draws the native vector art), Discover tip in two lines with badge.
+- Launch (lib/app.dart): a file from another app -> 1.2 s splash look, no App Open ad, no language /
+  onboarding, reader; a "To home screen" shortcut -> reader at once; back closes the app (Android).
+- Native: MainActivity.kt channel methods takePendingIncoming, storageAccess, requestStorageAccess,
+  scanDevice, scanPaths, startWatching (onMediaChanged), publicDocumentsDir, resolveIncoming,
+  openExternal, saveToDrive, openFileManager, isXiaomi, openAppDetails, pinShortcut{path,name,kind}
+  (ShortcutManagerCompat, per-type icons res/drawable/ic_cat_*.xml copied from the native app).
+  AppFileProvider + res/xml/file_paths.xml ("<applicationId>.fileprovider"). The SAF tree picker /
+  scanMedia / listStorageTree were removed. iOS AppDelegate: the same methods (Open in menu, share sheet,
+  shareddocuments://), Info.plist document types for every listed extension.
+- Manifest: MANAGE_EXTERNAL_STORAGE, INSTALL_SHORTCUT, ACCESS_NETWORK_STATE, queries VIEW/SEND */* and the
+  Drive package, VIEW/SEND filters of the native app, receivers for the four widgets.
+- New l10n keys: tool/new_keys_files2.json.
+- Lead integration (parity round): app icon + in-app logo (assets/images/logo.png) + splash art are the native app's
+  W/PDF/X/P icon (Android mipmaps + adaptive vector, iOS AppIcon set, assets/icon for flutter_launcher_icons);
+  AppPalette/DocColors use the native colors.xml values; main_shell uses handleWidgetAction (widget_actions.dart);
+  MainActivity has "deviceInfo"; new l10n keys merged from tool/new_keys_{files2,lists2,launch2}.json (594 keys).
+- Play Store: MANAGE_EXTERNAL_STORAGE needs the "All files access" declaration in Play Console (same as the
+  native app already needs).
+
+Changes by Claude — UI parity round (look of every screen = the native Android app)
+- lib/native/ is GENERATED by tool/gen_native.py from the native app's res/ (run: python3 tool/gen_native.py):
+  native_colors.dart (NC.of(context).<colour> — every @color, light + values-night), native_drawables.dart
+  (ND.<name> — every vector drawable, drawn with NativeIcon(ND.x, size:, tint:) from native_icon.dart),
+  native_shapes.dart (NS.<name>(context) — shape/selector/ripple backgrounds as BoxDecoration). Don't edit by hand.
+- Theme (app_theme.dart) follows native Theme.DocReader; toasts/top pill like native; bottom bar, FAB, Home,
+  + sheet, file rows/lists/sheets, search, Directories, Tools and every tool/editor screen, reader, Settings,
+  FAQ/Feedback/Terms, Premium/Trial rebuilt from the native layouts. Behaviour unchanged except small native
+  details listed in the agents' notes (Split button labels, Manage pages always-on checkboxes, Go-to-page sheet).
+- New l10n keys merged from tool/new_keys_ui_{a,c,d}.json. merge_new_keys.py now allows a translation to omit a
+  placeholder ("one file" forms).
+- assets/images/swipe_hand.png = the native app's img_swipe_hand.png (reader swipe tutorial).
+
+APK size (keep these; the release APK is 37.9 MB and installs on the phones)
+- Do not go back to a fat APK. The 130.5 MB build packed three CPU copies (arm64, armeabi-v7a, x86_64)
+  uncompressed, plus the bundled ML Kit Latin recognizer (libmlkit_google_ocr_pipeline.so and model assets).
+- android/app/build.gradle.kts: ndk.abiFilters is armeabi-v7a and arm64-v8a only. Clear the list Flutter's
+  plugin fills in before that block. Keep x86 and x86_64 out. packaging.jniLibs.useLegacyPackaging = true
+  so the .so files are compressed in the APK. The excludes drop lib/x86 and lib/x86_64.
+- The Samsung A13 (SM-A135F) is 32-bit only: ro.product.cpu.abi = armeabi-v7a. An arm64-only APK installs
+  as "app isn't compatible with your phone". Keep armeabi-v7a. Keep arm64-v8a for 64-bit phones.
+- android/build.gradle.kts substitutes com.google.mlkit:text-recognition (and chinese, devanagari, japanese,
+  korean) with the Play services unbundled artifacts. Latin / Chinese / Japanese / Korean / Devanagari OCR
+  downloads its model on first use. Arabic, Persian, Urdu, and Thai stay offline via assets/tessdata and
+  Tesseract. Do not put the bundled ML Kit recognizer back in.
+- Release build: flutter build apk --release --target-platform android-arm,android-arm64
+- It will not match the native app's 23 MB. libflutter + libapp are the Flutter engine and compiled Dart.
+
+Claude — after Cursor's APK size round (base = Cursor's reduced zip)
+- Kept all of Cursor's size settings (arm + arm64 only, compressed jniLibs, Play services ML Kit OCR — the native
+  app also uses play-services-mlkit-text-recognition) and its analyzer fixes.
+- tool/gen_native.py now writes the dart:ui import and backticked doc comment Cursor added to native_drawables.dart,
+  so re-running the generator gives the same files.
+- iOS AppDelegate.swift: added "deviceInfo" (Feedback e-mail line "iOS x.y · model"), Android already had it.
+- app.dart _HoldTopInset (MaterialApp builder): while a full-screen ad is open the status bar is hidden and the top
+  inset drops to 0, so headers jumped into the see-through strip above the ad. During an ad (AdService
+  .fullScreenActive) the last real top inset is kept. Reader full screen (no ad) is unaffected.

@@ -1,0 +1,225 @@
+Seiten hinzufügen
+Screenshots hinzufügen
+Text hinzufügen
+Agenda
+Alle
+Alle Dokumente
+Alle Dateien
+Kommentieren
+App-Design
+Aufsteigend
+Jedes Mal fragen
+Automatisch zuschneiden
+Vorteile
+Bestes Angebot
+Papierkorb geleert
+Hier schreiben
+Lesezeichen
+Lesezeichen entfernt
+Als Lesezeichen gespeichert
+Lesezeichen
+Briefing
+Abbrechen
+Zertifikat
+Fehler
+Design
+Idee
+Sonstiges
+Langsam
+Tippen Sie auf +, um zu importieren, zu scannen oder ein PDF zu erstellen.
+Weiter
+Umwandeln
+Umwandeln & Erstellen
+Umwandlung {percent}%
+Anschreiben
+Erstellen
+Dateien erstellen
+PDF erstellen
+Dunkel
+Noch {days} Tage
+Löschen
+Endgültig löschen
+In den Papierkorb verschoben
+Endgültig gelöscht
+Absteigend
+Details
+Verzeichnisse
+Machen Sie aus Fotos und leeren Seiten mit wenigen Tipps ein PDF.
+Neue Funktion entdecken: PDF erstellen
+Fertig
+Wählen Sie Google Drive oder eine andere App in der Teilen-Ansicht.
+Bearbeiten & Verwalten
+Text bearbeiten
+Papierkorb leeren
+Alles im Papierkorb endgültig löschen?
+Keine Dateien in dieser Kategorie
+Dieser Ordner ist leer
+Excel
+Weitere Apps dieses Entwicklers erscheinen hier.
+Weitere Apps entdecken
+FAQ
+PDF, Word, Excel, PowerPoint, TXT und gängige Bilder. Importieren Sie eine Datei oder öffnen Sie sie aus einer anderen App.
+Importe und erstellte Dateien bleiben in der App-Bibliothek auf diesem Gerät.
+Der Papierkorb behält Dateien 30 Tage. Sie können sie wiederherstellen oder endgültig löschen.
+Premium entfernt Werbung und schaltet gekrönte Vorlagen frei. Umwandeln, Bearbeiten, Zusammenführen und Teilen bleiben kostenlos.
+Jedes Mal fragen lässt Sie pro Scan wählen. Automatisch zuschneiden schneidet auf die Seite zu. Nicht zuschneiden behält das ganze Foto.
+Öffnen Sie Premium holen und tippen Sie auf Wiederherstellen. Nutzen Sie dasselbe Shop-Konto.
+Dateien
+Allgemein
+Premium
+Welche Dateien kann ich öffnen?
+Wo werden meine Dateien gespeichert?
+Wie lange bleiben gelöschte Dateien?
+Was ändert Premium?
+Was bewirken die Zuschneideoptionen?
+Wie stelle ich Premium wieder her?
+Scannen
+Feedback
+Sagen Sie uns, was besser werden soll
+Dateimanager
+Filter
+Flyer
+Galerie
+Allgemein
+Premium holen
+Loslegen
+Zur Seite
+Verstanden
+Horizontal
+Bild
+Bild zu PDF
+Dateien importieren
+Importiert
+Rechnung
+Sprache
+Brief
+Hell
+Seiten verwalten
+Abos verwalten
+Besprechungsnotizen
+Memo
+PDF zusammenführen
+Geändert
+Monatlich
+In den Papierkorb
+Dateiname
+Neu
+Newsletter
+Weiter
+Setzen Sie ein Lesezeichen, dann bleibt die Datei hier.
+Noch keine Lesezeichen
+Nicht zuschneiden
+Geöffnete Dokumente erscheinen hier.
+Keine zuletzt verwendeten Dateien
+Keine passenden Dateien
+Kein gültiges Abo gefunden.
+Diese Datei hat keine lesbare Textebene.
+Noch nichts anzuzeigen
+{current} / {total}
+Öffnen Sie PDF, Word, Excel, PowerPoint, TXT und Bilder, ohne die App zu verlassen.
+Alle Dateien, ein Reader
+Machen Sie aus Fotos, Scans, Word und PPT ein PDF — oder aus einem PDF wieder Word.
+Umwandeln und erstellen
+Kommentieren, Text hinzufügen, unterschreiben, zusammenführen, teilen und Seiten verwalten.
+Bearbeiten, unterschreiben und ordnen
+Öffnen
+Weitere
+Seitenanzahl
+Seite {count}
+Pfad
+PDF
+PDF zu Word
+Diese Datei endgültig löschen?
+Poster
+PPT
+PPT zu PDF
+Premium ist aktiv
+Premium wiederhergestellt
+Bereit für Ihre 7-tägige kostenlose Testphase
+Drucken
+PDF drucken
+Datenschutz
+Angebot
+Wie war Ihre Erfahrung?
+Zuletzt
+Kürzlich hinzugefügt +{count}
+Papierkorb
+Werbung entfernen
+Lesezeichen entfernen
+Umbenennen
+Umbenannt
+Halten und ziehen zum Sortieren
+Bericht
+Wiederherstellen
+Wiederherstellen
+Wiederhergestellt
+Lebenslauf
+Klarer Reader, und der Papierkorb hat mich mehr als einmal gerettet.
+Amina
+Bild zu PDF ist schnell, und das dunkle Design passt.
+Luis
+Ich habe Word und PDF jetzt zusammen. Lesezeichen sind praktisch.
+Hana
+Nutzerbewertungen
+Testkauf in der Sandbox für diesen Debug-Build verwenden?
+Shop nicht verfügbar
+Sandbox freischalten
+PDF speichern
+In Drive speichern
+Scan-Einstellungen
+Scan zu PDF
+Zeitplan
+Suchen
+Dateien suchen
+Sprache auswählen
+{count} ausgewählt
+Feedback senden
+Einstellungen
+7 Tage kostenlos testen
+Teilen
+Teilen
+Probieren Sie All Document Reader — jedes Dokument in einer App.
+Unterschreiben
+Größe
+Überspringen
+Umwandeln
+Wechseln Sie zwischen PDF, Word, Bildern und Folien.
+Bearbeiten & unterschreiben
+Markieren Sie Seiten, fügen Sie Text hinzu und setzen Sie Ihre Unterschrift.
+Zusammenführen & teilen
+Fügen Sie Dateien zusammen oder holen Sie nur die Seiten, die Sie brauchen.
+Seiten verwalten
+Sortieren, drehen, einfügen und löschen Sie Seiten.
+Werbung entfernen
+Nutzen Sie jeden Bildschirm ohne Banner und Unterbrechungen.
+Vorlagen
+Beginnen Sie mit Lebenslauf, Brief, Briefing oder Poster.
+Datum
+Name
+Größe
+Jedes Dokument lesen, bearbeiten und umwandeln
+PDF teilen
+Speicher
+Abo fehlgeschlagen
+Ihre Datei ist bereit
+System
+Foto aufnehmen
+Fehlt Ihnen eine Funktion? Sagen Sie es uns
+Vorlagen
+Premium schaltet diese Vorlage frei
+Bedingungen
+All Document Reader speichert importierte Dokumente auf diesem Gerät. Premium ist ein optionales Abo über Google Play oder den App Store. Jederzeit im Shop-Konto kündbar. Umwandeln, Bearbeiten, Zusammenführen und Teilen bleiben kostenlos. Werbung bleibt ausgeblendet, solange Premium aktiv ist.
+Dankeskarte
+Titel
+Werkzeuge
+TXT
+Typ
+Premium freischalten
+{used} / {total}
+Version
+Vertikal
+Willkommen zurück
+Machen Sie weiter, wo Sie aufgehört haben.
+Word
+Word zu PDF
+Jährlich

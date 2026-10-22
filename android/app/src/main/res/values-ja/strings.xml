@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">検索</string>
+    <string name="widget_recent">最近</string>
+    <string name="widget_bookmarks">ブックマーク</string>
+    <string name="widget_edit_pdf">PDFを編集</string>
+    <string name="widget_tools_label">クイックツール</string>
+    <string name="widget_home">ホーム</string>
+    <string name="w_tools_title">クイックツール</string>
+    <string name="w_tools_desc">ホーム画面から検索、最近のファイルやブックマークを開く、PDFを編集</string>
+    <string name="w_reader_title">ドキュメントリーダー</string>
+    <string name="w_reader_desc">PDF、Word、Excel、PowerPointをワンタップで開く</string>
+    <string name="w_editor_title">PDFエディタ</string>
+    <string name="w_editor_desc">すぐにPDFの編集を開始</string>
+</resources>

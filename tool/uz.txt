@@ -1,0 +1,225 @@
+Sahifalar qo‘shish
+Skrinshot qo‘shish
+Matn qo‘shish
+Kun tartibi
+Hammasi
+Barcha hujjatlar
+Barcha fayllar
+Izoh
+Ilova mavzusi
+O‘sish
+Har safar so‘rash
+Avtomatik kesish
+Afzalliklar
+Eng foydali
+Savat bo‘shatildi
+Bu yerga yozing
+Xatcho‘p
+Xatcho‘p olib tashlandi
+Xatcho‘plandi
+Xatcho‘plar
+Qisqa ma’lumot
+Bekor qilish
+Sertifikat
+Xato
+Dizayn
+G‘oya
+Boshqa
+Sekin
+Import, skaner yoki PDF yaratish uchun + ni bosing.
+Davom etish
+O‘girish
+O‘girish va yaratish
+O‘girilmoqda {percent}%
+Qo‘shimcha xat
+Yaratish
+Fayllar yaratish
+PDF yaratish
+Qorong‘i
+{days} kun qoldi
+O‘chirish
+Butunlay o‘chirish
+Savatga ko‘chirildi
+Butunlay o‘chirildi
+Kamayish
+Tafsilotlar
+Kataloglar
+Rasmlar va bo‘sh sahifalarni bir necha bosishda PDF qiling.
+Yangi imkoniyat: PDF yaratish
+Tayyor
+Ulashish varag‘ida Google Drive yoki boshqa ilovani tanlang.
+Tahrir va boshqaruv
+Matnni tahrirlash
+Savatni bo‘shatish
+Savatdagi hammasini butunlay o‘chirishmi?
+Bu turkumda fayl yo‘q
+Bu jild bo‘sh
+Excel
+Bu dasturchining boshqa ilovalari shu yerda chiqadi.
+Boshqa ilovalar
+Savol-javob
+PDF, Word, Excel, PowerPoint, TXT va oddiy rasmlar. Faylni import qiling yoki boshqa ilovadan oching.
+Import va yaratilgan fayllar shu qurilmadagi ilova kutubxonasida qoladi.
+Savat fayllarni 30 kun saqlaydi. Tiklang yoki butunlay o‘chiring.
+Premium reklamani olib tashlaydi va tojli andozalarni ochadi. O‘girish, tahrir, birlashtirish va bo‘lish bepul qoladi.
+Har safar so‘rash har skanerda tanlash imkonini beradi. Avtomatik kesish sahifaga moslaydi. Kesmaslik butun rasmni saqlaydi.
+Premium olishni oching va Tiklashni bosing. O‘sha do‘kon hisobidan foydalaning.
+Fayllar
+Umumiy
+Premium
+Qanday fayllarni ochaman?
+Fayllarim qayerda saqlanadi?
+O‘chirilgan fayllar qancha turadi?
+Premium nimani o‘zgartiradi?
+Kesish sozlamalari nima qiladi?
+Premium qanday tiklanadi?
+Skaner
+Fikr
+Nimani yaxshilash kerakligini ayting
+Fayl menejeri
+Filtr
+Varaqcha
+Galereya
+Umumiy
+Premium olish
+Boshlash
+Sahifaga o‘tish
+Tushunarli
+Gorizontal
+Rasm
+Rasmni PDF ga
+Fayllarni import qilish
+Import qilindi
+Hisob-faktura
+Til
+Xat
+Yorug‘
+Sahifalarni boshqarish
+Obunalarni boshqarish
+Yig‘ilish qaydlari
+Eslatma
+PDF ni birlashtirish
+O‘zgartirilgan
+Oylik
+Savatga ko‘chirish
+Fayl nomi
+Yangi
+Axborotnoma
+Keyingi
+Faylni xatcho‘plang, u shu yerda qoladi.
+Hali xatcho‘p yo‘q
+Kesmaslik
+Ochgan hujjatlaringiz shu yerda chiqadi.
+Yaqinda ochilgan fayl yo‘q
+Mos fayl yo‘q
+Yaroqli obuna topilmadi.
+Bu faylda o‘qiladigan matn qatlami yo‘q.
+Hali ko‘rsatadigan narsa yo‘q
+{current} / {total}
+Ilovadan chiqmasdan PDF, Word, Excel, PowerPoint, TXT va rasmlarni oching.
+Barcha fayllar, bitta o‘qish
+Rasmlar, skanerlar, Word va PPT ni PDF qiling yoki PDF ni yana Word qiling.
+O‘girish va yaratish
+Izoh, matn, imzo, birlashtirish, bo‘lish va sahifalarni boshqaring.
+Tahrir, imzo va tartib
+Ochish
+Boshqa
+Sahifalar soni
+Sahifa {count}
+Yo‘l
+PDF
+PDF ni Word ga
+Bu fayl butunlay o‘chirilsinmi?
+Poster
+PPT
+PPT ni PDF ga
+Premium yoqilgan
+Premium tiklandi
+7 kunlik bepul sinovga tayyorlaning
+Chop etish
+PDF ni chop etish
+Maxfiylik siyosati
+Taklif
+Tajribangiz qanday bo‘ldi?
+Yaqinda
+Yaqinda qo‘shilgan +{count}
+Savat
+Reklamani olib tashlash
+Xatcho‘pni olib tashlash
+Nomini o‘zgartirish
+Nomi o‘zgartirildi
+Tartibni o‘zgartirish uchun bosib ushlang va torting
+Hisobot
+Tiklash
+Tiklash
+Tiklandi
+Rezyume
+Toza o‘qish, savat esa meni bir necha marta qutqardi.
+Amina
+Rasmni PDF ga tez, qorong‘i mavzu ham yaxshi.
+Luis
+Endi Word va PDF ni birga saqlayman. Xatcho‘plar yordam beradi.
+Hana
+Sharhlar
+Bu debug yig‘masida sinov xaridi ishlatilsinmi?
+Do‘kon mavjud emas
+Sinov ochilishi
+PDF ni saqlash
+Drive ga saqlash
+Skaner sozlamalari
+PDF ga skanerlash
+Jadval
+Qidirish
+Fayllarni qidirish
+Tilni tanlang
+{count} tanlandi
+Fikr yuborish
+Sozlamalar
+7 kunlik bepul sinov
+Ulashish
+Ulashish
+All Document Reader ni sinang — barcha hujjatlar bitta ilovada.
+Imzo
+Hajm
+O‘tkazib yuborish
+O‘girish
+PDF, Word, rasm va slaydlar orasida o‘ting.
+Tahrir va imzo
+Sahifalarni belgilang, matn qo‘shing va imzo qo‘ying.
+Birlashtirish va bo‘lish
+Fayllarni birlashtiring yoki faqat kerakli sahifalarni oling.
+Sahifalarni boshqarish
+Tartibni o‘zgartiring, aylantiring, qo‘shing va o‘chiring.
+Reklamani olib tashlash
+Har bir ekranni banner va uzilishsiz ishlating.
+Andozalar
+Rezyume, xat, qisqa ma’lumot yoki posterdan boshlang.
+Sana
+Nom
+Hajm
+Har bir hujjatni o‘qing, tahrirlang va o‘giring
+PDF ni bo‘lish
+Xotira
+Obuna amalga oshmadi
+Faylingiz tayyor
+Tizim
+Rasm olish
+Kerakli imkoniyat yo‘qmi? Bizga yozing
+Andozalar
+Premium bu andozani ochadi
+Shartlar
+All Document Reader import qilingan hujjatlarni shu qurilmada saqlaydi. Premium — Google Play yoki App Store undiradigan ixtiyoriy obuna. Do‘kon hisobingizdan istalgan vaqtda bekor qiling. O‘girish, tahrir, birlashtirish va bo‘lish bepul qoladi. Premium yoqilganda reklamalar yashirinadi.
+Minnatdorchilik yozuvi
+Sarlavha
+Vositalar
+TXT
+Tur
+Premium ni ochish
+{used} / {total}
+Versiya
+Vertikal
+Xush kelibsiz
+To‘xtagan joyingizdan davom eting.
+Word
+Word ni PDF ga
+Yillik

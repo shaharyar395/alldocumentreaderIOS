@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">ค้นหา</string>
+    <string name="widget_recent">ล่าสุด</string>
+    <string name="widget_bookmarks">บุ๊กมาร์ก</string>
+    <string name="widget_edit_pdf">แก้ไข PDF</string>
+    <string name="widget_tools_label">เครื่องมือด่วน</string>
+    <string name="widget_home">หน้าแรก</string>
+    <string name="w_tools_title">เครื่องมือด่วน</string>
+    <string name="w_tools_desc">ค้นหา เปิดไฟล์ล่าสุดและบุ๊กมาร์ก หรือแก้ไข PDF จากหน้าจอหลัก</string>
+    <string name="w_reader_title">โปรแกรมอ่านเอกสาร</string>
+    <string name="w_reader_desc">เปิดไฟล์ PDF, Word, Excel และ PowerPoint ได้ในแตะเดียว</string>
+    <string name="w_editor_title">โปรแกรมแก้ไข PDF</string>
+    <string name="w_editor_desc">เริ่มแก้ไข PDF ได้ทันที</string>
+</resources>

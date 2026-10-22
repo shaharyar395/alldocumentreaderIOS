@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">搜尋</string>
+    <string name="widget_recent">最近</string>
+    <string name="widget_bookmarks">書籤</string>
+    <string name="widget_edit_pdf">編輯 PDF</string>
+    <string name="widget_tools_label">快速工具</string>
+    <string name="widget_home">首頁</string>
+    <string name="w_tools_title">快速工具</string>
+    <string name="w_tools_desc">在主畫面上搜尋、開啟最近的檔案和書籤，或編輯 PDF</string>
+    <string name="w_reader_title">文件閱讀器</string>
+    <string name="w_reader_desc">輕觸一下即可開啟 PDF、Word、Excel 和 PowerPoint 檔案</string>
+    <string name="w_editor_title">PDF 編輯器</string>
+    <string name="w_editor_desc">直接開始編輯 PDF</string>
+</resources>

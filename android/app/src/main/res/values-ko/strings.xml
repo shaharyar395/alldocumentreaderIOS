@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">검색</string>
+    <string name="widget_recent">최근</string>
+    <string name="widget_bookmarks">북마크</string>
+    <string name="widget_edit_pdf">PDF 편집</string>
+    <string name="widget_tools_label">빠른 도구</string>
+    <string name="widget_home">홈</string>
+    <string name="w_tools_title">빠른 도구</string>
+    <string name="w_tools_desc">홈 화면에서 검색, 최근 파일 및 북마크 열기, PDF 편집</string>
+    <string name="w_reader_title">문서 리더</string>
+    <string name="w_reader_desc">PDF, Word, Excel, PowerPoint 파일을 탭 한 번으로 열기</string>
+    <string name="w_editor_title">PDF 편집기</string>
+    <string name="w_editor_desc">바로 PDF 편집 시작하기</string>
+</resources>

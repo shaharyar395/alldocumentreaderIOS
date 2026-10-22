@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Tìm kiếm</string>
+    <string name="widget_recent">Gần đây</string>
+    <string name="widget_bookmarks">Dấu trang</string>
+    <string name="widget_edit_pdf">Sửa PDF</string>
+    <string name="widget_tools_label">Công cụ nhanh</string>
+    <string name="widget_home">Trang chủ</string>
+    <string name="w_tools_title">Công cụ nhanh</string>
+    <string name="w_tools_desc">Tìm kiếm, mở tệp gần đây và dấu trang, hoặc sửa PDF ngay từ màn hình chính</string>
+    <string name="w_reader_title">Trình đọc tài liệu</string>
+    <string name="w_reader_desc">Mở tệp PDF, Word, Excel và PowerPoint chỉ với một chạm</string>
+    <string name="w_editor_title">Trình sửa PDF</string>
+    <string name="w_editor_desc">Bắt đầu sửa PDF ngay</string>
+</resources>

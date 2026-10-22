@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Cari</string>
+    <string name="widget_recent">Terkini</string>
+    <string name="widget_bookmarks">Penanda buku</string>
+    <string name="widget_edit_pdf">Edit PDF</string>
+    <string name="widget_tools_label">Alat pantas</string>
+    <string name="widget_home">Laman utama</string>
+    <string name="w_tools_title">Alat pantas</string>
+    <string name="w_tools_desc">Cari, buka fail terkini dan penanda buku, atau edit PDF dari skrin utama anda</string>
+    <string name="w_reader_title">Pembaca dokumen</string>
+    <string name="w_reader_desc">Buka fail PDF, Word, Excel dan PowerPoint dengan satu ketikan</string>
+    <string name="w_editor_title">Editor PDF</string>
+    <string name="w_editor_desc">Terus mula mengedit PDF</string>
+</resources>

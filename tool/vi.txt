@@ -1,0 +1,225 @@
+Thêm trang
+Thêm ảnh chụp
+Thêm văn bản
+Chương trình
+Tất cả
+Mọi tài liệu
+Mọi tệp
+Chú thích
+Giao diện ứng dụng
+Tăng dần
+Hỏi mỗi lần
+Cắt tự động
+Lợi ích
+Giá trị nhất
+Đã làm trống thùng rác
+Viết tại đây
+Dấu trang
+Đã bỏ dấu trang
+Đã đánh dấu
+Dấu trang
+Tóm tắt
+Hủy
+Chứng nhận
+Lỗi
+Thiết kế
+Ý tưởng
+Khác
+Chậm
+Chạm + để nhập, quét hoặc tạo PDF.
+Tiếp tục
+Chuyển đổi
+Chuyển đổi và tạo
+Đang chuyển {percent}%
+Thư xin việc
+Tạo
+Tạo tệp
+Tạo PDF
+Tối
+Còn {days} ngày
+Xóa
+Xóa vĩnh viễn
+Đã chuyển vào thùng rác
+Đã xóa vĩnh viễn
+Giảm dần
+Chi tiết
+Thư mục
+Biến ảnh và trang trống thành PDF chỉ với vài lần chạm.
+Tính năng mới: Tạo PDF
+Xong
+Chọn Google Drive hoặc ứng dụng khác trên trang chia sẻ.
+Sửa và quản lý
+Sửa văn bản
+Làm trống thùng rác
+Xóa vĩnh viễn mọi thứ trong thùng rác?
+Không có tệp trong mục này
+Thư mục này trống
+Excel
+Các ứng dụng khác của nhà phát triển này sẽ hiện ở đây.
+Khám phá thêm ứng dụng
+Câu hỏi thường gặp
+PDF, Word, Excel, PowerPoint, TXT và ảnh thông dụng. Nhập tệp hoặc mở từ ứng dụng khác.
+Tệp nhập và tệp tạo nằm trong thư viện ứng dụng trên thiết bị này.
+Thùng rác giữ tệp 30 ngày. Khôi phục hoặc xóa vĩnh viễn.
+Premium bỏ quảng cáo và mở mẫu có vương miện. Chuyển đổi, sửa, gộp và tách vẫn miễn phí.
+Hỏi mỗi lần cho bạn chọn ở mỗi lần quét. Cắt tự động vừa với trang. Không cắt giữ nguyên ảnh.
+Mở Nhận Premium rồi chạm Khôi phục. Dùng cùng tài khoản cửa hàng.
+Tệp
+Chung
+Premium
+Tôi mở được tệp nào?
+Tệp của tôi nằm ở đâu?
+Tệp đã xóa giữ bao lâu?
+Premium thay đổi gì?
+Tùy chọn cắt làm gì?
+Khôi phục Premium thế nào?
+Quét
+Phản hồi
+Cho chúng tôi biết cần cải thiện gì
+Trình quản lý tệp
+Lọc
+Tờ rơi
+Thư viện ảnh
+Chung
+Nhận Premium
+Bắt đầu
+Đến trang
+Đã hiểu
+Ngang
+Ảnh
+Ảnh sang PDF
+Nhập tệp
+Đã nhập
+Hóa đơn
+Ngôn ngữ
+Thư
+Sáng
+Quản lý trang
+Quản lý gói đăng ký
+Ghi chú cuộc họp
+Bản ghi nhớ
+Gộp PDF
+Đã sửa
+Hàng tháng
+Chuyển vào thùng rác
+Tên tệp
+Mới
+Bản tin
+Tiếp
+Đánh dấu tệp và tệp sẽ ở lại đây.
+Chưa có dấu trang
+Không cắt
+Tài liệu bạn mở sẽ hiện ở đây.
+Không có tệp gần đây
+Không có tệp khớp
+Không tìm thấy gói đăng ký hợp lệ.
+Tệp này không có lớp chữ đọc được.
+Chưa có gì để hiện
+{current} / {total}
+Mở PDF, Word, Excel, PowerPoint, TXT và ảnh mà không rời ứng dụng.
+Mọi tệp, một trình đọc
+Biến ảnh, bản quét, Word và PPT thành PDF, hoặc PDF trở lại Word.
+Chuyển đổi và tạo
+Chú thích, thêm chữ, ký, gộp, tách và quản lý trang.
+Sửa, ký và sắp xếp
+Mở
+Khác
+Số trang
+Trang {count}
+Đường dẫn
+PDF
+PDF sang Word
+Xóa vĩnh viễn tệp này?
+Áp phích
+PPT
+PPT sang PDF
+Premium đang bật
+Đã khôi phục Premium
+Sẵn sàng cho 7 ngày dùng thử miễn phí
+In
+In PDF
+Chính sách quyền riêng tư
+Đề xuất
+Trải nghiệm của bạn thế nào?
+Gần đây
+Mới thêm +{count}
+Thùng rác
+Bỏ quảng cáo
+Bỏ dấu trang
+Đổi tên
+Đã đổi tên
+Giữ và kéo để sắp xếp lại
+Báo cáo
+Khôi phục
+Khôi phục
+Đã khôi phục
+Sơ yếu lý lịch
+Trình đọc gọn, và thùng rác đã cứu tôi hơn một lần.
+Amina
+Ảnh sang PDF nhanh, giao diện tối cũng đẹp.
+Luis
+Giờ tôi giữ Word và PDF cùng nhau. Dấu trang rất tiện.
+Hana
+Đánh giá
+Dùng giao dịch thử trên bản gỡ lỗi này?
+Cửa hàng không dùng được
+Mở khóa thử
+Lưu PDF
+Lưu vào Drive
+Cài đặt quét
+Quét thành PDF
+Lịch
+Tìm
+Tìm tệp
+Chọn ngôn ngữ
+Đã chọn {count}
+Gửi phản hồi
+Cài đặt
+Dùng thử miễn phí 7 ngày
+Chia sẻ
+Chia sẻ
+Dùng thử All Document Reader — mọi tài liệu trong một ứng dụng.
+Ký
+Kích thước
+Bỏ qua
+Chuyển đổi
+Chuyển giữa PDF, Word, ảnh và trang chiếu.
+Sửa và ký
+Đánh dấu trang, thêm chữ và đặt chữ ký.
+Gộp và tách
+Gộp tệp hoặc chỉ lấy những trang bạn cần.
+Quản lý trang
+Sắp xếp lại, xoay, chèn và xóa trang.
+Bỏ quảng cáo
+Dùng mọi màn hình không banner và không gián đoạn.
+Mẫu
+Bắt đầu từ sơ yếu lý lịch, thư, tóm tắt hoặc áp phích.
+Ngày
+Tên
+Kích thước
+Đọc, sửa và chuyển mọi tài liệu
+Tách PDF
+Bộ nhớ
+Đăng ký không thành công
+Tệp của bạn đã sẵn sàng
+Hệ thống
+Chụp ảnh
+Chưa có tính năng bạn muốn? Cho chúng tôi biết
+Mẫu
+Premium mở mẫu này
+Điều khoản
+All Document Reader lưu tài liệu bạn nhập trên thiết bị này. Premium là gói đăng ký tùy chọn do Google Play hoặc App Store tính phí. Hủy bất cứ lúc nào trong tài khoản cửa hàng. Chuyển đổi, sửa, gộp và tách vẫn miễn phí. Quảng cáo được ẩn khi Premium đang bật.
+Lời cảm ơn
+Tiêu đề
+Công cụ
+TXT
+Loại
+Mở Premium
+{used} / {total}
+Phiên bản
+Dọc
+Chào mừng trở lại
+Tiếp tục từ chỗ bạn dừng.
+Word
+Word sang PDF
+Hàng năm

@@ -1,0 +1,225 @@
+Dodaj strony
+Dodaj zrzuty
+Dodaj tekst
+Agenda
+Wszystko
+Wszystkie dokumenty
+Wszystkie pliki
+Adnotuj
+Motyw aplikacji
+Rosnąco
+Pytaj za każdym razem
+Auto kadrowanie
+Korzyści
+Najlepsza wartość
+Kosz opróżniony
+Napisz tutaj
+Zakładka
+Zakładka usunięta
+W zakładkach
+Zakładki
+Briefing
+Anuluj
+Certyfikat
+Błąd
+Wygląd
+Pomysł
+Inne
+Wolno
+Dotknij +, aby importować, skanować lub utworzyć PDF.
+Kontynuuj
+Konwertuj
+Konwertuj i twórz
+Konwersja {percent}%
+List motywacyjny
+Utwórz
+Utwórz pliki
+Utwórz PDF
+Ciemny
+Pozostało {days} dni
+Usuń
+Usuń na zawsze
+Przeniesiono do kosza
+Usunięto na zawsze
+Malejąco
+Szczegóły
+Katalogi
+Zamień zdjęcia i puste strony w PDF kilkoma dotknięciami.
+Odkryj nowość: Utwórz PDF
+Gotowe
+Wybierz Google Drive albo inną aplikację w arkuszu udostępniania.
+Edytuj i zarządzaj
+Edytuj tekst
+Opróżnij kosz
+Usunąć na zawsze wszystko z kosza?
+Brak plików w tej kategorii
+Ten folder jest pusty
+Excel
+Więcej aplikacji tego wydawcy pojawi się tutaj.
+Odkryj więcej aplikacji
+FAQ
+PDF, Word, Excel, PowerPoint, TXT i typowe obrazy. Zaimportuj plik albo otwórz go z innej aplikacji.
+Importy i utworzone pliki zostają w bibliotece aplikacji na tym urządzeniu.
+Kosz trzyma pliki przez 30 dni. Możesz je przywrócić albo usunąć na zawsze.
+Premium usuwa reklamy i odblokowuje szablony z koroną. Konwersja, edycja, łączenie i dzielenie zostają bezpłatne.
+Pytaj za każdym razem pozwala wybrać przy każdym skanie. Auto kadrowanie dopasowuje stronę. Bez kadrowania zostaje całe zdjęcie.
+Otwórz Uzyskaj Premium i dotknij Przywróć. Użyj tego samego konta sklepu.
+Pliki
+Ogólne
+Premium
+Jakie pliki mogę otworzyć?
+Gdzie są przechowywane moje pliki?
+Jak długo usunięte pliki zostają?
+Co zmienia Premium?
+Do czego służą opcje kadrowania?
+Jak przywrócić Premium?
+Skanowanie
+Opinia
+Powiedz, co poprawić
+Menedżer plików
+Filtr
+Ulotka
+Galeria
+Ogólne
+Uzyskaj Premium
+Zacznij
+Idź do strony
+Rozumiem
+Poziomo
+Obraz
+Obraz na PDF
+Importuj pliki
+Zaimportowano
+Faktura
+Język
+List
+Jasny
+Zarządzaj stronami
+Zarządzaj subskrypcjami
+Notatki ze spotkania
+Notatka
+Połącz PDF
+Zmodyfikowano
+Miesięcznie
+Przenieś do kosza
+Nazwa pliku
+Nowy
+Newsletter
+Dalej
+Dodaj zakładkę, a plik zostanie tutaj.
+Brak zakładek
+Bez kadrowania
+Otwarte dokumenty pojawią się tutaj.
+Brak ostatnich plików
+Brak pasujących plików
+Nie znaleziono ważnej subskrypcji.
+Ten plik nie ma czytelnej warstwy tekstu.
+Na razie nic do pokazania
+{current} / {total}
+Otwieraj PDF, Word, Excel, PowerPoint, TXT i obrazy bez opuszczania aplikacji.
+Wszystkie pliki, jeden czytnik
+Zamień zdjęcia, skany, Word i PPT w PDF albo PDF z powrotem w Word.
+Konwertuj i twórz
+Adnotuj, dodawaj tekst, podpisuj, łącz, dziel i zarządzaj stronami.
+Edytuj, podpisuj i porządkuj
+Otwórz
+Inne
+Liczba stron
+Strona {count}
+Ścieżka
+PDF
+PDF na Word
+Usunąć ten plik na zawsze?
+Plakat
+PPT
+PPT na PDF
+Premium jest aktywne
+Premium przywrócone
+Przygotuj się na 7-dniowy bezpłatny okres próbny
+Drukuj
+Drukuj PDF
+Polityka prywatności
+Propozycja
+Jak oceniasz to doświadczenie?
+Ostatnie
+Ostatnio dodane +{count}
+Kosz
+Usuń reklamy
+Usuń zakładkę
+Zmień nazwę
+Nazwa zmieniona
+Przytrzymaj i przeciągnij, aby zmienić kolejność
+Raport
+Przywróć
+Przywróć
+Przywrócono
+CV
+Czysty czytnik, a kosz uratował mnie więcej niż raz.
+Amina
+Obraz na PDF jest szybki, a ciemny motyw wygląda dobrze.
+Luis
+Trzymam Word i PDF razem. Zakładki pomagają.
+Hana
+Opinie
+Użyć zakupu testowego w tej kompilacji debug?
+Sklep niedostępny
+Odblokowanie testowe
+Zapisz PDF
+Zapisz na Drive
+Ustawienia skanowania
+Skanuj do PDF
+Harmonogram
+Szukaj
+Szukaj plików
+Wybierz język
+Wybrano {count}
+Wyślij opinię
+Ustawienia
+7-dniowy okres próbny
+Udostępnij
+Udostępnij
+Wypróbuj All Document Reader — wszystkie dokumenty w jednej aplikacji.
+Podpisz
+Rozmiar
+Pomiń
+Konwertuj
+Przechodź między PDF, Word, obrazami i slajdami.
+Edytuj i podpisuj
+Zaznaczaj strony, dodawaj tekst i umieszczaj podpis.
+Łącz i dziel
+Łącz pliki albo wyciągnij tylko potrzebne strony.
+Zarządzaj stronami
+Zmieniaj kolejność, obracaj, wstawiaj i usuwaj strony.
+Usuń reklamy
+Korzystaj z każdego ekranu bez banerów i przerw.
+Szablony
+Zacznij od CV, listu, briefingu albo plakatu.
+Data
+Nazwa
+Rozmiar
+Czytaj, edytuj i konwertuj każdy dokument
+Podziel PDF
+Pamięć
+Subskrypcja nie powiodła się
+Plik jest gotowy
+System
+Zrób zdjęcie
+Brakuje funkcji? Napisz do nas
+Szablony
+Premium odblokowuje ten szablon
+Warunki
+All Document Reader przechowuje importowane dokumenty na tym urządzeniu. Premium to opcjonalna subskrypcja rozliczana przez Google Play lub App Store. Anuluj ją w dowolnym momencie na koncie sklepu. Konwersja, edycja, łączenie i dzielenie zostają bezpłatne. Reklamy są ukryte, gdy Premium jest aktywne.
+Podziękowanie
+Tytuł
+Narzędzia
+TXT
+Typ
+Odblokuj Premium
+{used} / {total}
+Wersja
+Pionowo
+Witaj ponownie
+Wznów od miejsca, w którym skończyłeś.
+Word
+Word na PDF
+Rocznie

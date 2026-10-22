@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">Maghanap</string>
+    <string name="widget_recent">Kamakailan</string>
+    <string name="widget_bookmarks">Mga bookmark</string>
+    <string name="widget_edit_pdf">I-edit ang PDF</string>
+    <string name="widget_tools_label">Mabilis na tool</string>
+    <string name="widget_home">Home</string>
+    <string name="w_tools_title">Mabilis na tool</string>
+    <string name="w_tools_desc">Maghanap, buksan ang mga kamakailang file at bookmark, o mag-edit ng PDF mula sa iyong home screen</string>
+    <string name="w_reader_title">Document reader</string>
+    <string name="w_reader_desc">Buksan ang PDF, Word, Excel at PowerPoint na file sa isang tap</string>
+    <string name="w_editor_title">PDF editor</string>
+    <string name="w_editor_desc">Dumiretso sa pag-edit ng PDF</string>
+</resources>

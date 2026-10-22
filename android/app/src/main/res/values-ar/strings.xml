@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget labels (texts and translations from the Android reference app) -->
+<resources>
+    <string name="widget_search">بحث</string>
+    <string name="widget_recent">الأخيرة</string>
+    <string name="widget_bookmarks">الإشارات المرجعية</string>
+    <string name="widget_edit_pdf">تعديل PDF</string>
+    <string name="widget_tools_label">أدوات سريعة</string>
+    <string name="widget_home">الرئيسية</string>
+    <string name="w_tools_title">أدوات سريعة</string>
+    <string name="w_tools_desc">ابحث وافتح الملفات الأخيرة والإشارات المرجعية أو عدّل ملف PDF من شاشتك الرئيسية</string>
+    <string name="w_reader_title">قارئ المستندات</string>
+    <string name="w_reader_desc">افتح ملفات PDF وWord وExcel وPowerPoint بنقرة واحدة</string>
+    <string name="w_editor_title">محرر PDF</string>
+    <string name="w_editor_desc">ابدأ تعديل ملف PDF مباشرةً</string>
+</resources>
