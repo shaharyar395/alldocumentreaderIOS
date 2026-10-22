@@ -1498,7 +1498,7 @@ class _ReaderPageState extends State<ReaderPage> {
                     ),
                   ),
                   if (_chrome) _bottomBar(s, nc),
-                  const BannerSlot(),
+                  const BannerSlot(unit: 2),
                 ],
               ),
             ),

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>All Document Reader</string>
+	<string>Documents Reader: Your DocsEra</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>All Document Reader</string>
+	<string>Documents Reader: Your DocsEra</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -75,12 +75,19 @@
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier is used to show more relevant ads. Premium removes ads.</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~3347511713</string>
+	<string>ca-app-pub-9297250663056879~5342069314</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.theoccess.alldocreader.widget</string>
+			<string>com.ol.documents.reader.docera.offline.widget</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>alldocreader</string>

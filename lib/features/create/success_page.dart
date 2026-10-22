@@ -368,7 +368,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
             ),
           ),
           if (_askSatisfied && widget.feature != null) _satisfiedCard(s, nc),
-          const BannerSlot(),
+          const BannerSlot(unit: 2),
         ],
       ),
     );

@@ -260,7 +260,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       pill.dismiss();
       if (!mounted) return;
       if (entry == null) throw StateError('save');
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => SuccessPage(entry: entry, kind: ResultKind.created, feature: s.t('createPdf'), featureKey: 'create_pdf')),

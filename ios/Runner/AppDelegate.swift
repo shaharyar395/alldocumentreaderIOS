@@ -98,7 +98,7 @@ import WidgetKit
         result(PlatformBridge.bookmarkedFiles())
       case "updateWidget":
         let line = (call.arguments as? [String: Any])?["line"] as? String ?? "0"
-        UserDefaults(suiteName: "group.com.theoccess.alldocreader")?.set(line, forKey: "widget_line")
+        UserDefaults(suiteName: "group.com.ol.documents.reader.docera.offline")?.set(line, forKey: "widget_line")
         if #available(iOS 14.0, *) {
           WidgetCenter.shared.reloadAllTimelines()
         }

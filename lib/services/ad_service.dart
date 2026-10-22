@@ -11,47 +11,45 @@ import '../core/settings/app_settings.dart';
 class AdUnits {
   static const testAppId = 'ca-app-pub-3940256099942544~3347511713';
 
-  // Fill these, or pass --dart-define=ADMOB_BANNER_ANDROID=... (and the matching iOS / app-open / interstitial names).
-  // The AdMob application id in AndroidManifest.xml and Info.plist stays the Google test app id until you replace it.
-  static const localBannerAndroid = '';
-  static const localBannerIos = '';
-  static const localAppOpenAndroid = '';
-  static const localAppOpenIos = '';
-  static const localInterstitialAndroid = '';
-  static const localInterstitialIos = '';
-  static const localNativeAndroid = '';
-  static const localNativeIos = '';
+  /// Documents Reader: Your DocsEra. These units are the iOS AdMob app only.
+  static const appIdIos = 'ca-app-pub-9297250663056879~5342069314';
+  static const _bannerIos = 'ca-app-pub-9297250663056879/4972027516';
+  static const _banner2Ios = 'ca-app-pub-9297250663056879/4893890487';
+  static const _appOpenIos = 'ca-app-pub-9297250663056879/8117065603';
+  static const _interstitialIos = 'ca-app-pub-9297250663056879/3837415956';
+  static const _interstitial2Ios = 'ca-app-pub-9297250663056879/5059657426';
+  static const _nativeIos = 'ca-app-pub-9297250663056879/4958925933';
+  static const _rewardedIos = 'ca-app-pub-9297250663056879/3746575754';
+  static const _rewardedInterstitialIos = 'ca-app-pub-9297250663056879/2433494082';
 
-  static const _bannerAndroid = String.fromEnvironment('ADMOB_BANNER_ANDROID');
-  static const _bannerIos = String.fromEnvironment('ADMOB_BANNER_IOS');
-  static const _appOpenAndroid = String.fromEnvironment('ADMOB_APP_OPEN_ANDROID');
-  static const _appOpenIos = String.fromEnvironment('ADMOB_APP_OPEN_IOS');
-  static const _interstitialAndroid = String.fromEnvironment('ADMOB_INTERSTITIAL_ANDROID');
-  static const _interstitialIos = String.fromEnvironment('ADMOB_INTERSTITIAL_IOS');
-  static const _nativeAndroid = String.fromEnvironment('ADMOB_NATIVE_ANDROID');
-  static const _nativeIos = String.fromEnvironment('ADMOB_NATIVE_IOS');
+  static const _testBanner = 'ca-app-pub-3940256099942544/9214589741';
+  static const _testAppOpen = 'ca-app-pub-3940256099942544/9257395921';
+  static const _testInterstitial = 'ca-app-pub-3940256099942544/1033173712';
+  static const _testNative = 'ca-app-pub-3940256099942544/2247696110';
+  static const _testRewarded = 'ca-app-pub-3940256099942544/5224354917';
+  static const _testRewardedInterstitial = 'ca-app-pub-3940256099942544/5354046379';
 
-  static String get banner => Platform.isAndroid
-      ? _pick(_bannerAndroid, localBannerAndroid, 'ca-app-pub-3940256099942544/9214589741')
-      : _pick(_bannerIos, localBannerIos, 'ca-app-pub-3940256099942544/2435281174');
-
-  static String get appOpen => Platform.isAndroid
-      ? _pick(_appOpenAndroid, localAppOpenAndroid, 'ca-app-pub-3940256099942544/9257395921')
-      : _pick(_appOpenIos, localAppOpenIos, 'ca-app-pub-3940256099942544/5575463023');
-
-  static String get interstitial => Platform.isAndroid
-      ? _pick(_interstitialAndroid, localInterstitialAndroid, 'ca-app-pub-3940256099942544/1033173712')
-      : _pick(_interstitialIos, localInterstitialIos, 'ca-app-pub-3940256099942544/4411468910');
-
-  static String get native => Platform.isAndroid
-      ? _pick(_nativeAndroid, localNativeAndroid, 'ca-app-pub-3940256099942544/2247696110')
-      : _pick(_nativeIos, localNativeIos, 'ca-app-pub-3940256099942544/3986624511');
-
-  static String _pick(String fromEnv, String local, String test) {
-    if (fromEnv.isNotEmpty) return fromEnv;
-    if (local.isNotEmpty) return local;
-    return test;
+  static String bannerFor(int unit) {
+    if (!Platform.isIOS) return _testBanner;
+    return unit == 2 ? _banner2Ios : _bannerIos;
   }
+
+  static String get banner => bannerFor(1);
+
+  static String get appOpen => Platform.isIOS ? _appOpenIos : _testAppOpen;
+
+  static String interstitialFor(int unit) {
+    if (!Platform.isIOS) return _testInterstitial;
+    return unit == 2 ? _interstitial2Ios : _interstitialIos;
+  }
+
+  static String get interstitial => interstitialFor(1);
+
+  static String get native => Platform.isIOS ? _nativeIos : _testNative;
+
+  static String get rewarded => Platform.isIOS ? _rewardedIos : _testRewarded;
+
+  static String get rewardedInterstitial => Platform.isIOS ? _rewardedInterstitialIos : _testRewardedInterstitial;
 }
 
 class AdService {
@@ -63,7 +61,12 @@ class AdService {
   AppOpenAd? _appOpen;
   DateTime? _appOpenAt;
   Future<AppOpenAd?>? _appOpenLoading;
-  InterstitialAd? _interstitial;
+  final List<InterstitialAd?> _interstitials = [null, null, null];
+  RewardedAd? _rewarded;
+  bool _rewardedLoading = false;
+  RewardedInterstitialAd? _rewardedInterstitial;
+  bool _rewardedInterstitialLoading = false;
+  DateTime? _interstitialPausedUntil;
   bool _started = false;
 
   /// "Get Premium" after the category ad was already offered in this app run.
@@ -137,7 +140,10 @@ class AdService {
       await MobileAds.instance.initialize();
       ready = true;
       _preloadAppOpen();
-      _preloadInterstitial();
+      _preloadInterstitial(1);
+      _preloadInterstitial(2);
+      _preloadRewarded();
+      _preloadRewardedInterstitial();
       loadNativeAds();
     } catch (error) {
       debugPrint('ads init: $error');
@@ -181,7 +187,7 @@ class AdService {
       }
       if (ad == null) {
         debugPrint('app open: none loaded in time');
-        if (_interstitial != null) await showInterstitial(force: true);
+        if (_interstitials[1] != null) await showInterstitial(force: true);
         _preloadAppOpen();
         return;
       }
@@ -211,17 +217,20 @@ class AdService {
 
   /// Shows the ready full-screen ad (at most one a minute unless [force]). Returns whether an ad
   /// was shown. With [untilClosed] it returns only once the ad has been closed.
-  Future<bool> showInterstitial({bool force = false, bool untilClosed = false}) async {
+  Future<bool> showInterstitial({bool force = false, bool untilClosed = false, int unit = 1}) async {
     if (!canShow) return false;
+    final paused = _interstitialPausedUntil;
+    if (!force && paused != null && DateTime.now().isBefore(paused)) return false;
     final last = _lastInterstitial;
     if (!force && last != null && DateTime.now().difference(last) < const Duration(seconds: 60)) {
       return false;
     }
-    final ad = _interstitial;
-    _interstitial = null;
+    final slot = unit == 2 ? 2 : 1;
+    final ad = _interstitials[slot];
+    _interstitials[slot] = null;
     if (ad == null) {
-      debugPrint('interstitial: none, continue');
-      _preloadInterstitial();
+      debugPrint('interstitial $slot: none, continue');
+      _preloadInterstitial(slot);
       return false;
     }
     _lastInterstitial = DateTime.now();
@@ -247,7 +256,7 @@ class AdService {
       _closed();
       if (!closed.isCompleted) closed.complete(false);
     }
-    _preloadInterstitial();
+    _preloadInterstitial(unit == 2 ? 2 : 1);
     if (!untilClosed) return true;
     return closed.future.timeout(const Duration(minutes: 2), onTimeout: () => true);
   }
@@ -395,14 +404,135 @@ class AdService {
     return done.future;
   }
 
-  void _preloadInterstitial() {
+  void _preloadInterstitial(int unit) {
+    final slot = unit == 2 ? 2 : 1;
+    if (_interstitials[slot] != null) return;
     InterstitialAd.load(
-      adUnitId: AdUnits.interstitial,
+      adUnitId: AdUnits.interstitialFor(slot),
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) => _interstitial = ad,
-        onAdFailedToLoad: (error) => debugPrint('interstitial load: ${error.message}'),
+        onAdLoaded: (ad) {
+          _interstitials[slot]?.dispose();
+          _interstitials[slot] = ad;
+        },
+        onAdFailedToLoad: (error) => debugPrint('interstitial $slot load: ${error.message}'),
       ),
     );
+  }
+
+  void _preloadRewarded() {
+    if (!canShow || _rewarded != null || _rewardedLoading) return;
+    _rewardedLoading = true;
+    RewardedAd.load(
+      adUnitId: AdUnits.rewarded,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          _rewardedLoading = false;
+          _rewarded?.dispose();
+          _rewarded = ad;
+        },
+        onAdFailedToLoad: (error) {
+          _rewardedLoading = false;
+          debugPrint('rewarded load: ${error.message}');
+        },
+      ),
+    );
+  }
+
+  /// Opt-in rewarded ad. True when the user earns the reward (one crowned template).
+  Future<bool> showRewarded() async {
+    if (!canShow) return false;
+    final ad = _rewarded;
+    _rewarded = null;
+    if (ad == null) {
+      _preloadRewarded();
+      return false;
+    }
+    final earned = Completer<bool>();
+    var got = false;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) {
+        _closed();
+        ad.dispose();
+        if (!earned.isCompleted) earned.complete(got);
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('rewarded show: $error');
+        _closed();
+        ad.dispose();
+        if (!earned.isCompleted) earned.complete(false);
+      },
+    );
+    _opened();
+    try {
+      await ad.show(onUserEarnedReward: (ad, reward) => got = true);
+    } catch (error) {
+      debugPrint('rewarded: $error');
+      _closed();
+      if (!earned.isCompleted) earned.complete(false);
+    }
+    _preloadRewarded();
+    return earned.future.timeout(const Duration(minutes: 2), onTimeout: () => got);
+  }
+
+  void _preloadRewardedInterstitial() {
+    if (!canShow || _rewardedInterstitial != null || _rewardedInterstitialLoading) return;
+    _rewardedInterstitialLoading = true;
+    RewardedInterstitialAd.load(
+      adUnitId: AdUnits.rewardedInterstitial,
+      request: const AdRequest(),
+      rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _rewardedInterstitialLoading = false;
+          _rewardedInterstitial?.dispose();
+          _rewardedInterstitial = ad;
+        },
+        onAdFailedToLoad: (error) {
+          _rewardedInterstitialLoading = false;
+          debugPrint('rewarded interstitial load: ${error.message}');
+        },
+      ),
+    );
+  }
+
+  /// Natural-transition rewarded interstitial. The reward skips the next interstitials for 15 minutes.
+  /// Falls back to interstitial [unit] when this ad is not ready.
+  Future<bool> showRewardedInterstitial({int unit = 2}) async {
+    if (!canShow) return false;
+    final ad = _rewardedInterstitial;
+    _rewardedInterstitial = null;
+    if (ad == null) {
+      _preloadRewardedInterstitial();
+      return showInterstitial(unit: unit);
+    }
+    final earned = Completer<bool>();
+    var got = false;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) {
+        _closed();
+        ad.dispose();
+        if (!earned.isCompleted) earned.complete(got);
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('rewarded interstitial show: $error');
+        _closed();
+        ad.dispose();
+        if (!earned.isCompleted) earned.complete(false);
+      },
+    );
+    _opened();
+    try {
+      await ad.show(onUserEarnedReward: (ad, reward) {
+        got = true;
+        _interstitialPausedUntil = DateTime.now().add(const Duration(minutes: 15));
+      });
+    } catch (error) {
+      debugPrint('rewarded interstitial: $error');
+      _closed();
+      if (!earned.isCompleted) earned.complete(false);
+    }
+    _preloadRewardedInterstitial();
+    return earned.future.timeout(const Duration(minutes: 2), onTimeout: () => got);
   }
 }

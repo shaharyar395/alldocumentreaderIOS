@@ -339,7 +339,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                     ),
                   ],
                 ),
-              const BannerSlot(),
+              const BannerSlot(unit: 2),
             ],
           ),
         ),

@@ -456,7 +456,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
       pill.dismiss();
       if (!mounted) return;
       showToast(context, s.t('savedSuccessfully'));
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return;
       final updated = scope.library.byPath(_path) ?? widget.entry;
       await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ReaderPage(entry: updated)));

@@ -160,7 +160,7 @@ class _SplitPageState extends State<SplitPage> {
       pill.dismiss();
       if (!mounted) return;
       if (saved.isEmpty) throw StateError('save');
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(

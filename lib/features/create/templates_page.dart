@@ -45,6 +45,9 @@ Future<bool> useTemplateTry(BuildContext context, Template template) async {
   final left = _freeTriesPerDay - used;
   if (!context.mounted) return false;
   if (left <= 0) {
+    final rewarded = await scope.ads.showRewarded();
+    if (!context.mounted) return false;
+    if (rewarded) return true;
     showToast(context, s.t('premiumLimitReached', {'feature': s.t('templates')}));
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PremiumPage()));
     return false;

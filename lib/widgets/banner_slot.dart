@@ -9,11 +9,14 @@ import '../native/native_colors.dart';
 import '../services/ad_service.dart';
 
 class BannerSlot extends StatefulWidget {
-  const BannerSlot({super.key, this.reserveSpace = false});
+  const BannerSlot({super.key, this.reserveSpace = false, this.unit = 1});
 
   /// Keeps the banner's place with "Loading ad…" until the ad arrives (Language screen); the
   /// space goes away only if no ad comes. Never shown for Premium.
   final bool reserveSpace;
+
+  /// 1 is the home banner. 2 is the banner on reader, lists, and tool screens.
+  final int unit;
 
   @override
   State<BannerSlot> createState() => _BannerSlotState();
@@ -64,7 +67,7 @@ class _BannerSlotState extends State<BannerSlot> {
       return;
     }
     final ad = BannerAd(
-      adUnitId: AdUnits.banner,
+      adUnitId: AdUnits.bannerFor(widget.unit),
       size: size,
       request: const AdRequest(),
       listener: BannerAdListener(

@@ -91,7 +91,7 @@ class _MergePageState extends State<MergePage> {
       pill.dismiss();
       if (!mounted) return;
       if (entry == null) throw StateError('save');
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(

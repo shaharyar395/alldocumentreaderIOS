@@ -572,7 +572,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       setState(() => _busy = false);
       if (entry == null) throw StateError('save');
       _savedIndex = _index;
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return true;
       if (!leaving) _showBanner(entry);
       return true;

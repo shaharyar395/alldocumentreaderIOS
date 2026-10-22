@@ -275,7 +275,7 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
     pill.dismiss();
     if (!context.mounted) return;
     if (saved == null) throw StateError('save');
-    await scope.ads.showInterstitial();
+    await scope.ads.showInterstitial(unit: 2);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -328,7 +328,7 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
     final saved = await scope.library.importBytes(docx, name: '${stem.isEmpty ? 'Document' : stem}.docx', folder: 'convert');
     pill.dismiss();
     if (saved == null || !context.mounted) return;
-    await scope.ads.showInterstitial();
+    await scope.ads.showInterstitial(unit: 2);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word')),

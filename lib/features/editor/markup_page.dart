@@ -738,7 +738,7 @@ class _MarkupPageState extends State<MarkupPage> {
       pill.dismiss();
       if (!mounted) return;
       setState(() => _saving = false);
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return;
       showToast(context, s.t('savedSuccessfully'));
     } catch (_) {

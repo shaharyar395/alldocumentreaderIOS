@@ -259,7 +259,7 @@ class _ImagePdfPageState extends State<ImagePdfPage> {
         setState(() => _busy = false);
         return;
       }
-      await scope.ads.showInterstitial();
+      await scope.ads.showInterstitial(unit: 2);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => SuccessPage(entry: entry, kind: ResultKind.converted, feature: s.t('imageToPdf'), featureKey: 'image_to_pdf')),

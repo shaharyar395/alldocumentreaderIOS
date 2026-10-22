@@ -222,7 +222,7 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
                 ),
               ),
             ),
-            const BannerSlot(),
+            const BannerSlot(unit: 2),
           ],
         ),
       ),

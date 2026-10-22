@@ -21,7 +21,7 @@ struct ReaderProvider: TimelineProvider {
     }
 
     private func currentLine() -> String {
-        UserDefaults(suiteName: "group.com.theoccess.alldocreader")?.string(forKey: "widget_line") ?? "0"
+        UserDefaults(suiteName: "group.com.ol.documents.reader.docera.offline")?.string(forKey: "widget_line") ?? "0"
     }
 }
 

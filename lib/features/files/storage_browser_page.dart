@@ -184,7 +184,7 @@ class _StorageBrowserPageState extends State<StorageBrowserPage> {
                             },
                           ),
               ),
-              const BannerSlot(),
+              const BannerSlot(unit: 2),
             ],
           ),
         ),
