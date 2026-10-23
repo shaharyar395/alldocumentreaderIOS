@@ -19,6 +19,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.os.StatFs
+import android.util.Log
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
@@ -134,7 +135,7 @@ class MainActivity : FlutterFragmentActivity() {
                 "scanDevice" -> {
                     val extensions = call.argument<List<String>>("extensions").orEmpty().map { it.lowercase() }.toHashSet()
                     Thread {
-                        val files = try { scanDevice(extensions) } catch (e: Exception) { emptyList() }
+                        val files = try { scanDevice(extensions) } catch (e: Throwable) { Log.w("AllDocReader", "device scan", e); emptyList() }
                         runOnUiThread { result.success(files) }
                     }.start()
                 }
@@ -347,14 +348,27 @@ class MainActivity : FlutterFragmentActivity() {
      */
     private fun scanDevice(extensions: Set<String>): List<Map<String, Any>> {
         val found = LinkedHashMap<String, Map<String, Any>>()
+        // 1. the system's file index by full path (like the native FileRepository)
         try {
             queryMediaStore(extensions, found)
-        } catch (_: Exception) {
+        } catch (e: Throwable) {
+            Log.w("AllDocReader", "MediaStore path query failed", e)
         }
+        // 2. the index by file name + folder: some phones keep no full path for documents
+        //    (Excel / PowerPoint files received by WhatsApp / Telegram / downloaded)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                queryMediaStoreByName(extensions, found)
+            } catch (e: Throwable) {
+                Log.w("AllDocReader", "MediaStore name query failed", e)
+            }
+        }
+        // 3. a walk through the storage folders for files the index doesn't know yet
         val walked = LinkedHashMap<String, Map<String, Any>>()
         try {
             walk(Environment.getExternalStorageDirectory(), extensions, walked, 0)
-        } catch (_: Exception) {
+        } catch (e: Throwable) {
+            Log.w("AllDocReader", "storage walk failed", e)
         }
         val missing = walked.keys.filter { it !in found }
         if (missing.isNotEmpty()) {
@@ -362,11 +376,12 @@ class MainActivity : FlutterFragmentActivity() {
             if (toScan.isNotEmpty()) {
                 try {
                     MediaScannerConnection.scanFile(applicationContext, toScan.toTypedArray(), null, null)
-                } catch (_: Exception) {
+                } catch (_: Throwable) {
                 }
             }
             missing.forEach { found[it] = walked.getValue(it) }
         }
+        Log.i("AllDocReader", "device scan: ${found.size} files (index + walk ${walked.size})")
         return found.values.toList()
     }
 
@@ -385,39 +400,97 @@ class MainActivity : FlutterFragmentActivity() {
             val iSize = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
             val iDate = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
             while (c.moveToNext()) {
-                val path = c.getString(iData) ?: continue
-                if (path.contains("/.")) continue // hidden folders / files
-                val ext = path.substringAfterLast('/').substringAfterLast('.', "").lowercase()
-                if (ext !in extensions) continue
-                val f = File(path)
-                if (!f.exists()) continue
-                var size = c.getLong(iSize)
-                var modified = c.getLong(iDate) * 1000L
-                if (size <= 0L) size = f.length()
-                if (modified <= 0L) modified = f.lastModified()
-                if (size <= 0L) continue
-                out[path] = mapOf("path" to path, "size" to size, "modified" to modified)
+                try {
+                    val path = c.getString(iData) ?: continue
+                    addFound(path, c.getLong(iSize), c.getLong(iDate) * 1000L, extensions, out)
+                } catch (_: Throwable) {
+                    // one bad row must not lose the others
+                }
             }
         }
     }
 
+    /** Android 10+: DISPLAY_NAME + RELATIVE_PATH (the path column can be empty for documents). */
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.Q)
+    private fun queryMediaStoreByName(extensions: Set<String>, out: MutableMap<String, Map<String, Any>>) {
+        if (extensions.isEmpty()) return
+        val uri = MediaStore.Files.getContentUri("external")
+        val nameCol = MediaStore.Files.FileColumns.DISPLAY_NAME
+        val relCol = MediaStore.Files.FileColumns.RELATIVE_PATH
+        val volCol = MediaStore.Files.FileColumns.VOLUME_NAME
+        @Suppress("DEPRECATION")
+        val dataCol = MediaStore.Files.FileColumns.DATA
+        val projection = arrayOf(
+            nameCol, relCol, volCol, dataCol,
+            MediaStore.Files.FileColumns.SIZE, MediaStore.Files.FileColumns.DATE_MODIFIED,
+        )
+        val list = extensions.toList()
+        val selection = list.joinToString(" OR ") { "$nameCol LIKE ?" }
+        val args = list.map { "%.$it" }.toTypedArray()
+        val primary = Environment.getExternalStorageDirectory().absolutePath
+        contentResolver.query(uri, projection, selection, args, null)?.use { c ->
+            val iName = c.getColumnIndexOrThrow(nameCol)
+            val iRel = c.getColumnIndexOrThrow(relCol)
+            val iVol = c.getColumnIndexOrThrow(volCol)
+            val iData = c.getColumnIndexOrThrow(dataCol)
+            val iSize = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+            val iDate = c.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+            while (c.moveToNext()) {
+                try {
+                    val name = c.getString(iName) ?: continue
+                    val data = c.getString(iData)
+                    val path = if (!data.isNullOrEmpty()) {
+                        data
+                    } else {
+                        val rel = c.getString(iRel) ?: continue
+                        val volume = c.getString(iVol)
+                        val base = if (volume == null || volume == MediaStore.VOLUME_EXTERNAL_PRIMARY) primary else "/storage/$volume"
+                        File(File(base, rel), name).absolutePath
+                    }
+                    if (path in out) continue
+                    addFound(path, c.getLong(iSize), c.getLong(iDate) * 1000L, extensions, out)
+                } catch (_: Throwable) {
+                }
+            }
+        }
+    }
+
+    private fun addFound(path: String, indexSize: Long, indexModified: Long, extensions: Set<String>, out: MutableMap<String, Map<String, Any>>) {
+        if (path.contains("/.")) return // hidden folders / files
+        val ext = path.substringAfterLast('/').substringAfterLast('.', "").lowercase()
+        if (ext !in extensions) return
+        val f = File(path)
+        if (!f.exists()) return
+        var size = indexSize
+        var modified = indexModified
+        if (size <= 0L) size = f.length()
+        if (modified <= 0L) modified = f.lastModified()
+        if (size <= 0L) return
+        out[path] = mapOf("path" to path, "size" to size, "modified" to modified)
+    }
+
     private fun walk(dir: File, extensions: Set<String>, out: MutableMap<String, Map<String, Any>>, depth: Int) {
         if (depth > 8) return
-        val children = dir.listFiles() ?: return
+        // a folder that can't be read is skipped; the walk goes on with the others
+        val children = try { dir.listFiles() } catch (_: Throwable) { null } ?: return
         for (f in children) {
-            if (f.name.startsWith(".")) continue
-            if (f.isDirectory) {
-                // Android/ holds app data, except Android/media (WhatsApp / Telegram documents)
-                if (depth == 0 && f.name == "Android") {
-                    File(f, "media").takeIf { it.isDirectory }?.let { walk(it, extensions, out, depth + 2) }
-                    continue
+            try {
+                if (f.name.startsWith(".")) continue
+                if (f.isDirectory) {
+                    // Android/ holds app data, except Android/media (WhatsApp / Telegram documents)
+                    if (depth == 0 && f.name == "Android") {
+                        File(f, "media").takeIf { it.isDirectory }?.let { walk(it, extensions, out, depth + 2) }
+                        continue
+                    }
+                    walk(f, extensions, out, depth + 1)
+                } else {
+                    val ext = f.name.substringAfterLast('.', "").lowercase()
+                    if (ext !in extensions) continue
+                    val size = f.length()
+                    if (size > 0) out[f.absolutePath] = mapOf("path" to f.absolutePath, "size" to size, "modified" to f.lastModified())
                 }
-                walk(f, extensions, out, depth + 1)
-            } else {
-                val ext = f.name.substringAfterLast('.', "").lowercase()
-                if (ext !in extensions) continue
-                val size = f.length()
-                if (size > 0) out[f.absolutePath] = mapOf("path" to f.absolutePath, "size" to size, "modified" to f.lastModified())
+            } catch (_: Throwable) {
+                // skip this entry only
             }
         }
     }

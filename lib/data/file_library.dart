@@ -530,6 +530,21 @@ class FileLibrary extends ChangeNotifier {
           if (kindForName(file.path) == DocKind.other) continue;
           found[_ref(file.path)] = file;
         }
+        if (found.isEmpty) {
+          // the native scan gave nothing (it failed on this phone): walk the storage from Dart with
+          // the same rules (8 levels, no hidden names, Android/ only for Android/media)
+          const storage = '/storage/emulated/0';
+          await _walk(Directory(storage), found, maxDepth: 8, skip: {p.normalize(p.join(storage, 'Android'))});
+          await _walk(Directory(p.join(storage, 'Android', 'media')), found, maxDepth: 6);
+        }
+        if (kDebugMode) {
+          final byKind = <DocKind, int>{};
+          for (final path in found.keys) {
+            final kind = kindForName(path);
+            byKind[kind] = (byKind[kind] ?? 0) + 1;
+          }
+          debugPrint('device scan: ${found.length} files $byKind');
+        }
         fullScan = true;
       } else {
         // without access only the app's own saved files can be read
@@ -545,7 +560,7 @@ class FileLibrary extends ChangeNotifier {
       fullScan = true;
       withAccess = true;
     }
-    await _merge(found, fullScan: fullScan);
+    await _merge(found, fullScan: fullScan, dropDeviceFiles: Platform.isAndroid && !withAccess);
     _scannedWithAccess = withAccess;
     _deviceScanned = true;
     await _persist();
@@ -575,13 +590,13 @@ class FileLibrary extends ChangeNotifier {
     }
   }
 
-  Future<void> _merge(Map<String, DeviceFile> found, {required bool fullScan}) async {
+  Future<void> _merge(Map<String, DeviceFile> found, {required bool fullScan, bool dropDeviceFiles = false}) async {
     final now = DateTime.now().millisecondsSinceEpoch;
     final snapshot = entries;
     final byRef = {for (final e in snapshot) e.relativePath: e};
     final next = <DocEntry>[
       for (final e in snapshot)
-        if (!found.containsKey(e.relativePath)) e,
+        if (!found.containsKey(e.relativePath) && !(dropDeviceFiles && _isOtherAppsFile(e))) e,
     ];
     for (final item in found.entries) {
       if (_gone.contains(item.key)) continue;
@@ -622,6 +637,17 @@ class FileLibrary extends ChangeNotifier {
 
     if (Platform.isAndroid && fullScan) await _dropLegacyTwins(next, found);
     entries = [for (final e in _reconcile(snapshot, next)) _decorate(e)];
+  }
+
+  /// Android without "All files access": a file of the phone found by an earlier scan (not one of
+  /// the app's own saved files, not in the recycle bin). Such files are not listed until access is
+  /// given again; their bookmark and Recent place are kept (stored by path) and come back with it.
+  bool _isOtherAppsFile(DocEntry e) {
+    if (e.inBin || !p.isAbsolute(e.relativePath)) return false;
+    final path = p.normalize(e.relativePath);
+    if (_outputBase.isNotEmpty && p.isWithin(p.normalize(_outputBase), path)) return false;
+    if (root.isNotEmpty && p.isWithin(p.normalize(root), path)) return false;
+    return true;
   }
 
   /// Older versions copied scanned files into library/import. Now that the real files are

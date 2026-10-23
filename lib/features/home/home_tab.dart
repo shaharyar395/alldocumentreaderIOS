@@ -139,17 +139,19 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     _maybeReloadAfterSave();
   }
 
-  /// Back on the main screen from another page (HomeFragment.onResume).
+  /// Back on the main screen from another page (HomeFragment.onResume). No access prompt here:
+  /// closing the access dialog itself lands here too ("Not now" must not reopen it at once).
   @override
   void didPopNext() {
-    _onAccessMaybeChanged(resumed: true);
+    _onAccessMaybeChanged(resumed: true, prompt: false);
     _maybeReloadAfterSave();
   }
 
   /// Like HomeFragment.onAccessMaybeChanged: with access the dialog closes, the access view
-  /// goes, the scan starts and the category tapped before opens; without access the dialog
-  /// shows once (only while All files is on screen).
-  Future<void> _onAccessMaybeChanged({bool resumed = false}) async {
+  /// goes, the scan starts and the category tapped before opens. Without access no phone files
+  /// are listed and the "Allow access to files" dialog shows again each time the All files tab
+  /// opens, the app comes back from the background or from the settings page ([prompt]).
+  Future<void> _onAccessMaybeChanged({bool resumed = false, bool prompt = true}) async {
     final access = await hasStorageAccess();
     if (!mounted) return;
     final scope = AppScope.of(context);
@@ -169,25 +171,32 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
       if (pending != null && widget.visible) await _openCategory(pending);
       return;
     }
-    // without access only the app's own files are read (no prompt)
-    if (!library.deviceScanned && !library.scanning) unawaited(library.rescan());
-    if (widget.visible && !scope.settings.permissionPrompted) {
-      await scope.settings.markPermissionPrompted();
-      if (mounted) await _showAccessDialog();
-    }
+    // without access only the app's own saved files are listed (phone files found before are
+    // hidden by the scan until access is given again)
+    if (!library.scanning && (!library.deviceScanned || library.scannedWithAccess)) unawaited(library.rescan());
+    if (!prompt || !widget.visible) return;
+    // not over another page or a dialog of ours, and not while a full-screen ad is closing
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return;
+    if (scope.ads.fullScreenActive) return;
+    if (!scope.settings.permissionPrompted) await scope.settings.markPermissionPrompted();
+    if (mounted) await _showAccessDialog();
   }
 
   Future<void> _showAccessDialog() async {
     if (_dialogContext != null) return;
     final allow = await showStorageAccessDialog(context, onContext: (dialogContext) => _dialogContext = dialogContext);
+    // the dialog is closed now (Allow, Not now, back or outside tap): it may be shown again later
+    _dialogContext = null;
     if (!mounted) return;
     if (!allow) {
       _pendingTile = null;
       return;
     }
     await requestStorageAccess(context: context);
-    // Android 10 and older answer in a system dialog (no resume): check again now
-    if (mounted) await _onAccessMaybeChanged();
+    // Android 10 and older answer in a system dialog: check again now. No new prompt from here
+    // (on 11+ the settings page is open now); coming back to the app asks again if still denied.
+    if (mounted) await _onAccessMaybeChanged(prompt: false);
   }
 
   void _closeDialog() {

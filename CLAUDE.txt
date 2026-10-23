@@ -234,3 +234,32 @@ Claude — after Cursor's APK size round (base = Cursor's reduced zip)
 - app.dart _HoldTopInset (MaterialApp builder): while a full-screen ad is open the status bar is hidden and the top
   inset drops to 0, so headers jumped into the see-through strip above the ad. During an ad (AdService
   .fullScreenActive) the last real top inset is kept. Reader full screen (no ad) is unaffected.
+
+iOS publish — Documents Reader: Your DocsEra (do not copy these onto Android)
+- iOS only. Android stays com.theoccess.alldocreader, label "All Document Reader", and Google test ad units.
+- Bundle id: com.ol.documents.reader.docera.offline (widget .ReaderWidget, tests .RunnerTests).
+- Display name: Documents Reader: Your DocsEra (ios/Runner/Info.plist and the Reader widget).
+- AdMob app id in Info.plist GADApplicationIdentifier: ca-app-pub-9297250663056879~5342069314
+- Ad units live in lib/services/ad_service.dart and are returned only when Platform.isIOS:
+  App open 8117065603, Banner 1 4972027516 (home), Banner 2 4893890487 (reader, lists, tools),
+  Interstitial 1 3837415956 (open a category), Interstitial 2 5059657426 (after tools),
+  Native 4958925933 (Explore more apps), Rewarded 3746575754 (one crowned template after free tries),
+  Rewarded interstitial 2433494082 (after Image to PDF; reward skips interstitials for 15 minutes).
+- App Group group.com.ol.documents.reader.docera.offline must be registered in the Apple Developer account
+  with the bundle id before archiving. An IPA still needs a Mac.
+
+Claude — Excel / PPT scan fix re-applied on top of Cursor's latest zip
+- Device scan hardened (Excel / PPT tiles showed 0 on a Samsung A13 while PDF/Word/Image had files):
+  MainActivity.scanDevice now (1) queries the index by path, (2) on Android 10+ also by DISPLAY_NAME +
+  RELATIVE_PATH (rows without a full path), (3) walks storage with per-folder / per-entry error handling so one
+  bad folder no longer stops the walk; everything catches Throwable and logs to logcat tag "AllDocReader"
+  ("device scan: N files"). Dart (file_library _rescanOnce): if the native scan returns nothing while access is
+  on, it walks /storage/emulated/0 itself (same rules); debug builds print per-type counts ("device scan: …").
+  If Excel/PPT still show 0, run `adb logcat -s AllDocReader flutter` while opening the app and send the output.
+
+Claude — allow-access flow (Android)
+- The "Allow access to files" dialog is no longer once-only: while access is off it shows again whenever the
+  All files tab opens, the app comes back from the background or from the settings page (not right after Not now,
+  not over another page, not while a full-screen ad closes).
+- Without access, phone files found by an earlier scan are hidden (FileLibrary._merge dropDeviceFiles); only the
+  app's own saved files stay. Bookmarks / Recent are kept by path and come back when access is given again.
