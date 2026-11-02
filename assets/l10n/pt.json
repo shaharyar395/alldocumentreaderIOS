@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "A assinatura é barata, e agora consigo visualizar, editar e gerenciar arquivos sem anúncios chatos. Aumentou muito minha produtividade!",
   "readyTop": "Prepare-se para o seu",
-  "readyBottom": "teste grátis de 7 dias"
+  "readyBottom": "teste grátis de 7 dias",
+  "permissionMessageIos": "Para ler seus arquivos PDF, Word, Excel, PPT e TXT, escolha a pasta onde você os guarda (por exemplo, No Meu iPhone ou Downloads).",
+  "addFolder": "Adicionar pasta",
+  "removeFolder": "Remover pasta",
+  "removeFolderMessage": "Os arquivos dela não aparecerão mais no app. Nada é apagado do seu iPhone.",
+  "faqASubscriptionIos": "As assinaturas são gerenciadas pela App Store. Acesse <b>Configurações → Gerenciar assinaturas</b> ou abra Ajustes do iPhone → ID Apple → Assinaturas. Consulte nossos <a href=\"app://terms\">Termos de uso</a> para mais detalhes.",
+  "termsHtmlIos": "<p><i>Última atualização: setembro de 2026</i></p><p>Estes Termos de uso regem o uso do <b>{app}</b> (o \"App\"). Ao usar o App, você concorda com estes termos.</p><h4>1. Uso do App</h4><p>Você pode usar o App para visualizar, criar, converter e editar documentos para fins pessoais ou profissionais. Você é responsável pelos documentos que abre e cria, bem como por ter o direito de usá-los.</p><h4>2. Assinaturas</h4><p>Alguns recursos podem exigir uma assinatura paga adquirida pela App Store. As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. Você pode gerenciar ou cancelar uma assinatura nos ajustes do seu ID Apple (Ajustes › ID Apple › Assinaturas). Os reembolsos seguem as políticas da App Store.</p><h4>3. Publicidade</h4><p>A versão gratuita do App pode exibir anúncios fornecidos por terceiros.</p><h4>4. Sem garantia</h4><p>O App é fornecido \"no estado em que se encontra\". Fazemos o possível para mantê-lo confiável, mas não garantimos que ele esteja livre de erros e não nos responsabilizamos por perda de dados. Mantenha cópias de segurança dos seus arquivos importantes.</p><h4>5. Alterações</h4><p>Podemos atualizar estes termos periodicamente. O uso contínuo do App significa que você aceita os termos atualizados.</p><h4>6. Contato</h4><p>Dúvidas? Envie um e-mail para {email}.</p>",
+  "goToAppStore": "Ir para a App Store",
+  "addToAppIconMenu": "Adicionar ao menu do ícone do app",
+  "appIconMenuAdded": "Adicionado ao menu do ícone do app. Toque e segure o ícone do app para abrir.",
+  "onMyDevice": "No meu {device}"
 }

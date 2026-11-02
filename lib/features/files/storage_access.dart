@@ -1,10 +1,9 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app_scope.dart';
+import '../../data/file_library.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_shapes.dart';
@@ -14,57 +13,63 @@ import '../../widgets/home_art.dart';
 
 /// Whether the app may read the documents on the phone, like the Android app's
 /// StorageAccess.has: Android 11+ "All files access", Android 10 and older the storage
-/// permission. iOS has no such access (files come in through Files): always true.
+/// permission. iOS lets no app read the whole phone: there, access means the user has picked
+/// at least one folder in Files (On My iPhone, Downloads, iCloud Drive…).
 Future<bool> hasStorageAccess() async {
   if (Platform.environment.containsKey('FLUTTER_TEST')) return true;
+  if (Platform.isIOS) return (await PlatformBridge.iosFolders()).isNotEmpty;
   if (!Platform.isAndroid) return true;
   return PlatformBridge.storageAccess();
 }
 
+/// Whether tools, lists and pickers must wait for file access first: only on Android without
+/// "All files access" / the storage permission (like the Android app's needsAccess). iOS is fully
+/// usable without a picked folder: the app's own files (Documents) are always there, and picked
+/// folders only add more files to the lists.
+Future<bool> needsAccessGate() async => Platform.isAndroid && !await hasStorageAccess();
+
 /// Opens the system page for "All files access" (Android 11+) or asks with the system
 /// permission dialog (Android 10 and older). No dialog of our own. With a [context] the
 /// "Welcome back" screen is not shown when the user comes back from the settings page.
+/// iOS: the Files folder picker; a picked folder is scanned straight away.
 Future<void> requestStorageAccess({BuildContext? context}) async {
-  if (!Platform.isAndroid) return;
+  if (!Platform.isAndroid && !Platform.isIOS) return;
+  FileLibrary? library;
   if (context != null && context.mounted) {
     final scope = AppScope.of(context);
     scope.guard.arm(scope.settings);
+    library = scope.library;
+  }
+  if (Platform.isIOS) {
+    final picked = await PlatformBridge.pickIosFolder();
+    if (picked != null) await library?.rescan();
+    return;
   }
   await PlatformBridge.requestStorageAccess();
 }
 
 /// Tools, the + sheet and file pickers (like the Android app's CreateFilesSheet.ensureAccess):
 /// true when access is on; otherwise a "Allow file access…" toast, the settings page / system
-/// dialog opens, and false is returned. Always true on iOS.
+/// dialog opens, and false is returned. Always true on iOS ([needsAccessGate]).
 Future<bool> ensureAccess(BuildContext context) async {
-  if (await hasStorageAccess()) return true;
+  if (!await needsAccessGate()) return true;
   if (!context.mounted) return false;
   showToast(context, S.of(context).t('permissionNeededHint'));
   await requestStorageAccess(context: context);
   return false;
 }
 
-/// "Scan device storage": Android asks for storage access (the device scan then finds every
-/// document); iOS lets the user pick a folder in Files whose documents are copied in.
+/// "Scan device storage" / "Add folder": Android asks for storage access (the device scan then
+/// finds every document); iOS opens the Files folder picker (another folder can be added any time).
 Future<void> pickScanRoot(BuildContext context) async {
   final scope = AppScope.of(context);
-  if (Platform.isAndroid) {
-    if (await hasStorageAccess()) {
-      await scope.library.rescan();
-      return;
-    }
-    if (!context.mounted) return;
-    await requestStorageAccess(context: context);
-    if (await hasStorageAccess()) await scope.library.rescan();
+  if (Platform.isAndroid && await hasStorageAccess()) {
+    await scope.library.rescan();
     return;
   }
-  scope.guard.arm(scope.settings);
-  final path = await FilePicker.platform.getDirectoryPath();
-  if (path == null || !context.mounted) return;
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('ios_scan_root', path);
-  await PlatformBridge.rememberIosDirectory(path);
-  await scope.library.rescan();
+  if (!context.mounted) return;
+  await requestStorageAccess(context: context);
+  if (Platform.isAndroid && await hasStorageAccess()) await scope.library.rescan();
 }
 
 /// The "Allow access to files" dialog of the Android app (res/layout/dialog_permission.xml):
@@ -101,7 +106,7 @@ Future<bool> showStorageAccessDialog(BuildContext context, {void Function(BuildC
               ),
               const SizedBox(height: 8),
               Text(
-                s.t('permissionMessage'),
+                s.t(Platform.isIOS ? 'permissionMessageIos' : 'permissionMessage'),
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, height: 1.32, color: c.textSecondary),
               ),

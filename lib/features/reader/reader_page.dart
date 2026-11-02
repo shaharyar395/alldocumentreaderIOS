@@ -884,46 +884,20 @@ class _ReaderPageState extends State<ReaderPage> {
     );
   }
 
+  /// The red pen: like the native viewer, the PDF editor opens straight at the page on screen
+  /// (no tool chosen yet); after a save the reader shows the new pages at the same place.
   Future<void> _pdfTools() async {
-    final s = S.of(context);
-    Widget row(BuildContext sheet, NDrawable icon, String label, VoidCallback onTap) {
-      final nc = NC.of(sheet);
-      return InkWell(
-        onTap: () {
-          Navigator.pop(sheet);
-          onTap();
-        },
-        child: SizedBox(
-          height: 52,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 20, end: 16),
-            child: Row(
-              children: [
-                NativeIcon(icon, size: 24),
-                const SizedBox(width: 16),
-                Expanded(child: Text(label, style: TextStyle(fontSize: 15, color: nc.textPrimary))),
-              ],
-            ),
-          ),
-        ),
-      );
+    final page = _paged.page;
+    final saved = await openMarkup(context, entry: _entry, tool: MarkTool.none, page: page);
+    if (!saved || !mounted) return;
+    final old = _pdf;
+    await _load(File(_entry.fullPath));
+    // the pages of the file before the save are no longer shown
+    if (old != null && !identical(old, _pdf)) {
+      old.sizesVersion.removeListener(_onPdfSizes);
+      await old.close();
     }
-
-    await showAppSheet<void>(
-      context,
-      builder: (sheet) => Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            row(sheet, ND.icEtEditText, s.t('editText'), () => openMarkup(context, entry: _entry, tool: MarkTool.text)),
-            row(sheet, ND.icEtAnnotate, s.t('annotate'), () => openMarkup(context, entry: _entry)),
-            row(sheet, ND.icEtAddText, s.t('addText'), () => openMarkup(context, entry: _entry, tool: MarkTool.text)),
-            row(sheet, ND.icEtSign, s.t('sign'), () => openMarkup(context, entry: _entry, tool: MarkTool.sign)),
-          ],
-        ),
-      ),
-    );
+    if (mounted) _paged.jumpTo(page);
   }
 
   // ------------------------------------------------------------------ build

@@ -148,7 +148,7 @@ class _StartTrialPageState extends State<StartTrialPage> {
                             children: [
                               Flexible(
                                 child: Text(
-                                  s.t('tryDaysFree', {'days': '${prices.trialDays}'}),
+                                  prices.trialDays > 0 ? s.t('tryDaysFree', {'days': '${prices.trialDays}'}) : s.t('getPremium'),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
                                 ),

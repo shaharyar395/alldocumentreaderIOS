@@ -843,11 +843,12 @@ class _ListFadeInState extends State<ListFadeIn> with SingleTickerProviderStateM
 
 /// item_folder.xml: 64dp, ic_folder_blue (38dp), 15sp bold name, "N files" (12sp), › text_hint.
 class FolderRow extends StatelessWidget {
-  const FolderRow({super.key, required this.name, required this.meta, required this.onTap});
+  const FolderRow({super.key, required this.name, required this.meta, required this.onTap, this.onLongPress});
 
   final String name;
   final String meta;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -856,6 +857,7 @@ class FolderRow extends StatelessWidget {
       type: MaterialType.transparency,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: SizedBox(
           height: 64,
           child: Padding(

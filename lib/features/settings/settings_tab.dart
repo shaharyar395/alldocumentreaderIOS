@@ -48,6 +48,14 @@ class _SettingsTabState extends State<SettingsTab> {
     _loadVersion();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // iOS home-screen widgets: their texts in the app's language (this tab is built at start
+    // and again whenever the language changes)
+    if (Platform.isIOS) PlatformBridge.updateWidgetLabels(widgetLabels(S.of(context)));
+  }
+
   Future<void> _loadVersion() async {
     final version = await PlatformBridge.appVersion();
     if (mounted && version != null && version.isNotEmpty) setState(() => _version = version);
@@ -115,7 +123,9 @@ class _SettingsTabState extends State<SettingsTab> {
                   onTap: () => openFileManager(context),
                 ),
                 _SettingsRow(icon: ND.icStFaq, title: s.t('faq'), onTap: () => _push(const FaqPage())),
-                _SettingsRow(icon: ND.icShare, title: s.t('share'), onTap: () => shareApp(context)),
+                Builder(
+                  builder: (rowContext) => _SettingsRow(icon: ND.icShare, title: s.t('share'), onTap: () => shareApp(rowContext)),
+                ),
                 _Section(s.t('general')),
                 _SettingsRow(
                   icon: ND.icStScan,
@@ -155,7 +165,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 _SettingsRow(
                   icon: ND.icStSubscriptions,
                   title: s.t('manageSubscriptions'),
-                  subtitle: Platform.isAndroid ? s.t('goToGooglePlay') : null,
+                  subtitle: Platform.isAndroid ? s.t('goToGooglePlay') : (Platform.isIOS ? s.t('goToAppStore') : null),
                   onTap: () => openManageSubscriptions(context),
                 ),
                 if (_version != null)
@@ -225,19 +235,30 @@ class _SettingsTabState extends State<SettingsTab> {
   }
 }
 
-/// Share: the Android app's share_app_text plus the Play Store link (Android only; there is
-/// no App Store id for iOS yet).
+/// Share: the Android app's share_app_text plus the store link (Play Store on Android; on iOS the
+/// App Store page once [appStoreId] is set). [context] is the tapped row (iPad popover anchor).
 Future<void> shareApp(BuildContext context) async {
   final s = S.of(context);
   final scope = AppScope.of(context);
   final text = s.t('shareAppText', {'app': 'All Document Reader'});
+  final String message;
+  if (Platform.isAndroid) {
+    message = '$text\n$playStoreUrl';
+  } else if (Platform.isIOS && appStoreId.isNotEmpty) {
+    message = '$text\n$appStoreUrl';
+  } else {
+    message = text;
+  }
+  final origin = shareOrigin(context);
   scope.guard.arm(scope.settings);
-  await Share.share(Platform.isAndroid ? '$text\n$playStoreUrl' : text, subject: s.t('share'));
+  await Share.share(message, subject: s.t('share'), sharePositionOrigin: origin);
 }
 
-/// Manage subscriptions: the store's subscription page (Google Play / App Store).
+/// Manage subscriptions: the store's subscription page (Google Play; on iOS the App Store's own
+/// "Manage subscriptions" sheet, the web page only when the sheet can't be shown).
 Future<void> openManageSubscriptions(BuildContext context) async {
   final scope = AppScope.of(context);
+  if (Platform.isIOS && await PlatformBridge.manageSubscriptions()) return;
   scope.guard.arm(scope.settings);
   final uri = Platform.isIOS
       ? Uri.parse('https://apps.apple.com/account/subscriptions')

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../l10n/s.dart';
@@ -46,6 +48,9 @@ const _sections = <(String, List<_Question>)>[
     _Question(ND.icShield, 'faqQPermissions', 'faqAPermissions'),
   ]),
 ];
+
+/// iOS shows the App Store version of the subscription answer (no other store is named there).
+String _answerKey(String key) => Platform.isIOS && key == 'faqASubscription' ? 'faqASubscriptionIos' : key;
 
 class _FaqPageState extends State<FaqPage> {
   final _sectionKeys = List.generate(_sections.length, (_) => GlobalKey());
@@ -267,7 +272,7 @@ class _FaqPageState extends State<FaqPage> {
                     Container(height: 1, color: nc.divider),
                     const SizedBox(height: 12),
                     HtmlText(
-                      s.t(q.answer),
+                      s.t(_answerKey(q.answer)),
                       style: TextStyle(color: nc.textPrimary, height: 1.32, fontSize: 14),
                       linkColor: nc.primary,
                       onLink: (href) => openAppLink(context, href),

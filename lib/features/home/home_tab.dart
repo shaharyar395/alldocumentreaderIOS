@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,8 @@ class _HomeBody extends StatefulWidget {
 }
 
 class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, RouteAware {
-  /// Storage access (null until checked; always true on iOS).
+  /// Storage access (null until checked). Android: "All files access" / the storage permission;
+  /// iOS: at least one folder picked in Files. iOS works without it ([_usable]).
   bool? _access;
   bool _started = false;
   bool _hintsSent = false;
@@ -116,6 +118,10 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     super.dispose();
   }
 
+  /// Lists, tiles and counts work: Android only with access; iOS always (without a picked folder
+  /// the app's own files in Documents are listed).
+  bool get _usable => _access == true || (Platform.isIOS && _access != null);
+
   void _onSegment() {
     if (mounted) setState(() {});
   }
@@ -123,8 +129,14 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   /// The first-run hints wait until files are loaded and access is on (maybeShowFirstRunHints).
   void _onLibrary() {
     final library = _library;
-    if (!mounted || _hintsSent || _access != true || library == null) return;
-    if (!library.scannedWithAccess) return;
+    if (!mounted || _hintsSent || !_usable || library == null) return;
+    if (_access == true) {
+      if (!library.scannedWithAccess) return;
+    } else {
+      // iOS without a picked folder: after the first scan, and not under the one-time access dialog
+      if (!library.deviceScanned || _dialogContext != null) return;
+      if (!AppScope.of(context).settings.permissionPrompted) return;
+    }
     _hintsSent = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) widget.onHintsReady?.call();
@@ -151,6 +163,9 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   /// goes, the scan starts and the category tapped before opens. Without access no phone files
   /// are listed and the "Allow access to files" dialog shows again each time the All files tab
   /// opens, the app comes back from the background or from the settings page ([prompt]).
+  /// iOS without a picked folder: the app's own files are listed and the dialog (Files folder
+  /// picker) shows only once (settings.permissionPrompted); afterwards the "Grant access" view and
+  /// Directories → Storage → "Add folder" remain.
   Future<void> _onAccessMaybeChanged({bool resumed = false, bool prompt = true}) async {
     final access = await hasStorageAccess();
     if (!mounted) return;
@@ -173,8 +188,15 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     }
     // without access only the app's own saved files are listed (phone files found before are
     // hidden by the scan until access is given again)
-    if (!library.scanning && (!library.deviceScanned || library.scannedWithAccess)) unawaited(library.rescan());
+    if (!library.scanning && (!library.deviceScanned || library.scannedWithAccess)) {
+      unawaited(library.rescan());
+    } else if (Platform.isIOS && resumed) {
+      // files may have been put into the app's Documents folder from the Files app
+      unawaited(library.refreshIfStale());
+    }
+    _onLibrary();
     if (!prompt || !widget.visible) return;
+    if (Platform.isIOS && scope.settings.permissionPrompted) return;
     // not over another page or a dialog of ours, and not while a full-screen ad is closing
     final route = ModalRoute.of(context);
     if (route != null && !route.isCurrent) return;
@@ -191,6 +213,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     if (!mounted) return;
     if (!allow) {
       _pendingTile = null;
+      _onLibrary();
       return;
     }
     await requestStorageAccess(context: context);
@@ -207,7 +230,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
 
   /// Something was saved elsewhere in the app: "Loading files…" → "Loaded successfully".
   Future<void> _maybeReloadAfterSave() async {
-    if (!mounted || !widget.visible || _access != true) return;
+    if (!mounted || !widget.visible || !_usable) return;
     final library = AppScope.of(context).library;
     if (!library.takePendingReload()) return;
     setState(() => _loadStatus = 1);
@@ -230,9 +253,9 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     await showRateSheet(context);
   }
 
-  /// A tile without access: the dialog, and the category opens once access is given.
+  /// A tile without access (Android): the dialog, and the category opens once access is given.
   Future<void> _onTileTap(_Tile tile) async {
-    if (!await hasStorageAccess()) {
+    if (await needsAccessGate()) {
       if (!mounted) return;
       _pendingTile = tile;
       await _showAccessDialog();
@@ -259,7 +282,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   }
 
   Future<void> _openRecentlyAdded() async {
-    if (!await hasStorageAccess()) {
+    if (await needsAccessGate()) {
       if (mounted) await _showAccessDialog();
       return;
     }
@@ -269,11 +292,11 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     if (mounted) await _maybeRate();
   }
 
-  /// Pull to refresh: nothing without access; otherwise a new scan and "Files updated".
+  /// Pull to refresh: nothing without access (Android); otherwise a new scan and "Files updated".
   Future<void> _refresh() async {
     final s = S.of(context);
     final library = AppScope.of(context).library;
-    if (!await hasStorageAccess()) return;
+    if (await needsAccessGate()) return;
     await library.rescan();
     if (!mounted) return;
     showToast(context, s.t('filesRefreshed'));
@@ -290,10 +313,13 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     final bookmarks = homeShowBookmarks.value;
     final known = _access != null;
     final access = _access ?? false;
+    final usable = _usable;
     final files = bookmarks ? library.bookmarks : library.recentOpened;
-    final fresh = access ? library.newSince(settings.recentSeenAt) : 0;
-    final loaded = access && library.scannedWithAccess;
-    final firstLoad = access && !library.scannedWithAccess;
+    final fresh = usable ? library.newSince(settings.recentSeenAt) : 0;
+    // iOS without a picked folder: the app's own files, counted once the first scan is done
+    final scanned = access ? library.scannedWithAccess : library.deviceScanned;
+    final loaded = usable && scanned;
+    final firstLoad = usable && !scanned;
     String? count(DocKind? kind) => loaded ? _filesText(s, library.countOf(kind)) : null;
     final total = library.storageTotal;
     final storage = total == null
@@ -317,7 +343,8 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     final Widget listArea;
     if (!known) {
       listArea = ListView(padding: EdgeInsets.zero, physics: const AlwaysScrollableScrollPhysics(), children: const []);
-    } else if (!access) {
+    } else if (!usable || (!access && !firstLoad && files.isEmpty)) {
+      // Android without access; iOS without a picked folder and nothing in Recent / Bookmarks yet
       listArea = ListView(
         padding: EdgeInsets.zero,
         physics: const AlwaysScrollableScrollPhysics(),

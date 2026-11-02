@@ -15,6 +15,10 @@ class SceneDelegate: FlutterSceneDelegate {
         PlatformBridge.accept(url: context.url, deliverNow: false)
       }
     }
+    // started from a Home Screen quick action (a file added with "Add to app icon menu")
+    if let item = connectionOptions.shortcutItem {
+      _ = PlatformBridge.acceptShortcut(item, deliverNow: false)
+    }
   }
 
   override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -26,5 +30,15 @@ class SceneDelegate: FlutterSceneDelegate {
         PlatformBridge.accept(url: context.url, deliverNow: true)
       }
     }
+  }
+
+  /// A Home Screen quick action while the app is running (or in the background). Not passed on
+  /// to FlutterSceneDelegate: no plugin of this app handles quick actions.
+  override func windowScene(
+    _ windowScene: UIWindowScene,
+    performActionFor shortcutItem: UIApplicationShortcutItem,
+    completionHandler: @escaping (Bool) -> Void
+  ) {
+    completionHandler(PlatformBridge.acceptShortcut(shortcutItem, deliverNow: true))
   }
 }

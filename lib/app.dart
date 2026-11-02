@@ -300,7 +300,8 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
     final uri = file.uri;
     if (file.shortcut || uri.startsWith('/') || uri.startsWith('file:')) {
       final path = localPath(uri);
-      if (!File(path).existsSync()) {
+      // iOS: a file in an iCloud folder is downloaded first (app icon menu / Open in)
+      if (!await PlatformBridge.ensureLocal(path)) {
         toast('incomingNotFound');
         return null;
       }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,11 +26,15 @@ import 'files_ui.dart';
 /// Opens a document like the Android app's FileActions.open: PDF, TXT, pictures, xlsx / ods /
 /// csv, docx and pptx open in the app; the other Word / Excel / PowerPoint types (doc, rtf, odt,
 /// xls, ppt, odp …) go to another app on the phone; anything else, or a type no app can open,
-/// gets the "File type not supported" sheet.
+/// gets the "File type not supported" sheet. iOS: types the app doesn't open itself are shown
+/// in QuickLook first (old Office, RTF, OpenDocument, iWork …), then the "Open in" menu.
 Future<void> openEntry(BuildContext context, DocEntry entry) async {
   final scope = AppScope.of(context);
   final library = scope.library;
   final path = entry.fullPath;
+  // iOS iCloud Drive: a file that is only in iCloud is downloaded first
+  if (!await ensureLocalFiles(context, [entry])) return;
+  if (!context.mounted) return;
   if (!File(path).existsSync()) {
     showToast(context, S.of(context).t('fileGone'));
     return;
@@ -41,6 +46,11 @@ Future<void> openEntry(BuildContext context, DocEntry entry) async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ReaderPage(entry: fresh)));
     return;
   }
+  if (Platform.isIOS && await PlatformBridge.quickLook(path)) {
+    if (entry.kind != DocKind.other) await library.markOpened(entry);
+    return;
+  }
+  if (!context.mounted) return;
   if (entry.kind == DocKind.other) {
     await showUnsupported(context);
     return;
@@ -50,6 +60,20 @@ Future<void> openEntry(BuildContext context, DocEntry entry) async {
   scope.guard.arm(scope.settings);
   final opened = await PlatformBridge.openExternal(path);
   if (!opened && context.mounted) await showUnsupported(context);
+}
+
+/// iOS iCloud Drive: downloads files that are only in iCloud (their placeholders are listed under
+/// the real names). False, with "File no longer exists", when one is gone or can't be downloaded.
+/// Always true on Android.
+Future<bool> ensureLocalFiles(BuildContext context, List<DocEntry> entries) async {
+  if (!Platform.isIOS) return true;
+  for (final entry in entries) {
+    if (!await PlatformBridge.ensureLocal(entry.fullPath)) {
+      if (context.mounted) showToast(context, S.of(context).t('fileGone'));
+      return false;
+    }
+  }
+  return true;
 }
 
 /// Opens a file found on the device (storage browser / All documents).
@@ -139,14 +163,19 @@ Future<void> toggleBookmarkWithPill(BuildContext context, DocEntry entry) async 
   showBookmarkPill(context, added: added);
 }
 
-Future<void> shareEntry(BuildContext context, DocEntry entry) async {
-  await shareEntries(context, [entry]);
+/// [origin]: where the iPad share popover points (the tapped button); default: [context]'s
+/// widget when it is small, else the middle of the screen.
+Future<void> shareEntry(BuildContext context, DocEntry entry, {Rect? origin}) async {
+  await shareEntries(context, [entry], origin: origin);
 }
 
 /// Shares one or several files in one share sheet.
-Future<void> shareEntries(BuildContext context, List<DocEntry> entries) async {
+Future<void> shareEntries(BuildContext context, List<DocEntry> entries, {Rect? origin}) async {
   if (entries.isEmpty) return;
   final scope = AppScope.of(context);
+  final anchor = origin ?? shareOrigin(context);
+  if (!await ensureLocalFiles(context, entries)) return;
+  if (!context.mounted) return;
   final files = [
     for (final entry in entries)
       if (File(entry.fullPath).existsSync()) XFile(entry.fullPath),
@@ -156,7 +185,28 @@ Future<void> shareEntries(BuildContext context, List<DocEntry> entries) async {
     return;
   }
   scope.guard.arm(scope.settings);
-  await Share.shareXFiles(files);
+  await Share.shareXFiles(files, sharePositionOrigin: anchor);
+}
+
+/// The path shown in the file sheets. iOS: files in the app's Documents folder the way the Files
+/// app shows them ("On My iPhone › <app name> › library › convert › x.pdf"); the real path
+/// elsewhere (picked folders) and on Android. Needs [PlatformBridge.iosAppInfo] to have run once
+/// (see [loadDisplayPaths]); until then the real path.
+String displayPath(String path, S s) {
+  final info = PlatformBridge.iosAppInfoCached;
+  if (!Platform.isIOS || info == null || info.documents.isEmpty) return path;
+  final docs = p.normalize(info.documents);
+  final file = p.normalize(path);
+  // /var/… and /private/var/… are the same folder on iOS
+  String strip(String value) => value.startsWith('/private/') ? value.substring('/private'.length) : value;
+  if (!p.isWithin(strip(docs), strip(file))) return path;
+  final parts = p.split(p.relative(strip(file), from: strip(docs)));
+  return [s.t('onMyDevice', {'device': info.device}), info.name, ...parts].join(' › ');
+}
+
+/// Loads what [displayPath] needs (iOS).
+Future<void> loadDisplayPaths() async {
+  await PlatformBridge.iosAppInfo();
 }
 
 /// Grey circle behind the menu icons (Android bg_circle_action: @color/surface_variant).
@@ -240,7 +290,12 @@ class FileMenuHeader extends StatelessWidget {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary),
                   ),
                   const SizedBox(height: 2),
-                  Text(entry.fullPath, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: c.textSecondary)),
+                  Text(
+                    displayPath(entry.fullPath, S.of(context)),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: c.textSecondary),
+                  ),
                 ],
               ),
             ),
@@ -260,10 +315,12 @@ Future<void> showFileMenu(BuildContext context, DocEntry entry) async {
   final actions = <(NDrawable, String, Future<void> Function())>[
     (ND.icShare, s.t('share'), () => shareEntry(context, entry)),
     (ND.icRename, s.t('rename'), () => renameEntry(context, entry)),
-    if (!Platform.isIOS) (ND.icHomeAdd, s.t('toHomeScreen'), () => addToHomeScreen(context, entry)),
+    (ND.icHomeAdd, homeScreenLabel(s), () => addToHomeScreen(context, entry)),
     (ND.icStDrive, s.t('saveToDrive'), () => saveToDrive(context, entry)),
     (ND.icDelete, s.t('delete'), () => confirmDelete(context, entry)),
   ];
+  await loadDisplayPaths();
+  if (!context.mounted) return;
   final chosen = await showAppSheet<int>(
     context,
     builder: (sheet) => SafeArea(
@@ -307,8 +364,11 @@ Future<void> showFileMenu(BuildContext context, DocEntry entry) async {
 }
 
 /// Info sheet (Android sheet_file_info): icon, name, size, "Storage path" with the full path,
-/// "Last modified" as HH:mm  MM/dd/yyyy, and a close button.
-Future<void> showDetails(BuildContext context, DocEntry entry) {
+/// "Last modified" as HH:mm  MM/dd/yyyy, and a close button. iOS: the path as the Files app
+/// shows it for files in the app's folder ([displayPath]).
+Future<void> showDetails(BuildContext context, DocEntry entry) async {
+  await loadDisplayPaths();
+  if (!context.mounted) return;
   final s = S.of(context);
   String two(int v) => v.toString().padLeft(2, '0');
   final m = entry.modified;
@@ -343,7 +403,7 @@ Future<void> showDetails(BuildContext context, DocEntry entry) {
                   const SizedBox(height: 24),
                   Text(s.t('fileInfoStoragePath'), style: label),
                   const SizedBox(height: 4),
-                  SelectableText(entry.fullPath, style: value),
+                  SelectableText(displayPath(entry.fullPath, s), style: value),
                   const SizedBox(height: 18),
                   Text(s.t('fileInfoLastModified'), style: label),
                   const SizedBox(height: 4),
@@ -363,6 +423,8 @@ Future<void> showDetails(BuildContext context, DocEntry entry) {
 /// button, an error line ("Name cannot be empty" …), Cancel / OK; "Renamed" when it worked.
 /// Returns the renamed entry, or null when nothing changed.
 Future<DocEntry?> renameEntry(BuildContext context, DocEntry entry) async {
+  if (!await ensureLocalFiles(context, [entry])) return null;
+  if (!context.mounted) return null;
   final s = S.of(context);
   final library = AppScope.of(context).library;
   final dot = entry.name.lastIndexOf('.');
@@ -501,10 +563,21 @@ Future<DocEntry?> renameEntry(BuildContext context, DocEntry entry) async {
   return null;
 }
 
+/// "To home screen" (Android) / "Add to app icon menu" (iOS).
+String homeScreenLabel(S s) => s.t(Platform.isIOS ? 'addToAppIconMenu' : 'toHomeScreen');
+
 /// "To home screen": on Xiaomi / Redmi / POCO the "Home screen shortcuts" permission sheet comes
 /// first (once); then the launcher is asked to pin a shortcut with the file type's icon.
+/// iOS: the file becomes one of the app icon's Home Screen quick actions (long-press the icon;
+/// the 4 newest).
 Future<void> addToHomeScreen(BuildContext context, DocEntry entry) async {
   final s = S.of(context);
+  if (Platform.isIOS) {
+    final added = await PlatformBridge.pinShortcut(entry.fullPath, entry.name, kind: entry.kind.name);
+    if (!context.mounted) return;
+    showToast(context, s.t(added ? 'appIconMenuAdded' : 'fileGone'));
+    return;
+  }
   if (!Platform.isAndroid) return;
   final prefs = await SharedPreferences.getInstance();
   final xiaomi = await PlatformBridge.isXiaomi();
@@ -573,10 +646,13 @@ TextSpan _quotedInPrimary(String text, Color primary) {
 }
 
 /// "Save to Drive": the file goes straight to the Google Drive app's upload screen; without the
-/// Drive app, "Couldn't save to Google Drive" with Install (Google Play). iOS: the share sheet.
+/// Drive app, "Couldn't save to Google Drive" with Install (Google Play). iOS: the Files export
+/// picker (Google Drive is one of its locations); a failure shows "Couldn't save to Google Drive".
 Future<void> saveToDrive(BuildContext context, DocEntry entry) async {
   final s = S.of(context);
   final path = entry.fullPath;
+  if (!await ensureLocalFiles(context, [entry])) return;
+  if (!context.mounted) return;
   if (!File(path).existsSync()) {
     showToast(context, s.t('fileGone'));
     return;
@@ -584,7 +660,11 @@ Future<void> saveToDrive(BuildContext context, DocEntry entry) async {
   final scope = AppScope.of(context);
   scope.guard.arm(scope.settings);
   final result = await PlatformBridge.saveToDrive(path);
-  if (result == 'ok' || !context.mounted) return;
+  if (result == 'ok' || result == 'cancelled' || !context.mounted) return;
+  if (Platform.isIOS) {
+    showToast(context, s.t('driveSaveFailedTitle'));
+    return;
+  }
   final install = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
@@ -651,6 +731,8 @@ Future<bool> confirmDeleteMany(BuildContext context, List<DocEntry> entries) asy
     },
   );
   if (!context.mounted || choice == null) return false;
+  if (!await ensureLocalFiles(context, entries)) return false;
+  if (!context.mounted) return false;
   final library = AppScope.of(context).library;
   final toBin = choice == 'bin';
   final done = toBin ? await library.moveManyToBin(entries) : await library.deleteManyForever(entries);

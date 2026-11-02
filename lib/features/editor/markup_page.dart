@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart' hide PdfDocument;
@@ -15,395 +16,1275 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../native/native_shapes.dart';
 import '../../services/image_ops.dart';
 import '../../services/pdf_rewrite.dart';
 import '../../services/pdf_tools.dart';
 import '../../services/signature_store.dart';
 import '../../widgets/chrome.dart';
 import '../create/tool_widgets.dart';
+import '../reader/pdf_pages.dart';
+import 'edit_tutorial.dart';
 import 'editor_flow.dart';
 import 'signature_pad.dart';
 
-/// The 15 colours of Add text / Annotate (like the Android app).
+/// The 15 colours of Add text / Annotate (PdfEditActivity.palette).
 const editColors = <int>[
   0xFF000000, 0xFFFFFFFF, 0xFF8A8F98, 0xFFE53935, 0xFF22C55E, //
   0xFF1E3FE6, 0xFFE91E8C, 0xFF22D3EE, 0xFFFF6A13, 0xFFFBBF24,
   0xFFA3E635, 0xFF2DD4BF, 0xFF38BDF8, 0xFF8B3CF6, 0xFFF87171,
 ];
 
-enum _Mode { none, editText, addText, addImage, annotate, sign }
+const _pink = 0xFFE91E8C;
+const _red = 0xFFE53935;
+const _yellow = 0xFFFBBF24;
 
-enum _Drag { none, move, resize, ink, erase }
+/// PdfEditActivity.Mode: which bottom panel is open.
+enum _Panel { none, editText, addText, annotate, sign }
 
-enum _Handle { none, delete, resize, duplicate, edit }
+/// EditTool: what a touch on a page does.
+enum _Tool { none, editText, objects, pen, highlight, underline, strike, eraser }
 
-const double _textPad = 3;
+/// EditLayerView gesture state.
+enum _Op { none, tap, move, rotate, scale, widthL, widthR, draw, mark, erase }
 
-class _Shot {
-  _Shot(this.bytes, this.width, this.height);
-  final Uint8List bytes;
-  final double width;
-  final double height;
+enum _Claim { ignore, pending, now }
+
+// ------------------------------------------------------------------ items (EditModels.kt)
+//
+// Everything placed on a page. Coordinates are in "page-width units": x and y are both divided
+// by the page's width, so 1.0 = the page width in either direction.
+
+abstract class _Item {
+  _Item copy();
 }
 
-/// Something placed on a page: text, a picture or a signature. Positions are in page points
-/// (top-left origin); [rotation] is in radians, clockwise.
-abstract class _Obj {
-  _Obj({required this.page, required this.center, this.rotation = 0});
-
-  int page;
-  Offset center;
-  double rotation;
-
-  Size get box;
-  void scaleBy(double factor);
-  _Obj clone();
-}
-
-TextPainter _layoutText(String text, double size, int color) {
-  return TextPainter(
-    text: TextSpan(text: text.isEmpty ? ' ' : text, style: TextStyle(fontSize: size, color: Color(color), height: 1.2)),
-    textDirection: TextDirection.ltr,
-  )..layout();
-}
-
-class _TextObj extends _Obj {
-  _TextObj({required super.page, required super.center, required this.text, required this.size, required this.color, this.cover, super.rotation});
+/// Typed text in a box of [width]; [size] = font size; [cover] = white-out behind it (Edit text).
+class _TextItem extends _Item {
+  _TextItem({required this.text, required this.cx, required this.cy, required this.width, required this.size, required this.color, this.rotation = 0, this.cover});
 
   String text;
+  double cx;
+  double cy;
+  double width;
   double size;
   int color;
-
-  /// White-out behind the text (Edit text: the old line), page points.
+  double rotation;
   final Rect? cover;
 
   @override
-  Size get box {
-    final painter = _layoutText(text, size, color);
-    final result = Size(painter.width + 2 * _textPad, painter.height + 2 * _textPad);
-    painter.dispose();
-    return result;
+  _TextItem copy() => _TextItem(text: text, cx: cx, cy: cy, width: width, size: size, color: color, rotation: rotation, cover: cover);
+}
+
+/// A picture ([bytes] / [image]) or a signature ([sign]). Height follows its proportions.
+class _ImageItem extends _Item {
+  _ImageItem({required this.cx, required this.cy, required this.width, this.rotation = 0, this.bytes, this.image, this.sign});
+
+  double cx;
+  double cy;
+  double width;
+  double rotation;
+  Uint8List? bytes;
+  ui.Image? image;
+  Signature? sign;
+
+  bool get signature => sign != null;
+
+  /// width / height.
+  double get aspect {
+    final s = sign;
+    if (s != null) return math.max(0.05, s.aspect);
+    final picture = image;
+    if (picture == null) return 1;
+    return picture.width / math.max(1, picture.height);
   }
 
-  @override
-  void scaleBy(double factor) => size = (size * factor).clamp(4.0, 200.0);
+  double get height => width / aspect;
 
   @override
-  _Obj clone() => _TextObj(page: page, center: center, text: text, size: size, color: color, cover: cover, rotation: rotation);
+  _ImageItem copy() => _ImageItem(cx: cx, cy: cy, width: width, rotation: rotation, bytes: bytes, image: image, sign: sign);
 }
 
-class _ImageObj extends _Obj {
-  _ImageObj({required super.page, required super.center, required this.bytes, required this.image, required this.width, super.rotation});
+/// Free-hand pen line.
+class _InkItem extends _Item {
+  _InkItem(this.points, this.color, this.width);
 
-  final Uint8List bytes;
-  final ui.Image image;
-  double width;
-
-  @override
-  Size get box => Size(width, width * image.height / math.max(1, image.width));
-
-  @override
-  void scaleBy(double factor) => width = (width * factor).clamp(12.0, 3000.0);
-
-  @override
-  _Obj clone() => _ImageObj(page: page, center: center, bytes: bytes, image: image, width: width, rotation: rotation);
-}
-
-class _SignObj extends _Obj {
-  _SignObj({required super.page, required super.center, required this.sign, required this.width, super.rotation});
-
-  final Signature sign;
-  double width;
-
-  @override
-  Size get box => Size(width, width / math.max(0.05, sign.aspect));
-
-  @override
-  void scaleBy(double factor) => width = (width * factor).clamp(12.0, 3000.0);
-
-  @override
-  _Obj clone() => _SignObj(page: page, center: center, sign: sign, width: width, rotation: rotation);
-}
-
-class _Ink {
-  _Ink(this.page, this.tool, this.points, this.color, this.width);
-
-  final int page;
-  final MarkTool tool;
   final List<Offset> points;
   final int color;
   final double width;
 
-  _Ink copy() => _Ink(page, tool, List<Offset>.of(points), color, width);
+  @override
+  _InkItem copy() => _InkItem(List<Offset>.of(points), color, width);
 }
 
-Offset _rot(Offset v, double a) => Offset(v.dx * math.cos(a) - v.dy * math.sin(a), v.dx * math.sin(a) + v.dy * math.cos(a));
+enum _MarkKind { highlight, underline, strike }
 
-/// PDF editor: Edit text (tap a line to retype it), Add text, Add image, Annotate and Sign.
-/// Texts, pictures and signatures can be moved, resized and turned (bottom-right handle),
-/// duplicated (bottom-left), edited (top-right) and deleted (top-left). Done writes everything
-/// into the PDF, shows "Saved successfully" and stays here.
+/// Highlight / underline / strikethrough over a span of the page.
+class _MarkItem extends _Item {
+  _MarkItem(this.kind, this.rect, this.color);
+
+  final _MarkKind kind;
+  final Rect rect;
+  final int color;
+
+  @override
+  _MarkItem copy() => _MarkItem(kind, rect, color);
+}
+
+/// A line of real text found in the PDF (for Edit text), in page-width units.
+class _Line {
+  _Line(this.text, this.rect, this.size);
+
+  final String text;
+  final Rect rect;
+  final double size;
+}
+
+// ------------------------------------------------------------------ EditRenderer
+
+/// First strong character decides the paragraph direction (StaticLayout's FIRSTSTRONG_LTR).
+TextDirection _direction(String text) {
+  for (final rune in text.runes) {
+    if ((rune >= 0x0590 && rune <= 0x08FF) || (rune >= 0xFB1D && rune <= 0xFDFF) || (rune >= 0xFE70 && rune <= 0xFEFF)) return TextDirection.rtl;
+    final neutral = rune < 0x41 || (rune >= 0x5B && rune <= 0x60) || (rune >= 0x7B && rune <= 0xBF) || (rune >= 0x2000 && rune <= 0x206F);
+    if (!neutral) return TextDirection.ltr;
+  }
+  return TextDirection.ltr;
+}
+
+/// Laid-out texts, reused while nothing about them changes.
+final Map<String, TextPainter> _layouts = {};
+
+/// StaticLayout of [t] on a page [w] pixels wide: font size size × w, box width width × w.
+TextPainter _textLayout(_TextItem t, double w) {
+  final fontSize = math.max(1.0, t.size * w);
+  final boxWidth = math.max(1.0, t.width * w);
+  final key = '${t.color}|${fontSize.toStringAsFixed(2)}|${boxWidth.toStringAsFixed(2)}|${t.text}';
+  final cached = _layouts.remove(key);
+  if (cached != null) {
+    _layouts[key] = cached;
+    return cached;
+  }
+  final painter = TextPainter(
+    text: TextSpan(text: t.text, style: TextStyle(fontSize: fontSize, color: Color(t.color))),
+    textDirection: _direction(t.text),
+  )..layout(minWidth: boxWidth, maxWidth: boxWidth);
+  _layouts[key] = painter;
+  while (_layouts.length > 80) {
+    final oldest = _layouts.keys.first;
+    _layouts.remove(oldest)?.dispose();
+  }
+  return painter;
+}
+
+/// Natural single-line width of [text] at [size] (page-width units).
+double _measure(String text, double size) {
+  var widest = 0.0;
+  for (final line in text.split('\n')) {
+    final painter = TextPainter(
+      text: TextSpan(text: line.isEmpty ? ' ' : line, style: const TextStyle(fontSize: 100)),
+      textDirection: _direction(line),
+    )..layout();
+    widest = math.max(widest, painter.width);
+    painter.dispose();
+  }
+  return widest / 100 * size * 1.04 + size * 0.1;
+}
+
+/// Box size of a text or image item in pixels.
+Size _boxSize(_Item item, double w) {
+  if (item is _TextItem) return Size(item.width * w, _textLayout(item, w).height);
+  if (item is _ImageItem) return Size(item.width * w, item.height * w);
+  return Size.zero;
+}
+
+Offset _center(_Item item, double w) {
+  if (item is _TextItem) return Offset(item.cx * w, item.cy * w);
+  if (item is _ImageItem) return Offset(item.cx * w, item.cy * w);
+  return Offset.zero;
+}
+
+/// Degrees, clockwise.
+double _rotationOf(_Item item) {
+  if (item is _TextItem) return item.rotation;
+  if (item is _ImageItem) return item.rotation;
+  return 0;
+}
+
+double _rad(double degrees) => degrees * math.pi / 180;
+
+/// Point in the item's local frame (unrotated, centre = 0,0).
+Offset _toLocal(_Item item, double w, Offset p) {
+  final v = p - _center(item, w);
+  final a = -_rad(_rotationOf(item));
+  return Offset(v.dx * math.cos(a) - v.dy * math.sin(a), v.dx * math.sin(a) + v.dy * math.cos(a));
+}
+
+void _drawItems(Canvas canvas, List<_Item> items, double w, {_Item? skip}) {
+  // white-out under edited text first
+  final white = Paint()..color = Colors.white;
+  for (final item in items) {
+    if (item is _TextItem && item.cover != null) {
+      final c = item.cover!;
+      canvas.drawRect(Rect.fromLTRB(c.left * w, c.top * w, c.right * w, c.bottom * w), white);
+    }
+  }
+  for (final item in items) {
+    if (!identical(item, skip)) _drawItem(canvas, item, w);
+  }
+}
+
+void _drawItem(Canvas canvas, _Item item, double w) {
+  if (item is _MarkItem) {
+    final r = item.rect;
+    if (item.kind == _MarkKind.highlight) {
+      canvas.drawRect(Rect.fromLTRB(r.left * w, r.top * w, r.right * w, r.bottom * w), Paint()..color = Color(item.color).withAlpha(90));
+    } else {
+      final y = item.kind == _MarkKind.underline ? r.bottom * w : (r.top + r.bottom) / 2 * w;
+      canvas.drawLine(
+        Offset(r.left * w, y),
+        Offset(r.right * w, y),
+        Paint()
+          ..color = Color(item.color)
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = math.max(1.5, (r.bottom - r.top) * w * 0.09),
+      );
+    }
+  } else if (item is _InkItem) {
+    final p = item.points;
+    if (p.isEmpty) return;
+    final path = Path()..moveTo(p.first.dx * w, p.first.dy * w);
+    if (p.length == 1) path.lineTo(p.first.dx * w + 0.1, p.first.dy * w);
+    for (final point in p.skip(1)) {
+      path.lineTo(point.dx * w, point.dy * w);
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Color(item.color)
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..strokeWidth = math.max(1.0, item.width * w),
+    );
+  } else if (item is _TextItem) {
+    final layout = _textLayout(item, w);
+    canvas.save();
+    canvas.translate(item.cx * w, item.cy * w);
+    canvas.rotate(_rad(item.rotation));
+    layout.paint(canvas, Offset(-item.width * w / 2, -layout.height / 2));
+    canvas.restore();
+  } else if (item is _ImageItem) {
+    final bw = item.width * w;
+    final bh = item.height * w;
+    canvas.save();
+    canvas.translate(item.cx * w, item.cy * w);
+    canvas.rotate(_rad(item.rotation));
+    final rect = Rect.fromLTWH(-bw / 2, -bh / 2, bw, bh);
+    final sign = item.sign;
+    final picture = item.image;
+    if (sign != null) {
+      canvas.translate(rect.left, rect.top);
+      drawStrokes(
+        canvas,
+        [
+          for (final stroke in sign.strokes) [for (final p in stroke) Offset(p.dx * bw, p.dy * bh)],
+        ],
+        Color(sign.color),
+        sign.width * bw,
+        widths: [for (final value in sign.widths) math.max(0.5, value * bw)],
+      );
+    } else if (picture != null) {
+      canvas.drawImageRect(
+        picture,
+        Rect.fromLTWH(0, 0, picture.width.toDouble(), picture.height.toDouble()),
+        rect,
+        Paint()
+          ..filterQuality = FilterQuality.medium
+          ..isAntiAlias = true,
+      );
+    }
+    canvas.restore();
+  }
+}
+
+/// Handles around a selected item, in its local frame: × delete (top-left), duplicate
+/// (bottom-left), resize + rotate (bottom-right); text has side dots for the box width,
+/// pictures and signatures a pencil (top-right) to replace them.
+Map<String, Offset> _handles(_Item item, double w, double pad) {
+  final box = _boxSize(item, w);
+  final l = -box.width / 2 - pad;
+  final r = box.width / 2 + pad;
+  final t = -box.height / 2 - pad;
+  final b = box.height / 2 + pad;
+  return {
+    'delete': Offset(l, t),
+    'copy': Offset(l, b),
+    'scale': Offset(r, b),
+    if (item is _TextItem) 'left': Offset(l, 0),
+    if (item is _TextItem) 'right': Offset(r, 0),
+    if (item is _ImageItem) 'edit': Offset(r, t),
+  };
+}
+
+/// A dashed rectangle ([dash] on, [gap] off, starting [phase] into the pattern).
+void _dashedRect(Canvas canvas, Rect rect, Paint paint, double dash, double gap, double phase) {
+  final path = Path()..addRect(rect);
+  for (final metric in path.computeMetrics()) {
+    var distance = -phase;
+    while (distance < metric.length) {
+      final start = math.max(0.0, distance);
+      final end = math.min(metric.length, distance + dash);
+      if (end > start) canvas.drawPath(metric.extractPath(start, end), paint);
+      distance += dash + gap;
+    }
+  }
+}
+
+/// EditRenderer.drawSelection: pictures / signatures get a solid #1E6FE6 box, text a
+/// white-over-dark dashed box; white 9dp handles with a #33000000 ring and stroked icons.
+void _drawSelection(Canvas canvas, _Item item, double w) {
+  const pad = 6.0;
+  final box = _boxSize(item, w);
+  final c = _center(item, w);
+  canvas.save();
+  canvas.translate(c.dx, c.dy);
+  canvas.rotate(_rad(_rotationOf(item)));
+  final rect = Rect.fromLTRB(-box.width / 2 - pad, -box.height / 2 - pad, box.width / 2 + pad, box.height / 2 + pad);
+  if (item is _ImageItem) {
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..color = const Color(0xFF1E6FE6)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+    );
+  } else {
+    _dashedRect(
+      canvas,
+      rect,
+      Paint()
+        ..color = const Color(0x99000000)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+      5,
+      4,
+      0,
+    );
+    _dashedRect(
+      canvas,
+      rect,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+      5,
+      4,
+      5,
+    );
+  }
+  const r = 9.0;
+  const k = r * 0.45;
+  final fill = Paint()..color = Colors.white;
+  final ring = Paint()
+    ..color = const Color(0x33000000)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1;
+  Paint icon(int color) => Paint()
+    ..color = Color(color)
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round
+    ..strokeWidth = 1.5;
+  _handles(item, w, pad).forEach((name, p) {
+    final x = p.dx;
+    final y = p.dy;
+    if (name == 'left' || name == 'right') {
+      canvas.drawCircle(p, 4, fill);
+      canvas.drawCircle(p, 4, ring);
+      return;
+    }
+    canvas.drawCircle(p, r, fill);
+    canvas.drawCircle(p, r, ring);
+    final ink = icon(0xFF1B1F2A);
+    switch (name) {
+      case 'delete':
+        final red = icon(0xFFF0483E);
+        const d = r * 0.38;
+        canvas.drawLine(Offset(x - d, y - d), Offset(x + d, y + d), red);
+        canvas.drawLine(Offset(x + d, y - d), Offset(x - d, y + d), red);
+      case 'copy':
+        const s = k * 1.1;
+        canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTRB(x - s * 0.9, y - s * 0.4, x + s * 0.4, y + s * 0.9), const Radius.circular(1.5)), ink);
+        canvas.drawLine(Offset(x - s * 0.4, y - s * 0.9), Offset(x + s * 0.9, y - s * 0.9), ink);
+        canvas.drawLine(Offset(x + s * 0.9, y - s * 0.9), Offset(x + s * 0.9, y + s * 0.4), ink);
+      case 'edit':
+        canvas.drawLine(Offset(x - k, y + k), Offset(x + k * 0.8, y - k * 0.8), ink);
+        canvas.drawLine(Offset(x - k, y + k), Offset(x - k * 0.55, y + k * 0.1), ink);
+        canvas.drawLine(Offset(x - k, y + k), Offset(x - k * 0.1, y + k * 0.55), ink);
+      case 'scale':
+        if (item is _ImageItem) {
+          // circular arrows: rotate + resize
+          final arc = Rect.fromLTRB(x - k, y - k, x + k, y + k);
+          canvas.drawArc(arc, _rad(200), _rad(130), false, ink);
+          canvas.drawArc(arc, _rad(20), _rad(130), false, ink);
+          canvas.drawLine(Offset(x + k * 0.5, y - k * 0.87), Offset(x + k * 0.95, y - k * 0.95), ink);
+          canvas.drawLine(Offset(x - k * 0.5, y + k * 0.87), Offset(x - k * 0.95, y + k * 0.95), ink);
+        } else {
+          canvas.drawLine(Offset(x - k, y - k), Offset(x + k, y + k), ink);
+          canvas.drawLine(Offset(x + k, y + k), Offset(x + k * 0.1, y + k), ink);
+          canvas.drawLine(Offset(x + k, y + k), Offset(x + k, y + k * 0.1), ink);
+          canvas.drawLine(Offset(x - k, y - k), Offset(x - k * 0.1, y - k), ink);
+          canvas.drawLine(Offset(x - k, y - k), Offset(x - k, y - k * 0.1), ink);
+        }
+    }
+  });
+  canvas.restore();
+}
+
+// ------------------------------------------------------------------ the editor
+
+/// PDF editor (PdfEditActivity): every page in a scrolling list on black; Edit text (retype real
+/// text lines), Add text, Add image, Annotate (pen, highlight, underline, strikethrough, eraser;
+/// colour and size), Sign (signature pad, saved signatures). Texts, pictures and signatures can
+/// be moved (also onto another page), resized + turned (bottom-right), made wider (text side
+/// dots), duplicated, replaced (pencil) and deleted. Undo / redo; Done writes everything into the
+/// PDF, shows "Saved successfully" and stays open; "i" shows the animated how-to.
+/// Pops with true when the PDF was saved at least once.
 class MarkupPage extends StatefulWidget {
-  const MarkupPage({super.key, required this.entry, required this.tool});
+  const MarkupPage({super.key, required this.entry, required this.tool, this.page = 0});
 
   final DocEntry entry;
   final MarkTool tool;
+
+  /// 0-based page shown first (the reader's current page).
+  final int page;
 
   @override
   State<MarkupPage> createState() => _MarkupPageState();
 }
 
 class _MarkupPageState extends State<MarkupPage> {
-  final Map<int, _Shot> _shots = {};
-  PdfDocument? _document;
   String _path = '';
-  int _page = 1;
-  int _pages = 1;
-  bool _loading = true;
-  bool _saving = false;
-  bool _changed = false;
+  PdfPages? _pdf;
+  int _docGen = 0;
+  int _count = 0;
+  Future<void>? _sizesJob;
+  bool _userScrolled = false;
 
-  List<_Obj> _objects = [];
-  List<_Ink> _inks = [];
-  _Obj? _selected;
-  final List<(List<_Obj>, List<_Ink>)> _undo = [];
-  final List<(List<_Obj>, List<_Ink>)> _redo = [];
-
-  _Mode _mode = _Mode.none;
-  MarkTool _annTool = MarkTool.pen;
-  int _annTab = 0;
-  int _textColor = 0xFFE91E8C;
-  double _textSize = 18;
-  int _inkColor = 0xFFE53935;
-  double _inkSize = 4;
-
-  List<List<PdfTextLine>>? _lines;
-  final Set<String> _editedLines = {};
+  final Map<int, List<_Item>> _items = {};
+  List<List<PdfTextLine>>? _rawLines;
+  bool _linesLoaded = false;
   List<Signature> _signatures = [];
 
-  // gesture state
-  _Drag _drag = _Drag.none;
-  Offset _dragStartPage = Offset.zero;
-  Offset _startCenter = Offset.zero;
-  double _startRotation = 0;
-  double _startDistance = 1;
+  _Panel _panel = _Panel.none;
+  _Tool _annTool = _Tool.pen;
+  bool _saving = false;
+  bool _savedOnce = false;
+  _Item? _selected;
+
+  // tool settings
+  int _textColor = _pink;
+  int _textSizeValue = 72;
+  int _annColor = _red;
+  int _annSize = 30;
+  bool _annColorsTab = true;
+  bool _sizeListOpen = false;
+
+  // history
+  final List<Map<int, List<_Item>>> _undo = [];
+  final List<Map<int, List<_Item>>> _redo = [];
+  Map<int, List<_Item>> _last = {};
+
+  final ScrollController _scroll = ScrollController();
+  final Map<int, GlobalKey> _layerKeys = {};
+  final GlobalKey _viewportKey = GlobalKey();
+  final _Ticker _repaint = _Ticker();
+
+  // gesture state (EditLayerView)
+  _Op _op = _Op.none;
+  int _gesturePage = -1;
+  _Item? _target;
+  Offset _downPos = Offset.zero;
+  Offset _lastPos = Offset.zero;
+  bool _moved = false;
+  bool _changed = false;
+  bool _wasSelected = false;
   double _startAngle = 0;
-  _Obj? _startClone;
-  Rect _pageRect = Rect.zero;
-  double _k = 1;
+  double _startRotation = 0;
+  double _startDist = 1;
+  double _startWidth = 0;
+  double _startSize = 0;
+  List<Offset> _drawing = [];
+  Rect? _markRect;
 
-  bool get _hasLines => _lines?.any((page) => page.isNotEmpty) ?? false;
+  // a text / picture being dragged is drawn above every page
+  bool _lifted = false;
+  Offset _liftOrigin = Offset.zero;
+  double _liftWidth = 1;
 
-  @override
-  void initState() {
-    super.initState();
-    _annTool = switch (widget.tool) {
-      MarkTool.highlight => MarkTool.highlight,
-      MarkTool.underline => MarkTool.underline,
-      MarkTool.strike => MarkTool.strike,
-      MarkTool.eraser => MarkTool.eraser,
-      _ => MarkTool.pen,
-    };
-  }
+  static const _textSizes = <int>[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 36, 48, 56, 72];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_path.isNotEmpty) return;
     _path = AppScope.of(context).library.fileOf(widget.entry).path;
-    _open();
+    _annTool = switch (widget.tool) {
+      MarkTool.highlight => _Tool.highlight,
+      MarkTool.underline => _Tool.underline,
+      MarkTool.strike => _Tool.strike,
+      MarkTool.eraser => _Tool.eraser,
+      _ => _Tool.pen,
+    };
+    _start();
   }
 
   @override
   void dispose() {
-    _document?.close();
+    _detachDoc()?.close();
+    _scroll.dispose();
+    _repaint.dispose();
     super.dispose();
   }
 
-  Future<void> _open({bool first = true}) async {
-    try {
-      final document = await PdfDocument.openFile(_path);
-      _document = document;
-      _pages = document.pagesCount;
-      _page = _page.clamp(1, math.max(1, _pages));
-      await _ensureShot(_page);
-    } catch (_) {
+  Future<void> _start() async {
+    if (!await _openDoc()) {
       if (!mounted) return;
       showToast(context, S.of(context).t('pdfProtected'), warning: true);
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(false);
       return;
     }
-    if (!mounted) return;
-    setState(() => _loading = false);
-    _loadLines();
-    final signatures = await SignatureStore.list();
-    if (!mounted) return;
-    setState(() => _signatures = signatures);
-    if (!first) return;
-    final settings = AppScope.of(context).settings;
-    if (!settings.markupTipSeen) {
-      await settings.setFlag('markupTipSeen', true);
-      if (!mounted) return;
-      final choice = await showEditTutorial(context);
-      if (!mounted) return;
-      if (choice == 'sign') {
-        await _selectMode(_Mode.sign);
-        return;
-      }
-      if (choice == 'edit') {
-        await _selectMode(_Mode.editText);
-        return;
-      }
-    }
-    final start = switch (widget.tool) {
-      MarkTool.text => _Mode.addText,
-      MarkTool.editText => _Mode.editText,
-      MarkTool.image => _Mode.addImage,
-      MarkTool.sign => _Mode.sign,
-      _ => _Mode.annotate,
+    if (widget.page > 0) WidgetsBinding.instance.addPostFrameCallback((_) => _jumpToStart());
+    final initial = switch (widget.tool) {
+      MarkTool.editText => _Panel.editText,
+      MarkTool.text => _Panel.addText,
+      MarkTool.sign => _Panel.sign,
+      MarkTool.none || MarkTool.image => _Panel.none,
+      _ => _Panel.annotate,
     };
-    await _selectMode(start, quiet: true);
+    _loadSignatures();
+    _loadLines(initial: initial);
   }
 
-  Future<void> _loadLines() async {
+  Future<bool> _openDoc() async {
+    final pdf = PdfPages(_path);
+    try {
+      await pdf.open();
+    } catch (_) {
+      await pdf.close();
+      return false;
+    }
+    if (!mounted) {
+      await pdf.close();
+      return false;
+    }
+    if (pdf.pageCount == 0) {
+      await pdf.close();
+      return false;
+    }
+    pdf.sizesVersion.addListener(_onSizes);
+    setState(() {
+      _pdf = pdf;
+      _count = pdf.pageCount;
+      _docGen++;
+    });
+    _sizesJob = pdf.loadSizes(() => mounted && identical(_pdf, pdf));
+    return true;
+  }
+
+  /// Takes the open document off the screen (the caller closes it).
+  PdfPages? _detachDoc() {
+    final pdf = _pdf;
+    if (pdf == null) return null;
+    pdf.sizesVersion.removeListener(_onSizes);
+    _pdf = null;
+    return pdf;
+  }
+
+  void _onSizes() {
+    if (!mounted) return;
+    setState(() {});
+    if (widget.page > 0 && !_userScrolled) WidgetsBinding.instance.addPostFrameCallback((_) => _jumpToStart());
+  }
+
+  void _jumpToStart() {
+    if (!mounted || _userScrolled || !_scroll.hasClients) return;
+    final offset = _offsetOfPage(widget.page.clamp(0, math.max(0, _count - 1)));
+    _scroll.jumpTo(offset.clamp(0.0, _scroll.position.maxScrollExtent));
+  }
+
+  double _offsetOfPage(int page) {
+    final pdf = _pdf;
+    final view = _viewportKey.currentContext?.findRenderObject();
+    if (pdf == null || view is! RenderBox || !view.hasSize) return 0;
+    final w = view.size.width;
+    var offset = 12.0;
+    for (var i = 0; i < page; i++) {
+      offset += 12 + w * pdf.aspectOf(i);
+    }
+    return offset;
+  }
+
+  Future<void> _loadSignatures() async {
+    final list = await SignatureStore.list();
+    if (mounted) setState(() => _signatures = list);
+  }
+
+  /// Real text lines (for Edit text); then opens the panel the screen was started with.
+  Future<void> _loadLines({_Panel initial = _Panel.none}) async {
+    _linesLoaded = false;
+    List<List<PdfTextLine>>? found;
     try {
       final bytes = await File(_path).readAsBytes();
-      final lines = await _readLinesIsolated(bytes);
-      if (!mounted) return;
-      setState(() => _lines = lines ?? const []);
+      found = await _readLinesIsolated(bytes);
     } catch (_) {
-      if (mounted) setState(() => _lines = const []);
+      found = null;
+    }
+    if (!mounted) return;
+    setState(() {
+      _rawLines = found;
+      _linesLoaded = true;
+    });
+    switch (initial) {
+      // scanned pages have no text to edit: go quietly to Add text (no message, like the original)
+      case _Panel.editText:
+        _openPanel(_hasLines ? _Panel.editText : _Panel.addText);
+      case _Panel.none:
+        break;
+      default:
+        _openPanel(initial);
     }
   }
 
-  Future<_Shot?> _ensureShot(int page) async {
-    final cached = _shots[page];
-    if (cached != null) return cached;
-    final document = _document;
-    if (document == null) return null;
-    final pdfPage = await document.getPage(page);
-    final rendered = await pdfPage.render(
-      width: pdfPage.width * 1.6,
-      height: pdfPage.height * 1.6,
-      format: PdfPageImageFormat.jpeg,
-      backgroundColor: '#FFFFFF',
-      quality: 88,
-    );
-    final shot = rendered == null ? null : _Shot(rendered.bytes, pdfPage.width, pdfPage.height);
-    await pdfPage.close();
-    if (shot != null) _shots[page] = shot;
-    return shot;
+  bool get _hasLines => _rawLines?.any((page) => page.isNotEmpty) ?? false;
+
+  // ------------------------------------------------------------------ EditHost
+
+  _Tool get _tool {
+    switch (_panel) {
+      case _Panel.none:
+        final any = _items.values.any((list) => list.any((item) => item is _TextItem || item is _ImageItem));
+        return any ? _Tool.objects : _Tool.none;
+      case _Panel.editText:
+        return _Tool.editText;
+      case _Panel.addText:
+      case _Panel.sign:
+        return _Tool.objects;
+      case _Panel.annotate:
+        return _annTool;
+    }
   }
 
-  // ------------------------------------------------------------------ history
+  List<_Item> _itemsOf(int page) => _items.putIfAbsent(page, () => <_Item>[]);
 
-  void _checkpoint() {
-    _undo.add(([for (final obj in _objects) obj.clone()], [for (final ink in _inks) ink.copy()]));
-    if (_undo.length > 50) _undo.removeAt(0);
+  /// Text lines still editable: the ones not covered by an edited-text box (undo brings them back).
+  List<_Line> _linesOf(int page) {
+    final raw = _rawLines;
+    final pdf = _pdf;
+    if (raw == null || pdf == null || page >= raw.length) return const [];
+    final a = pdf.aspectOf(page);
+    final all = [
+      for (final line in raw[page]) _Line(line.readable ? line.text : '', Rect.fromLTRB(line.left, line.top * a, line.right, line.bottom * a), line.size * a),
+    ];
+    final covers = [
+      for (final item in _items[page] ?? const <_Item>[])
+        if (item is _TextItem && item.cover != null) item.cover!,
+    ];
+    if (covers.isEmpty) return all;
+    return all.where((line) => !covers.any((c) => c.contains(line.rect.center))).toList();
+  }
+
+  int get _penColor => _annColor;
+  double get _penWidth => (1 + _annSize / 100 * 14) / 600;
+  int get _markColor => _annTool == _Tool.highlight && _annColor == _red ? _yellow : _annColor;
+
+  bool get _hasChanges => _items.values.any((list) => list.isNotEmpty);
+
+  void _bump() => _repaint.tick();
+
+  /// A change is finished: push it on the undo stack.
+  void _commit() {
+    _undo.add(_last);
     _redo.clear();
-    _changed = true;
+    _last = _snapshot();
+    setState(() {});
+    _bump();
+  }
+
+  Map<int, List<_Item>> _snapshot() => {
+        for (final entry in _items.entries) entry.key: [for (final item in entry.value) item.copy()],
+      };
+
+  void _restore(Map<int, List<_Item>> state) {
+    _items
+      ..clear()
+      ..addAll({for (final entry in state.entries) entry.key: [for (final item in entry.value) item.copy()]});
+    _selected = null;
+    _last = _snapshot();
+    setState(() {});
+    _bump();
   }
 
   void _undoStep() {
-    if (_undo.isEmpty) return;
-    setState(() {
-      _redo.add(([for (final obj in _objects) obj.clone()], [for (final ink in _inks) ink.copy()]));
-      final previous = _undo.removeLast();
-      _objects = previous.$1;
-      _inks = previous.$2;
-      _selected = null;
-      _changed = true;
-    });
+    if (_undo.isEmpty || _saving) return;
+    final previous = _undo.removeLast();
+    _redo.add(_snapshot());
+    _restore(previous);
   }
 
   void _redoStep() {
-    if (_redo.isEmpty) return;
-    setState(() {
-      _undo.add(([for (final obj in _objects) obj.clone()], [for (final ink in _inks) ink.copy()]));
-      final next = _redo.removeLast();
-      _objects = next.$1;
-      _inks = next.$2;
-      _selected = null;
-      _changed = true;
-    });
+    if (_redo.isEmpty || _saving) return;
+    final next = _redo.removeLast();
+    _undo.add(_snapshot());
+    _restore(next);
   }
 
-  // ------------------------------------------------------------------ modes
+  void _onSelectionChanged() {
+    final t = _selected;
+    if (t is _TextItem) {
+      _textColor = t.color;
+      _textSizeValue = (t.size * 600).toInt().clamp(6, 72);
+    }
+    setState(() {});
+    _bump();
+  }
 
-  Future<void> _selectMode(_Mode mode, {bool quiet = false}) async {
-    if (mode == _Mode.editText && !_hasLines) {
-      if (_lines == null) {
-        // still reading the text; try again when it is there
-        await _loadLines();
-        if (!mounted) return;
-      }
-      if (!_hasLines) {
-        if (!quiet) showToast(context, S.of(context).t('noEditableText'));
-        mode = _Mode.addText;
+  // ------------------------------------------------------------------ geometry on screen
+
+  RenderBox? _box(GlobalKey? key) {
+    final box = key?.currentContext?.findRenderObject();
+    return box is RenderBox && box.attached && box.hasSize ? box : null;
+  }
+
+  double _layerWidth(int page) => _box(_layerKeys[page])?.size.width ?? (_box(_viewportKey)?.size.width ?? 360);
+
+  /// Where page [page]'s layer is, in the page list's viewport.
+  Rect? _layerRect(int page) {
+    final layer = _box(_layerKeys[page]);
+    final view = _box(_viewportKey);
+    if (layer == null || view == null) return null;
+    return layer.localToGlobal(Offset.zero, ancestor: view) & layer.size;
+  }
+
+  /// The pages with a layer on screen, top to bottom, with where they are.
+  List<(int, Rect)> _shownPages() {
+    final view = _box(_viewportKey);
+    if (view == null) return const [];
+    final out = <(int, Rect)>[];
+    for (final page in _layerKeys.keys.toList()..sort()) {
+      final rect = _layerRect(page);
+      if (rect == null) continue;
+      if (rect.bottom <= 0 || rect.top >= view.size.height) continue;
+      out.add((page, rect));
+    }
+    return out;
+  }
+
+  /// The page the person is looking at: the one that shows the most on screen; when two pages
+  /// show about the same amount, the upper one.
+  int _currentPage() {
+    final view = _box(_viewportKey);
+    final shown = _shownPages();
+    if (view == null || shown.isEmpty) return widget.page.clamp(0, math.max(0, _count - 1));
+    final h = view.size.height;
+    var best = shown.first.$1;
+    var bestShown = -1.0;
+    for (final (page, rect) in shown) {
+      final visible = math.max(0.0, math.min(rect.bottom, h) - math.max(rect.top, 0.0));
+      // a lower page must show clearly more (10 % of the screen) to win over the upper one
+      if (bestShown < 0 || visible > bestShown + h / 10) {
+        best = page;
+        bestShown = visible;
       }
     }
-    setState(() {
-      _mode = mode;
-      _selected = null;
-      if (mode == _Mode.editText) _textColor = 0xFF000000;
-    });
-    if (mode == _Mode.addImage) await _addImage();
-    if (mode == _Mode.sign && _signatures.isEmpty && !quiet) await _newSignature();
+    return best;
   }
 
-  Future<void> _addImage() async {
-    final shot = _shots[_page];
-    if (shot == null) return;
-    final scope = AppScope.of(context);
-    scope.guard.arm(scope.settings);
-    final file = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (file == null || !mounted) return;
-    try {
-      var bytes = await File(file.path).readAsBytes();
-      final png = bytes.length > 8 && bytes[0] == 0x89 && bytes[1] == 0x50;
-      if (!png || bytes.length > 1500000) {
-        final buf = await loadPixels(file.path, 1800);
-        if (buf != null) bytes = await jpegOf(buf, quality: 88);
-      }
-      final codec = await ui.instantiateImageCodec(bytes);
-      final frame = await codec.getNextFrame();
-      codec.dispose();
-      if (!mounted) return;
-      setState(() {
-        _checkpoint();
-        final obj = _ImageObj(
-          page: _page,
-          center: Offset(shot.width / 2, shot.height / 2),
-          bytes: bytes,
-          image: frame.image,
-          width: shot.width * 0.45,
-        );
-        _objects.add(obj);
-        _selected = obj;
-      });
-    } catch (_) {
-      if (mounted) showToast(context, S.of(context).t('imageFailed'), warning: true);
+  /// Middle of the part of [page] that is on screen, in page-width units.
+  double _visibleCentreY(int page) {
+    final aspect = _pdf?.aspectOf(page) ?? 1.414;
+    final rect = _layerRect(page);
+    final view = _box(_viewportKey);
+    if (rect == null || view == null || rect.width <= 0) return aspect / 2;
+    final top = math.max(0.0, -rect.top);
+    final bottom = math.min(rect.height, view.size.height - rect.top);
+    return ((top + bottom) / 2 / rect.width).clamp(0.05, math.max(0.05, aspect - 0.05));
+  }
+
+  // ------------------------------------------------------------------ touches (EditLayerView)
+
+  _Claim _layerDown(int page, Offset p) {
+    final tool = _tool;
+    if (tool == _Tool.none || _saving) return _Claim.ignore;
+    final w = _layerWidth(page);
+    _gesturePage = page;
+    _downPos = p;
+    _lastPos = p;
+    _moved = false;
+    _changed = false;
+    _op = _Op.tap;
+    _target = null;
+    var claim = _Claim.now;
+    switch (tool) {
+      case _Tool.pen:
+        _op = _Op.draw;
+        _drawing = [p / w];
+      case _Tool.highlight:
+      case _Tool.underline:
+      case _Tool.strike:
+        _op = _Op.mark;
+        _markRect = _markAt(page, p.dx, p.dx, p.dy, w);
+      case _Tool.eraser:
+        _op = _Op.erase;
+        _eraseAt(page, p, w);
+      default:
+        claim = _startObjectGesture(page, p, w);
     }
+    _bump();
+    return claim;
   }
 
-  Future<void> _newSignature() async {
-    final sign = await Navigator.of(context).push<Signature>(MaterialPageRoute(builder: (_) => const SignaturePadPage()));
+  _Claim _startObjectGesture(int page, Offset p, double w) {
+    final sel = _selected;
+    final items = _itemsOf(page);
+    // 1) handles of the selected item
+    if (sel != null && items.contains(sel)) {
+      final local = _toLocal(sel, w, p);
+      String? hit;
+      for (final entry in _handles(sel, w, 6).entries) {
+        if ((local - entry.value).distance < 18) {
+          hit = entry.key;
+          break;
+        }
+      }
+      if (hit != null) {
+        _target = sel;
+        switch (hit) {
+          case 'delete':
+            _op = _Op.none;
+            _target = null;
+            _onDelete(page, sel);
+            return _Claim.now;
+          case 'copy':
+            _op = _Op.none;
+            _target = null;
+            _onDuplicate(page, sel);
+            return _Claim.now;
+          case 'edit':
+            _op = _Op.none;
+            _target = null;
+            if (sel is _ImageItem) _onEditImage(page, sel);
+            return _Claim.now;
+          case 'scale':
+            _op = _Op.scale;
+            final c = _center(sel, w);
+            _startDist = math.max(1.0, (p - c).distance);
+            _startAngle = math.atan2(p.dy - c.dy, p.dx - c.dx) * 180 / math.pi;
+            _startRotation = _rotationOf(sel);
+            _startWidth = sel is _TextItem ? sel.width : (sel is _ImageItem ? sel.width : 0.0);
+            _startSize = sel is _TextItem ? sel.size : 0.0;
+          case 'left':
+            _op = _Op.widthL;
+          case 'right':
+            _op = _Op.widthR;
+        }
+        return _Claim.now;
+      }
+    }
+    // 2) an item under the finger (topmost first)
+    for (final item in items.reversed) {
+      if ((item is _TextItem || item is _ImageItem) && _contains(item, p, w)) {
+        _wasSelected = identical(item, sel);
+        _selected = item;
+        _onSelectionChanged();
+        _target = item;
+        _op = _Op.move;
+        return _Claim.now;
+      }
+    }
+    _op = _Op.tap;
+    return _Claim.pending;
+  }
+
+  bool _contains(_Item item, Offset p, double w) {
+    final box = _boxSize(item, w);
+    final local = _toLocal(item, w, p);
+    const pad = 8.0;
+    return local.dx.abs() <= box.width / 2 + pad && local.dy.abs() <= box.height / 2 + pad;
+  }
+
+  void _layerMove(int page, Offset p) {
+    if (page != _gesturePage) return;
+    final w = _layerWidth(page);
+    if (!_moved && (p - _downPos).distance > kTouchSlop) _moved = true;
+    final t = _target;
+    switch (_op) {
+      case _Op.draw:
+        _drawing.add(p / w);
+      case _Op.mark:
+        _markRect = _markAt(page, _downPos.dx, p.dx, _downPos.dy, w);
+      case _Op.erase:
+        _eraseAt(page, p, w);
+      case _Op.move:
+        if (t != null && _moved) {
+          _lift(page, true);
+          final d = (p - _lastPos) / w;
+          if (t is _TextItem) {
+            t.cx += d.dx;
+            t.cy += d.dy;
+          } else if (t is _ImageItem) {
+            t.cx += d.dx;
+            t.cy += d.dy;
+          }
+          _changed = true;
+        }
+      case _Op.rotate:
+        if (t != null) {
+          final c = _center(t, w);
+          final a = math.atan2(p.dy - c.dy, p.dx - c.dx) * 180 / math.pi;
+          _setRotation(t, _startRotation + (a - _startAngle));
+          _changed = true;
+        }
+      case _Op.scale:
+        if (t != null) {
+          final c = _center(t, w);
+          // the corner handle resizes and turns at the same time
+          final a = math.atan2(p.dy - c.dy, p.dx - c.dx) * 180 / math.pi;
+          _setRotation(t, _startRotation + (a - _startAngle));
+          final k = ((p - c).distance / _startDist).clamp(0.15, 8.0);
+          if (t is _TextItem) {
+            t.size = (_startSize * k).clamp(0.008, 0.5);
+            t.width = _startWidth * (t.size / _startSize);
+          } else if (t is _ImageItem) {
+            t.width = (_startWidth * k).clamp(0.03, 3.0);
+          }
+          _changed = true;
+        }
+      case _Op.widthL:
+      case _Op.widthR:
+        if (t is _TextItem) {
+          final local = _toLocal(t, w, p);
+          final half = local.dx.abs() / w;
+          t.width = math.min(1.5, math.max(t.size * 1.2, half * 2));
+          _changed = true;
+        }
+      case _Op.tap:
+      case _Op.none:
+        break;
+    }
+    _lastPos = p;
+    _bump();
+  }
+
+  void _layerUp(int page, Offset p) {
+    if (page != _gesturePage) return;
+    final w = _layerWidth(page);
+    switch (_op) {
+      case _Op.draw:
+        if (_drawing.isNotEmpty) {
+          _itemsOf(page).add(_InkItem(_drawing, _penColor, _penWidth));
+          _commit();
+        }
+        _drawing = [];
+      case _Op.mark:
+        final r = _markRect;
+        if (r != null && r.width > 0.01) {
+          _itemsOf(page).add(_MarkItem(_markKind, r, _markColor));
+          _commit();
+        }
+        _markRect = null;
+      case _Op.erase:
+        if (_changed) _commit();
+      case _Op.tap:
+        if (!_moved) _onTap(page, p, w);
+      case _Op.move:
+        final t = _target;
+        _lift(page, false);
+        if (!_moved && _wasSelected && t is _TextItem) {
+          _onEditTextItem(page, t);
+        } else if (_changed && t != null) {
+          final c = _center(t, w);
+          final height = _box(_layerKeys[page])?.size.height ?? double.infinity;
+          if (c.dy < 0 || c.dy > height) {
+            // dragged onto another page (or into the gap): move it to the page under the finger
+            final layer = _box(_layerKeys[page]);
+            final view = _box(_viewportKey);
+            if (layer != null && view != null) {
+              _onMovedOffPage(page, t, layer.localToGlobal(c, ancestor: view));
+            } else {
+              _commit();
+            }
+          } else {
+            _commit();
+          }
+        }
+      default:
+        if (_changed) _commit();
+    }
+    _op = _Op.none;
+    _target = null;
+    _gesturePage = -1;
+    _bump();
+  }
+
+  void _layerCancel(int page) {
+    if (page != _gesturePage) return;
+    _lift(page, false);
+    if (_changed) _commit();
+    _op = _Op.none;
+    _target = null;
+    _drawing = [];
+    _markRect = null;
+    _gesturePage = -1;
+    _bump();
+  }
+
+  _MarkKind get _markKind => switch (_tool) {
+        _Tool.underline => _MarkKind.underline,
+        _Tool.strike => _MarkKind.strike,
+        _ => _MarkKind.highlight,
+      };
+
+  void _onTap(int page, Offset p, double w) {
+    if (_tool == _Tool.editText) {
+      final x = p.dx / w;
+      final y = p.dy / w;
+      for (final line in _linesOf(page)) {
+        final r = line.rect;
+        if (x >= r.left - 0.01 && x <= r.right + 0.01 && y >= r.top - 0.005 && y <= r.bottom + 0.005) {
+          _onLineTap(page, line);
+          return;
+        }
+      }
+    }
+    if (_selected != null) {
+      _selected = null;
+      _onSelectionChanged();
+      return;
+    }
+    _onTapEmpty(page, p.dx / w, p.dy / w);
+  }
+
+  /// While a text / picture is dragged it is drawn above the neighbouring pages (not clipped),
+  /// so it stays visible when it is pulled across the gap onto another page.
+  void _lift(int page, bool on) {
+    if (!on) {
+      _lifted = false;
+      return;
+    }
+    if (_lifted) return;
+    final rect = _layerRect(page);
+    if (rect == null) return;
+    _lifted = true;
+    _liftOrigin = rect.topLeft;
+    _liftWidth = rect.width;
+  }
+
+  void _setRotation(_Item item, double degrees) {
+    var r = ((degrees % 360) + 360) % 360;
+    // snap near straight angles
+    for (final s in const [0.0, 90.0, 180.0, 270.0, 360.0]) {
+      if ((r - s).abs() < 4) r = s % 360;
+    }
+    if (item is _TextItem) item.rotation = r;
+    if (item is _ImageItem) item.rotation = r;
+  }
+
+  /// Highlight / underline / strike span: snaps to a text line when there is one under the finger.
+  Rect _markAt(int page, double x0, double x1, double y, double w) {
+    final nx0 = math.min(x0, x1) / w;
+    final nx1 = math.max(x0, x1) / w;
+    final ny = y / w;
+    for (final line in _linesOf(page)) {
+      final r = line.rect;
+      if (ny >= r.top && ny <= r.bottom) {
+        return Rect.fromLTRB(math.max(nx0, r.left - 0.01), r.top, math.min(math.max(nx1, nx0 + 0.005), r.right + 0.01), r.bottom);
+      }
+    }
+    const half = 0.016;
+    return Rect.fromLTRB(nx0, ny - half, math.max(nx1, nx0 + 0.005), ny + half);
+  }
+
+  void _eraseAt(int page, Offset p, double w) {
+    const r = 14.0;
+    final items = _itemsOf(page);
+    final before = items.length;
+    items.removeWhere((item) {
+      if (item is _InkItem) {
+        return item.points.any((point) => (point * w - p).distance < r + item.width * w / 2);
+      }
+      if (item is _MarkItem) {
+        final m = item.rect;
+        return Rect.fromLTRB(m.left * w - r, m.top * w - r, m.right * w + r, m.bottom * w + r).contains(p);
+      }
+      return false;
+    });
+    if (items.length != before) _changed = true;
+  }
+
+  // ------------------------------------------------------------------ actions
+
+  Future<void> _onTapEmpty(int page, double x, double y) async {
+    if (_panel != _Panel.addText) return;
+    final text = await enterText(context);
+    if (text == null || !mounted) return;
+    _addText(page, text, x, y, centred: false);
+  }
+
+  /// The "Tap anywhere to add text" bar: type first, the text lands in the middle of the page on
+  /// screen.
+  Future<void> _addTextFromBar() async {
+    if (_saving) return;
+    if (_panel == _Panel.editText) {
+      showToast(context, S.of(context).t('tapTextToEdit'));
+      return;
+    }
+    final page = _currentPage();
+    final text = await enterText(context);
+    if (text == null || !mounted) return;
+    _addText(page, text, 0.5, _visibleCentreY(page), centred: true);
+  }
+
+  void _addText(int page, String text, double x, double y, {required bool centred}) {
+    final t = text.trim();
+    if (t.isEmpty) return;
+    final size = _textSizeValue / 600;
+    final width = math.min(0.96, _measure(t, size));
+    final cx = centred ? 0.5 : (x + width / 2).clamp(width / 2, math.max(width / 2, 1 - width / 2 + 0.2));
+    final item = _TextItem(text: t, cx: cx, cy: y, width: width, size: size, color: _textColor);
+    _itemsOf(page).add(item);
+    _selected = item;
+    _commit();
+  }
+
+  Future<void> _onEditTextItem(int page, _TextItem item) async {
+    final text = await enterText(context, initial: item.text);
+    if (text == null || !mounted) return;
+    final t = text.trim();
+    if (t.isEmpty) {
+      _itemsOf(page).remove(item);
+      if (identical(_selected, item)) _selected = null;
+    } else {
+      item.text = t;
+      item.width = math.max(item.width, math.min(0.96, _measure(t, item.size)));
+    }
+    _commit();
+  }
+
+  Future<void> _onLineTap(int page, _Line line) async {
+    final text = await enterText(context, initial: line.text);
+    if (text == null || !mounted) return;
+    final t = text.trim().isEmpty ? ' ' : text.trim();
+    final r = line.rect;
+    final cover = Rect.fromLTRB(r.left - 0.004, r.top - 0.003, r.right + 0.004, r.bottom + 0.003);
+    final size = math.max(0.008, line.size * 0.95);
+    final width = math.min(1.0, math.max(r.width, _measure(t, size)));
+    final item = _TextItem(
+      text: t,
+      cx: r.left + width / 2,
+      cy: (r.top + r.bottom) / 2,
+      width: width,
+      size: size,
+      color: _textColor == 0xFFFFFFFF ? 0xFF000000 : _textColor,
+      cover: cover,
+    );
+    _itemsOf(page).add(item);
+    _selected = item;
+    _commit();
+  }
+
+  void _onDelete(int page, _Item item) {
+    _itemsOf(page).remove(item);
+    if (identical(_selected, item)) _selected = null;
+    _commit();
+  }
+
+  void _onDuplicate(int page, _Item item) {
+    final copy = item.copy();
+    if (copy is _TextItem) {
+      copy.cx += 0.04;
+      copy.cy += 0.06;
+    } else if (copy is _ImageItem) {
+      copy.cx += 0.04;
+      copy.cy += 0.06;
+    }
+    _itemsOf(page).add(copy);
+    _selected = copy;
+    _onSelectionChanged();
+    _commit();
+  }
+
+  /// [at] = the drop point in the viewport: the item goes to the page under it (or the nearest
+  /// one when dropped in the gap).
+  void _onMovedOffPage(int page, _Item item, Offset at) {
+    var best = -1;
+    var bestDist = double.infinity;
+    Rect? bestRect;
+    for (final (index, rect) in _shownPages()) {
+      final dist = at.dy < rect.top ? rect.top - at.dy : (at.dy > rect.bottom ? at.dy - rect.bottom : 0.0);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = index;
+        bestRect = rect;
+      }
+    }
+    final rect = bestRect;
+    if (best < 0 || rect == null || rect.width <= 0) {
+      _commit();
+      return;
+    }
+    final maxY = rect.height / rect.width;
+    final nx = ((at.dx - rect.left) / rect.width).clamp(0.0, 1.0);
+    final ny = ((at.dy - rect.top) / rect.width).clamp(0.02, math.max(0.02, maxY - 0.02));
+    if (item is _TextItem) {
+      item.cx = nx;
+      item.cy = ny;
+    } else if (item is _ImageItem) {
+      item.cx = nx;
+      item.cy = ny;
+    }
+    if (best != page) {
+      _itemsOf(page).remove(item);
+      _itemsOf(best).add(item);
+    }
+    _selected = item;
+    _onSelectionChanged();
+    _commit();
+  }
+
+  /// Pencil on a picture / signature: draw a new signature or pick a new picture in its place.
+  Future<void> _onEditImage(int page, _ImageItem item) async {
+    if (item.signature) {
+      final sign = await _newSignature();
+      if (sign == null || !mounted) return;
+      item.sign = sign;
+    } else {
+      final picked = await _pickPicture();
+      if (picked == null || !mounted) return;
+      item.bytes = picked.$1;
+      item.image = picked.$2;
+      item.sign = null;
+    }
+    _selected = item;
+    _commit();
+  }
+
+  /// Draws a signature in the pad, keeps it with the saved ones and returns it.
+  Future<Signature?> _newSignature() async {
+    final drawn = await drawSignature(context);
+    if (drawn == null) return null;
+    final saved = await SignatureStore.save(drawn);
+    await _loadSignatures();
+    return saved;
+  }
+
+  Future<void> _addSignature() async {
+    if (_saving) return;
+    final sign = await _newSignature();
     if (sign == null || !mounted) return;
-    final saved = await SignatureStore.save(sign);
-    if (!mounted) return;
-    setState(() => _signatures = [saved, ..._signatures]);
-    _placeSignature(saved);
-  }
-
-  void _placeSignature(Signature sign) {
-    final shot = _shots[_page];
-    if (shot == null) return;
-    setState(() {
-      _checkpoint();
-      final obj = _SignObj(page: _page, center: Offset(shot.width / 2, shot.height * 0.72), sign: sign, width: shot.width * 0.36);
-      _objects.add(obj);
-      _selected = obj;
-    });
+    _placeImage(_ImageItem(cx: 0.5, cy: 0, width: 0.35, sign: sign));
   }
 
   Future<void> _deleteSignature(Signature sign) async {
@@ -411,588 +1292,421 @@ class _MarkupPageState extends State<MarkupPage> {
     final ok = await confirmSheet(context, title: s.t('deleteSignature'), message: s.t('deleteSignatureMessage'), ok: s.t('delete'));
     if (!ok) return;
     await SignatureStore.delete(sign);
-    if (!mounted) return;
-    setState(() => _signatures = _signatures.where((item) => item.file != sign.file).toList());
+    await _loadSignatures();
   }
 
-  Future<void> _addTextAt(Offset point) async {
-    final value = await enterText(context);
-    if (value == null || value.trim().isEmpty || !mounted) return;
-    setState(() {
-      _checkpoint();
-      final obj = _TextObj(page: _page, center: point, text: value.trimRight(), size: _textSize, color: _textColor);
-      _objects.add(obj);
-      _selected = obj;
-    });
+  /// Add image: the photo picker, then the picture goes in the middle of the page on screen.
+  Future<void> _addImage() async {
+    if (_saving) return;
+    final picked = await _pickPicture();
+    if (picked == null || !mounted) return;
+    _placeImage(_ImageItem(cx: 0.5, cy: 0, width: 0.5, bytes: picked.$1, image: picked.$2));
   }
 
-  Future<void> _editTextObj(_TextObj obj) async {
-    final value = await enterText(context, initial: obj.text);
-    if (value == null || !mounted) return;
-    setState(() {
-      _checkpoint();
-      if (value.trim().isEmpty && obj.cover == null) {
-        _objects.remove(obj);
-        _selected = null;
-      } else {
-        obj.text = value.trimRight();
+  /// A picture from the gallery (at most 1600 px, like PdfEditor.decode): the bytes that go into
+  /// the PDF (PNG kept for its transparency, anything else re-encoded as an upright JPEG) and
+  /// the decoded image.
+  Future<(Uint8List, ui.Image)?> _pickPicture() async {
+    final scope = AppScope.of(context);
+    final s = S.of(context);
+    scope.guard.arm(scope.settings);
+    XFile? file;
+    try {
+      file = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 1600, maxHeight: 1600, imageQuality: 92);
+    } catch (_) {
+      if (mounted) showToast(context, s.t('convertFailed'));
+      return null;
+    }
+    if (file == null) return null;
+    try {
+      var bytes = await File(file.path).readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      codec.dispose();
+      var image = frame.image;
+      if (image.width > 1600 || image.height > 1600) {
+        final k = 1600 / math.max(image.width, image.height);
+        image = await _scaled(image, (image.width * k).round(), (image.height * k).round());
       }
-    });
-  }
-
-  Future<void> _editLine(int index, PdfTextLine line, _Shot shot) async {
-    final value = await enterText(context, initial: line.readable ? line.text : '');
-    if (value == null || !mounted) return;
-    final w = shot.width;
-    final h = shot.height;
-    final size = (line.size * h).clamp(4.0, 120.0);
-    final cover = Rect.fromLTRB(line.left * w - 1, line.top * h - 1, line.right * w + 2, line.bottom * h + 1);
-    final text = value.trimRight();
-    final probe = _TextObj(page: _page, center: Offset.zero, text: text, size: size, color: _textColor);
-    final box = probe.box;
-    final topLeft = Offset(line.left * w - _textPad, line.top * h - _textPad);
-    setState(() {
-      _checkpoint();
-      _editedLines.add('$_page:$index');
-      final obj = _TextObj(
-        page: _page,
-        center: topLeft + Offset(box.width / 2, box.height / 2),
-        text: text,
-        size: size,
-        color: _textColor,
-        cover: cover,
-      );
-      _objects.add(obj);
-      _selected = obj;
-    });
-  }
-
-  // ------------------------------------------------------------------ gestures
-
-  Offset _toPage(Offset local) => (local - _pageRect.topLeft) / _k;
-
-  Offset _toScreen(Offset page) => _pageRect.topLeft + page * _k;
-
-  Map<_Handle, Offset> _handles(_Obj obj) {
-    final box = obj.box;
-    Offset corner(double x, double y) => _toScreen(obj.center + _rot(Offset(x * box.width / 2, y * box.height / 2), obj.rotation));
-    return {
-      _Handle.delete: corner(-1, -1),
-      _Handle.resize: corner(1, 1),
-      _Handle.duplicate: corner(-1, 1),
-      if (obj is _TextObj) _Handle.edit: corner(1, -1),
-    };
-  }
-
-  _Handle _hitHandle(Offset local) {
-    final obj = _selected;
-    if (obj == null || obj.page != _page) return _Handle.none;
-    for (final entry in _handles(obj).entries) {
-      if ((entry.value - local).distance <= 22) return entry.key;
-    }
-    return _Handle.none;
-  }
-
-  _Obj? _hitObject(Offset local) {
-    final point = _toPage(local);
-    for (final obj in _objects.reversed) {
-      if (obj.page != _page) continue;
-      final box = obj.box;
-      final p = _rot(point - obj.center, -obj.rotation);
-      final pad = 8 / _k;
-      if (p.dx.abs() <= box.width / 2 + pad && p.dy.abs() <= box.height / 2 + pad) return obj;
-    }
-    return null;
-  }
-
-  Future<void> _onTap(Offset local, _Shot shot) async {
-    final handle = _hitHandle(local);
-    final selected = _selected;
-    if (handle != _Handle.none && selected != null) {
-      switch (handle) {
-        case _Handle.delete:
-          setState(() {
-            _checkpoint();
-            _objects.remove(selected);
-            _selected = null;
-          });
-        case _Handle.duplicate:
-          setState(() {
-            _checkpoint();
-            final copy = selected.clone()..center = selected.center + Offset(16 / _k + 12, 16 / _k + 12);
-            _objects.add(copy);
-            _selected = copy;
-          });
-        case _Handle.edit:
-          if (selected is _TextObj) await _editTextObj(selected);
-        case _Handle.resize:
-        case _Handle.none:
-          break;
+      final png = bytes.length > 8 && bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47;
+      if (png && identical(image, frame.image)) return (bytes, image);
+      if (png) {
+        final data = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (data == null) return null;
+        return (data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), image);
       }
-      return;
-    }
-    final hit = _hitObject(local);
-    if (hit != null) {
-      if (hit == selected && hit is _TextObj) {
-        await _editTextObj(hit);
-      } else {
-        setState(() => _selected = hit);
-      }
-      return;
-    }
-    if (selected != null) {
-      setState(() => _selected = null);
-      return;
-    }
-    final point = _toPage(local);
-    if (point.dx < 0 || point.dy < 0 || point.dx > shot.width || point.dy > shot.height) return;
-    if (_mode == _Mode.editText) {
-      final lines = _lines;
-      if (lines == null || _page - 1 >= lines.length) return;
-      final pageLines = lines[_page - 1];
-      for (var i = 0; i < pageLines.length; i++) {
-        final line = pageLines[i];
-        if (_editedLines.contains('$_page:$i')) continue;
-        final rect = Rect.fromLTRB(line.left * shot.width, line.top * shot.height, line.right * shot.width, line.bottom * shot.height).inflate(3);
-        if (rect.contains(point)) {
-          await _editLine(i, line, shot);
-          return;
-        }
-      }
-      return;
-    }
-    if (_mode == _Mode.addText) await _addTextAt(point);
-  }
-
-  void _onPanStart(Offset local) {
-    final handle = _hitHandle(local);
-    final selected = _selected;
-    if (handle == _Handle.resize && selected != null) {
-      _drag = _Drag.resize;
-      _startClone = selected.clone();
-      _startCenter = selected.center;
-      final finger = _toPage(local) - selected.center;
-      _startDistance = math.max(1.0, finger.distance);
-      _startAngle = math.atan2(finger.dy, finger.dx);
-      _startRotation = selected.rotation;
-      _checkpoint();
-      return;
-    }
-    final hit = _hitObject(local);
-    if (hit != null) {
-      _drag = _Drag.move;
-      _dragStartPage = _toPage(local);
-      _startCenter = hit.center;
-      _checkpoint();
-      setState(() => _selected = hit);
-      return;
-    }
-    if (_mode == _Mode.annotate) {
-      final point = _toPage(local);
-      if (_annTool == MarkTool.eraser) {
-        _drag = _Drag.erase;
-        _checkpoint();
-        _erase(point);
-        return;
-      }
-      _drag = _Drag.ink;
-      _checkpoint();
-      final width = switch (_annTool) {
-        MarkTool.highlight => _inkSize * 3,
-        _ => _inkSize,
-      };
-      final color = _annTool == MarkTool.highlight && _inkColor == 0xFFE53935 ? 0xFFFBBF24 : _inkColor;
-      setState(() {
-        _selected = null;
-        _inks.add(_Ink(_page, _annTool, [point], color, width));
-      });
-      return;
-    }
-    _drag = _Drag.none;
-  }
-
-  void _onPanUpdate(Offset local) {
-    final point = _toPage(local);
-    switch (_drag) {
-      case _Drag.move:
-        final moving = _selected;
-        if (moving == null) return;
-        setState(() => moving.center = _startCenter + (point - _dragStartPage));
-      case _Drag.resize:
-        final resizing = _selected;
-        final start = _startClone;
-        if (resizing == null || start == null) return;
-        final finger = point - _startCenter;
-        final factor = (finger.distance / _startDistance).clamp(0.1, 10.0);
-        final angle = math.atan2(finger.dy, finger.dx) - _startAngle;
-        setState(() {
-          if (resizing is _TextObj && start is _TextObj) resizing.size = (start.size * factor).clamp(4.0, 200.0);
-          if (resizing is _ImageObj && start is _ImageObj) resizing.width = (start.width * factor).clamp(12.0, 3000.0);
-          if (resizing is _SignObj && start is _SignObj) resizing.width = (start.width * factor).clamp(12.0, 3000.0);
-          resizing.rotation = _startRotation + angle;
-        });
-      case _Drag.ink:
-        if (_inks.isEmpty) return;
-        setState(() => _inks.last.points.add(point));
-      case _Drag.erase:
-        _erase(point);
-      case _Drag.none:
-        break;
+      final rgba = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      if (rgba == null) return null;
+      bytes = await rgbaToJpeg(rgba.buffer.asUint8List(rgba.offsetInBytes, rgba.lengthInBytes), image.width, image.height, quality: 90);
+      return (bytes, image);
+    } catch (_) {
+      if (mounted) showToast(context, s.t('convertFailed'));
+      return null;
     }
   }
 
-  void _onPanEnd() {
-    if (_drag == _Drag.ink && _inks.isNotEmpty && _inks.last.points.length < 2) {
-      final last = _inks.last;
-      last.points.add(last.points.first + const Offset(0.5, 0.5));
-    }
-    _drag = _Drag.none;
-    _startClone = null;
-    setState(() {});
+  Future<ui.Image> _scaled(ui.Image source, int width, int height) async {
+    final recorder = ui.PictureRecorder();
+    Canvas(recorder).drawImageRect(
+      source,
+      Rect.fromLTWH(0, 0, source.width.toDouble(), source.height.toDouble()),
+      Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+      Paint()..filterQuality = FilterQuality.medium,
+    );
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(width, height);
+    picture.dispose();
+    return image;
   }
 
-  void _erase(Offset point) {
-    final radius = 14 / _k;
-    final before = _inks.length;
-    _inks.removeWhere((ink) => ink.page == _page && ink.points.any((p) => (p - point).distance < radius + ink.width));
-    if (_inks.length != before) setState(() {});
+  /// Puts a picture / signature in the middle of the page on screen, selected.
+  void _placeImage(_ImageItem item) {
+    final page = _currentPage();
+    item.cy = _visibleCentreY(page);
+    _itemsOf(page).add(item);
+    _selected = item;
+    _commit();
   }
 
-  void _applyTextStyle({int? color, double? size}) {
-    final obj = _selected;
-    if (obj is! _TextObj) return;
+  // ------------------------------------------------------------------ panels
+
+  void _openPanel(_Panel mode) {
     setState(() {
-      if (color != null) obj.color = color;
-      if (size != null) obj.size = size;
+      _panel = mode;
+      if (mode == _Panel.none) _selected = null;
+      if (mode == _Panel.editText && _textColor == _pink) _textColor = 0xFF000000;
     });
+    if (mode == _Panel.sign) _loadSignatures();
+    _bump();
   }
 
-  Future<void> _movePage(int delta) async {
-    final next = (_page + delta).clamp(1, _pages);
-    if (next == _page) return;
-    setState(() {
-      _loading = true;
-      _selected = null;
-    });
-    await _ensureShot(next);
-    if (!mounted) return;
-    setState(() {
-      _page = next;
-      _loading = false;
-    });
+  void _editTextTool() {
+    final s = S.of(context);
+    if (!_linesLoaded) {
+      showToast(context, s.t('loading'));
+    } else if (!_hasLines) {
+      showToast(context, s.t('noEditableText'));
+    } else {
+      _openPanel(_Panel.editText);
+    }
   }
 
-  // ------------------------------------------------------------------ save
+  Future<void> _showTutorial() async {
+    final choice = await showEditTutorial(context);
+    if (!mounted || choice == null) return;
+    if (choice == 'sign') {
+      _openPanel(_Panel.sign);
+    } else {
+      _openPanel(_hasLines ? _Panel.editText : _Panel.addText);
+    }
+  }
 
-  Future<void> _done() async {
-    if (_saving || !_changed) return;
+  void _applySizeToSelection() {
+    final t = _selected;
+    if (t is! _TextItem) return;
+    final size = _textSizeValue / 600;
+    final k = size / t.size;
+    t.size = size;
+    t.width *= k;
+    _bump();
+  }
+
+  // ------------------------------------------------------------------ save / close
+
+  Future<void> _save() async {
+    if (_saving) return;
+    if (!_hasChanges) {
+      _openPanel(_Panel.none);
+      return;
+    }
     final s = S.of(context);
     final scope = AppScope.of(context);
     setState(() {
       _saving = true;
       _selected = null;
     });
-    final pill = ProgressPill(context)..show(s.t('saving'));
+    _bump();
+    final state = _snapshot();
+    var ok = false;
     try {
+      await _sizesJob;
+      final pdf = _pdf;
+      if (pdf == null) throw StateError('closed');
+      final aspects = <int, double>{for (var i = 0; i < _count; i++) i + 1: pdf.aspectOf(i)};
       final original = await File(_path).readAsBytes();
-      final marks = <PdfVectorMark>[];
-      final sizes = <int, Size>{};
-      for (var page = 1; page <= _pages; page++) {
-        final shot = await _ensureShot(page);
-        if (shot != null) sizes[page] = Size(shot.width, shot.height);
-      }
-      for (final ink in _inks) {
-        final size = sizes[ink.page];
-        if (size == null || ink.points.isEmpty) continue;
-        final underline = ink.tool == MarkTool.underline || ink.tool == MarkTool.strike;
-        marks.add(
-          PdfVectorMark(
-            page: ink.page,
-            tool: ink.tool.name,
-            points: [for (final p in ink.points) (p.dx / size.width, p.dy / size.height)],
-            color: ink.color,
-            stroke: underline ? math.max(1.2, ink.width * 0.5) : ink.width,
-          ),
-        );
-      }
-      for (final obj in _objects) {
-        final size = sizes[obj.page];
-        if (size == null) continue;
-        marks.addAll(await _marksOf(obj, size));
-      }
-      var bytes = rewritePdf(original, marks: marks);
-      bytes ??= await _bake(sizes);
+      final marks = await _marksOf(state, aspects);
+      var bytes = await _rewriteIsolated(original, marks, aspects, _count);
+      // the PDF could not be edited in place: every page as a picture with the edits on it
+      bytes ??= await _bake(state);
+      // the viewer must let go of the file before it is replaced
+      await _detachDoc()?.close();
       await File(_path).writeAsBytes(bytes, flush: true);
-      await scope.library.scan();
-      // start again from the saved file
-      await _document?.close();
-      _document = null;
-      _shots.clear();
-      _objects = [];
-      _inks = [];
-      _undo.clear();
-      _redo.clear();
-      _editedLines.clear();
-      _changed = false;
-      await _open(first: false);
-      pill.dismiss();
-      if (!mounted) return;
-      setState(() => _saving = false);
-      await scope.ads.showInterstitial(unit: 2);
-      if (!mounted) return;
-      showToast(context, s.t('savedSuccessfully'));
+      ok = true;
     } catch (_) {
-      pill.dismiss();
+      ok = false;
+    }
+    if (!mounted) return;
+    if (!ok) {
+      if (_pdf == null) await _openDoc();
       if (!mounted) return;
       setState(() => _saving = false);
       showToast(context, s.t('saveFailed'), warning: true);
+      return;
     }
+    await scope.library.addFile(_path);
+    _savedOnce = true;
+    _items.clear();
+    _undo.clear();
+    _redo.clear();
+    _last = {};
+    _layouts.clear();
+    await _openDoc();
+    if (!mounted) return;
+    setState(() => _saving = false);
+    _openPanel(_Panel.none);
+    _loadLines();
+    showTopPill(context, s.t('savedSuccessfully'), icon: ND.icCheckCircleOutline, topMargin: 60, decoration: NS.bgTopPill(context));
+    await scope.ads.showInterstitial(unit: 2);
   }
 
-  Future<List<PdfVectorMark>> _marksOf(_Obj obj, Size page) async {
+  /// Everything on the pages as PDF marks (page fractions; covers first on each page, like
+  /// EditRenderer.draw).
+  Future<List<PdfVectorMark>> _marksOf(Map<int, List<_Item>> state, Map<int, double> aspects) async {
     final out = <PdfVectorMark>[];
-    final box = obj.box;
-    (double, double) frac(Offset local) {
-      final p = obj.center + _rot(local, obj.rotation);
-      return (p.dx / page.width, p.dy / page.height);
-    }
-
-    final degrees = obj.rotation * 180 / math.pi;
-    if (obj is _TextObj) {
-      final cover = obj.cover;
-      if (cover != null) {
-        out.add(PdfVectorMark(page: obj.page, tool: 'whiteout', points: [(cover.left / page.width, cover.top / page.height), (cover.right / page.width, cover.bottom / page.height)], color: 0xFFFFFFFF));
+    for (final entry in state.entries) {
+      final index = entry.key;
+      final list = entry.value;
+      if (list.isEmpty || index >= _count) continue;
+      final pageNo = index + 1;
+      final a = aspects[pageNo] ?? 1.414;
+      (double, double) f(double x, double y) => (x, y / a);
+      for (final item in list) {
+        final c = item is _TextItem ? item.cover : null;
+        if (c != null) out.add(PdfVectorMark(page: pageNo, tool: 'whiteout', points: [f(c.left, c.top), f(c.right, c.bottom)], color: 0xFFFFFFFF));
       }
-      if (obj.text.trim().isEmpty) return out;
-      if (_plainLatin(obj.text)) {
-        final painter = _layoutText(obj.text, obj.size, obj.color);
-        final baseline = painter.computeDistanceToActualBaseline(TextBaseline.alphabetic);
-        painter.dispose();
-        out.add(
-          PdfVectorMark(
-            page: obj.page,
-            tool: 'text',
-            points: [frac(Offset(-box.width / 2 + _textPad, -box.height / 2 + _textPad + baseline))],
-            text: obj.text,
-            color: obj.color,
-            size: obj.size,
-            rotation: degrees,
-          ),
-        );
-        return out;
-      }
-      // other scripts: the text as a transparent picture
-      final png = await _textPng(obj);
-      if (png != null) {
-        out.add(_stamp(obj, page, png, box, degrees));
-      }
-      return out;
-    }
-    if (obj is _ImageObj) {
-      out.add(_stamp(obj, page, obj.bytes, box, degrees));
-      return out;
-    }
-    if (obj is _SignObj) {
-      final sign = obj.sign;
-      for (final stroke in sign.strokes) {
-        if (stroke.isEmpty) continue;
-        final points = [for (final p in stroke) frac(Offset((p.dx - 0.5) * box.width, (p.dy - 0.5) * box.height))];
-        if (points.length == 1) points.add((points.first.$1 + 0.0005, points.first.$2));
-        out.add(PdfVectorMark(page: obj.page, tool: 'pen', points: points, color: sign.color, stroke: math.max(0.4, sign.width * box.width)));
+      for (final item in list) {
+        if (item is _MarkItem) {
+          final r = item.rect;
+          if (item.kind == _MarkKind.highlight) {
+            out.add(PdfVectorMark(page: pageNo, tool: 'highlightRect', points: [f(r.left, r.top), f(r.right, r.bottom)], color: item.color));
+          } else {
+            final y = item.kind == _MarkKind.underline ? r.bottom : (r.top + r.bottom) / 2;
+            out.add(PdfVectorMark(page: pageNo, tool: 'pen', points: [f(r.left, y), f(r.right, y)], color: item.color, strokeFraction: math.max(0.0009, (r.bottom - r.top) * 0.09)));
+          }
+        } else if (item is _InkItem) {
+          if (item.points.isEmpty) continue;
+          final points = [for (final p in item.points) f(p.dx, p.dy)];
+          if (points.length == 1) points.add((points.first.$1 + 0.0002, points.first.$2));
+          out.add(PdfVectorMark(page: pageNo, tool: 'pen', points: points, color: item.color, strokeFraction: math.max(0.0006, item.width)));
+        } else if (item is _TextItem) {
+          if (item.text.trim().isEmpty) continue;
+          final shot = await _textPng(item);
+          if (shot == null) continue;
+          out.add(PdfVectorMark(page: pageNo, tool: 'stamp', points: [f(item.cx, item.cy)], image: shot.$1, width: item.width, height: shot.$2 / a, rotation: item.rotation));
+        } else if (item is _ImageItem) {
+          final sign = item.sign;
+          final bytes = item.bytes;
+          if (sign != null) {
+            final bw = item.width;
+            final bh = item.height;
+            final angle = _rad(item.rotation);
+            final cos = math.cos(angle);
+            final sin = math.sin(angle);
+            for (var i = 0; i < sign.strokes.length; i++) {
+              final stroke = sign.strokes[i];
+              if (stroke.isEmpty) continue;
+              final points = <(double, double)>[];
+              for (final p in _smooth(stroke)) {
+                final lx = (p.dx - 0.5) * bw;
+                final ly = (p.dy - 0.5) * bh;
+                points.add(f(item.cx + lx * cos - ly * sin, item.cy + lx * sin + ly * cos));
+              }
+              if (points.length == 1) points.add((points.first.$1 + 0.0002, points.first.$2));
+              final width = i < sign.widths.length ? sign.widths[i] : sign.width;
+              out.add(PdfVectorMark(page: pageNo, tool: 'pen', points: points, color: sign.color, strokeFraction: math.max(0.0004, width * bw)));
+            }
+          } else if (bytes != null) {
+            out.add(PdfVectorMark(page: pageNo, tool: 'stamp', points: [f(item.cx, item.cy)], image: bytes, width: item.width, height: item.height / a, rotation: item.rotation));
+          }
+        }
       }
     }
     return out;
   }
 
-  PdfVectorMark _stamp(_Obj obj, Size page, Uint8List bytes, Size box, double degrees) {
-    return PdfVectorMark(
-      page: obj.page,
-      tool: 'stamp',
-      points: [(obj.center.dx / page.width, obj.center.dy / page.height)],
-      image: bytes,
-      width: box.width / page.width,
-      height: box.height / page.height,
-      rotation: degrees,
-    );
-  }
-
-  bool _plainLatin(String text) {
-    for (final rune in text.runes) {
-      if (rune == 10) continue;
-      if (rune >= 0x20 && rune <= 0x7E) continue;
-      if (rune >= 0xA0 && rune <= 0xFF) continue;
-      return false;
+  /// The points of a stroke along the same curves the screen draws (quadratic segments through
+  /// the midpoints), so the PDF line is as smooth as on screen.
+  List<Offset> _smooth(List<Offset> stroke) {
+    if (stroke.length < 3) return stroke;
+    final out = <Offset>[stroke.first];
+    for (var i = 1; i < stroke.length - 1; i++) {
+      final start = out.last;
+      final control = stroke[i];
+      final end = (stroke[i] + stroke[i + 1]) / 2;
+      for (var k = 1; k <= 4; k++) {
+        final t = k / 4;
+        final u = 1 - t;
+        out.add(start * (u * u) + control * (2 * u * t) + end * (t * t));
+      }
     }
-    return true;
+    out.add(stroke.last);
+    return out;
   }
 
-  Future<Uint8List?> _textPng(_TextObj obj) async {
-    const scale = 3.0;
-    final box = obj.box;
+  /// A text box as a transparent picture (1800 px per page width, at most 4096 px), drawn the
+  /// way the screen draws it (wrapping, any script), and its height in page-width units.
+  Future<(Uint8List, double)?> _textPng(_TextItem item) async {
+    var unit = 1800.0;
+    final probe = _boxSize(item, unit);
+    final longest = math.max(probe.width, probe.height);
+    if (longest > 4096) unit *= 4096 / longest;
+    final layout = _textLayout(item, unit);
+    final width = math.max(1, (item.width * unit).ceil());
+    final height = math.max(1, layout.height.ceil());
     final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-    canvas.scale(scale);
-    final painter = _layoutText(obj.text, obj.size, obj.color);
-    painter.paint(canvas, const Offset(_textPad, _textPad));
-    painter.dispose();
+    layout.paint(Canvas(recorder), Offset.zero);
     final picture = recorder.endRecording();
-    final image = await picture.toImage((box.width * scale).ceil(), (box.height * scale).ceil());
+    final image = await picture.toImage(width, height);
     picture.dispose();
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
-    return data?.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    if (data == null) return null;
+    return (data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), height / unit);
   }
 
   /// When the PDF can't be edited in place: every page as a picture with the edits drawn on it.
-  Future<Uint8List> _bake(Map<int, Size> sizes) async {
-    final document = _document;
-    if (document == null) throw StateError('closed');
+  Future<Uint8List> _bake(Map<int, List<_Item>> state) async {
+    final document = await PdfDocument.openFile(_path);
     final pieces = <PdfPiece>[];
-    for (var index = 1; index <= _pages; index++) {
-      final size = sizes[index];
-      if (size == null) continue;
-      final page = await document.getPage(index);
-      const scale = 2.0;
-      final rendered = await page.render(width: size.width * scale, height: size.height * scale, format: PdfPageImageFormat.png, backgroundColor: '#FFFFFF');
-      await page.close();
-      if (rendered == null) continue;
-      final codec = await ui.instantiateImageCodec(rendered.bytes);
-      final frame = await codec.getNextFrame();
-      codec.dispose();
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
-      final w = (size.width * scale).round();
-      final h = (size.height * scale).round();
-      canvas.drawImageRect(
-        frame.image,
-        Rect.fromLTWH(0, 0, frame.image.width.toDouble(), frame.image.height.toDouble()),
-        Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()),
-        Paint()..filterQuality = FilterQuality.medium,
-      );
-      canvas.scale(scale);
-      _paintScene(canvas, _objects.where((obj) => obj.page == index).toList(), _inks.where((ink) => ink.page == index).toList(), k: 1);
-      final picture = recorder.endRecording();
-      final image = await picture.toImage(w, h);
-      picture.dispose();
-      frame.image.dispose();
-      final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-      image.dispose();
-      if (data == null) continue;
-      final jpeg = await rgbaToJpeg(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), w, h, quality: 88);
-      pieces.add(PdfPiece(image: jpeg, pageFormat: PdfPageFormat(size.width, size.height)));
+    try {
+      for (var index = 0; index < document.pagesCount; index++) {
+        final page = await document.getPage(index + 1);
+        final pw = page.width;
+        final ph = page.height;
+        final scale = math.min(3.0, 2600 / math.max(pw, ph));
+        final w = (pw * scale).round();
+        final h = (ph * scale).round();
+        final rendered = await page.render(width: w.toDouble(), height: h.toDouble(), format: PdfPageImageFormat.png, backgroundColor: '#FFFFFF');
+        await page.close();
+        if (rendered == null) continue;
+        final codec = await ui.instantiateImageCodec(rendered.bytes);
+        final frame = await codec.getNextFrame();
+        codec.dispose();
+        final recorder = ui.PictureRecorder();
+        final canvas = Canvas(recorder);
+        canvas.drawImageRect(
+          frame.image,
+          Rect.fromLTWH(0, 0, frame.image.width.toDouble(), frame.image.height.toDouble()),
+          Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()),
+          Paint()..filterQuality = FilterQuality.medium,
+        );
+        _drawItems(canvas, state[index] ?? const [], w.toDouble());
+        final picture = recorder.endRecording();
+        final image = await picture.toImage(w, h);
+        picture.dispose();
+        frame.image.dispose();
+        final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+        image.dispose();
+        if (data == null) continue;
+        final jpeg = await rgbaToJpeg(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), w, h, quality: 90);
+        pieces.add(PdfPiece(image: jpeg, pageFormat: PdfPageFormat(pw, ph)));
+      }
+    } finally {
+      await document.close();
     }
+    if (pieces.isEmpty) throw StateError('nothing drawn');
     return rebuildPdf(pieces);
+  }
+
+  void _back() {
+    if (_panel != _Panel.none) {
+      _openPanel(_Panel.none);
+    } else {
+      _close();
+    }
   }
 
   Future<void> _close() async {
     if (_saving) return;
-    if (!_changed) {
-      Navigator.of(context).pop();
-      return;
+    if (_hasChanges) {
+      final s = S.of(context);
+      final discard = await confirmSheet(context, title: s.t('discardTitle'), message: s.t('discardMessage'), ok: s.t('discard'));
+      if (!discard || !mounted) return;
     }
-    final s = S.of(context);
-    final discard = await confirmSheet(context, title: s.t('discardTitle'), message: s.t('discardMessage'), ok: s.t('discard'));
-    if (discard && mounted) Navigator.of(context).pop();
-  }
-
-  Future<void> _tutorial() async {
-    final choice = await showEditTutorial(context);
-    if (!mounted) return;
-    if (choice == 'sign') await _selectMode(_Mode.sign);
-    if (choice == 'edit') await _selectMode(_Mode.editText);
+    Navigator.of(context).pop(_savedOnce);
   }
 
   // ------------------------------------------------------------------ build
 
-  /// Native updateBars(): undo / redo / Done show while editing; ⓘ when not (and in Sign).
-  bool get _editing => _mode != _Mode.none || _changed || _undo.isNotEmpty;
+  /// updateBars(): undo / redo / Done show while editing; ⓘ when not (and in Sign).
+  bool get _editing => _panel != _Panel.none || _hasChanges || _undo.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final nc = NC.of(context);
-    final shot = _shots[_page];
     final editing = _editing;
+    const off = Color(0xFFC3C8D0);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _close();
+        if (!didPop) _back();
       },
       child: Scaffold(
         backgroundColor: nc.surface,
-        // × ⓘ … undo redo [Done]
-        appBar: AppBar(
-          toolbarHeight: 56,
-          backgroundColor: nc.surface,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          automaticallyImplyLeading: false,
-          titleSpacing: 0,
-          title: Row(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
             children: [
-              const SizedBox(width: 4),
-              NativeIconButton(ND.icClose, padding: 11, tint: nc.textPrimary, tooltip: s.t('cancel'), onPressed: _close),
-              if (!editing || _mode == _Mode.sign)
-                NativeIconButton(ND.icInfo, size: 40, padding: 9, tint: nc.textPrimary, tooltip: s.t('howToEdit'), onPressed: _tutorial),
-              const Spacer(),
-              if (editing) ...[
-                NativeIconButton(
-                  ND.icUndo,
-                  tint: _undo.isEmpty || _saving ? const Color(0xFFC3C8D0) : nc.textPrimary,
-                  tooltip: s.t('undo'),
-                  onPressed: _undo.isEmpty || _saving ? null : _undoStep,
+              // × ⓘ … undo redo [Done]
+              Container(
+                height: 56,
+                padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
+                child: Row(
+                  children: [
+                    NativeIconButton(ND.icClose, padding: 11, tint: nc.textPrimary, tooltip: s.t('cancel'), onPressed: _close),
+                    if (!editing || _panel == _Panel.sign)
+                      NativeIconButton(ND.icInfo, size: 40, padding: 9, tint: nc.textPrimary, tooltip: s.t('howToEdit'), onPressed: _showTutorial),
+                    const Spacer(),
+                    if (editing) ...[
+                      NativeIconButton(
+                        ND.icUndo,
+                        tint: _undo.isEmpty ? off : nc.textPrimary,
+                        tooltip: s.t('undo'),
+                        onPressed: _undo.isEmpty ? null : _undoStep,
+                      ),
+                      NativeIconButton(
+                        ND.icRedo,
+                        tint: _redo.isEmpty ? off : nc.textPrimary,
+                        tooltip: s.t('redo'),
+                        onPressed: _redo.isEmpty ? null : _redoStep,
+                      ),
+                      const SizedBox(width: 40),
+                      _doneButton(s),
+                    ],
+                  ],
                 ),
-                NativeIconButton(
-                  ND.icRedo,
-                  tint: _redo.isEmpty || _saving ? const Color(0xFFC3C8D0) : nc.textPrimary,
-                  tooltip: s.t('redo'),
-                  onPressed: _redo.isEmpty || _saving ? null : _redoStep,
-                ),
-                const SizedBox(width: 40),
-                _doneButton(s),
-              ],
-              const SizedBox(width: 12),
+              ),
+              Expanded(child: ColoredBox(color: Colors.black, child: _pages(nc))),
+              Material(
+                color: nc.surface,
+                child: SafeArea(top: false, child: _bottom(s, nc)),
+              ),
             ],
           ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ColoredBox(
-                color: Colors.black,
-                child: shot == null || _loading
-                    ? Center(child: SizedBox(width: 36, height: 36, child: CircularProgressIndicator(color: nc.primary)))
-                    : Stack(
-                        children: [
-                          Positioned.fill(child: _pageArea(shot)),
-                          if (_pages > 1) Positioned(left: 0, right: 0, bottom: 10, child: Center(child: _pageNav(s))),
-                        ],
-                      ),
-              ),
-            ),
-            Material(
-              color: nc.surface,
-              child: SafeArea(
-                top: false,
-                child: _mode == _Mode.none ? _modeBar(s, nc) : _panel(s, nc),
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  /// btnDone: 34dp bg_done_btn (#111317; #D9DCE1 when off), min 64dp, a white spinner while saving.
+  /// btnDone: 34dp bg_done_btn, min 64dp, a white spinner while saving.
   Widget _doneButton(S s) {
-    final enabled = !_saving && _changed;
     return Material(
-      color: enabled || _saving ? const Color(0xFF111317) : const Color(0xFFD9DCE1),
+      color: const Color(0xFF111317),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: enabled ? _done : null,
+        onTap: _saving ? null : _save,
         child: Container(
           height: 34,
           constraints: const BoxConstraints(minWidth: 64),
@@ -1006,83 +1720,130 @@ class _MarkupPageState extends State<MarkupPage> {
     );
   }
 
-  /// "‹ 1 / 3 ›" over the black page area (the Flutter editor shows one page at a time).
-  Widget _pageNav(S s) {
-    Widget arrow(bool enabled, VoidCallback onTap) => NativeIconButton(
-          ND.icChevronRight,
-          size: 36,
-          padding: 8,
-          tint: enabled ? Colors.white : const Color(0x66FFFFFF),
-          onPressed: enabled ? onTap : null,
-        );
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(color: const Color(0x99000000), borderRadius: BorderRadius.circular(18)),
+  /// rvPages: every page full width, 12dp above and below the list, 6dp around each page.
+  Widget _pages(NC nc) {
+    final pdf = _pdf;
+    return Stack(
+      key: _viewportKey,
+      children: [
+        if (pdf == null)
+          Center(child: SizedBox(width: 36, height: 36, child: CircularProgressIndicator(color: nc.primary)))
+        else
+          NotificationListener<ScrollStartNotification>(
+            onNotification: (notification) {
+              if (notification.dragDetails != null) _userScrolled = true;
+              return false;
+            },
+            child: ListView.builder(
+              key: ValueKey('pages$_docGen'),
+              controller: _scroll,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              itemCount: _count,
+              itemBuilder: (context, index) => _pageRow(pdf, index),
+            ),
+          ),
+        Positioned.fill(
+          child: IgnorePointer(child: CustomPaint(painter: _LiftPainter(this, _repaint))),
+        ),
+      ],
+    );
+  }
+
+  Widget _pageRow(PdfPages pdf, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final w = constraints.maxWidth;
+          return SizedBox(
+            width: w,
+            height: w * pdf.aspectOf(index),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(child: PdfPageTile(key: ValueKey('tile$_docGen-$index'), pages: pdf, index: index)),
+                Positioned.fill(
+                  child: RawGestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    gestures: {
+                      _LayerRecognizer: GestureRecognizerFactoryWithHandlers<_LayerRecognizer>(
+                        _LayerRecognizer.new,
+                        (recognizer) => recognizer
+                          ..host = this
+                          ..page = index,
+                      ),
+                    },
+                    child: SizedBox.expand(
+                      key: _layerKeys.putIfAbsent(index, GlobalKey.new),
+                      child: CustomPaint(painter: _LayerPainter(this, index, _repaint)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _bottom(S s, NC nc) {
+    switch (_panel) {
+      case _Panel.none:
+        return _mainTools(s, nc);
+      case _Panel.addText:
+      case _Panel.editText:
+        return _textPanel(s, nc);
+      case _Panel.annotate:
+        return _annotatePanel(s, nc);
+      case _Panel.sign:
+        return _signPanel(s, nc);
+    }
+  }
+
+  /// mainTools: 62dp, item_bottom_tool × 5 (Edit text, Add text, Add image, Annotate, Sign).
+  Widget _mainTools(S s, NC nc) {
+    Widget tool(NDrawable icon, String label, VoidCallback onTap, {double opacity = 1}) {
+      return Expanded(
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkResponse(
+            radius: 36,
+            onTap: _saving ? null : onTap,
+            child: Opacity(
+              opacity: opacity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  NativeIcon(icon, size: 22, tint: nc.textPrimary),
+                  const SizedBox(height: 3),
+                  Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: nc.textPrimary)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 62,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Transform.rotate(angle: math.pi, child: arrow(_page > 1 && !_loading, () => _movePage(-1))),
-          Text(s.t('ofPages', {'current': '$_page', 'total': '$_pages'}), style: const TextStyle(fontSize: 13, color: Colors.white)),
-          arrow(_page < _pages && !_loading, () => _movePage(1)),
+          tool(ND.icEtEditText, s.t('editText'), _editTextTool, opacity: _linesLoaded && !_hasLines ? 0.4 : 1),
+          tool(ND.icEtAddText, s.t('addText'), () => _openPanel(_Panel.addText)),
+          tool(ND.icEtAddImage, s.t('addImage'), _addImage),
+          tool(ND.icEtAnnotate, s.t('annotate'), () => _openPanel(_Panel.annotate)),
+          tool(ND.icEtSign, s.t('sign'), () => _openPanel(_Panel.sign)),
         ],
       ),
     );
   }
 
-  Widget _pageArea(_Shot shot) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final area = Rect.fromLTWH(12, 12, constraints.maxWidth - 24, constraints.maxHeight - 24);
-        final aspect = shot.width / shot.height;
-        Rect rect;
-        if (area.width / area.height > aspect) {
-          final w = area.height * aspect;
-          rect = Rect.fromLTWH(area.left + (area.width - w) / 2, area.top, w, area.height);
-        } else {
-          final h = area.width / aspect;
-          rect = Rect.fromLTWH(area.left, area.top + (area.height - h) / 2, area.width, h);
-        }
-        _pageRect = rect;
-        _k = rect.width / shot.width;
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapUp: (details) => _onTap(details.localPosition, shot),
-          onPanStart: (details) => _onPanStart(details.localPosition),
-          onPanUpdate: (details) => _onPanUpdate(details.localPosition),
-          onPanEnd: (_) => _onPanEnd(),
-          child: Stack(
-            children: [
-              Positioned.fromRect(
-                rect: rect,
-                child: ColoredBox(color: Colors.white, child: Image.memory(shot.bytes, fit: BoxFit.fill, gaplessPlayback: true)),
-              ),
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: _ScenePainter(
-                    rect: rect,
-                    k: _k,
-                    objects: _objects.where((obj) => obj.page == _page).toList(),
-                    inks: _inks.where((ink) => ink.page == _page).toList(),
-                    selected: _selected?.page == _page ? _selected : null,
-                    lines: _mode == _Mode.editText && _lines != null && _page - 1 < _lines!.length
-                        ? [
-                            for (var i = 0; i < _lines![_page - 1].length; i++)
-                              if (!_editedLines.contains('$_page:$i'))
-                                Rect.fromLTRB(
-                                  _lines![_page - 1][i].left * shot.width,
-                                  _lines![_page - 1][i].top * shot.height,
-                                  _lines![_page - 1][i].right * shot.width,
-                                  _lines![_page - 1][i].bottom * shot.height,
-                                ),
-                          ]
-                        : const [],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+  Widget _backChevron(NC nc, {double size = 40, double padding = 11}) {
+    return Transform.rotate(
+      angle: math.pi,
+      child: NativeIconButton(ND.icChevronRight, size: size, padding: padding, tint: nc.textPrimary, onPressed: () => _openPanel(_Panel.none)),
     );
   }
 
@@ -1112,7 +1873,7 @@ class _MarkupPageState extends State<MarkupPage> {
                       ? NativeIcon(
                           ND.icCheck,
                           size: 16,
-                          tint: color == 0xFFFFFFFF || color == 0xFFFBBF24 || color == 0xFFA3E635 ? Colors.black : Colors.white,
+                          tint: color == 0xFFFFFFFF || color == _yellow || color == 0xFFA3E635 ? Colors.black : Colors.white,
                         )
                       : null,
                 ),
@@ -1124,7 +1885,7 @@ class _MarkupPageState extends State<MarkupPage> {
   }
 
   /// SeekBar look: primary track and thumb.
-  Widget _seek({required double value, required double min, required double max, int? divisions, ValueChanged<double>? onStart, required ValueChanged<double> onChanged}) {
+  Widget _seek({required double value, required double min, required double max, ValueChanged<double>? onEnd, required ValueChanged<double> onChanged}) {
     final nc = NC.of(context);
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
@@ -1136,371 +1897,270 @@ class _MarkupPageState extends State<MarkupPage> {
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
         showValueIndicator: ShowValueIndicator.never,
       ),
-      child: Slider(value: value, min: min, max: max, divisions: divisions, onChangeStart: onStart, onChanged: onChanged),
+      child: Slider(value: value.clamp(min, max), min: min, max: max, onChangeEnd: onEnd, onChanged: onChanged),
     );
   }
 
-  Widget _backChevron({double size = 40, double padding = 11}) {
-    final nc = NC.of(context);
-    return Transform.rotate(
-      angle: math.pi,
-      child: NativeIconButton(ND.icChevronRight, size: size, padding: padding, tint: nc.textPrimary, onPressed: () => _selectMode(_Mode.none)),
-    );
-  }
-
-  static const _textSizes = <int>[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 36, 48, 56, 72];
-
-  Widget _panel(S s, NC nc) {
-    switch (_mode) {
-      case _Mode.addText:
-      case _Mode.editText:
-        // textPanel: ‹ + hint field, colours, size SeekBar + "18 ▾"
-        final selected = _selected;
-        final color = selected is _TextObj ? selected.color : _textColor;
-        final size = selected is _TextObj ? selected.size.clamp(6.0, 72.0) : _textSize;
-        final shot = _shots[_page];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 44,
-                padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
-                child: Row(
-                  children: [
-                    _backChevron(),
-                    Expanded(
-                      child: Material(
-                        color: nc.surfaceVariant,
-                        borderRadius: BorderRadius.circular(22),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(22),
-                          onTap: _mode == _Mode.addText && shot != null ? () => _addTextAt(Offset(shot.width / 2, shot.height / 2)) : null,
-                          child: Container(
-                            height: 32,
-                            alignment: AlignmentDirectional.centerStart,
-                            padding: const EdgeInsetsDirectional.only(start: 14),
-                            child: Text(
-                              _mode == _Mode.editText ? s.t('tapTextToEdit') : s.t('tapAnywhereAddText'),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 13, color: nc.textHint),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _colorRow(color, (value) {
-                setState(() => _textColor = value);
-                if (selected is _TextObj) {
-                  _checkpoint();
-                  _applyTextStyle(color: value);
-                }
-              }),
-              Container(
-                height: 36,
-                padding: const EdgeInsetsDirectional.only(start: 4, end: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _seek(
-                        value: size.toDouble(),
-                        min: 6,
-                        max: 72,
-                        divisions: 66,
-                        onStart: (_) {
-                          if (_selected is _TextObj) _checkpoint();
-                        },
-                        onChanged: (value) {
-                          setState(() => _textSize = value);
-                          _applyTextStyle(size: value);
-                        },
-                      ),
-                    ),
-                    // tvTextSize: 52 x 30 bg_search_field with ▾ → list of sizes (bg_size_popup)
-                    PopupMenuButton<int>(
-                      tooltip: '',
-                      padding: EdgeInsets.zero,
-                      color: nc.surface,
-                      elevation: 4,
-                      constraints: const BoxConstraints(minWidth: 56, maxWidth: 56, maxHeight: 200),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: nc.divider)),
-                      position: PopupMenuPosition.over,
-                      onSelected: (value) {
-                        if (_selected is _TextObj) _checkpoint();
-                        setState(() => _textSize = value.toDouble());
-                        _applyTextStyle(size: value.toDouble());
-                      },
-                      itemBuilder: (context) => [
-                        for (final option in _textSizes)
-                          PopupMenuItem<int>(
-                            value: option,
-                            height: 34,
-                            padding: const EdgeInsets.only(left: 14, right: 8),
-                            child: Text(
-                              '$option',
-                              style: TextStyle(fontSize: 13, color: option == size.round() ? nc.primary : nc.textPrimary),
-                            ),
-                          ),
-                      ],
-                      child: Container(
-                        width: 52,
-                        height: 30,
-                        padding: const EdgeInsetsDirectional.only(start: 8, end: 6),
-                        decoration: BoxDecoration(color: nc.surfaceVariant, borderRadius: BorderRadius.circular(22)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Flexible(
-                              child: Text('${size.round()}', maxLines: 1, style: TextStyle(fontSize: 13, color: nc.textPrimary)),
-                            ),
-                            const SizedBox(width: 2),
-                            NativeIcon(ND.icCaretDown, size: 12, tint: nc.textPrimary),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      case _Mode.annotate:
-        // annotatePanel: Color / Size tabs + colours or SeekBar; ‹ eraser highlight underline strike pen
-        Widget tab(bool on, Widget icon, String label, VoidCallback onTap) => GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onTap,
-              child: Opacity(
-                opacity: on ? 1 : 0.55,
-                child: SizedBox(
-                  width: 40,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      icon,
-                      const SizedBox(height: 2),
-                      Text(label, maxLines: 1, style: TextStyle(fontSize: 10, color: on ? nc.primary : nc.textPrimary)),
-                    ],
-                  ),
-                ),
-              ),
-            );
-        Widget tool(MarkTool value, NDrawable icon, String tip) {
-          final on = _annTool == value;
-          return Expanded(
-            child: NativeIconButton(icon, padding: 11, tint: on ? nc.primary : nc.textPrimary, tooltip: tip, onPressed: () => setState(() => _annTool = value)),
-          );
-        }
-
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 48,
-              padding: const EdgeInsetsDirectional.only(start: 8),
-              child: Row(
-                children: [
-                  tab(
-                    _annTab == 0,
-                    Container(width: 14, height: 14, decoration: BoxDecoration(color: Color(_inkColor), shape: BoxShape.circle)),
-                    s.t('color'),
-                    () => setState(() => _annTab = 0),
-                  ),
-                  tab(_annTab == 1, NativeIcon(ND.icPen, size: 16, tint: nc.textPrimary), s.t('sizeLabel'), () => setState(() => _annTab = 1)),
-                  Expanded(
-                    child: _annTab == 0
-                        ? _colorRow(_inkColor, (value) => setState(() => _inkColor = value), padding: const EdgeInsetsDirectional.only(start: 8, end: 12))
-                        : _seek(value: _inkSize, min: 1, max: 14, onChanged: (value) => setState(() => _inkSize = value)),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 52,
-              child: Row(
-                children: [
-                  Expanded(child: Center(child: _backChevron(size: 44, padding: 12))),
-                  tool(MarkTool.eraser, ND.icEraser, s.t('eraser')),
-                  tool(MarkTool.highlight, ND.icTextHighlight, s.t('highlight')),
-                  tool(MarkTool.underline, ND.icUnderline, s.t('underline')),
-                  tool(MarkTool.strike, ND.icStrike, s.t('strike')),
-                  tool(MarkTool.pen, ND.icPen, s.t('pen')),
-                ],
-              ),
-            ),
-          ],
-        );
-      case _Mode.sign:
-        // signPanel 72dp: ‹ and "+ Add signature", or "+ Add" and the saved signatures
-        return Container(
-          height: 72,
-          padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
-          child: Row(
-            children: [
-              _backChevron(),
-              Expanded(
-                child: _signatures.isEmpty
-                    ? Material(
-                        color: nc.surfaceVariant,
-                        borderRadius: BorderRadius.circular(12),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          splashColor: const Color(0x1F1E6FE6),
-                          onTap: _newSignature,
-                          child: SizedBox(
-                            height: 44,
-                            child: Center(
-                              child: Text(s.t('addSignature'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.primary)),
-                            ),
-                          ),
-                        ),
-                      )
-                    : SizedBox(
-                        height: 56,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: [
-                            Center(
-                              child: Material(
-                                color: nc.surfaceVariant,
-                                borderRadius: BorderRadius.circular(12),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(12),
-                                  splashColor: const Color(0x1F1E6FE6),
-                                  onTap: _newSignature,
-                                  child: SizedBox(
-                                    width: 52,
-                                    height: 52,
-                                    child: Center(
-                                      child: Text(s.t('addShort'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: nc.primary)),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            for (final sign in _signatures)
-                              Container(
-                                width: 98,
-                                height: 56,
-                                margin: const EdgeInsetsDirectional.only(start: 8),
-                                child: Stack(
-                                  children: [
-                                    PositionedDirectional(
-                                      start: 0,
-                                      bottom: 0,
-                                      child: GestureDetector(
-                                        onTap: () => _placeSignature(sign),
-                                        onLongPress: () => _deleteSignature(sign),
-                                        child: Container(
-                                          width: 90,
-                                          height: 48,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: nc.surfaceVariant,
-                                            borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(color: const Color(0xFFE1E5EC)),
-                                          ),
-                                          child: CustomPaint(painter: _SignaturePainter(sign)),
-                                        ),
-                                      ),
-                                    ),
-                                    PositionedDirectional(
-                                      top: 0,
-                                      end: 0,
-                                      child: GestureDetector(
-                                        onTap: () => _deleteSignature(sign),
-                                        child: const NativeIcon(ND.icSignRemove, size: 18),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        );
-      case _Mode.addImage:
-        return Container(
-          height: 72,
-          padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
-          child: Row(
-            children: [
-              _backChevron(),
-              Expanded(
-                child: Material(
-                  color: nc.surfaceVariant,
-                  borderRadius: BorderRadius.circular(12),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    splashColor: const Color(0x1F1E6FE6),
-                    onTap: _addImage,
-                    child: SizedBox(
-                      height: 44,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NativeIcon(ND.icEtAddImage, size: 22, tint: nc.primary),
-                          const SizedBox(width: 8),
-                          Text(s.t('addImage'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.primary)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      case _Mode.none:
-        return const SizedBox();
-    }
-  }
-
-  /// mainTools: 62dp, item_bottom_tool × 5 (Edit text, Add text, Add image, Annotate, Sign).
-  Widget _modeBar(S s, NC nc) {
-    final modes = <(_Mode, NDrawable, String)>[
-      (_Mode.editText, ND.icEtEditText, s.t('editText')),
-      (_Mode.addText, ND.icEtAddText, s.t('addText')),
-      (_Mode.addImage, ND.icEtAddImage, s.t('addImage')),
-      (_Mode.annotate, ND.icEtAnnotate, s.t('annotate')),
-      (_Mode.sign, ND.icEtSign, s.t('sign')),
-    ];
-    return SizedBox(
-      height: 62,
-      child: Row(
+  /// textPanel: ‹ + hint field, colours, size SeekBar (6–72) + "72 ▾" list.
+  Widget _textPanel(S s, NC nc) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (final mode in modes)
-            Expanded(
-              child: Material(
-                type: MaterialType.transparency,
-                child: InkResponse(
-                  radius: 36,
-                  onTap: _saving ? null : () => _selectMode(mode.$1),
-                  child: Builder(
-                    builder: (context) {
-                      final dim = mode.$1 == _Mode.editText && _lines != null && !_hasLines;
-                      final color = dim ? const Color(0xFFC3C8D0) : nc.textPrimary;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NativeIcon(mode.$2, size: 22, tint: color),
-                          const SizedBox(height: 3),
-                          Text(mode.$3, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: color)),
-                        ],
-                      );
+          Container(
+            height: 44,
+            padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
+            child: Row(
+              children: [
+                _backChevron(nc),
+                Expanded(
+                  child: Material(
+                    color: nc.surfaceVariant,
+                    borderRadius: BorderRadius.circular(22),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(22),
+                      onTap: _addTextFromBar,
+                      child: Container(
+                        height: 32,
+                        alignment: AlignmentDirectional.centerStart,
+                        padding: const EdgeInsetsDirectional.only(start: 14),
+                        child: Text(
+                          _panel == _Panel.editText ? s.t('tapTextToEdit') : s.t('tapAnywhereAddText'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: nc.textHint),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _colorRow(_textColor, (value) {
+            setState(() => _textColor = value);
+            final t = _selected;
+            if (t is _TextItem) {
+              t.color = value;
+              _commit();
+            }
+          }),
+          Container(
+            height: 36,
+            padding: const EdgeInsetsDirectional.only(start: 4, end: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _seek(
+                    value: _textSizeValue.toDouble(),
+                    min: 6,
+                    max: 72,
+                    onChanged: (value) {
+                      setState(() => _textSizeValue = value.round());
+                      _applySizeToSelection();
+                    },
+                    onEnd: (_) {
+                      if (_selected is _TextItem) _commit();
                     },
                   ),
                 ),
+                // tvTextSize: 52 × 30 bg_search_field with ▾ (▴ while the list is open)
+                PopupMenuButton<int>(
+                  tooltip: '',
+                  padding: EdgeInsets.zero,
+                  color: nc.surface,
+                  elevation: 4,
+                  constraints: const BoxConstraints(minWidth: 56, maxWidth: 56, maxHeight: 200),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: nc.divider)),
+                  initialValue: _textSizes.contains(_textSizeValue) ? _textSizeValue : null,
+                  onOpened: () => setState(() => _sizeListOpen = true),
+                  onCanceled: () => setState(() => _sizeListOpen = false),
+                  onSelected: (value) {
+                    setState(() {
+                      _sizeListOpen = false;
+                      _textSizeValue = value;
+                    });
+                    if (_selected is _TextItem) {
+                      _applySizeToSelection();
+                      _commit();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    for (final option in _textSizes)
+                      PopupMenuItem<int>(
+                        value: option,
+                        height: 34,
+                        padding: const EdgeInsetsDirectional.only(start: 14, end: 8),
+                        child: Text('$option', style: TextStyle(fontSize: 13, color: option == _textSizeValue ? nc.primary : nc.textPrimary)),
+                      ),
+                  ],
+                  child: Container(
+                    width: 52,
+                    height: 30,
+                    padding: const EdgeInsetsDirectional.only(start: 8, end: 6),
+                    decoration: NS.bgSearchField(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(child: Text('$_textSizeValue', maxLines: 1, style: TextStyle(fontSize: 13, color: nc.textPrimary))),
+                        const SizedBox(width: 2),
+                        NativeIcon(_sizeListOpen ? ND.icCaretUp : ND.icCaretDown, size: 12, tint: nc.textPrimary),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// annotatePanel: Color / Size tabs + colours or SeekBar (0–100); ‹ eraser highlight underline
+  /// strikethrough pen.
+  Widget _annotatePanel(S s, NC nc) {
+    Widget tab(bool on, Widget icon, String label, VoidCallback onTap) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Opacity(
+            opacity: on ? 1 : 0.55,
+            child: SizedBox(
+              width: 40,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  icon,
+                  const SizedBox(height: 2),
+                  Text(label, maxLines: 1, style: TextStyle(fontSize: 10, color: on ? nc.primary : nc.textPrimary)),
+                ],
               ),
             ),
+          ),
+        );
+    Widget tool(_Tool value, NDrawable icon, String tip) {
+      final on = _annTool == value;
+      return Expanded(
+        child: Center(
+          child: NativeIconButton(icon, padding: 11, tint: on ? nc.primary : nc.textPrimary, tooltip: tip, onPressed: () {
+            setState(() => _annTool = value);
+            _bump();
+          }),
+        ),
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 48,
+          padding: const EdgeInsetsDirectional.only(start: 8),
+          child: Row(
+            children: [
+              tab(
+                _annColorsTab,
+                Container(width: 14, height: 14, decoration: BoxDecoration(color: Color(_annColor), shape: BoxShape.circle)),
+                s.t('color'),
+                () => setState(() => _annColorsTab = true),
+              ),
+              tab(!_annColorsTab, NativeIcon(ND.icPen, size: 16, tint: nc.textPrimary), s.t('sizeLabel'), () => setState(() => _annColorsTab = false)),
+              Expanded(
+                child: _annColorsTab
+                    ? _colorRow(_annColor, (value) => setState(() => _annColor = value), padding: const EdgeInsetsDirectional.only(start: 8, end: 12))
+                    : _seek(value: _annSize.toDouble(), min: 0, max: 100, onChanged: (value) => setState(() => _annSize = value.round())),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 52,
+          child: Row(
+            children: [
+              Expanded(child: Center(child: _backChevron(nc, size: 44, padding: 12))),
+              tool(_Tool.eraser, ND.icEraser, s.t('eraser')),
+              tool(_Tool.highlight, ND.icTextHighlight, s.t('highlight')),
+              tool(_Tool.underline, ND.icUnderline, s.t('underline')),
+              tool(_Tool.strike, ND.icStrike, s.t('strike')),
+              tool(_Tool.pen, ND.icPen, s.t('pen')),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// signPanel 72dp: ‹ and "+ Add signature", or "+ Add" followed by the saved signatures (tap to
+  /// place, long-press or × to delete).
+  Widget _signPanel(S s, NC nc) {
+    Widget addButton({required Widget child, double? width}) => Material(
+          color: nc.surfaceVariant,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            splashColor: const Color(0x1F1E6FE6),
+            onTap: _addSignature,
+            child: SizedBox(width: width, height: width ?? 44, child: Center(child: child)),
+          ),
+        );
+    return Container(
+      height: 72,
+      padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
+      child: Row(
+        children: [
+          _backChevron(nc),
+          Expanded(
+            child: _signatures.isEmpty
+                ? addButton(child: Text(s.t('addSignature'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.primary)))
+                : SizedBox(
+                    height: 56,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        Center(
+                          child: addButton(
+                            width: 52,
+                            child: Text(s.t('addShort'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: nc.primary)),
+                          ),
+                        ),
+                        for (final sign in _signatures)
+                          Container(
+                            width: 98,
+                            height: 56,
+                            margin: const EdgeInsetsDirectional.only(start: 8),
+                            child: Stack(
+                              children: [
+                                PositionedDirectional(
+                                  start: 0,
+                                  bottom: 0,
+                                  child: GestureDetector(
+                                    onTap: _saving ? null : () => _placeImage(_ImageItem(cx: 0.5, cy: 0, width: 0.35, sign: sign)),
+                                    onLongPress: () => _deleteSignature(sign),
+                                    child: Container(
+                                      width: 90,
+                                      height: 48,
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                      decoration: NS.bgSignatureItem(context),
+                                      child: CustomPaint(painter: _SignaturePainter(sign)),
+                                    ),
+                                  ),
+                                ),
+                                PositionedDirectional(
+                                  top: 0,
+                                  end: 0,
+                                  child: GestureDetector(
+                                    onTap: () => _deleteSignature(sign),
+                                    child: const NativeIcon(ND.icSignRemove, size: 18),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
         ],
       ),
     );
@@ -1509,208 +2169,142 @@ class _MarkupPageState extends State<MarkupPage> {
 
 Future<List<List<PdfTextLine>>?> _readLinesIsolated(Uint8List bytes) => Isolate.run(() => readPdfTextLines(bytes));
 
-/// Draws the inks and placed things of one page in page points (times [k] for screen pixels is
-/// applied by the caller's canvas transform).
-void _paintScene(Canvas canvas, List<_Obj> objects, List<_Ink> inks, {required double k, _Obj? selected}) {
-  for (final ink in inks) {
-    if (ink.points.isEmpty) continue;
-    final color = Color(ink.color);
-    if (ink.tool == MarkTool.underline || ink.tool == MarkTool.strike) {
-      final xs = ink.points.map((p) => p.dx);
-      final ys = ink.points.map((p) => p.dy);
-      final minX = xs.reduce(math.min);
-      final maxX = xs.reduce(math.max);
-      final minY = ys.reduce(math.min);
-      final maxY = ys.reduce(math.max);
-      final y = ink.tool == MarkTool.underline ? maxY : (minY + maxY) / 2;
-      canvas.drawLine(
-        Offset(minX, y),
-        Offset(maxX, y),
-        Paint()
-          ..color = color
-          ..strokeWidth = math.max(1.2, ink.width * 0.5),
-      );
-      continue;
-    }
-    if (ink.tool == MarkTool.highlight) {
-      final paint = Paint()
-        ..color = color.withValues(alpha: 0.4)
-        ..strokeWidth = ink.width
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..style = PaintingStyle.stroke
-        ..blendMode = BlendMode.multiply;
-      final path = Path()..moveTo(ink.points.first.dx, ink.points.first.dy);
-      for (final p in ink.points.skip(1)) {
-        path.lineTo(p.dx, p.dy);
+Future<Uint8List?> _rewriteIsolated(Uint8List data, List<PdfVectorMark> marks, Map<int, double> aspects, int count) =>
+    Isolate.run(() => rewritePdf(data, marks: marks, aspects: aspects, pageCount: count));
+
+/// Repaints every page layer without rebuilding the page list.
+class _Ticker extends ChangeNotifier {
+  void tick() => notifyListeners();
+}
+
+/// Tracks one finger on a page layer. Draw / mark / erase and touches on a text or picture take
+/// the finger at once (the list does not scroll); other touches wait: a tap goes to the layer,
+/// a drag scrolls the list — like EditLayerView inside the RecyclerView.
+class _LayerRecognizer extends OneSequenceGestureRecognizer {
+  _MarkupPageState? host;
+  int page = 0;
+  int? _pointer;
+  bool _accepted = false;
+  Offset _down = Offset.zero;
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    final h = host;
+    if (h == null || _pointer != null) return;
+    final claim = h._layerDown(page, event.localPosition);
+    if (claim == _Claim.ignore) return;
+    _pointer = event.pointer;
+    _accepted = false;
+    _down = event.localPosition;
+    super.addAllowedPointer(event);
+    if (claim == _Claim.now) resolve(GestureDisposition.accepted);
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    final h = host;
+    if (h == null || event.pointer != _pointer) return;
+    if (event is PointerMoveEvent) {
+      if (!_accepted) {
+        // a drag that started on an empty spot scrolls the page list
+        if ((event.localPosition - _down).distance > kTouchSlop) resolve(GestureDisposition.rejected);
+        return;
       }
-      canvas.drawPath(path, paint);
-      continue;
+      h._layerMove(page, event.localPosition);
+    } else if (event is PointerUpEvent) {
+      if (!_accepted) resolve(GestureDisposition.accepted);
+      if (_pointer == event.pointer) h._layerUp(page, event.localPosition);
+      stopTrackingPointer(event.pointer);
+    } else if (event is PointerCancelEvent) {
+      h._layerCancel(page);
+      stopTrackingPointer(event.pointer);
     }
-    drawStrokes(canvas, [ink.points], color, ink.width);
   }
-  for (final obj in objects) {
-    final box = obj.box;
-    if (obj is _TextObj && obj.cover != null) {
-      canvas.drawRect(obj.cover!, Paint()..color = Colors.white);
-    }
-    canvas.save();
-    canvas.translate(obj.center.dx, obj.center.dy);
-    canvas.rotate(obj.rotation);
-    final rect = Rect.fromCenter(center: Offset.zero, width: box.width, height: box.height);
-    if (obj is _TextObj) {
-      final painter = _layoutText(obj.text, obj.size, obj.color);
-      painter.paint(canvas, rect.topLeft + const Offset(_textPad, _textPad));
-      painter.dispose();
-    } else if (obj is _ImageObj) {
-      canvas.drawImageRect(
-        obj.image,
-        Rect.fromLTWH(0, 0, obj.image.width.toDouble(), obj.image.height.toDouble()),
-        rect,
-        Paint()..filterQuality = FilterQuality.medium,
-      );
-    } else if (obj is _SignObj) {
-      canvas.save();
-      canvas.translate(rect.left, rect.top);
-      drawStrokes(
-        canvas,
-        [
-          for (final stroke in obj.sign.strokes) [for (final p in stroke) Offset(p.dx * box.width, p.dy * box.height)],
-        ],
-        Color(obj.sign.color),
-        math.max(0.4, obj.sign.width * box.width),
-      );
-      canvas.restore();
-    }
-    if (obj == selected) _paintSelection(canvas, obj, rect, k);
-    canvas.restore();
+
+  @override
+  void acceptGesture(int pointer) {
+    if (pointer == _pointer) _accepted = true;
   }
+
+  @override
+  void rejectGesture(int pointer) {
+    if (pointer != _pointer) return;
+    host?._layerCancel(page);
+    _pointer = null;
+    stopTrackingPointer(pointer);
+  }
+
+  @override
+  void didStopTrackingLastPointer(int pointer) {
+    _pointer = null;
+    _accepted = false;
+  }
+
+  @override
+  String get debugDescription => 'pdf edit layer';
 }
 
-/// EditRenderer.drawSelection: pictures get a solid #1E6FE6 box, text a white-over-dark dashed
-/// box; white 9dp handles with a #33000000 ring and stroked icons (red ×, copy, pencil, resize).
-void _paintSelection(Canvas canvas, _Obj obj, Rect rect, double k) {
-  final d = 1 / k;
-  if (obj is _TextObj) {
-    _dashedRect(canvas, rect, Paint()
-      ..color = const Color(0x99000000)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2 * d, 5 * d, 4 * d, 0);
-    _dashedRect(canvas, rect, Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2 * d, 5 * d, 4 * d, 5 * d);
-  } else {
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..color = const Color(0xFF1E6FE6)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2 * d,
-    );
-  }
-  final r = 9 * d;
-  final kk = r * 0.45;
-  final fill = Paint()..color = Colors.white;
-  final ring = Paint()
-    ..color = const Color(0x33000000)
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = d;
-  final icon = Paint()
-    ..color = const Color(0xFF1B1F2A)
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.round
-    ..strokeWidth = 1.5 * d;
-  void disc(Offset c) {
-    canvas.drawCircle(c, r, fill);
-    canvas.drawCircle(c, r, ring);
-  }
+/// One page's drawing layer: editable lines (Edit text), the page's items, the stroke / mark in
+/// progress and the selection.
+class _LayerPainter extends CustomPainter {
+  _LayerPainter(this.host, this.page, Listenable repaint) : super(repaint: repaint);
 
-  // delete (top-left): red ×
-  final del = rect.topLeft;
-  disc(del);
-  final x = r * 0.38;
-  final red = Paint()
-    ..color = const Color(0xFFF0483E)
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.round
-    ..strokeWidth = 1.5 * d;
-  canvas.drawLine(del + Offset(-x, -x), del + Offset(x, x), red);
-  canvas.drawLine(del + Offset(x, -x), del + Offset(-x, x), red);
-  // copy (bottom-left)
-  final copy = rect.bottomLeft;
-  disc(copy);
-  final c = kk * 1.1;
-  canvas.drawRRect(
-    RRect.fromRectAndRadius(Rect.fromLTRB(copy.dx - c * 0.9, copy.dy - c * 0.4, copy.dx + c * 0.4, copy.dy + c * 0.9), Radius.circular(1.5 * d)),
-    icon,
-  );
-  canvas.drawLine(copy + Offset(-c * 0.4, -c * 0.9), copy + Offset(c * 0.9, -c * 0.9), icon);
-  canvas.drawLine(copy + Offset(c * 0.9, -c * 0.9), copy + Offset(c * 0.9, c * 0.4), icon);
-  // resize (bottom-right)
-  final scale = rect.bottomRight;
-  disc(scale);
-  canvas.drawLine(scale + Offset(-kk, -kk), scale + Offset(kk, kk), icon);
-  canvas.drawLine(scale + Offset(kk, kk), scale + Offset(kk * 0.1, kk), icon);
-  canvas.drawLine(scale + Offset(kk, kk), scale + Offset(kk, kk * 0.1), icon);
-  canvas.drawLine(scale + Offset(-kk, -kk), scale + Offset(-kk * 0.1, -kk), icon);
-  canvas.drawLine(scale + Offset(-kk, -kk), scale + Offset(-kk, -kk * 0.1), icon);
-  // edit (top-right, text)
-  if (obj is _TextObj) {
-    final edit = rect.topRight;
-    disc(edit);
-    canvas.drawLine(edit + Offset(-kk, kk), edit + Offset(kk * 0.8, -kk * 0.8), icon);
-    canvas.drawLine(edit + Offset(-kk, kk), edit + Offset(-kk * 0.55, kk * 0.1), icon);
-    canvas.drawLine(edit + Offset(-kk, kk), edit + Offset(-kk * 0.1, kk * 0.55), icon);
-  }
-}
-
-/// A dashed rectangle ([dash] on, [gap] off, starting [phase] into the pattern).
-void _dashedRect(Canvas canvas, Rect rect, Paint paint, double dash, double gap, double phase) {
-  final path = Path()..addRect(rect);
-  for (final metric in path.computeMetrics()) {
-    var distance = -phase;
-    while (distance < metric.length) {
-      final start = math.max(0.0, distance);
-      final end = math.min(metric.length, distance + dash);
-      if (end > start) canvas.drawPath(metric.extractPath(start, end), paint);
-      distance += dash + gap;
-    }
-  }
-}
-
-class _ScenePainter extends CustomPainter {
-  _ScenePainter({required this.rect, required this.k, required this.objects, required this.inks, required this.selected, required this.lines});
-
-  final Rect rect;
-  final double k;
-  final List<_Obj> objects;
-  final List<_Ink> inks;
-  final _Obj? selected;
-  final List<Rect> lines;
+  final _MarkupPageState host;
+  final int page;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.save();
-    canvas.clipRect(rect.inflate(30));
-    canvas.translate(rect.left, rect.top);
-    canvas.scale(k);
-    // EditLayerView: editable lines with a #141E6FE6 fill and a dashed 1.2dp #1E6FE6 outline
-    final outline = Paint()
-      ..color = const Color(0xFF1E6FE6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2 / k;
-    final fill = Paint()..color = const Color(0x141E6FE6);
-    for (final line in lines) {
-      canvas.drawRect(line, fill);
-      _dashedRect(canvas, line, outline, 6 / k, 4 / k, 0);
+    final w = size.width;
+    if (w <= 0) return;
+    if (host._tool == _Tool.editText) {
+      final fill = Paint()..color = const Color(0x141E6FE6);
+      final outline = Paint()
+        ..color = const Color(0xFF1E6FE6)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2;
+      for (final line in host._linesOf(page)) {
+        final r = Rect.fromLTRB(line.rect.left * w, line.rect.top * w, line.rect.right * w, line.rect.bottom * w);
+        canvas.drawRect(r, fill);
+        _dashedRect(canvas, r, outline, 6, 4, 0);
+      }
     }
-    _paintScene(canvas, objects, inks, k: k, selected: selected);
+    final items = host._items[page] ?? const <_Item>[];
+    final lifted = host._lifted ? host._target : null;
+    _drawItems(canvas, items, w, skip: lifted);
+    if (host._gesturePage == page) {
+      if (host._op == _Op.draw && host._drawing.isNotEmpty) {
+        _drawItem(canvas, _InkItem(host._drawing, host._penColor, host._penWidth), w);
+      }
+      final mark = host._markRect;
+      if (mark != null) _drawItem(canvas, _MarkItem(host._markKind, mark, host._markColor), w);
+    }
+    final sel = host._selected;
+    if (sel != null && !identical(sel, lifted) && items.any((item) => identical(item, sel))) _drawSelection(canvas, sel, w);
+  }
+
+  @override
+  bool shouldRepaint(covariant _LayerPainter oldDelegate) => true;
+}
+
+/// The text / picture being dragged, drawn above all pages.
+class _LiftPainter extends CustomPainter {
+  _LiftPainter(this.host, Listenable repaint) : super(repaint: repaint);
+
+  final _MarkupPageState host;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final target = host._target;
+    if (!host._lifted || target == null) return;
+    canvas.save();
+    canvas.translate(host._liftOrigin.dx, host._liftOrigin.dy);
+    _drawItem(canvas, target, host._liftWidth);
+    if (identical(target, host._selected)) _drawSelection(canvas, target, host._liftWidth);
     canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant _ScenePainter oldDelegate) => true;
+  bool shouldRepaint(covariant _LiftPainter oldDelegate) => true;
 }
 
 class _SignaturePainter extends CustomPainter {
@@ -1733,7 +2327,8 @@ class _SignaturePainter extends CustomPainter {
         for (final stroke in sign.strokes) [for (final p in stroke) Offset(p.dx * w, p.dy * h)],
       ],
       Color(sign.color),
-      math.max(1.0, sign.width * w),
+      sign.width * w,
+      widths: [for (final value in sign.widths) math.max(0.6, value * w)],
     );
   }
 

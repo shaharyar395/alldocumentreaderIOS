@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../l10n/s.dart';
@@ -53,7 +55,7 @@ class TermsPage extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(20, 18, 20, 32),
                   child: SelectionArea(
                     child: HtmlText(
-                      s.t('termsHtml', {'app': 'All Document Reader', 'email': termsContactEmail}),
+                      s.t(Platform.isIOS ? 'termsHtmlIos' : 'termsHtml', {'app': 'All Document Reader', 'email': termsContactEmail}),
                       // lineSpacingExtra 3dp on 14sp
                       style: TextStyle(height: 1.4, fontSize: 14, color: nc.textPrimary),
                       linkColor: nc.primary,

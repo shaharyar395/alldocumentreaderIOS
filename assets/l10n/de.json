@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Das Abo ist günstig, und ich kann jetzt Dateien ohne nervige Werbung ansehen, bearbeiten und verwalten. Hat meine Effizienz echt gesteigert!",
   "readyTop": "Mach dich bereit für deine",
-  "readyBottom": "7-tägige Gratis-Testversion"
+  "readyBottom": "7-tägige Gratis-Testversion",
+  "permissionMessageIos": "Um deine PDF-, Word-, Excel-, PPT- und TXT-Dateien zu lesen, wähle den Ordner, in dem du sie speicherst (zum Beispiel „Auf meinem iPhone“ oder „Downloads“).",
+  "addFolder": "Ordner hinzufügen",
+  "removeFolder": "Ordner entfernen",
+  "removeFolderMessage": "Seine Dateien werden in der App nicht mehr angezeigt. Auf deinem iPhone wird nichts gelöscht.",
+  "faqASubscriptionIos": "Abos werden über den App Store verwaltet. Gehe zu <b>Einstellungen → Abos verwalten</b> oder öffne die iPhone-Einstellungen → Apple-ID → Abonnements. Details findest du in unseren <a href=\"app://terms\">Nutzungsbedingungen</a>.",
+  "termsHtmlIos": "<p><i>Zuletzt aktualisiert: September 2026</i></p><p>Diese Nutzungsbedingungen regeln deine Nutzung von <b>{app}</b> (die „App\"). Durch die Nutzung der App stimmst du diesen Bedingungen zu.</p><h4>1. Nutzung der App</h4><p>Du kannst die App nutzen, um Dokumente für private oder geschäftliche Zwecke anzuzeigen, zu erstellen, zu konvertieren und zu bearbeiten. Du bist für die Dokumente verantwortlich, die du öffnest und erstellst, sowie dafür, dass du zu ihrer Nutzung berechtigt bist.</p><h4>2. Abonnements</h4><p>Einige Funktionen erfordern möglicherweise ein kostenpflichtiges Abonnement, das über den App Store erworben wird. Abonnements verlängern sich automatisch, sofern sie nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt werden. Du kannst ein Abonnement in den Einstellungen deiner Apple-ID verwalten oder kündigen (Einstellungen › Apple-ID › Abonnements). Erstattungen richten sich nach den Richtlinien des App Store.</p><h4>3. Werbung</h4><p>Die kostenlose Version der App kann Werbung von Drittanbietern anzeigen.</p><h4>4. Keine Gewährleistung</h4><p>Die App wird „wie besehen\" bereitgestellt. Wir tun unser Bestes, um sie zuverlässig zu halten, garantieren jedoch nicht, dass sie fehlerfrei ist, und haften nicht für Datenverluste. Bitte erstelle Sicherungskopien wichtiger Dateien.</p><h4>5. Änderungen</h4><p>Wir können diese Bedingungen von Zeit zu Zeit aktualisieren. Die weitere Nutzung der App bedeutet, dass du die aktualisierten Bedingungen akzeptierst.</p><h4>6. Kontakt</h4><p>Fragen? Schreib uns eine E-Mail an {email}.</p>",
+  "goToAppStore": "Zum App Store",
+  "addToAppIconMenu": "Zum App-Symbolmenü hinzufügen",
+  "appIconMenuAdded": "Zum App-Symbolmenü hinzugefügt. Halte das App-Symbol gedrückt, um die Datei zu öffnen.",
+  "onMyDevice": "Auf meinem {device}"
 }

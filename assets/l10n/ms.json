@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Langganannya murah, dan kini saya boleh pratonton, mengedit dan mengurus fail tanpa iklan yang menjengkelkan. Memang meningkatkan kecekapan saya!",
   "readyTop": "Bersedia untuk",
-  "readyBottom": "Percubaan Percuma 7 Hari"
+  "readyBottom": "Percubaan Percuma 7 Hari",
+  "permissionMessageIos": "Untuk membaca fail PDF, Word, Excel, PPT dan TXT anda, pilih folder tempat anda menyimpannya (contohnya Pada iPhone Saya atau Muat Turun).",
+  "addFolder": "Tambah folder",
+  "removeFolder": "Alih keluar folder",
+  "removeFolderMessage": "Fail-failnya tidak akan dipaparkan lagi dalam aplikasi. Tiada apa yang dipadam daripada iPhone anda.",
+  "faqASubscriptionIos": "Langganan diurus oleh App Store. Pergi ke <b>Tetapan → Urus langganan</b>, atau buka Seting iPhone → ID Apple → Langganan. Lihat <a href=\"app://terms\">Terma penggunaan</a> kami untuk butiran.",
+  "termsHtmlIos": "<p><i>Kemas kini terakhir: September 2026</i></p><p>Terma penggunaan ini mengawal penggunaan anda terhadap <b>{app}</b> (\"Apl\"). Dengan menggunakan Apl, anda bersetuju dengan terma ini.</p><h4>1. Penggunaan Apl</h4><p>Anda boleh menggunakan Apl untuk melihat, mencipta, menukar dan mengedit dokumen bagi tujuan peribadi atau perniagaan. Anda bertanggungjawab atas dokumen yang anda buka dan cipta, serta memastikan anda berhak menggunakannya.</p><h4>2. Langganan</h4><p>Sesetengah ciri mungkin memerlukan langganan berbayar yang dibeli melalui App Store. Langganan diperbaharui secara automatik melainkan dibatalkan sekurang-kurangnya 24 jam sebelum tamat tempoh semasa. Anda boleh mengurus atau membatalkan langganan dalam seting ID Apple anda (Seting › ID Apple › Langganan). Bayaran balik tertakluk kepada dasar App Store.</p><h4>3. Pengiklanan</h4><p>Versi percuma Apl mungkin memaparkan iklan yang disediakan oleh pihak ketiga.</p><h4>4. Tiada jaminan</h4><p>Apl disediakan \"sebagaimana adanya\". Kami berusaha sebaik mungkin untuk memastikannya boleh dipercayai, tetapi kami tidak menjamin bahawa ia bebas daripada ralat, dan kami tidak bertanggungjawab atas kehilangan data. Sila simpan sandaran fail penting.</p><h4>5. Perubahan</h4><p>Kami mungkin mengemas kini terma ini dari semasa ke semasa. Penggunaan Apl yang berterusan bermakna anda menerima terma yang dikemas kini.</p><h4>6. Hubungi</h4><p>Ada soalan? E-mel kami di {email}.</p>",
+  "goToAppStore": "Pergi ke App Store",
+  "addToAppIconMenu": "Tambah ke menu ikon apl",
+  "appIconMenuAdded": "Ditambah ke menu ikon apl. Sentuh dan tahan ikon apl untuk membukanya.",
+  "onMyDevice": "Pada {device} Saya"
 }

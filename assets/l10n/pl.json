@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Subskrypcja jest tania, a teraz mogę przeglądać, edytować i zarządzać plikami bez irytujących reklam. Naprawdę zwiększyła moją wydajność!",
   "readyTop": "Przygotuj się na",
-  "readyBottom": "7-dniowy bezpłatny okres próbny"
+  "readyBottom": "7-dniowy bezpłatny okres próbny",
+  "permissionMessageIos": "Aby czytać pliki PDF, Word, Excel, PPT i TXT, wybierz folder, w którym je przechowujesz (na przykład Na moim iPhonie lub Pobrane).",
+  "addFolder": "Dodaj folder",
+  "removeFolder": "Usuń folder z listy",
+  "removeFolderMessage": "Jego pliki nie będą już widoczne w aplikacji. Nic nie zostanie usunięte z iPhone’a.",
+  "faqASubscriptionIos": "Subskrypcjami zarządza App Store. Przejdź do <b>Ustawienia → Zarządzaj subskrypcjami</b> lub otwórz Ustawienia iPhone’a → Apple ID → Subskrypcje. Szczegóły znajdziesz w naszych <a href=\"app://terms\">Warunkach korzystania</a>.",
+  "termsHtmlIos": "<p><i>Ostatnia aktualizacja: wrzesień 2026</i></p><p>Niniejsze Warunki korzystania określają zasady korzystania z <b>{app}</b> („Aplikacja\"). Korzystając z Aplikacji, akceptujesz te warunki.</p><h4>1. Korzystanie z Aplikacji</h4><p>Możesz używać Aplikacji do przeglądania, tworzenia, konwertowania i edytowania dokumentów do celów prywatnych lub służbowych. Ponosisz odpowiedzialność za dokumenty, które otwierasz i tworzysz, oraz za posiadanie prawa do korzystania z nich.</p><h4>2. Subskrypcje</h4><p>Niektóre funkcje mogą wymagać płatnej subskrypcji zakupionej w App Store. Subskrypcje odnawiają się automatycznie, chyba że zostaną anulowane co najmniej 24 godziny przed końcem bieżącego okresu. Subskrypcją możesz zarządzać lub ją anulować w ustawieniach Apple ID (Ustawienia › Apple ID › Subskrypcje). Zwroty podlegają zasadom App Store.</p><h4>3. Reklamy</h4><p>Bezpłatna wersja Aplikacji może wyświetlać reklamy dostarczane przez podmioty trzecie.</p><h4>4. Brak gwarancji</h4><p>Aplikacja jest udostępniana „w stanie, w jakim jest\". Dokładamy starań, aby działała niezawodnie, ale nie gwarantujemy, że będzie wolna od błędów, i nie ponosimy odpowiedzialności za utratę danych. Twórz kopie zapasowe ważnych plików.</p><h4>5. Zmiany</h4><p>Możemy od czasu do czasu aktualizować niniejsze warunki. Dalsze korzystanie z Aplikacji oznacza akceptację zaktualizowanych warunków.</p><h4>6. Kontakt</h4><p>Masz pytania? Napisz do nas na adres {email}.</p>",
+  "goToAppStore": "Przejdź do App Store",
+  "addToAppIconMenu": "Dodaj do menu ikony aplikacji",
+  "appIconMenuAdded": "Dodano do menu ikony aplikacji. Dotknij i przytrzymaj ikonę aplikacji, aby otworzyć plik.",
+  "onMyDevice": "Na moim urządzeniu {device}"
 }

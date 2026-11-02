@@ -62,7 +62,7 @@ Do NOT invent production AdMob or IAP ids.
 Ads use Google TEST unit ids unless the user supplies real ones via --dart-define or the empty local* overrides in AdUnits / ProductIds.
 Android manifest APPLICATION_ID and iOS GADApplicationIdentifier stay the Google test app id
 ca-app-pub-3940256099942544~3347511713 until the user supplies a real one.
-Never show on-screen "Ads:" toasts. Log only. UMP then MobileAds. iOS ATT after 400ms. Skip ads when FLUTTER_TEST.
+Never show on-screen "Ads:" toasts. Log only. UMP then MobileAds. iOS: consent form, then ATT once the app is in the foreground, then the ads SDK. Skip ads when FLUTTER_TEST.
 
 Device scan
 MANAGE_EXTERNAL_STORAGE IS declared (decision of the parity round, same as the native Android app).
@@ -263,3 +263,57 @@ Claude — allow-access flow (Android)
   not over another page, not while a full-screen ad closes).
 - Without access, phone files found by an earlier scan are hidden (FileLibrary._merge dropDeviceFiles); only the
   app's own saved files stay. Bookmarks / Recent are kept by path and come back when access is given again.
+
+Claude — iOS file access (the iOS version of Android's "Allow access")
+- iOS lets no app read the whole phone, so on iOS "access" = folders the user picked in Files. Allow (home dialog,
+  Tools, pickers, Grant access) opens the Files folder picker (AppDelegate pickIosFolder, UIDocumentPicker for
+  UTType.folder). Bookmarks are kept in UserDefaults "ios_folder_bookmarks"; access to every picked folder is
+  opened at launch (iosFolders) and kept for the whole run, so their files are listed, opened, renamed and
+  deleted IN PLACE like Android's storage (FileLibrary _rescanOnce walks them 8 levels; refs are absolute).
+- Directories → Storage on iOS: app folder + picked folders + "Add folder"; long-press a picked folder →
+  "Remove folder" (nothing is deleted from the phone). Dialog text on iOS: permissionMessageIos.
+- Removed the old iOS copy model (rememberIosDirectory / iosBookmarkedFiles / ios_scan_root, which copied each
+  folder twice per scan and skipped files over 100 MB).
+- "Select a file": the Flutter-only Browse button is gone (native has none); iOS without a folder shows
+  "Grant access". Take photo / Scan stay Apple VisionKit on iOS (Google ML Kit's scanner is Android-only).
+
+Claude — iOS parity round, agent F2 (files / access / fonts / App Review texts)
+- Access on iOS: the app is fully usable without a picked Files folder. storage_access.needsAccessGate() is true
+  only on Android without access; ensureAccess returns true on iOS. Tools, the + sheet, home tiles, Recently
+  added, pull-to-refresh, pickers and Directories (Storage / All documents) gate on it. hasStorageAccess() on iOS
+  still means "at least one picked folder" (it only decides whether those folders are listed).
+- Home on iOS without folders: tiles / counts / Recent / Bookmarks show the app's own files (Documents); the
+  "Allow access to files" dialog (folder picker) shows only ONCE (settings.permissionPrompted); afterwards the
+  "Grant access" view (only while Recent / Bookmarks is empty) and Directories → Storage → "Add folder" remain.
+  Android is unchanged (the dialog comes back every time while access is off).
+- Office / TXT → PDF fonts: Android keeps /system/fonts. iOS (or no /system/fonts) uses the bundled
+  assets/fonts/DejaVuSans{,-Bold,-Oblique}.ttf (Latin-ext, Greek, Cyrillic, Arabic, Hebrew, Vietnamese), read
+  with rootBundle in the main isolate and passed as bytes into the conversion isolate (office_pdf
+  _bundledFonts). NOT supported on iOS: Thai, Devanagari / other Indic, Myanmar, Ethiopic, Khmer, CJK / Hangul,
+  emoji (outside the BMP): those characters become '?' (the rest of the text stays).
+- App Review texts: faqASubscriptionIos / termsHtmlIos (App Store, Apple ID, Settings › Apple ID › Subscriptions;
+  same HTML and placeholders) are picked with Platform.isIOS in faq_page / terms_page; goToAppStore is the iOS
+  label for the Manage subscriptions subtitle. Keys: tool/new_keys_ios_texts.json (merge with merge_new_keys.py).
+- iCloud Drive placeholders (".Name.ext.icloud", iOS before 17) are listed as Name.ext at the real path
+  (file_library _walk, device_files listFolder / All documents); evicted known files stay listed (_scanKnown).
+  Size comes from the placeholder plist (NSURLFileSizeKey) or 0. Opening downloads first (PlatformBridge.ensureLocal).
+- Template pictures: Application Support/tpl_images (moved once from Documents/tpl_images, which the Files app showed).
+- Recycle bin: originalPath is stored as a ref like relativePath (relative to Documents/library inside the iOS
+  container); old absolute values are still read, and on iOS an old container path is mapped into the current
+  one (_resolveOriginal). DocEntry.originalFullPath for display.
+
+Claude — iOS parity round with the native app (Nov 2026)
+- PDF editor + signature rebuilt from native ui/edit (PdfEditActivity, EditLayerView, SignaturePadActivity,
+  SignatureStore, EditTutorialSheet): all pages in one scrolling list, native handles / sizes / snapping, Sign pad in
+  landscape, saved signatures in Application Support (moved out of Documents), Done saves in place, Discard dialog,
+  tutorial only from the i button. pdf_rewrite: full xref chain, page tree order, crop box / rotation, no gen bump.
+  Reader red pen opens the editor at the current page (MarkTool.none) and reloads after a save.
+- iOS: usable without a picked folder (needsAccessGate is Android-only; iOS dialog once); StoreKit 2 entitlements,
+  intro eligibility, Manage subscriptions sheet; requestReview instead of the star sheet; iPad share origins;
+  WidgetKit bundle (Tools, Reader, Edit PDF) with localized labels; QuickLook for formats the app doesn't open;
+  Save to Drive = Files export picker; View locally / File manager open the Files app; app icon quick actions
+  replace To home screen; Mail composer for feedback; PrivacyInfo.xcprivacy; CFBundleLocalizations; launch screen
+  logo; iCloud placeholders listed + ensureLocal before open/share/rename/delete; recycle-bin originalPath stored as
+  a ref; tpl_images moved to Application Support; App Store texts for FAQ / Terms on iOS; DejaVu fonts
+  (assets/fonts) for Office/TXT → PDF on iOS (Thai, Indic, CJK still unsupported there).
+- Open items: App Store id (AppLinks.appStoreId), Adjust + Firebase for iOS (need iOS token + GoogleService-Info.plist).

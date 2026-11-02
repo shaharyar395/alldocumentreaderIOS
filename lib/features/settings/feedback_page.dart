@@ -20,7 +20,8 @@ import 'native_bars.dart';
 /// details, up to 4 screenshots, Submit (enabled once there is a rating, a problem or text).
 /// Submit writes an e-mail to the support address with the app version and the device; with
 /// screenshots it goes through the share sheet (an e-mail link cannot carry attachments).
-/// The page closes after sending.
+/// iOS: Mail's compose sheet with the address and the screenshots attached (the routes above
+/// only when no mail account is set up). The page closes after sending.
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
 
@@ -38,6 +39,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final _text = TextEditingController();
   final List<XFile> _shots = [];
   bool _sending = false;
+
+  /// The Submit button (where the iPad share popover points).
+  final _submitKey = GlobalKey();
 
   @override
   void dispose() {
@@ -97,10 +101,24 @@ class _FeedbackPageState extends State<FeedbackPage> {
       device,
     ].join('\n');
     final subject = '$_appName – ${s.t('feedbackOrSuggestion')}';
+    final origin = shareOrigin(_submitKey.currentContext ?? context);
     scope.guard.arm(scope.settings);
     var sent = false;
     try {
-      if (_shots.isEmpty) {
+      final mail = await PlatformBridge.composeMail(
+        to: const [supportEmail],
+        subject: subject,
+        body: body,
+        attachments: [for (final shot in _shots) shot.path],
+      );
+      if (mail == 'cancelled' || mail == 'failed') {
+        _sending = false;
+        if (mail == 'failed' && mounted) showToast(context, s.t('noAppToOpen'));
+        return;
+      }
+      if (mail != 'unavailable') {
+        sent = true;
+      } else if (_shots.isEmpty) {
         final uri = Uri(
           scheme: 'mailto',
           path: supportEmail,
@@ -108,7 +126,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         );
         sent = await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        await Share.shareXFiles(_shots, text: body, subject: subject);
+        await Share.shareXFiles(_shots, text: body, subject: subject, sharePositionOrigin: origin);
         sent = true;
       }
     } catch (error) {
@@ -271,7 +289,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               padding: const EdgeInsets.all(16),
               child: Opacity(
                 opacity: _canSubmit ? 1 : 0.45,
-                child: NativeApplyButton(label: s.t('submit'), onTap: _canSubmit ? _submit : null),
+                child: NativeApplyButton(key: _submitKey, label: s.t('submit'), onTap: _canSubmit ? _submit : null),
               ),
             ),
           ),

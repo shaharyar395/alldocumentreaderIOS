@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Abonelik ucuz ve artık dosyaları can sıkıcı reklamlar olmadan önizleyebiliyor, düzenleyebiliyor ve yönetebiliyorum. Verimliliğimi gerçekten artırdı!",
   "readyTop": "Hazır olun:",
-  "readyBottom": "7 Günlük Ücretsiz Deneme"
+  "readyBottom": "7 Günlük Ücretsiz Deneme",
+  "permissionMessageIos": "PDF, Word, Excel, PPT ve TXT dosyalarınızı okumak için onları sakladığınız klasörü seçin (örneğin iPhone'umda veya İndirilenler).",
+  "addFolder": "Klasör ekle",
+  "removeFolder": "Klasörü kaldır",
+  "removeFolderMessage": "Dosyaları artık uygulamada görünmeyecek. iPhone'unuzdan hiçbir şey silinmez.",
+  "faqASubscriptionIos": "Abonelikler App Store tarafından yönetilir. <b>Ayarlar → Abonelikleri yönet</b> bölümüne gidin veya iPhone Ayarları → Apple kimliği → Abonelikler'i açın. Ayrıntılar için <a href=\"app://terms\">Kullanım koşullarımıza</a> bakın.",
+  "termsHtmlIos": "<p><i>Son güncelleme: Eylül 2026</i></p><p>Bu Kullanım koşulları, <b>{app}</b> (\"Uygulama\") kullanımınızı düzenler. Uygulamayı kullanarak bu koşulları kabul etmiş olursunuz.</p><h4>1. Uygulamanın kullanımı</h4><p>Uygulamayı kişisel veya ticari amaçlarla belgeleri görüntülemek, oluşturmak, dönüştürmek ve düzenlemek için kullanabilirsiniz. Açtığınız ve oluşturduğunuz belgelerden ve bunları kullanma hakkına sahip olmaktan siz sorumlusunuz.</p><h4>2. Abonelikler</h4><p>Bazı özellikler, App Store üzerinden satın alınan ücretli bir abonelik gerektirebilir. Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmedikçe otomatik olarak yenilenir. Aboneliğinizi Apple kimliği ayarlarınızdan (Ayarlar › Apple kimliği › Abonelikler) yönetebilir veya iptal edebilirsiniz. İadeler App Store politikalarına tabidir.</p><h4>3. Reklamlar</h4><p>Uygulamanın ücretsiz sürümü, üçüncü taraflarca sağlanan reklamlar gösterebilir.</p><h4>4. Garanti verilmemesi</h4><p>Uygulama \"olduğu gibi\" sunulmaktadır. Güvenilir olması için elimizden geleni yapıyoruz, ancak hatasız olacağını garanti etmiyoruz ve veri kaybından sorumlu değiliz. Lütfen önemli dosyalarınızın yedeğini alın.</p><h4>5. Değişiklikler</h4><p>Bu koşulları zaman zaman güncelleyebiliriz. Uygulamayı kullanmaya devam etmeniz, güncellenmiş koşulları kabul ettiğiniz anlamına gelir.</p><h4>6. İletişim</h4><p>Sorularınız mı var? Bize {email} adresinden e-posta gönderin.</p>",
+  "goToAppStore": "App Store'a git",
+  "addToAppIconMenu": "Uygulama simgesi menüsüne ekle",
+  "appIconMenuAdded": "Uygulama simgesi menüsüne eklendi. Açmak için uygulama simgesine dokunup basılı tutun.",
+  "onMyDevice": "{device} cihazımda"
 }

@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "L'abbonamento costa poco e ora posso visualizzare, modificare e gestire i file senza fastidiosi annunci. Ha davvero aumentato la mia produttività!",
   "readyTop": "Preparati alla tua",
-  "readyBottom": "prova gratuita di 7 giorni"
+  "readyBottom": "prova gratuita di 7 giorni",
+  "permissionMessageIos": "Per leggere i tuoi file PDF, Word, Excel, PPT e TXT, scegli la cartella in cui li tieni (ad esempio Su iPhone o Download).",
+  "addFolder": "Aggiungi cartella",
+  "removeFolder": "Rimuovi cartella",
+  "removeFolderMessage": "I suoi file non verranno più mostrati nell'app. Nulla viene eliminato dal tuo iPhone.",
+  "faqASubscriptionIos": "Gli abbonamenti sono gestiti dall'App Store. Vai su <b>Impostazioni → Gestisci abbonamenti</b> oppure apri Impostazioni dell'iPhone → ID Apple → Abbonamenti. Consulta i nostri <a href=\"app://terms\">Termini di utilizzo</a> per i dettagli.",
+  "termsHtmlIos": "<p><i>Ultimo aggiornamento: settembre 2026</i></p><p>I presenti Termini di utilizzo disciplinano l'uso di <b>{app}</b> (l'\"App\"). Utilizzando l'App accetti questi termini.</p><h4>1. Uso dell'App</h4><p>Puoi utilizzare l'App per visualizzare, creare, convertire e modificare documenti per scopi personali o professionali. Sei responsabile dei documenti che apri e crei, nonché di avere il diritto di utilizzarli.</p><h4>2. Abbonamenti</h4><p>Alcune funzionalità potrebbero richiedere un abbonamento a pagamento acquistato tramite l'App Store. Gli abbonamenti si rinnovano automaticamente se non vengono annullati almeno 24 ore prima della fine del periodo in corso. Puoi gestire o annullare un abbonamento nelle impostazioni del tuo ID Apple (Impostazioni › ID Apple › Abbonamenti). I rimborsi seguono le norme dell'App Store.</p><h4>3. Pubblicità</h4><p>La versione gratuita dell'App può mostrare annunci forniti da terze parti.</p><h4>4. Nessuna garanzia</h4><p>L'App viene fornita \"così com'è\". Facciamo del nostro meglio per mantenerla affidabile, ma non garantiamo che sia priva di errori e non siamo responsabili della perdita di dati. Conserva copie di backup dei file importanti.</p><h4>5. Modifiche</h4><p>Potremmo aggiornare periodicamente questi termini. L'uso continuato dell'App implica l'accettazione dei termini aggiornati.</p><h4>6. Contatti</h4><p>Domande? Scrivici a {email}.</p>",
+  "goToAppStore": "Vai all'App Store",
+  "addToAppIconMenu": "Aggiungi al menu dell'icona dell'app",
+  "appIconMenuAdded": "Aggiunto al menu dell'icona dell'app. Tocca e tieni premuta l'icona dell'app per aprirlo.",
+  "onMyDevice": "Su {device}"
 }

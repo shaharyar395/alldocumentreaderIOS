@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Obuna arzon, endi fayllarni zerikarli reklamalarsiz koʻrib chiqish, tahrirlash va boshqarish mumkin. Samaradorligimni ancha oshirdi!",
   "readyTop": "Tayyor bo'ling:",
-  "readyBottom": "7 kunlik bepul sinov"
+  "readyBottom": "7 kunlik bepul sinov",
+  "permissionMessageIos": "PDF, Word, Excel, PPT va TXT fayllaringizni o‘qish uchun ularni saqlaydigan jildni tanlang (masalan, iPhone’imda yoki Yuklanmalar).",
+  "addFolder": "Jild qo‘shish",
+  "removeFolder": "Jildni olib tashlash",
+  "removeFolderMessage": "Uning fayllari endi ilovada ko‘rinmaydi. iPhone’ingizdan hech narsa o‘chirilmaydi.",
+  "faqASubscriptionIos": "Obunalar App Store tomonidan boshqariladi. <b>Sozlamalar → Obunalarni boshqarish</b> ga oʻting yoki iPhone Sozlamalari → Apple ID → Obunalar ni oching. Batafsil maʼlumot uchun <a href=\"app://terms\">Foydalanish shartlari</a> bilan tanishing.",
+  "termsHtmlIos": "<p><i>Oxirgi yangilanish: 2026-yil sentabr</i></p><p>Ushbu Foydalanish shartlari <b>{app}</b> (\"Ilova\") dan foydalanishingizni tartibga soladi. Ilovadan foydalanish orqali siz ushbu shartlarga rozilik bildirasiz.</p><h4>1. Ilovadan foydalanish</h4><p>Ilovadan shaxsiy yoki biznes maqsadlarida hujjatlarni koʻrish, yaratish, aylantirish va tahrirlash uchun foydalanishingiz mumkin. Siz ochgan va yaratgan hujjatlar hamda ulardan foydalanish huquqiga ega boʻlish uchun oʻzingiz javobgarsiz.</p><h4>2. Obunalar</h4><p>Ayrim funksiyalar App Store orqali sotib olinadigan pullik obunani talab qilishi mumkin. Obunalar joriy davr tugashidan kamida 24 soat oldin bekor qilinmasa, avtomatik ravishda yangilanadi. Obunani Apple ID sozlamalarida (Sozlamalar › Apple ID › Obunalar) boshqarishingiz yoki bekor qilishingiz mumkin. Pulni qaytarish App Store qoidalariga muvofiq amalga oshiriladi.</p><h4>3. Reklama</h4><p>Ilovaning bepul versiyasida uchinchi tomonlar taqdim etgan reklamalar koʻrsatilishi mumkin.</p><h4>4. Kafolat yoʻqligi</h4><p>Ilova \"boricha\" taqdim etiladi. Uning ishonchli ishlashi uchun qoʻlimizdan kelganini qilamiz, biroq xatosiz boʻlishini kafolatlamaymiz va maʼlumotlar yoʻqolishi uchun javobgar emasmiz. Iltimos, muhim fayllarning zaxira nusxasini saqlang.</p><h4>5. Oʻzgarishlar</h4><p>Ushbu shartlarni vaqti-vaqti bilan yangilashimiz mumkin. Ilovadan foydalanishni davom ettirishingiz yangilangan shartlarni qabul qilganingizni bildiradi.</p><h4>6. Aloqa</h4><p>Savollaringiz bormi? Bizga {email} manziliga yozing.</p>",
+  "goToAppStore": "App Store'ga o'tish",
+  "addToAppIconMenu": "Ilova belgisi menyusiga qo‘shish",
+  "appIconMenuAdded": "Ilova belgisi menyusiga qo‘shildi. Ochish uchun ilova belgisini bosib turing.",
+  "onMyDevice": "{device} qurilmamda"
 }

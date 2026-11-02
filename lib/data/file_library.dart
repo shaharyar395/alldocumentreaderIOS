@@ -30,7 +30,7 @@ typedef _Stamp = ({String ref, int time});
 ///
 /// iOS: there is no shared storage. Files the app saves live in `Documents/library/<folder>`
 /// (visible in the Files app), files put into the app's Documents folder are listed in place,
-/// and files from a folder picked in Files are copied in (once — not again after delete/rename).
+/// and so are the files of the folders picked in Files (iCloud placeholders included).
 ///
 /// Older versions copied every file into the private folder `library/`; those copies stay
 /// listed ([DocEntry.relativePath] relative to [root]).
@@ -188,12 +188,16 @@ class FileLibrary extends ChangeNotifier {
 
   // ------------------------------------------------------------------ paths
 
-  /// How a path is stored: relative to [root] on iOS (the app's container moves when the app
-  /// is updated) and for the old library copies; absolute for real files on Android.
+  /// How a path is stored: relative to [root] for files inside the app's own container on iOS
+  /// (the container moves when the app is updated) and for the old library copies; absolute for
+  /// real files on Android and for files in the folders picked on iOS (On My iPhone, iCloud…).
   String _ref(String absolutePath) {
     final normalized = p.normalize(absolutePath);
     if (root.isEmpty) return normalized;
-    if (Platform.isIOS || p.isWithin(root, normalized)) return p.relative(normalized, from: root);
+    if (p.isWithin(root, normalized)) return p.relative(normalized, from: root);
+    if (Platform.isIOS && _docsDir.isNotEmpty && p.isWithin(p.dirname(p.normalize(_docsDir)), normalized)) {
+      return p.relative(normalized, from: root);
+    }
     return normalized;
   }
 
@@ -217,6 +221,8 @@ class FileLibrary extends ChangeNotifier {
       _outputBase = p.join(documents, 'AllDocumentReader');
     } else {
       _outputBase = root;
+      // the folders picked in Files: open access to them before the known files are checked
+      await PlatformBridge.iosFolders();
     }
 
     // the index: the app-private copy, or the one older versions kept in Documents/library
@@ -401,7 +407,13 @@ class FileLibrary extends ChangeNotifier {
       } catch (_) {
         continue;
       }
-      if (stat.type != FileSystemEntityType.file) continue; // deleted or moved by another app
+      if (stat.type != FileSystemEntityType.file) {
+        // iCloud Drive evicted the file (only its ".Name.ext.icloud" placeholder is there): it stays
+        if (Platform.isIOS && !e.inBin && await File(icloudPlaceholderPath(e.fullPath)).exists() && refs.add(e.relativePath)) {
+          next.add(e);
+        }
+        continue; // deleted or moved by another app
+      }
       if (!refs.add(e.relativePath)) continue;
       if (e.inBin) {
         final deleted = e.deletedAt ?? stat.modified;
@@ -556,11 +568,15 @@ class FileLibrary extends ChangeNotifier {
         for (final name in const ['library', 'signatures', 'tpl_images', 'tessdata', 'Inbox']) p.normalize(p.join(_docsDir, name)),
       };
       await _walk(Directory(_docsDir), found, maxDepth: 6, skip: skip);
-      await _importIosPicked(found);
+      // iOS "access": the folders the user picked in Files, listed in place like Android's storage
+      final folders = await PlatformBridge.iosFolders();
+      for (final folder in folders) {
+        await _walk(Directory(folder), found, maxDepth: 8);
+      }
       fullScan = true;
-      withAccess = true;
+      withAccess = folders.isNotEmpty;
     }
-    await _merge(found, fullScan: fullScan, dropDeviceFiles: Platform.isAndroid && !withAccess);
+    await _merge(found, fullScan: fullScan, dropDeviceFiles: !withAccess);
     _scannedWithAccess = withAccess;
     _deviceScanned = true;
     await _persist();
@@ -574,7 +590,24 @@ class FileLibrary extends ChangeNotifier {
       if (!await dir.exists()) return;
       await for (final entity in dir.list(followLinks: false)) {
         final name = p.basename(entity.path);
-        if (name.startsWith('.')) continue;
+        if (name.startsWith('.')) {
+          // iCloud Drive: a file not downloaded yet (".Name.ext.icloud") is listed as Name.ext at
+          // its real path; opening it downloads it first (PlatformBridge.ensureLocal)
+          final real = Platform.isIOS && entity is File ? icloudRealName(name) : null;
+          if (real == null || kindForName(real) == DocKind.other) continue;
+          final realPath = p.join(p.dirname(entity.path), real);
+          final ref = _ref(realPath);
+          if (out.containsKey(ref)) continue;
+          final stat = await entity.stat();
+          int? size;
+          try {
+            if (stat.size < 64 * 1024) size = icloudPlaceholderSize(await File(entity.path).readAsBytes());
+          } catch (_) {
+            // size unknown until it is downloaded
+          }
+          out[ref] = (path: realPath, size: size ?? 0, modified: stat.modified.millisecondsSinceEpoch);
+          continue;
+        }
         if (entity is Directory) {
           if (skip.contains(p.normalize(entity.path))) continue;
           await _walk(entity, out, maxDepth: maxDepth, depth: depth + 1, skip: skip);
@@ -679,67 +712,6 @@ class FileLibrary extends ChangeNotifier {
       }
     }
     list.removeWhere(drop.contains);
-  }
-
-  /// iOS: files of the folder picked in Files are copied in once (a copy with the same name and
-  /// size is reused; files the user deleted or renamed in the app are not copied again).
-  Future<void> _importIosPicked(Map<String, DeviceFile> found) async {
-    final prefs = await SharedPreferences.getInstance();
-    final sources = <String>[];
-    final temps = <String>[];
-    final savedRoot = prefs.getString('ios_scan_root');
-    if (savedRoot != null && savedRoot.isNotEmpty) {
-      final walked = <String, DeviceFile>{};
-      await _walk(Directory(savedRoot), walked, maxDepth: 6);
-      sources.addAll(walked.values.map((f) => f.path));
-    }
-    final bookmarked = await PlatformBridge.iosBookmarkedFiles();
-    sources.addAll(bookmarked);
-    temps.addAll(bookmarked);
-    for (final path in sources) {
-      final file = File(path);
-      try {
-        if (!await file.exists()) continue;
-        final stat = await file.stat();
-        final name = p.basename(path);
-        if (kindForName(name) == DocKind.other || stat.size <= 0) continue;
-        final key = '${name.toLowerCase()}|${stat.size}';
-        if (_dismissed.contains(key)) continue;
-        var copy = _sameFile(name, stat.size);
-        if (copy == null) {
-          final dest = await _writeOut('import', name, (target) => file.copy(target.path));
-          if (dest == null) continue;
-          try {
-            await dest.setLastModified(stat.modified);
-          } catch (_) {
-            // keeps the copy's own date
-          }
-          final destStat = await dest.stat();
-          copy = _entryFor(_ref(dest.path), p.basename(dest.path), destStat.size, destStat.modified);
-          entries = [...entries, copy];
-        }
-        found[copy.relativePath] = (path: copy.fullPath, size: copy.bytes, modified: copy.modified.millisecondsSinceEpoch);
-      } catch (error) {
-        debugPrint('ios scan import: $error');
-      }
-    }
-    for (final path in temps) {
-      try {
-        final temp = File(path);
-        if (await temp.exists()) await temp.delete();
-      } catch (_) {
-        // a temp file; the system cleans it
-      }
-    }
-  }
-
-  /// An active entry with this name and size (a copy that can be reused).
-  DocEntry? _sameFile(String name, int size) {
-    final lower = name.toLowerCase();
-    for (final e in entries) {
-      if (!e.inBin && e.bytes == size && e.name.toLowerCase() == lower) return e;
-    }
-    return null;
   }
 
   Future<void> _publishWidget() async {
@@ -1095,7 +1067,8 @@ class FileLibrary extends ChangeNotifier {
     await _move(File(original), dest);
     _forgetRef(entry.relativePath);
     if (Platform.isIOS) _dismissed.add('${entry.name.toLowerCase()}|${entry.bytes}');
-    final binned = entry.copyWith(relativePath: _ref(dest), deletedAt: DateTime.now(), originalPath: original, isNew: false, bookmarked: false);
+    // stored like relativePath: relative inside the iOS container (it moves with app updates)
+    final binned = entry.copyWith(relativePath: _ref(dest), deletedAt: DateTime.now(), originalPath: _ref(original), isNew: false, bookmarked: false);
     entries = [for (final e in entries) if (e.id == entry.id) binned else e];
     unawaited(PlatformBridge.scanPaths([original]));
   }
@@ -1107,7 +1080,7 @@ class FileLibrary extends ChangeNotifier {
   }
 
   Future<void> _restore(DocEntry entry) async {
-    final original = entry.originalPath.isNotEmpty ? entry.originalPath : p.join(root, 'import', entry.name);
+    final original = entry.originalPath.isNotEmpty ? _resolveOriginal(entry.originalPath) : p.join(root, 'import', entry.name);
     final dir = p.dirname(original);
     await Directory(dir).create(recursive: true);
     final dest = File(original).existsSync() ? _uniquePath(dir, p.basename(original)) : original;
@@ -1125,6 +1098,18 @@ class FileLibrary extends ChangeNotifier {
     ));
     entries = [for (final e in entries) if (e.id == entry.id) restored else e];
     unawaited(PlatformBridge.scanPaths([dest]));
+  }
+
+  /// A recycle-bin [DocEntry.originalPath] as an absolute path: refs are relative to [root];
+  /// older versions stored absolute paths, and on iOS those of an older container
+  /// (.../Containers/Data/Application/<old id>/...) are moved into the current one.
+  String _resolveOriginal(String stored) {
+    if (!p.isAbsolute(stored)) return p.normalize(p.join(root, stored));
+    if (Platform.isIOS && _docsDir.isNotEmpty && !Directory(p.dirname(stored)).existsSync()) {
+      final match = RegExp(r'/Containers/Data/Application/[^/]+/(.+)$').firstMatch(stored);
+      if (match != null) return p.normalize(p.join(p.dirname(p.normalize(_docsDir)), match.group(1)!));
+    }
+    return stored;
   }
 
   /// Moves a file, also between storage volumes (copy, then delete the source).

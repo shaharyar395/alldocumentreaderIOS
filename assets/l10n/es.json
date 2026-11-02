@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "La suscripción es barata y ahora puedo ver, editar y gestionar archivos sin anuncios molestos. ¡Ha mejorado muchísimo mi productividad!",
   "readyTop": "Prepárate para tu",
-  "readyBottom": "prueba gratis de 7 días"
+  "readyBottom": "prueba gratis de 7 días",
+  "permissionMessageIos": "Para leer tus archivos PDF, Word, Excel, PPT y TXT, elige la carpeta donde los guardas (por ejemplo, En mi iPhone o Descargas).",
+  "addFolder": "Añadir carpeta",
+  "removeFolder": "Quitar carpeta",
+  "removeFolderMessage": "Sus archivos dejarán de mostrarse en la app. No se borra nada de tu iPhone.",
+  "faqASubscriptionIos": "Las suscripciones se gestionan a través del App Store. Ve a <b>Ajustes → Gestionar suscripciones</b> o abre Ajustes del iPhone → ID de Apple → Suscripciones. Consulta nuestras <a href=\"app://terms\">Condiciones de uso</a> para más detalles.",
+  "termsHtmlIos": "<p><i>Última actualización: septiembre de 2026</i></p><p>Estas Condiciones de uso rigen el uso que haces de <b>{app}</b> (la \"App\"). Al usar la App, aceptas estas condiciones.</p><h4>1. Uso de la App</h4><p>Puedes usar la App para ver, crear, convertir y editar documentos con fines personales o profesionales. Eres responsable de los documentos que abres y creas, así como de tener derecho a usarlos.</p><h4>2. Suscripciones</h4><p>Algunas funciones pueden requerir una suscripción de pago adquirida a través del App Store. Las suscripciones se renuevan automáticamente salvo que se cancelen al menos 24 horas antes del final del periodo actual. Puedes gestionar o cancelar una suscripción en los ajustes de tu ID de Apple (Ajustes › ID de Apple › Suscripciones). Los reembolsos se rigen por las políticas del App Store.</p><h4>3. Publicidad</h4><p>La versión gratuita de la App puede mostrar anuncios proporcionados por terceros.</p><h4>4. Sin garantía</h4><p>La App se proporciona \"tal cual\". Hacemos todo lo posible para que sea fiable, pero no garantizamos que esté libre de errores y no nos hacemos responsables de la pérdida de datos. Haz copias de seguridad de tus archivos importantes.</p><h4>5. Cambios</h4><p>Podemos actualizar estas condiciones ocasionalmente. Seguir usando la App implica que aceptas las condiciones actualizadas.</p><h4>6. Contacto</h4><p>¿Tienes preguntas? Escríbenos a {email}.</p>",
+  "goToAppStore": "Ir al App Store",
+  "addToAppIconMenu": "Añadir al menú del icono de la app",
+  "appIconMenuAdded": "Añadido al menú del icono de la app. Mantén pulsado el icono de la app para abrirlo.",
+  "onMyDevice": "En mi {device}"
 }

@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "L'abonnement n'est pas cher, et je peux maintenant consulter, modifier et gérer mes fichiers sans pubs agaçantes. Ça a vraiment boosté mon efficacité !",
   "readyTop": "Préparez-vous pour votre",
-  "readyBottom": "essai gratuit de 7 jours"
+  "readyBottom": "essai gratuit de 7 jours",
+  "permissionMessageIos": "Pour lire vos fichiers PDF, Word, Excel, PPT et TXT, choisissez le dossier où vous les gardez (par exemple Sur mon iPhone ou Téléchargements).",
+  "addFolder": "Ajouter un dossier",
+  "removeFolder": "Retirer le dossier",
+  "removeFolderMessage": "Ses fichiers ne s'afficheront plus dans l'app. Rien n'est supprimé de votre iPhone.",
+  "faqASubscriptionIos": "Les abonnements sont gérés par l'App Store. Allez dans <b>Paramètres → Gérer les abonnements</b>, ou ouvrez Réglages de l'iPhone → identifiant Apple → Abonnements. Consultez nos <a href=\"app://terms\">Conditions d'utilisation</a> pour plus de détails.",
+  "termsHtmlIos": "<p><i>Dernière mise à jour : septembre 2026</i></p><p>Les présentes Conditions d'utilisation régissent votre utilisation de <b>{app}</b> (l'« Application »). En utilisant l'Application, vous acceptez ces conditions.</p><h4>1. Utilisation de l'Application</h4><p>Vous pouvez utiliser l'Application pour afficher, créer, convertir et modifier des documents à des fins personnelles ou professionnelles. Vous êtes responsable des documents que vous ouvrez et créez, ainsi que de disposer du droit de les utiliser.</p><h4>2. Abonnements</h4><p>Certaines fonctionnalités peuvent nécessiter un abonnement payant souscrit via l'App Store. Les abonnements sont renouvelés automatiquement, sauf résiliation au moins 24 heures avant la fin de la période en cours. Vous pouvez gérer ou résilier un abonnement dans les réglages de votre identifiant Apple (Réglages › identifiant Apple › Abonnements). Les remboursements sont soumis aux règles de l'App Store.</p><h4>3. Publicité</h4><p>La version gratuite de l'Application peut afficher des publicités fournies par des tiers.</p><h4>4. Absence de garantie</h4><p>L'Application est fournie « en l'état ». Nous faisons de notre mieux pour qu'elle reste fiable, mais nous ne garantissons pas qu'elle sera exempte d'erreurs et nous déclinons toute responsabilité en cas de perte de données. Veuillez conserver des sauvegardes de vos fichiers importants.</p><h4>5. Modifications</h4><p>Nous pouvons mettre à jour ces conditions de temps à autre. La poursuite de l'utilisation de l'Application vaut acceptation des conditions mises à jour.</p><h4>6. Contact</h4><p>Des questions ? Écrivez-nous à {email}.</p>",
+  "goToAppStore": "Aller sur l'App Store",
+  "addToAppIconMenu": "Ajouter au menu de l'icône de l'app",
+  "appIconMenuAdded": "Ajouté au menu de l'icône de l'app. Touchez longuement l'icône de l'app pour l'ouvrir.",
+  "onMyDevice": "Sur mon {device}"
 }

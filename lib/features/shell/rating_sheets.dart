@@ -11,6 +11,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../services/platform_bridge.dart';
 import '../../widgets/chrome.dart';
 import '../settings/feedback_page.dart';
 
@@ -240,15 +241,20 @@ class _HelpfulSheetState extends State<_HelpfulSheet> with SingleTickerProviderS
 }
 
 /// "Do you like our app?" with 5 tappable stars; 4–5 stars open the store page.
+/// iOS: Apple's own rating prompt instead (App Review does not allow a custom prompt that sends
+/// only happy users to the store) — also after "Yes, helpful".
 Future<void> showRateSheet(BuildContext context) async {
   final scope = AppScope.of(context);
   await scope.settings.markRateShown();
+  if (Platform.isIOS) {
+    await PlatformBridge.requestReview();
+    return;
+  }
   if (!context.mounted) return;
   final stars = await _showClearSheet<int>(context, const _RateSheet());
   if (!context.mounted || stars == null || stars <= 0) return;
   final s = S.of(context);
   if (stars < 4 || !Platform.isAndroid) {
-    // (iOS: the App Store id is not known yet, so there is no store page to open)
     showToast(context, s.t('rateThanks'));
     return;
   }

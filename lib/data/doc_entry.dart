@@ -161,7 +161,10 @@ class DocEntry {
   /// When the file came into the app's lists (null for entries saved by older versions).
   final DateTime? addedAt;
 
-  /// Recycle bin: the full path the file had before it was deleted (restore puts it back there).
+  /// Recycle bin: where the file was before it was deleted (restore puts it back there). Stored
+  /// like [relativePath]: relative to [libraryRoot] for files inside the app's iOS container (the
+  /// container path changes with app updates), absolute otherwise. Older versions stored an
+  /// absolute path everywhere; use [originalFullPath] to show it.
   final String originalPath;
 
   bool get inBin => deletedAt != null;
@@ -173,6 +176,12 @@ class DocEntry {
   String get fullPath {
     if (p.isAbsolute(relativePath) || libraryRoot.isEmpty) return relativePath;
     return p.normalize(p.join(libraryRoot, relativePath));
+  }
+
+  /// [originalPath] as an absolute path ('' when unknown).
+  String get originalFullPath {
+    if (originalPath.isEmpty || p.isAbsolute(originalPath) || libraryRoot.isEmpty) return originalPath;
+    return p.normalize(p.join(libraryRoot, originalPath));
   }
 
   int daysLeft() {
@@ -248,6 +257,76 @@ class DocEntry {
       originalPath: json['originalPath'] as String? ?? '',
     );
   }
+}
+
+/// iCloud Drive (iOS before 17): a file that is not downloaded yet is a hidden placeholder
+/// ".Name.ext.icloud" next to where the file will be. Returns "Name.ext", or null when [name] is
+/// not such a placeholder.
+String? icloudRealName(String name) {
+  if (name.length <= 8 || !name.startsWith('.') || !name.endsWith('.icloud')) return null;
+  final real = name.substring(1, name.length - '.icloud'.length);
+  return real.isEmpty || real.startsWith('.') ? null : real;
+}
+
+/// The placeholder path for the real file at [realPath] (see [icloudRealName]).
+String icloudPlaceholderPath(String realPath) => p.join(p.dirname(realPath), '.${p.basename(realPath)}.icloud');
+
+/// The real file size kept in an iCloud placeholder (a binary plist with NSURLFileSizeKey), or
+/// null when it cannot be read.
+int? icloudPlaceholderSize(List<int> b) {
+  try {
+    if (b.length < 40 || String.fromCharCodes(b.sublist(0, 6)) != 'bplist') return null;
+    int be(int at, int n) {
+      var v = 0;
+      for (var i = 0; i < n; i++) {
+        v = (v << 8) | b[at + i];
+      }
+      return v;
+    }
+
+    final trailer = b.length - 32;
+    final offsetSize = b[trailer + 6];
+    final refSize = b[trailer + 7];
+    final count = be(trailer + 8, 8);
+    final top = be(trailer + 16, 8);
+    final table = be(trailer + 24, 8);
+    if (offsetSize < 1 || offsetSize > 8 || refSize < 1 || refSize > 8 || top >= count) return null;
+    int offsetOf(int ref) => be(table + ref * offsetSize, offsetSize);
+    // the length in a marker's low nibble, or (0xF) in the int object after it
+    (int, int) lengthAt(int at) {
+      final low = b[at] & 0x0F;
+      if (low != 0x0F) return (low, at + 1);
+      final n = 1 << (b[at + 1] & 0x0F);
+      return (be(at + 2, n), at + 2 + n);
+    }
+
+    String? stringOf(int ref) {
+      final at = offsetOf(ref);
+      final type = b[at] >> 4;
+      final (length, start) = lengthAt(at);
+      if (type == 0x5) return String.fromCharCodes(b.sublist(start, start + length));
+      if (type == 0x6) return String.fromCharCodes([for (var i = 0; i < length; i++) be(start + i * 2, 2)]);
+      return null;
+    }
+
+    int? intOf(int ref) {
+      final at = offsetOf(ref);
+      if (b[at] >> 4 != 0x1) return null;
+      final n = 1 << (b[at] & 0x0F);
+      return n > 8 ? null : be(at + 1, n);
+    }
+
+    final at = offsetOf(top);
+    if (b[at] >> 4 != 0xD) return null;
+    final (pairs, start) = lengthAt(at);
+    for (var i = 0; i < pairs; i++) {
+      if (stringOf(be(start + i * refSize, refSize)) != 'NSURLFileSizeKey') continue;
+      return intOf(be(start + (pairs + i) * refSize, refSize));
+    }
+  } catch (_) {
+    // not a readable placeholder
+  }
+  return null;
 }
 
 List<DocEntry> decodeEntries(String raw) {

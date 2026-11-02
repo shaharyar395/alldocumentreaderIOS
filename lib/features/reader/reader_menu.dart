@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../app_scope.dart';
@@ -12,7 +10,7 @@ import '../../widgets/chrome.dart';
 import '../files/file_actions.dart';
 
 /// The reader's ⋮ menu, like the Android viewer: file header (full path, tap for info), then
-/// Rename, Bookmark, To home screen (Android), Save to Drive, and for PDF Pages / Print / Merge
+/// Rename, Bookmark, To home screen (iOS: Add to app icon menu), Save to Drive, and for PDF Pages / Print / Merge
 /// PDF / Split PDF, then Delete — 4 per row.
 Future<void> showReaderMenu(
   BuildContext context, {
@@ -32,7 +30,7 @@ Future<void> showReaderMenu(
       () => toggleBookmarkWithPill(context, entry),
       false,
     ),
-    if (!Platform.isIOS) (ND.icHomeAdd, s.t('toHomeScreen'), () => addToHomeScreen(context, entry), false),
+    (ND.icHomeAdd, homeScreenLabel(s), () => addToHomeScreen(context, entry), false),
     (ND.icStDrive, s.t('saveToDrive'), () => saveToDrive(context, entry), false),
     if (onPages != null) (ND.icPages, s.t('pagesMenu'), () async => onPages(), false),
     if (onPrint != null) (ND.icPrint, s.t('print'), () async => onPrint(), false),
@@ -51,6 +49,8 @@ Future<void> showReaderMenu(
       false,
     ),
   ];
+  await loadDisplayPaths();
+  if (!context.mounted) return;
   final chosen = await showAppSheet<int>(
     context,
     builder: (sheet) {

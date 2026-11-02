@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "訂閱很便宜，現在預覽、編輯和管理檔案都不會再有煩人的廣告了。效率真的大幅提升！",
   "readyTop": "準備開始您的",
-  "readyBottom": "7 天免費試用"
+  "readyBottom": "7 天免費試用",
+  "permissionMessageIos": "若要讀取您的 PDF、Word、Excel、PPT 和 TXT 檔案，請選擇存放它們的資料夾（例如「我的 iPhone」或「下載項目」）。",
+  "addFolder": "新增資料夾",
+  "removeFolder": "移除資料夾",
+  "removeFolderMessage": "此資料夾中的檔案將不再顯示於 App。不會從您的 iPhone 刪除任何內容。",
+  "faqASubscriptionIos": "訂閱是由 App Store 管理。請前往<b>設定 → 管理訂閱</b>，或開啟 iPhone 的「設定」→ Apple ID → 訂閱項目。詳情請參閱我們的<a href=\"app://terms\">使用條款</a>。",
+  "termsHtmlIos": "<p><i>最後更新：2026 年 9 月</i></p><p>本使用條款規範你對 <b>{app}</b>（以下稱「本應用程式」）的使用。使用本應用程式即表示你同意本條款。</p><h4>1. 本應用程式的使用</h4><p>你可以將本應用程式用於個人或商業目的，以檢視、建立、轉換及編輯文件。你須對你開啟及建立的文件負責，並確保你有權使用這些文件。</p><h4>2. 訂閱</h4><p>部分功能可能需要透過 App Store 購買付費訂閱。除非在目前訂閱期間結束前至少 24 小時取消，否則訂閱將自動續訂。你可以在 Apple ID 設定（設定 › Apple ID › 訂閱項目）中管理或取消訂閱。退款依循 App Store 政策辦理。</p><h4>3. 廣告</h4><p>本應用程式的免費版本可能會顯示第三方提供的廣告。</p><h4>4. 免責聲明</h4><p>本應用程式係依「現況」提供。我們會盡力確保其穩定可靠，但不保證本應用程式沒有錯誤，亦不對資料遺失負責。請為重要檔案保留備份。</p><h4>5. 條款變更</h4><p>我們可能會不定期更新本條款。繼續使用本應用程式即表示你接受更新後的條款。</p><h4>6. 聯絡我們</h4><p>有任何問題嗎？請寄送電子郵件至 {email}。</p>",
+  "goToAppStore": "前往 App Store",
+  "addToAppIconMenu": "加入 App 圖像選單",
+  "appIconMenuAdded": "已加入 App 圖像選單。按住 App 圖像即可開啟。",
+  "onMyDevice": "我的 {device}"
 }

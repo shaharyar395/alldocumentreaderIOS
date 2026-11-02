@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:xml/xml.dart';
@@ -19,12 +20,14 @@ import 'package:xml/xml.dart';
 ///
 /// Runs in a background isolate; [onProgress] gets 0..1.
 Future<Uint8List> officeFileToPdf(String path, {void Function(double progress)? onProgress}) async {
+  // read here: the background isolate has no asset bundle
+  final bundled = await _bundledFonts();
   final port = ReceivePort();
   final subscription = port.listen((message) {
     if (message is double) onProgress?.call(message);
   });
   try {
-    final result = await _runConversion(path, port.sendPort);
+    final result = await _runConversion(path, port.sendPort, bundled);
     onProgress?.call(1);
     return result;
   } finally {
@@ -33,10 +36,36 @@ Future<Uint8List> officeFileToPdf(String path, {void Function(double progress)? 
   }
 }
 
-// Kept separate so the isolate closure only captures the path and the port.
-Future<Uint8List> _runConversion(String path, SendPort port) => Isolate.run(() => _convertFile(path, port));
+// Kept separate so the isolate closure only captures the path, the port and the font bytes.
+Future<Uint8List> _runConversion(String path, SendPort port, _BundledFonts? bundled) =>
+    Isolate.run(() => _convertFile(path, port, bundled));
 
-Future<Uint8List> _convertFile(String path, SendPort port) async {
+/// DejaVu Sans regular / bold / oblique from assets/fonts (Latin Extended, Greek, Cyrillic,
+/// Arabic, Hebrew, Vietnamese…).
+typedef _BundledFonts = ({Uint8List regular, Uint8List bold, Uint8List italic});
+
+/// The bundled fonts where the phone has no /system/fonts to use (iOS); null on Android, which
+/// keeps using its system fonts. Thai, Devanagari and CJK have no bundled font (left out on iOS).
+Future<_BundledFonts?> _bundledFonts() async {
+  if (!Platform.isIOS && Directory('/system/fonts').existsSync()) return null;
+  try {
+    Future<Uint8List> read(String name) async {
+      final data = await rootBundle.load('assets/fonts/$name');
+      return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    }
+
+    return (
+      regular: await read('DejaVuSans.ttf'),
+      bold: await read('DejaVuSans-Bold.ttf'),
+      italic: await read('DejaVuSans-Oblique.ttf'),
+    );
+  } catch (_) {
+    // no asset bundle (plain unit tests): standard PDF fonts only, as before
+    return null;
+  }
+}
+
+Future<Uint8List> _convertFile(String path, SendPort port, _BundledFonts? bundled) async {
   void progress(double value) => port.send(value.clamp(0.0, 1.0).toDouble());
   final bytes = await File(path).readAsBytes();
   progress(0.03);
@@ -50,7 +79,7 @@ Future<Uint8List> _convertFile(String path, SendPort port) async {
       archive = null;
     }
   }
-  final fonts = _Fonts();
+  final fonts = _Fonts(bundled);
   _Job job;
   if (archive != null && archive.findFile('word/document.xml') != null) {
     job = _WordJob(archive);
@@ -229,7 +258,16 @@ String _rtfToText(String rtf) {
 // ---------------------------------------------------------------------------------------------
 
 class _Fonts {
+  _Fonts([this.bundled]);
+
+  /// Fonts from assets/fonts instead of /system/fonts (iOS).
+  final _BundledFonts? bundled;
+
   final List<pw.Font> fallback = [];
+
+  /// Bold / italic versions of [fallback] (only the bundled fonts have them).
+  final List<pw.Font> fallbackBold = [];
+  final List<pw.Font> fallbackItalic = [];
   bool sanitize = true;
 
   final pw.Font helvetica = pw.Font.helvetica();
@@ -246,7 +284,8 @@ class _Fonts {
   final pw.Font courierBoldItalic = pw.Font.courierBoldOblique();
 
   /// System fonts for characters the standard PDF fonts don't have (Android keeps them in
-  /// /system/fonts; elsewhere nothing is found and such characters are left out).
+  /// /system/fonts). iOS has none there: the bundled DejaVu Sans is used ([bundled]); scripts it
+  /// does not cover (Thai, Devanagari and other Indic, CJK…) become '?' ([clean]).
   Future<void> load(String text) async {
     var needsLatinExt = false;
     var arabic = false;
@@ -269,6 +308,19 @@ class _Fonts {
       } else {
         needsLatinExt = true;
       }
+    }
+    final bundled = this.bundled;
+    if (bundled != null) {
+      if (!(needsLatinExt || arabic || hebrew || thai || devanagari || cjk)) return;
+      pw.Font ttf(Uint8List data) => pw.Font.ttf(data.buffer.asByteData(data.offsetInBytes, data.lengthInBytes));
+      try {
+        fallback.add(ttf(bundled.regular));
+        fallbackBold.add(ttf(bundled.bold));
+        fallbackItalic.add(ttf(bundled.italic));
+      } catch (_) {
+        // a font that cannot be read: the regular one (if any) is used for everything
+      }
+      return;
     }
     const dir = '/system/fonts/';
     Future<void> add(List<String> names) async {
@@ -314,8 +366,34 @@ class _Fonts {
         fontFallback: sanitize ? const [] : fallback,
       );
 
+  /// The fallback fonts for a style: the bundled bold / italic first, then the regular ones.
+  List<pw.Font> _fallbackFor(bool bold, bool italic) {
+    if (bold && fallbackBold.isNotEmpty) return [...fallbackBold, ...fallback];
+    if (italic && fallbackItalic.isNotEmpty) return [...fallbackItalic, ...fallback];
+    return fallback;
+  }
+
+  /// Scripts the bundled DejaVu Sans has no glyphs for: Indic (Devanagari … Sinhala), Thai,
+  /// Myanmar, Ethiopic, Khmer, CJK / Hangul / full-width forms and everything above the BMP.
+  static bool _notBundled(int rune) =>
+      (rune >= 0x0900 && rune <= 0x0DFF) ||
+      (rune >= 0x0E00 && rune <= 0x0E7F) ||
+      (rune >= 0x1000 && rune <= 0x109F) ||
+      (rune >= 0x1200 && rune <= 0x139F) ||
+      (rune >= 0x1780 && rune <= 0x17FF) ||
+      (rune >= 0x2E80 && rune <= 0x9FFF) ||
+      (rune >= 0xAC00 && rune <= 0xD7AF) ||
+      (rune >= 0xF900 && rune <= 0xFAFF) ||
+      (rune >= 0xFF00 && rune <= 0xFFEF) ||
+      rune >= 0x10000;
+
   /// The text the fonts can draw (when no extra fonts are used, other characters become '?').
   String clean(String text) {
+    if (!sanitize && bundled != null) {
+      // the bundled font: characters it has no glyph for become '?' (the rest stays)
+      if (!text.runes.any(_notBundled)) return text;
+      return String.fromCharCodes([for (final rune in text.runes) _notBundled(rune) ? 0x3F : rune]);
+    }
     if (!sanitize) return text;
     final out = StringBuffer();
     for (final rune in text.runes) {
@@ -360,7 +438,7 @@ class _Fonts {
       decoration: decorations.isEmpty ? null : pw.TextDecoration.combine(decorations),
       background: highlight == null ? null : pw.BoxDecoration(color: PdfColor.fromInt(0xFF000000 | highlight)),
       lineSpacing: lineSpacing,
-      fontFallback: sanitize ? const [] : fallback,
+      fontFallback: sanitize ? const [] : _fallbackFor(bold, italic),
     );
   }
 }

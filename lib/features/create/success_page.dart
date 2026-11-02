@@ -14,6 +14,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/platform_bridge.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
 import '../editor/editor_flow.dart';
@@ -156,11 +157,18 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
     });
   }
 
-  /// "View locally": the folder of the file in the storage browser (Android only).
-  void _viewLocally() {
-    final path = AppScope.of(context).library.fileOf(_entry).path;
+  /// "View locally": the folder of the file in the storage browser (Android); iOS: the Files app
+  /// at that folder (the storage browser when Files can't be opened).
+  Future<void> _viewLocally() async {
+    final scope = AppScope.of(context);
+    final path = scope.library.fileOf(_entry).path;
     final folder = p.dirname(path);
-    Navigator.push(
+    if (Platform.isIOS) {
+      scope.guard.arm(scope.settings);
+      if (await PlatformBridge.openFileManager(path: folder)) return;
+      if (!mounted) return;
+    }
+    await Navigator.push(
       context,
       MaterialPageRoute<void>(builder: (_) => StorageBrowserPage(root: folder, rootName: p.basename(folder))),
     );
@@ -262,7 +270,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                       ],
                     ),
                   ),
-                  if (Platform.isAndroid) ...[
+                  if (Platform.isAndroid || Platform.isIOS) ...[
                     const SizedBox(height: 4),
                     Material(
                       color: nc.surfaceVariant,
@@ -309,7 +317,15 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                         ),
                       ),
                       const SizedBox(width: 16),
-                      NativePillButton(width: 140, height: 46, fontSize: 17, label: s.t('share'), onPressed: () => shareEntry(context, _entry)),
+                      Builder(
+                        builder: (buttonContext) => NativePillButton(
+                          width: 140,
+                          height: 46,
+                          fontSize: 17,
+                          label: s.t('share'),
+                          onPressed: () => shareEntry(context, _entry, origin: shareOrigin(buttonContext)),
+                        ),
+                      ),
                     ],
                   ),
                   if (_parts.length > 1) ...[
@@ -428,7 +444,14 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                 ],
               ),
             ),
-            NativeIconButton(ND.icShare, tint: nc.textSecondary, tooltip: S.of(context).t('share'), onPressed: () => shareEntry(context, part)),
+            Builder(
+              builder: (buttonContext) => NativeIconButton(
+                ND.icShare,
+                tint: nc.textSecondary,
+                tooltip: S.of(context).t('share'),
+                onPressed: () => shareEntry(context, part, origin: shareOrigin(buttonContext)),
+              ),
+            ),
           ],
         ),
       ),

@@ -87,6 +87,7 @@ flutter:
   assets:
     - assets/l10n/
     - assets/images/
+    - assets/fonts/
     - assets/tessdata_config.json
     - assets/tessdata/
 

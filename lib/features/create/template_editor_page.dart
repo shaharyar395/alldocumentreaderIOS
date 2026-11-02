@@ -48,6 +48,32 @@ Offset _rotate(Offset v, double degrees) {
 /// it (blue box, duplicate + delete above it, turn-and-resize handle below it), drag to move (a
 /// red guide shows when it is centred). Text: Fonts, Size & Color, Format; picture: Replace,
 /// Crop, H Flip, V Flip. Undo / redo, Download as PNG / JPG / PDF, Share, "Quit now?" on back.
+/// Pictures picked for templates: Application Support/tpl_images (not in the app's Documents,
+/// which the iOS Files app shows). Older versions used Documents/tpl_images: moved over once.
+Future<Directory> _tplImagesDir() async {
+  final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'tpl_images'));
+  await dir.create(recursive: true);
+  final old = Directory(p.join((await getApplicationDocumentsDirectory()).path, 'tpl_images'));
+  try {
+    if (await old.exists()) {
+      await for (final entity in old.list(followLinks: false)) {
+        if (entity is! File) continue;
+        final dest = p.join(dir.path, p.basename(entity.path));
+        try {
+          await entity.rename(dest);
+        } on FileSystemException {
+          await entity.copy(dest);
+          await entity.delete();
+        }
+      }
+      await old.delete(recursive: true);
+    }
+  } catch (_) {
+    // the old folder stays; moved next time
+  }
+  return dir;
+}
+
 class TemplateEditorPage extends StatefulWidget {
   const TemplateEditorPage({super.key, required this.template});
 
@@ -65,6 +91,9 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
   TEl? _selected;
   _Panel _panel = _Panel.none;
   bool _busy = false;
+
+  /// The Share button (the iPad share popover points at it).
+  final GlobalKey _shareKey = GlobalKey(debugLabel: 'tplShare');
 
   // view
   double _zoom = 1;
@@ -359,8 +388,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
     final file = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (file == null) return null;
     try {
-      final dir = Directory(p.join((await getApplicationDocumentsDirectory()).path, 'tpl_images'));
-      await dir.create(recursive: true);
+      final dir = await _tplImagesDir();
       final buf = await loadPixels(file.path, 1600);
       if (buf == null) return null;
       final target = p.join(dir.path, 'img_${DateTime.now().millisecondsSinceEpoch}.jpg');
@@ -586,9 +614,18 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
     }
   }
 
+  /// Where the share sheet comes from (iPad shows it as a popover there; share_plus needs it).
+  Rect _shareOrigin() {
+    final box = _shareKey.currentContext?.findRenderObject();
+    if (box is RenderBox && box.hasSize) return box.localToGlobal(Offset.zero) & box.size;
+    final size = MediaQuery.sizeOf(context);
+    return Rect.fromCenter(center: size.center(Offset.zero), width: 1, height: 1);
+  }
+
   Future<void> _share() async {
     final s = S.of(context);
     final scope = AppScope.of(context);
+    final origin = _shareOrigin();
     setState(() => _selected = null);
     final pill = ProgressPill(context)..show(s.t('saving'));
     try {
@@ -598,7 +635,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       await file.writeAsBytes(bytes, flush: true);
       pill.dismiss();
       scope.guard.arm(scope.settings);
-      await Share.shareXFiles([XFile(file.path)]);
+      await Share.shareXFiles([XFile(file.path)], sharePositionOrigin: origin);
     } catch (_) {
       pill.dismiss();
       if (mounted) showToast(context, s.t('tplSaveFailed'), warning: true);
@@ -722,7 +759,10 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
             ),
             const SizedBox(width: 28),
             NativeIconButton(ND.icDownload, padding: 11, tint: nc.textPrimary, tooltip: s.t('tplDownload'), onPressed: _busy ? null : _download),
-            NativeIconButton(ND.icShare, padding: 11, tint: nc.textPrimary, tooltip: s.t('share'), onPressed: _busy ? null : _share),
+            KeyedSubtree(
+              key: _shareKey,
+              child: NativeIconButton(ND.icShare, padding: 11, tint: nc.textPrimary, tooltip: s.t('share'), onPressed: _busy ? null : _share),
+            ),
           ],
         ),
         body: Column(

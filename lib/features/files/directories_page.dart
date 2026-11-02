@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../app_scope.dart';
@@ -6,6 +8,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/platform_bridge.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
@@ -135,9 +138,10 @@ class _StorageTabState extends State<_StorageTab> with WidgetsBindingObserver, _
 
   @override
   Future<void> reload() async {
-    final access = await hasStorageAccess();
+    final gated = await needsAccessGate();
     if (!mounted) return;
-    if (!access) {
+    // iOS without a picked folder still lists the app's own folder and "Add folder"
+    if (gated) {
       setState(() => _access = false);
       return;
     }
@@ -156,12 +160,15 @@ class _StorageTabState extends State<_StorageTab> with WidgetsBindingObserver, _
     if (_access == false) return _TabMessage(title: s.t('permissionNeededHint'));
     final volumes = _volumes;
     if (volumes == null) return const NativeProgress();
-    if (volumes.isEmpty) return _TabMessage(title: s.t('dirEmpty'));
+    // iOS: the folders picked in Files, plus "Add folder" (iOS lets apps see only picked folders)
+    final ios = Platform.isIOS;
+    if (volumes.isEmpty && !ios) return _TabMessage(title: s.t('dirEmpty'));
     _anim.fill(true);
     return ListView.builder(
       padding: const EdgeInsets.only(top: 4, bottom: 16),
-      itemCount: volumes.length,
+      itemCount: volumes.length + (ios ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index == volumes.length) return _AddFolderRow(onTap: _addFolder);
         final volume = volumes[index];
         final count = volume.count == 1 ? s.t('folderFilesOne', {'count': '1'}) : s.t('folderFiles', {'count': '${volume.count}'});
         return _anim.wrap(
@@ -175,10 +182,34 @@ class _StorageTabState extends State<_StorageTab> with WidgetsBindingObserver, _
               );
               if (mounted) reload();
             },
+            onLongPress: volume.picked ? () => _removeFolder(volume) : null,
           ),
         );
       },
     );
+  }
+
+  /// iOS: one more folder from Files; its documents are listed from now on.
+  Future<void> _addFolder() async {
+    await pickScanRoot(context);
+    if (mounted) await reload();
+  }
+
+  /// iOS: forgets a picked folder (the files stay on the iPhone, they are no longer listed).
+  Future<void> _removeFolder(StorageVolume volume) async {
+    final s = S.of(context);
+    final ok = await showNativeConfirmSheet(
+      context,
+      title: s.t('removeFolder'),
+      message: s.t('removeFolderMessage'),
+      okLabel: s.t('ok'),
+      cancelLabel: s.t('cancel'),
+    );
+    if (!ok || !mounted) return;
+    final library = AppScope.of(context).library;
+    await PlatformBridge.removeIosFolder(volume.root);
+    await library.rescan();
+    if (mounted) await reload();
   }
 }
 
@@ -204,9 +235,10 @@ class _AllDocumentsTabState extends State<_AllDocumentsTab>
   @override
   Future<void> reload() async {
     final generation = ++_generation;
-    final access = await hasStorageAccess();
+    // iOS without a picked folder: the app's own Documents folder
+    final gated = await needsAccessGate();
     if (!mounted || generation != _generation) return;
-    if (!access) {
+    if (gated) {
       setState(() => _access = false);
       return;
     }
@@ -271,7 +303,7 @@ Future<String?> _binActionSheet(BuildContext context, DocEntry entry) {
             NativeSheetHeader(
               icon: FileKindIcon(kind: entry.kind, size: 36),
               title: entry.name,
-              subtitle: entry.originalPath,
+              subtitle: entry.originalFullPath,
             ),
             NativeSheetAction(drawable: ND.icRestore, label: s.t('restoreFile'), onTap: () => Navigator.pop(sheet, 'restore')),
             NativeSheetAction(drawable: ND.icDeleteForever, label: s.t('deleteForever'), onTap: () => Navigator.pop(sheet, 'delete')),
@@ -601,6 +633,49 @@ class _RecycleBinScreenState extends State<_RecycleBinScreen> {
                 ),
               const BannerSlot(unit: 2),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// iOS "Add folder" row under the folders of the Storage tab (same height as a folder row).
+class _AddFolderRow extends StatelessWidget {
+  const _AddFolderRow({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          height: 64,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 16, end: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(color: c.choiceSelectedBg, borderRadius: BorderRadius.circular(10)),
+                  child: NativeIcon(ND.icAdd, size: 22, tint: c.primary),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    S.of(context).t('addFolder'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: c.primary),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

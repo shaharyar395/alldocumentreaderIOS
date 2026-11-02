@@ -32,8 +32,8 @@ import '../files/storage_access.dart';
 
 /// The "+" sheet, like the Android sheet_create_files: "Create files" with Import files, Use
 /// templates and Create PDF cards (item_create_card), then "Convert format" with Image to PDF,
-/// Scan to PDF, Word to PDF, PDF to Word and PPT to PDF tiles (item_convert_tile). Every item
-/// needs file access first.
+/// Scan to PDF, Word to PDF, PDF to Word and PPT to PDF tiles (item_convert_tile). On Android every
+/// item needs file access first; iOS needs none (ensureAccess / needsAccessGate).
 Future<void> showCreateSheet(BuildContext context) {
   final s = S.of(context);
   final cards = <(NDrawable, String, Future<void> Function())>[

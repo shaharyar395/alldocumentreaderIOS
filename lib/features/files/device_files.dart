@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../data/doc_entry.dart';
 import '../../data/file_library.dart';
+import '../../services/platform_bridge.dart';
 
 /// Real files on the device for Directories (Storage volumes, folder browser, All documents),
 /// like the Android app's StorageVolumes / StorageBrowserActivity / AllDocumentsFragment.
@@ -32,9 +33,12 @@ bool opensInApp(String name) => inAppExtensions.contains(extensionOf(name));
 
 /// One storage volume: its root folder and how many items are directly inside it.
 class StorageVolume {
-  const StorageVolume(this.root, this.count);
+  const StorageVolume(this.root, this.count, {this.picked = false});
   final String root;
   final int count;
+
+  /// iOS: a folder the user picked in Files (it can be removed from the app's list).
+  final bool picked;
 
   /// Shown name: the last path segment ("0" for the phone, "0000-000C" for an SD card).
   String get name {
@@ -61,12 +65,14 @@ Future<List<StorageVolume>> storageVolumes() async {
   } else {
     roots.add((await getApplicationDocumentsDirectory()).path);
   }
+  // iOS: the folders picked in Files ("Allow access" / "Add folder")
+  final picked = Platform.isIOS ? await PlatformBridge.iosFolders() : const <String>[];
   final volumes = <StorageVolume>[];
-  for (final root in roots) {
+  for (final root in [...roots, ...picked]) {
     try {
       final dir = Directory(root);
       if (!dir.existsSync()) continue;
-      volumes.add(StorageVolume(root, dir.listSync(followLinks: false).length));
+      volumes.add(StorageVolume(root, dir.listSync(followLinks: false).length, picked: picked.contains(root)));
     } catch (_) {
       // not readable
     }
@@ -115,7 +121,7 @@ List<DeviceItem> _listFolder(String dir) {
         }
         folders.add(DeviceItem(path: entity.path, isDir: true, modified: stat.modified, count: count));
       } else if (stat.type == FileSystemEntityType.file) {
-        files.add(DeviceItem(path: entity.path, isDir: false, modified: stat.modified, size: stat.size));
+        files.add(_icloudItem(entity, stat) ?? DeviceItem(path: entity.path, isDir: false, modified: stat.modified, size: stat.size));
       }
     } catch (_) {
       // unreadable entry
@@ -124,6 +130,21 @@ List<DeviceItem> _listFolder(String dir) {
   folders.sort((a, b) => b.modified.compareTo(a.modified));
   files.sort((a, b) => b.modified.compareTo(a.modified));
   return [...folders, ...files];
+}
+
+/// iOS iCloud Drive: a ".Name.ext.icloud" placeholder (file not downloaded yet) as the item of
+/// the real file Name.ext (its real path; opening downloads it first). Null for anything else.
+DeviceItem? _icloudItem(FileSystemEntity entity, FileStat stat) {
+  if (!Platform.isIOS || stat.type != FileSystemEntityType.file) return null;
+  final real = icloudRealName(p.basename(entity.path));
+  if (real == null) return null;
+  int? size;
+  try {
+    if (stat.size < 64 * 1024) size = icloudPlaceholderSize(File(entity.path).readAsBytesSync());
+  } catch (_) {
+    // size unknown until it is downloaded
+  }
+  return DeviceItem(path: p.join(p.dirname(entity.path), real), isDir: false, modified: stat.modified, size: size ?? 0);
 }
 
 /// "All documents": every file on the storage volumes (all types), newest first, at most 3000.
@@ -143,7 +164,17 @@ List<DeviceItem> _allFiles(List<String> roots) {
     }
     for (final entity in children) {
       final name = p.basename(entity.path);
-      if (name.startsWith('.')) continue;
+      if (name.startsWith('.')) {
+        // iCloud Drive: a file not downloaded yet, listed under its real name
+        if (icloudRealName(name) == null) continue;
+        try {
+          final placeholder = _icloudItem(entity, entity.statSync());
+          if (placeholder != null) out.add(placeholder);
+        } catch (_) {
+          // unreadable entry
+        }
+        continue;
+      }
       try {
         final stat = entity.statSync();
         if (stat.type == FileSystemEntityType.directory) {

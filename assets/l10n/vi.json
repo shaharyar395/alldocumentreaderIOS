@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Gói đăng ký rẻ, và giờ mình có thể xem trước, chỉnh sửa và quản lý tệp mà không bị quảng cáo phiền phức. Thực sự giúp mình làm việc hiệu quả hơn!",
   "readyTop": "Sẵn sàng cho",
-  "readyBottom": "7 ngày dùng thử miễn phí"
+  "readyBottom": "7 ngày dùng thử miễn phí",
+  "permissionMessageIos": "Để đọc các tệp PDF, Word, Excel, PPT và TXT, hãy chọn thư mục bạn lưu chúng (ví dụ Trên iPhone của tôi hoặc Tải về).",
+  "addFolder": "Thêm thư mục",
+  "removeFolder": "Gỡ thư mục",
+  "removeFolderMessage": "Các tệp trong đó sẽ không còn hiện trong ứng dụng. Không có gì bị xoá khỏi iPhone của bạn.",
+  "faqASubscriptionIos": "Gói đăng ký được quản lý bởi App Store. Vào <b>Cài đặt → Quản lý gói đăng ký</b>, hoặc mở Cài đặt của iPhone → ID Apple → Đăng ký. Xem <a href=\"app://terms\">Điều khoản sử dụng</a> của chúng tôi để biết chi tiết.",
+  "termsHtmlIos": "<p><i>Cập nhật lần cuối: Tháng 9 năm 2026</i></p><p>Điều khoản sử dụng này điều chỉnh việc bạn sử dụng <b>{app}</b> (\"Ứng dụng\"). Khi sử dụng Ứng dụng, bạn đồng ý với các điều khoản này.</p><h4>1. Sử dụng Ứng dụng</h4><p>Bạn có thể sử dụng Ứng dụng để xem, tạo, chuyển đổi và chỉnh sửa tài liệu cho mục đích cá nhân hoặc kinh doanh. Bạn chịu trách nhiệm về các tài liệu bạn mở và tạo, cũng như về việc có quyền sử dụng chúng.</p><h4>2. Gói đăng ký</h4><p>Một số tính năng có thể yêu cầu gói đăng ký trả phí được mua qua App Store. Gói đăng ký sẽ tự động gia hạn trừ khi được hủy ít nhất 24 giờ trước khi kết thúc kỳ hiện tại. Bạn có thể quản lý hoặc hủy gói đăng ký trong phần cài đặt ID Apple (Cài đặt › ID Apple › Đăng ký). Việc hoàn tiền tuân theo chính sách của App Store.</p><h4>3. Quảng cáo</h4><p>Phiên bản miễn phí của Ứng dụng có thể hiển thị quảng cáo do bên thứ ba cung cấp.</p><h4>4. Không bảo đảm</h4><p>Ứng dụng được cung cấp \"nguyên trạng\". Chúng tôi cố gắng hết sức để Ứng dụng hoạt động ổn định, nhưng không bảo đảm rằng Ứng dụng không có lỗi, và chúng tôi không chịu trách nhiệm về việc mất dữ liệu. Vui lòng sao lưu các tệp quan trọng.</p><h4>5. Thay đổi</h4><p>Chúng tôi có thể cập nhật các điều khoản này theo thời gian. Việc tiếp tục sử dụng Ứng dụng đồng nghĩa với việc bạn chấp nhận các điều khoản đã cập nhật.</p><h4>6. Liên hệ</h4><p>Có câu hỏi? Gửi email cho chúng tôi tại {email}.</p>",
+  "goToAppStore": "Đến App Store",
+  "addToAppIconMenu": "Thêm vào menu biểu tượng ứng dụng",
+  "appIconMenuAdded": "Đã thêm vào menu biểu tượng ứng dụng. Chạm và giữ biểu tượng ứng dụng để mở.",
+  "onMyDevice": "Trên {device} của tôi"
 }

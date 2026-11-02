@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Langganannya murah, dan sekarang saya bisa melihat, mengedit, dan mengelola file tanpa iklan yang mengganggu. Benar-benar meningkatkan efisiensi saya!",
   "readyTop": "Bersiaplah untuk",
-  "readyBottom": "Uji Coba Gratis 7 Hari"
+  "readyBottom": "Uji Coba Gratis 7 Hari",
+  "permissionMessageIos": "Untuk membaca file PDF, Word, Excel, PPT, dan TXT Anda, pilih folder tempat Anda menyimpannya (misalnya Di iPhone Saya atau Unduhan).",
+  "addFolder": "Tambah folder",
+  "removeFolder": "Hapus folder dari daftar",
+  "removeFolderMessage": "File-filenya tidak akan tampil lagi di aplikasi. Tidak ada yang dihapus dari iPhone Anda.",
+  "faqASubscriptionIos": "Langganan dikelola oleh App Store. Buka <b>Pengaturan → Kelola langganan</b>, atau buka Pengaturan iPhone → ID Apple → Langganan. Lihat <a href=\"app://terms\">Ketentuan penggunaan</a> kami untuk detailnya.",
+  "termsHtmlIos": "<p><i>Terakhir diperbarui: September 2026</i></p><p>Ketentuan penggunaan ini mengatur penggunaan Anda atas <b>{app}</b> (\"Aplikasi\"). Dengan menggunakan Aplikasi, Anda menyetujui ketentuan ini.</p><h4>1. Penggunaan Aplikasi</h4><p>Anda dapat menggunakan Aplikasi untuk melihat, membuat, mengonversi, dan mengedit dokumen untuk keperluan pribadi atau bisnis. Anda bertanggung jawab atas dokumen yang Anda buka dan buat, serta memastikan Anda berhak menggunakannya.</p><h4>2. Langganan</h4><p>Beberapa fitur mungkin memerlukan langganan berbayar yang dibeli melalui App Store. Langganan diperpanjang secara otomatis kecuali dibatalkan setidaknya 24 jam sebelum periode saat ini berakhir. Anda dapat mengelola atau membatalkan langganan di pengaturan ID Apple Anda (Pengaturan › ID Apple › Langganan). Pengembalian dana mengikuti kebijakan App Store.</p><h4>3. Iklan</h4><p>Versi gratis Aplikasi dapat menampilkan iklan yang disediakan oleh pihak ketiga.</p><h4>4. Tanpa jaminan</h4><p>Aplikasi disediakan \"sebagaimana adanya\". Kami berupaya menjaga keandalannya, tetapi kami tidak menjamin Aplikasi bebas dari kesalahan, dan kami tidak bertanggung jawab atas kehilangan data. Harap simpan cadangan file penting.</p><h4>5. Perubahan</h4><p>Kami dapat memperbarui ketentuan ini dari waktu ke waktu. Dengan terus menggunakan Aplikasi, Anda menerima ketentuan yang diperbarui.</p><h4>6. Kontak</h4><p>Ada pertanyaan? Kirim email kepada kami di {email}.</p>",
+  "goToAppStore": "Buka App Store",
+  "addToAppIconMenu": "Tambahkan ke menu ikon aplikasi",
+  "appIconMenuAdded": "Ditambahkan ke menu ikon aplikasi. Sentuh dan tahan ikon aplikasi untuk membukanya.",
+  "onMyDevice": "Di {device} Saya"
 }

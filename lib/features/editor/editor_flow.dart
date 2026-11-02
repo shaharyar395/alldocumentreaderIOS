@@ -15,29 +15,38 @@ import 'manage_pages_page.dart';
 import 'markup_page.dart';
 
 /// Tools of the PDF editor. [text] = Add text, [editText] = Edit text (retype a line of the PDF),
-/// [image] = Add image, [sign] = Sign, the others are Annotate tools.
-enum MarkTool { pen, highlight, underline, strike, eraser, text, image, sign, editText }
+/// [image] = Add image, [sign] = Sign, [none] = no panel (the reader's pen, the widget's Edit PDF),
+/// the others are Annotate tools.
+enum MarkTool { pen, highlight, underline, strike, eraser, text, image, sign, editText, none }
 
-/// The PDF editor with [tool]. With an [entry] (the reader's tools, a result page) it opens on
-/// top of the current screen; from Tools / the widget it first asks "Select a file" (PDFs and
-/// pictures — a picture becomes a PDF first) and then opens the reader with the editor on top,
-/// so back from the editor lands in the reader, like the Android app.
-Future<void> openMarkup(BuildContext context, {DocEntry? entry, MarkTool tool = MarkTool.pen}) async {
+/// The PDF editor with [tool], showing [page] (0-based) first. With an [entry] (the reader's
+/// pen, a result page) it opens on top of the current screen; from Tools / the widget it first
+/// asks "Select a file" (PDFs and pictures — a picture becomes a PDF first) and then opens the
+/// reader with the editor on top, so back from the editor lands in the reader, like the Android
+/// app. Returns true when the PDF was saved (the caller reloads it, like ViewerActivity does on
+/// RESULT_OK).
+Future<bool> openMarkup(BuildContext context, {DocEntry? entry, MarkTool tool = MarkTool.pen, int page = 0}) async {
   if (entry != null) {
     if (entry.kind != DocKind.pdf) {
       showToast(context, S.of(context).t('noTextLayer'));
-      return;
+      return false;
     }
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => MarkupPage(entry: entry, tool: tool)));
-    return;
+    final saved = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => MarkupPage(entry: entry, tool: tool, page: page)));
+    return saved ?? false;
   }
   final target = await pickPdfOrImage(context);
-  if (!context.mounted || target == null) return;
+  if (!context.mounted || target == null) return false;
   final navigator = Navigator.of(context);
   await AppScope.of(context).library.markOpened(target);
   // the reader under the editor (not awaited: it stays open below)
-  navigator.push(MaterialPageRoute<void>(builder: (_) => ReaderPage(entry: target)));
-  await navigator.push(MaterialPageRoute<void>(builder: (_) => MarkupPage(entry: target, tool: tool)));
+  final reader = MaterialPageRoute<void>(builder: (_) => ReaderPage(entry: target));
+  navigator.push(reader);
+  final saved = await navigator.push<bool>(MaterialPageRoute<bool>(builder: (_) => MarkupPage(entry: target, tool: tool))) ?? false;
+  // the reader below shows the saved PDF
+  if (saved && reader.isActive) {
+    navigator.replace(oldRoute: reader, newRoute: MaterialPageRoute<void>(builder: (_) => ReaderPage(entry: target)));
+  }
+  return saved;
 }
 
 /// Manage pages: [entry], or "Select a file" with PDFs and pictures.

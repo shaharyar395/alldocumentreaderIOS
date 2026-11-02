@@ -58,7 +58,7 @@ Future<void> handleWidgetAction(
       builder: (pageContext) => FileListPage(title: S.of(pageContext).t('recentlyAddedTitle'), recentlyAdded: true),
     ));
   } else if (action == 'edit') {
-    await openMarkup(context);
+    await openMarkup(context, tool: MarkTool.none);
   }
   // "home" (and anything unknown): the All files tab is enough
 }

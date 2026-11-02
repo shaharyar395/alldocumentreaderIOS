@@ -45,7 +45,8 @@ class PlanPrices {
       monthly: m?.price ?? s.t('fallbackMonthlyPrice'),
       monthlyPerDay: m == null ? s.t('fallbackMonthlyPerDay') : _perDay(m, 30),
       savePercent: save,
-      trialDays: 7,
+      // iOS: no trial text for an Apple ID that already used it (StoreKit's intro eligibility)
+      trialDays: y != null && billing.yearlyTrialEligible == false ? 0 : 7,
     );
   }
 
@@ -74,7 +75,9 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly}) async {
         builder: (sheetContext) => _TestPurchaseSheet(
           product: 'All Document Reader Premium (${yearly ? s.t('yearly') : s.t('monthly')})',
           price: yearly
-              ? '${s.t('planPriceYear', {'price': prices.yearly})} · ${s.t('planTrialDays', {'days': '${prices.trialDays}'})}'
+              ? (prices.trialDays > 0
+                  ? '${s.t('planPriceYear', {'price': prices.yearly})} · ${s.t('planTrialDays', {'days': '${prices.trialDays}'})}'
+                  : s.t('planPriceYear', {'price': prices.yearly}))
               : s.t('planPriceMonth', {'price': prices.monthly}),
           title: s.t('sandboxTitle'),
           body: s.t('sandboxBody'),

@@ -16,7 +16,8 @@ import '../settings/feedback_page.dart';
 
 /// Tools tab, like the Android ToolsFragment: app name with crown and search, then "Convert &
 /// Create", "Edit & Manage" and "Others" as 4-column icon grids, and "Don't have the feature you
-/// want? Tell us". Every tool except Recycle bin needs file access first.
+/// want? Tell us". On Android every tool except Recycle bin needs file access first; iOS needs none
+/// (ensureAccess / needsAccessGate).
 class ToolsTab extends StatelessWidget {
   const ToolsTab({super.key});
 

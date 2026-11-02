@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' as p;
 
 import '../../app_scope.dart';
 import '../../core/format.dart';
@@ -69,22 +67,23 @@ class PdfPickerPage extends StatefulWidget {
 }
 
 class _PdfPickerPageState extends State<PdfPickerPage> {
-  final List<PdfPick> _browsed = [];
   final List<String> _selected = [];
   final Map<String, PdfPick> _picks = {};
   final TextEditingController _search = TextEditingController();
   bool _searching = false;
   final ListAnimGate _anim = ListAnimGate();
 
-  /// File access (Android): without it the list is empty with "Allow file access …".
+  /// File access (Android): without it the list is empty with "Allow file access …". iOS always
+  /// lists the app's own files ([needsAccessGate] is false there).
   bool _access = true;
+
+  /// iOS: at least one folder picked in Files (otherwise an empty list offers "Grant access").
+  bool _folders = true;
 
   @override
   void initState() {
     super.initState();
-    hasStorageAccess().then((value) {
-      if (mounted && value != _access) setState(() => _access = value);
-    });
+    _checkAccess();
     for (final pick in widget.preselected) {
       _selected.add(pick.path);
       _picks[pick.path] = pick;
@@ -102,9 +101,9 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
     final entries = _access
         ? (library.active.where((entry) => widget.kinds.contains(entry.kind)).toList()..sort((a, b) => b.modified.compareTo(a.modified)))
         : <DocEntry>[];
-    final items = <PdfPick>[..._browsed];
+    final items = <PdfPick>[];
     for (final pick in widget.preselected) {
-      if (pick.entry == null && !_browsed.any((b) => b.path == pick.path)) items.add(pick);
+      if (pick.entry == null) items.add(pick);
     }
     for (final entry in entries) {
       final path = entry.fullPath;
@@ -126,41 +125,21 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
     });
   }
 
-  Future<void> _browse() async {
-    final scope = AppScope.of(context);
-    scope.guard.arm(scope.settings);
-    FilePickerResult? result;
-    try {
-      result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: widget.extensions, allowMultiple: widget.multiple);
-    } catch (_) {
-      result = null;
+  Future<void> _checkAccess() async {
+    final access = !await needsAccessGate();
+    final folders = !Platform.isIOS || await hasStorageAccess();
+    if (mounted && (access != _access || folders != _folders)) {
+      setState(() {
+        _access = access;
+        _folders = folders;
+      });
     }
-    if (result == null || !mounted) return;
-    final added = <PdfPick>[];
-    for (final file in result.files) {
-      final path = file.path;
-      if (path == null) continue;
-      var size = file.size;
-      DateTime? modified;
-      try {
-        final stat = File(path).statSync();
-        size = stat.size;
-        modified = stat.modified;
-      } catch (_) {}
-      added.add(PdfPick(path: path, name: file.name.isEmpty ? p.basename(path) : file.name, bytes: size, modified: modified));
-    }
-    if (added.isEmpty) return;
-    if (!widget.multiple) {
-      _choose(added.first);
-      return;
-    }
-    setState(() {
-      for (final pick in added) {
-        _browsed.insert(0, pick);
-        _picks[pick.path] = pick;
-        if (!_selected.contains(pick.path)) _selected.add(pick.path);
-      }
-    });
+  }
+
+  /// iOS without a picked folder: "Grant access" opens the Files folder picker, then the list fills.
+  Future<void> _grantAccess() async {
+    await requestStorageAccess(context: context);
+    await _checkAccess();
   }
 
   void _choose(PdfPick pick) {
@@ -194,7 +173,7 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
     _anim.fill(items.isNotEmpty);
     final count = _selected.length;
     final canContinue = count >= widget.minimum;
-    // activity_pick_file.xml: ‹ Select a file 🔍 (+ Browse) / [Search for files…] Cancel
+    // activity_pick_file.xml: ‹ Select a file 🔍 / [Search for files…] Cancel
     final Widget bar = _searching
         ? NativeSearchBar(
             controller: _search,
@@ -211,7 +190,6 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
             titleSize: 18,
             actions: [
               BarIconButton(drawable: ND.icSearch, tooltip: s.t('search'), onTap: () => setState(() => _searching = true)),
-              NativeTextAction(label: s.t('browse'), color: c.primary, height: 44, onTap: _browse),
             ],
           );
     return PopScope(
@@ -232,9 +210,11 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
                           width: double.infinity,
                           child: Column(
                             children: [
-                              NativeEmptyState(text: _access ? s.t('noFilesFound') : s.t('permissionNeededHint')),
-                              const SizedBox(height: 16),
-                              OutlinedButton(onPressed: _browse, child: Text(s.t('browse'))),
+                              NativeEmptyState(text: _access && _folders ? s.t('noFilesFound') : s.t('permissionNeededHint')),
+                              if (!_folders && Platform.isIOS) ...[
+                                const SizedBox(height: 16),
+                                OutlinedButton(onPressed: _grantAccess, child: Text(s.t('grantAccess'))),
+                              ],
                             ],
                           ),
                         ),

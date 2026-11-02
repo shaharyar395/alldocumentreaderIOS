@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../core/settings/app_settings.dart';
+import 'platform_bridge.dart';
 
 class ProductIds {
   static const _yearlyEnv = String.fromEnvironment('IAP_YEARLY');
@@ -30,6 +31,10 @@ class BillingService {
   /// Set while the launch check runs: an active subscription was reported.
   bool _foundActive = false;
 
+  /// iOS: whether this Apple ID can still get the yearly plan's free trial (null: not known, e.g.
+  /// the store gave no answer). Android always offers it (Google Play decides at checkout).
+  bool? yearlyTrialEligible;
+
   Future<void> start() async {
     if (Platform.environment.containsKey('FLUTTER_TEST')) return;
     try {
@@ -42,6 +47,7 @@ class BillingService {
           if (product.id == ProductIds.yearly) yearly = product;
           if (product.id == ProductIds.monthly) monthly = product;
         }
+        if (Platform.isIOS) unawaited(_loadTrialEligibility());
         await _recheck();
       }
     } catch (error) {
@@ -57,11 +63,34 @@ class BillingService {
     }
   }
 
-  /// Launch check (Android): Google Play reports the subscriptions that are active right now.
-  /// When it reports none, Premium is switched off (it ran out or was cancelled) — ads come back.
-  /// A running debug test subscription is kept. iOS is not asked here, because restoring there
-  /// can show an Apple ID sign-in at launch.
+  Future<void> _loadTrialEligibility() async {
+    yearlyTrialEligible = await PlatformBridge.introEligible(ProductIds.yearly);
+  }
+
+  /// iOS StoreKit 2: Premium follows the subscriptions that are active right now (a running
+  /// debug test subscription is kept). Returns whether Premium is on, or null when the store
+  /// gave no answer (offline …): Premium is then left as it is.
+  Future<bool?> _syncIosEntitlements() async {
+    final ids = await PlatformBridge.activeSubscriptions();
+    if (ids == null) return null;
+    final active = ids.contains(ProductIds.yearly) || ids.contains(ProductIds.monthly);
+    if (active) {
+      await settings.setPremium(true, fromStore: true);
+    } else if (!settings.testPremiumActive) {
+      await settings.setPremium(false);
+    }
+    return settings.premium;
+  }
+
+  /// Launch check: the store reports the subscriptions that are active right now. When it reports
+  /// none, Premium is switched off (it ran out or was cancelled) — ads come back. A running debug
+  /// test subscription is kept. Android asks Google Play (restorePurchases); iOS reads StoreKit 2's
+  /// current entitlements (no Apple ID sign-in, unlike a restore).
   Future<void> _recheck() async {
+    if (Platform.isIOS) {
+      await _syncIosEntitlements();
+      return;
+    }
     if (!Platform.isAndroid || !settings.premium) return;
     _foundActive = false;
     try {
@@ -92,6 +121,11 @@ class BillingService {
   Future<bool> restore() async {
     try {
       if (!await _iap.isAvailable()) return settings.premium;
+      if (Platform.isIOS) {
+        // StoreKit 2 entitlements: an expired subscription does not come back as "restored"
+        final premium = await _syncIosEntitlements();
+        if (premium != null) return premium;
+      }
       final before = settings.premium;
       await _iap.restorePurchases();
       await Future<void>.delayed(const Duration(seconds: 3));

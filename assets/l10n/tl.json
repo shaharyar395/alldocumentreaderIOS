@@ -621,5 +621,15 @@
   "review3Name": "Daniel",
   "review3Text": "Mura lang ang subscription, at ngayon nakakapag-preview, nakakapag-edit at nakakapamahala na ako ng mga file nang walang nakakainis na ad. Talagang tumaas ang aking pagiging produktibo!",
   "readyTop": "Maghanda para sa iyong",
-  "readyBottom": "7-Araw na Libreng Trial"
+  "readyBottom": "7-Araw na Libreng Trial",
+  "permissionMessageIos": "Para mabasa ang iyong mga PDF, Word, Excel, PPT at TXT file, piliin ang folder kung saan mo sila itinatabi (halimbawa On My iPhone o Downloads).",
+  "addFolder": "Magdagdag ng folder",
+  "removeFolder": "Alisin ang folder",
+  "removeFolderMessage": "Hindi na lalabas sa app ang mga file nito. Walang mabubura sa iyong iPhone.",
+  "faqASubscriptionIos": "Ang mga subscription ay pinamamahalaan ng App Store. Pumunta sa <b>Mga Setting → Pamahalaan ang mga subscription</b>, o buksan ang Settings ng iPhone → Apple ID → Subscriptions. Tingnan ang aming <a href=\"app://terms\">Mga Tuntunin ng paggamit</a> para sa mga detalye.",
+  "termsHtmlIos": "<p><i>Huling na-update: Setyembre 2026</i></p><p>Ang mga Tuntunin ng paggamit na ito ay namamahala sa iyong paggamit ng <b>{app}</b> (ang \"App\"). Sa paggamit ng App, sumasang-ayon ka sa mga tuntuning ito.</p><h4>1. Paggamit ng App</h4><p>Maaari mong gamitin ang App para tumingin, gumawa, mag-convert at mag-edit ng mga dokumento para sa personal o pangnegosyong layunin. Ikaw ang responsable sa mga dokumentong binubuksan at ginagawa mo, at sa pagkakaroon ng karapatang gamitin ang mga ito.</p><h4>2. Mga Subscription</h4><p>Ang ilang feature ay maaaring mangailangan ng bayad na subscription na binili sa pamamagitan ng App Store. Awtomatikong nire-renew ang mga subscription maliban kung kinansela nang hindi bababa sa 24 na oras bago matapos ang kasalukuyang panahon. Maaari mong pamahalaan o kanselahin ang subscription sa mga setting ng iyong Apple ID (Settings › Apple ID › Subscriptions). Ang mga refund ay alinsunod sa mga patakaran ng App Store.</p><h4>3. Advertising</h4><p>Ang libreng bersyon ng App ay maaaring magpakita ng mga ad na ibinibigay ng mga third party.</p><h4>4. Walang warranty</h4><p>Ang App ay ibinibigay \"nang ganito\". Ginagawa namin ang aming makakaya para mapanatili itong maaasahan, ngunit hindi namin ginagarantiya na ito ay walang error, at hindi kami mananagot sa pagkawala ng data. Pakitago ang mga backup ng mahahalagang file.</p><h4>5. Mga Pagbabago</h4><p>Maaari naming i-update ang mga tuntuning ito paminsan-minsan. Ang patuloy na paggamit ng App ay nangangahulugang tinatanggap mo ang na-update na mga tuntunin.</p><h4>6. Makipag-ugnayan</h4><p>May mga tanong? Mag-email sa amin sa {email}.</p>",
+  "goToAppStore": "Pumunta sa App Store",
+  "addToAppIconMenu": "Idagdag sa menu ng icon ng app",
+  "appIconMenuAdded": "Naidagdag sa menu ng icon ng app. Pindutin nang matagal ang icon ng app para buksan ito.",
+  "onMyDevice": "Sa Aking {device}"
 }

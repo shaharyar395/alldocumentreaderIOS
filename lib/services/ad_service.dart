@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' show AppLifecycleState;
 
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Brightness, Color, Colors, ThemeMode, WidgetsBinding;
+import 'package:flutter/material.dart' show AppLifecycleListener, Brightness, Color, Colors, ThemeMode, WidgetsBinding;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../core/settings/app_settings.dart';
@@ -107,13 +108,8 @@ class AdService {
       if (canShow) _preloadAppOpen();
     }));
     try {
-      if (Platform.isIOS) {
-        await Future<void>.delayed(const Duration(milliseconds: 400));
-        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-        if (status == TrackingStatus.notDetermined) {
-          await AppTrackingTransparency.requestTrackingAuthorization();
-        }
-      }
+      // Google's order: the UMP consent form first, then (iOS) Apple's tracking question, then
+      // the SDK
       ConsentInformation.instance.requestConsentInfoUpdate(
         ConsentRequestParameters(),
         () async {
@@ -122,16 +118,51 @@ class AdService {
           } catch (error) {
             debugPrint('consent form: $error');
           }
+          await _requestTracking();
           await _startAds();
         },
-        (error) {
+        (error) async {
           debugPrint('consent update: $error');
-          _startAds();
+          await _requestTracking();
+          await _startAds();
         },
       );
     } catch (error) {
       debugPrint('ads bootstrap: $error');
       if (!_startup.isCompleted) _startup.complete();
+    }
+  }
+
+  /// iOS App Tracking Transparency, asked once, 400 ms after the app is in the foreground (iOS
+  /// ignores the request while the app is not active). Not asked when the app does not become
+  /// active within 30 s (asked again on the next launch).
+  Future<void> _requestTracking() async {
+    if (!Platform.isIOS) return;
+    try {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status != TrackingStatus.notDetermined) return;
+      if (!await _whenActive(const Duration(seconds: 30))) return;
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      if (!await _whenActive(const Duration(seconds: 30))) return;
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    } catch (error) {
+      debugPrint('tracking: $error');
+    }
+  }
+
+  /// Waits (at most [limit]) until the app is in the foreground; false when it did not get there.
+  Future<bool> _whenActive(Duration limit) async {
+    if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) return true;
+    final active = Completer<bool>();
+    final listener = AppLifecycleListener(
+      onStateChange: (state) {
+        if (state == AppLifecycleState.resumed && !active.isCompleted) active.complete(true);
+      },
+    );
+    try {
+      return await active.future.timeout(limit, onTimeout: () => false);
+    } finally {
+      listener.dispose();
     }
   }
 

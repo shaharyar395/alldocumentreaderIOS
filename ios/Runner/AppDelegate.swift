@@ -1,5 +1,8 @@
 import Flutter
+import MessageUI
 import PDFKit
+import QuickLook
+import StoreKit
 import UIKit
 import UniformTypeIdentifiers
 import WidgetKit
@@ -24,7 +27,7 @@ import WidgetKit
     channel.setMethodCallHandler { call, result in
       switch call.method {
       case "takePendingUri", "takePendingIncoming":
-        // iOS files come in through "Open in" / Files (no home-screen shortcuts): a local path
+        // "Open in" / Files: a local path; a Home Screen quick action: {"uri": path, "shortcut": true}
         result(PlatformBridge.pending)
         PlatformBridge.pending = nil
       case "takePendingAction":
@@ -40,9 +43,89 @@ import WidgetKit
           $0.withMemoryRebound(to: CChar.self, capacity: 1) { String(cString: $0) }
         }
         result("iOS \(UIDevice.current.systemVersion) · \(model)")
-      case "pinShortcut", "pinWidget":
-        // not possible on iOS (the Dart side hides "To home screen" and explains the widget)
+      case "pinWidget":
+        // not possible on iOS (the Dart side explains how to add the widget)
         result(false)
+      case "pinShortcut", "addQuickAction":
+        // iOS "To home screen": the file becomes a Home Screen quick action (long-press the app icon)
+        let args = call.arguments as? [String: Any]
+        let path = args?["path"] as? String ?? ""
+        let name = args?["name"] as? String ?? ""
+        let kind = args?["kind"] as? String ?? "other"
+        result(PlatformBridge.addQuickAction(path: path, name: name, kind: kind))
+      case "activeSubscriptions":
+        // StoreKit 2: the product ids of the subscriptions that are active right now
+        Task { @MainActor in
+          var ids: [String] = []
+          for await entry in Transaction.currentEntitlements {
+            if case .verified(let transaction) = entry, transaction.revocationDate == nil,
+               (transaction.expirationDate ?? .distantFuture) > Date() {
+              ids.append(transaction.productID)
+            }
+          }
+          result(ids)
+        }
+      case "introEligible":
+        // StoreKit 2: whether this Apple ID can still get the product's introductory offer (free trial)
+        let id = (call.arguments as? [String: Any])?["id"] as? String ?? ""
+        Task { @MainActor in
+          var eligible = false
+          if let products = try? await Product.products(for: [id]),
+             let subscription = products.first?.subscription,
+             subscription.introductoryOffer != nil {
+            eligible = await subscription.isEligibleForIntroOffer
+          }
+          result(eligible)
+        }
+      case "manageSubscriptions":
+        // the App Store's own "Manage subscriptions" sheet
+        Task { @MainActor in
+          guard let scene = PlatformBridge.activeScene() else {
+            result(false)
+            return
+          }
+          do {
+            try await AppStore.showManageSubscriptions(in: scene)
+            result(true)
+          } catch {
+            result(false)
+          }
+        }
+      case "requestReview":
+        // Apple's rating prompt (the system decides whether it is shown)
+        if let scene = PlatformBridge.activeScene() {
+          if #available(iOS 16.0, *) {
+            AppStore.requestReview(in: scene)
+          } else {
+            SKStoreReviewController.requestReview(in: scene)
+          }
+        }
+        result(nil)
+      case "ensureLocal":
+        // iCloud Drive: downloads a file that is only in iCloud (waits up to 2 minutes)
+        let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
+        PlatformBridge.ensureLocal(path: path) { ok in result(ok) }
+      case "quickLook":
+        let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
+        result(PlatformBridge.quickLook(path: path))
+      case "composeMail":
+        let args = call.arguments as? [String: Any]
+        PlatformBridge.composeMail(
+          to: args?["to"] as? [String] ?? [],
+          subject: args?["subject"] as? String ?? "",
+          body: args?["body"] as? String ?? "",
+          attachments: args?["attachments"] as? [String] ?? []
+        ) { outcome in result(outcome) }
+      case "iosAppInfo":
+        // for the file info sheet: "On My iPhone › <name> › …"
+        let info = Bundle.main.infoDictionary
+        let name = info?["CFBundleDisplayName"] as? String ?? info?["CFBundleName"] as? String ?? ""
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        result([
+          "name": name,
+          "device": UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone",
+          "documents": docs.path,
+        ])
       case "copyUri":
         guard let args = call.arguments as? [String: Any],
               let uri = args["uri"] as? String,
@@ -76,11 +159,14 @@ import WidgetKit
         let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
         result(PlatformBridge.openExternal(path: path))
       case "saveToDrive":
-        // no Drive hand-off on iOS: the share sheet (Google Drive is one of its targets)
+        // "Save to Drive": the Files export picker (Google Drive is a location there once its
+        // app is installed): "ok", "cancelled" or "failed"
         let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
-        result(PlatformBridge.share(path: path) ? "ok" : "failed")
+        PlatformBridge.exportFile(path: path) { outcome in result(outcome) }
       case "openFileManager":
-        PlatformBridge.openFilesApp { opened in result(opened) }
+        // the Files app at this app's folder, or at `path` (a folder) when given
+        let path = (call.arguments as? [String: Any])?["path"] as? String
+        PlatformBridge.openFilesApp(path: path) { opened in result(opened) }
       case "isXiaomi":
         result(false)
       case "openAppDetails":
@@ -88,18 +174,26 @@ import WidgetKit
           UIApplication.shared.open(url)
         }
         result(nil)
-      case "rememberIosDirectory":
-        let path = (call.arguments as? [String: Any])?["path"] as? String
-        if let path {
-          PlatformBridge.rememberDirectory(path)
-        }
+      case "pickIosFolder":
+        // iOS "Allow access": the user picks a folder in Files (On My iPhone, Downloads, iCloud…)
+        PlatformBridge.pickFolder { path in result(path) }
+      case "iosFolders":
+        result(PlatformBridge.folders())
+      case "removeIosFolder":
+        let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
+        PlatformBridge.removeFolder(path)
         result(nil)
-      case "iosBookmarkedFiles":
-        result(PlatformBridge.bookmarkedFiles())
       case "updateWidget":
         let line = (call.arguments as? [String: Any])?["line"] as? String ?? "0"
-        UserDefaults(suiteName: "group.com.ol.documents.reader.docera.offline")?.set(line, forKey: "widget_line")
-        if #available(iOS 14.0, *) {
+        UserDefaults(suiteName: PlatformBridge.appGroup)?.set(line, forKey: "widget_line")
+        WidgetCenter.shared.reloadAllTimelines()
+        result(nil)
+      case "widgetLabels":
+        // the widgets' texts in the app's language (the widget extension has no translations)
+        let labels = (call.arguments as? [String: Any])?["labels"] as? [String: String] ?? [:]
+        let defaults = UserDefaults(suiteName: PlatformBridge.appGroup)
+        if defaults?.dictionary(forKey: "widget_labels") as? [String: String] != labels {
+          defaults?.set(labels, forKey: "widget_labels")
           WidgetCenter.shared.reloadAllTimelines()
         }
         result(nil)
@@ -130,6 +224,9 @@ import WidgetKit
 
 enum PlatformBridge {
   static var channel: FlutterMethodChannel?
+
+  /// App Group shared with the ReaderWidget extension (Runner and ReaderWidget entitlements).
+  static let appGroup = "group.com.ol.documents.reader.docera.offline"
 
   /// Builds a new PDF at `output` from `pages` ({"src": path, "index": 0-based, "rotate": degrees}).
   /// Pages are copied with PDFKit, so text, fonts and pictures stay as they are.
@@ -167,7 +264,9 @@ enum PlatformBridge {
     }
     return true
   }
-  static var pending: String?
+  /// The file that started the app, until Dart asks for it: a path ("Open in") or
+  /// {"uri": path, "shortcut": true} (Home Screen quick action).
+  static var pending: Any?
 
   /// Widget link (alldocreader://widget/<action>) that started the app, until Dart asks for it.
   static var pendingAction: String?
@@ -297,14 +396,222 @@ enum PlatformBridge {
     return true
   }
 
-  /// The Files app at this app's folder.
-  static func openFilesApp(done: @escaping (Bool) -> Void) {
-    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    guard let url = URL(string: "shareddocuments://" + docs.path) else {
+  /// The Files app at this app's folder, or at `path` (a folder; a file's own folder).
+  static func openFilesApp(path: String?, done: @escaping (Bool) -> Void) {
+    let fm = FileManager.default
+    var target = fm.urls(for: .documentDirectory, in: .userDomainMask)[0].path
+    if let path, !path.isEmpty {
+      var isDir: ObjCBool = false
+      if fm.fileExists(atPath: path, isDirectory: &isDir) {
+        target = isDir.boolValue ? path : (path as NSString).deletingLastPathComponent
+      }
+    }
+    let encoded = target.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? target
+    guard let url = URL(string: "shareddocuments://" + encoded) else {
       done(false)
       return
     }
     UIApplication.shared.open(url, options: [:]) { opened in done(opened) }
+  }
+
+  /// The scene on screen, for StoreKit's sheets and the rating prompt.
+  static func activeScene() -> UIWindowScene? {
+    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    return scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+  }
+
+  // ------------------------------------------------------------------ iCloud Drive
+
+  /// True once the file is on the phone: files that are not in iCloud right away; an iCloud
+  /// file that is not downloaded (or out of date) is downloaded first. False when it is gone
+  /// or the download did not finish within [timeout] seconds.
+  static func ensureLocal(path: String, timeout: TimeInterval = 120, done: @escaping (Bool) -> Void) {
+    let url = URL(fileURLWithPath: path)
+    let fm = FileManager.default
+    func status() -> (ubiquitous: Bool, current: Bool) {
+      var fresh = url
+      fresh.removeAllCachedResourceValues()
+      let values = try? fresh.resourceValues(forKeys: [.isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey])
+      let ubiquitous = values?.isUbiquitousItem ?? false
+      return (ubiquitous, values?.ubiquitousItemDownloadingStatus == .current)
+    }
+    let first = status()
+    let placeholder = url.deletingLastPathComponent()
+      .appendingPathComponent("." + url.lastPathComponent + ".icloud").path
+    if !first.ubiquitous, !fm.fileExists(atPath: placeholder) {
+      // a plain local file
+      done(fm.fileExists(atPath: path))
+      return
+    }
+    if first.current, fm.fileExists(atPath: path) {
+      done(true)
+      return
+    }
+    do {
+      try fm.startDownloadingUbiquitousItem(at: url)
+    } catch {
+      NSLog("iCloud download failed: \(error.localizedDescription)")
+      done(false)
+      return
+    }
+    let deadline = Date().addingTimeInterval(timeout)
+    func poll() {
+      let now = status()
+      if now.current, fm.fileExists(atPath: path) {
+        done(true)
+      } else if Date() > deadline {
+        done(false)
+      } else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { poll() }
+      }
+    }
+    poll()
+  }
+
+  // ------------------------------------------------------------------ QuickLook
+
+  /// Kept alive while its preview is on screen.
+  static var preview: PreviewSource?
+
+  /// Shows the file in QuickLook (old Word / Excel / PowerPoint, RTF, OpenDocument, iWork …);
+  /// false when QuickLook cannot show it.
+  static func quickLook(path: String) -> Bool {
+    let url = URL(fileURLWithPath: path)
+    guard FileManager.default.fileExists(atPath: path),
+          QLPreviewController.canPreview(url as NSURL),
+          let top = topController() else { return false }
+    let source = PreviewSource(url: url)
+    preview = source
+    let controller = QLPreviewController()
+    controller.dataSource = source
+    controller.delegate = source
+    top.present(controller, animated: true)
+    return true
+  }
+
+  // ------------------------------------------------------------------ Save to Drive (Files export)
+
+  private static var exportDelegate: ExportPickerDelegate?
+
+  /// The Files "Export" picker for a copy of the file: "ok", "cancelled" or "failed".
+  static func exportFile(path: String, done: @escaping (String) -> Void) {
+    guard FileManager.default.fileExists(atPath: path), let top = topController() else {
+      done("failed")
+      return
+    }
+    let picker = UIDocumentPickerViewController(forExporting: [URL(fileURLWithPath: path)], asCopy: true)
+    let delegate = ExportPickerDelegate { outcome in
+      PlatformBridge.exportDelegate = nil
+      done(outcome)
+    }
+    exportDelegate = delegate
+    picker.delegate = delegate
+    top.present(picker, animated: true)
+  }
+
+  // ------------------------------------------------------------------ Feedback e-mail
+
+  private static var mailDelegate: MailDelegate?
+
+  /// Mail's compose sheet with the recipients, subject, body and attached files: "sent", "saved",
+  /// "cancelled", "failed", or "unavailable" when no mail account is set up.
+  static func composeMail(to: [String], subject: String, body: String, attachments: [String], done: @escaping (String) -> Void) {
+    guard MFMailComposeViewController.canSendMail(), let top = topController() else {
+      done("unavailable")
+      return
+    }
+    let mail = MFMailComposeViewController()
+    mail.setToRecipients(to)
+    mail.setSubject(subject)
+    mail.setMessageBody(body, isHTML: false)
+    for path in attachments {
+      let url = URL(fileURLWithPath: path)
+      guard let data = try? Data(contentsOf: url) else { continue }
+      let mime = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
+      mail.addAttachmentData(data, mimeType: mime, fileName: url.lastPathComponent)
+    }
+    let delegate = MailDelegate { outcome in
+      PlatformBridge.mailDelegate = nil
+      done(outcome)
+    }
+    mailDelegate = delegate
+    mail.mailComposeDelegate = delegate
+    top.present(mail, animated: true)
+  }
+
+  // ------------------------------------------------------------------ Home Screen quick actions
+
+  private static let quickActionType = "open_file"
+
+  /// Adds the file as the first Home Screen quick action (at most 4, newest first; the same file
+  /// again moves to the top). Files in Documents are kept relative to it (the container path
+  /// changes on updates); files in picked folders keep their absolute path.
+  static func addQuickAction(path: String, name: String, kind: String) -> Bool {
+    guard !path.isEmpty, FileManager.default.fileExists(atPath: path) else { return false }
+    let stored = shortcutPath(for: path)
+    let title = name.isEmpty ? (path as NSString).lastPathComponent : name
+    let symbol: String
+    switch kind {
+    case "pdf": symbol = "doc.richtext"
+    case "word", "txt": symbol = "doc.text"
+    case "excel": symbol = "tablecells"
+    case "ppt": symbol = "rectangle.on.rectangle"
+    case "image": symbol = "photo"
+    default: symbol = "doc"
+    }
+    let item = UIApplicationShortcutItem(
+      type: quickActionType,
+      localizedTitle: title,
+      localizedSubtitle: nil,
+      icon: UIApplicationShortcutIcon(systemImageName: symbol),
+      userInfo: ["path": stored as NSString]
+    )
+    var items = (UIApplication.shared.shortcutItems ?? []).filter {
+      !($0.type == quickActionType && ($0.userInfo?["path"] as? String) == stored)
+    }
+    items.insert(item, at: 0)
+    UIApplication.shared.shortcutItems = Array(items.prefix(4))
+    return true
+  }
+
+  private static func shortcutPath(for path: String) -> String {
+    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    let docsPath = docs.standardizedFileURL.resolvingSymlinksInPath().path
+    let filePath = URL(fileURLWithPath: path).standardizedFileURL.resolvingSymlinksInPath().path
+    if filePath.hasPrefix(docsPath + "/") {
+      return String(filePath.dropFirst(docsPath.count + 1))
+    }
+    return path
+  }
+
+  /// A quick action was chosen: the file is delivered like a shortcut (reader at once, no
+  /// splash / ad). A file that is gone loses its quick action (Dart shows "not found").
+  @discardableResult
+  static func acceptShortcut(_ item: UIApplicationShortcutItem, deliverNow: Bool) -> Bool {
+    guard item.type == quickActionType, let stored = item.userInfo?["path"] as? String, !stored.isEmpty else {
+      return false
+    }
+    let path: String
+    if stored.hasPrefix("/") {
+      // a file in a picked folder: open access to the picked folders first
+      _ = folders()
+      path = stored
+    } else {
+      let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+      path = docs.appendingPathComponent(stored).path
+    }
+    if !FileManager.default.fileExists(atPath: path) {
+      UIApplication.shared.shortcutItems = (UIApplication.shared.shortcutItems ?? []).filter {
+        !($0.type == quickActionType && ($0.userInfo?["path"] as? String) == stored)
+      }
+    }
+    let payload: [String: Any] = ["uri": path, "shortcut": true]
+    if deliverNow, let channel {
+      channel.invokeMethod("onIncomingUri", arguments: payload)
+    } else {
+      pending = payload
+    }
+    return true
   }
 
   static func copy(uri: String, dest: String) throws {
@@ -327,61 +634,86 @@ enum PlatformBridge {
     try FileManager.default.copyItem(at: source, to: destUrl)
   }
 
-  static func rememberDirectory(_ path: String) {
-    let url = URL(fileURLWithPath: path)
-    guard let data = try? url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil) else {
+  // ------------------------------------------------------------------ picked folders (iOS "Allow access")
+
+  /// Folders picked by the user, as bookmarks (kept across launches). While the app runs, access to
+  /// each one stays open, so Flutter can list, open, rename and delete the real files in place.
+  private static let foldersKey = "ios_folder_bookmarks"
+  private static var openFolders: [String: URL] = [:]
+  private static var folderPicker: FolderPickerDelegate?
+
+  static func pickFolder(_ done: @escaping (String?) -> Void) {
+    guard let top = topController() else {
+      done(nil)
       return
     }
-    UserDefaults.standard.set(data, forKey: "ios_scan_bookmark")
+    let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.folder])
+    picker.allowsMultipleSelection = false
+    let delegate = FolderPickerDelegate { url in
+      PlatformBridge.folderPicker = nil
+      guard let url else {
+        done(nil)
+        return
+      }
+      let accessing = url.startAccessingSecurityScopedResource()
+      guard let data = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) else {
+        if accessing { url.stopAccessingSecurityScopedResource() }
+        done(nil)
+        return
+      }
+      var saved = (UserDefaults.standard.array(forKey: PlatformBridge.foldersKey) as? [Data]) ?? []
+      // the same folder picked again replaces its old bookmark
+      saved.removeAll { PlatformBridge.resolve($0)?.standardizedFileURL.path == url.standardizedFileURL.path }
+      saved.append(data)
+      UserDefaults.standard.set(saved, forKey: PlatformBridge.foldersKey)
+      if accessing { PlatformBridge.openFolders[url.standardizedFileURL.path] = url }
+      done(url.standardizedFileURL.path)
+    }
+    folderPicker = delegate
+    picker.delegate = delegate
+    top.present(picker, animated: true)
   }
 
-  static func bookmarkedFiles() -> [String] {
-    guard let data = UserDefaults.standard.data(forKey: "ios_scan_bookmark") else { return [] }
-    var stale = false
-    guard let url = try? URL(
-      resolvingBookmarkData: data,
-      options: [.withoutUI],
-      relativeTo: nil,
-      bookmarkDataIsStale: &stale
-    ) else { return [] }
-    let accessing = url.startAccessingSecurityScopedResource()
-    defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-    // the same types as the app lists (lib/data/doc_entry.dart docExtensions)
-    let allowed: Set<String> = [
-      "pdf", "doc", "docx", "docm", "dot", "dotx", "rtf", "odt",
-      "xls", "xlsx", "xlsm", "xlt", "xltx", "csv", "ods", "tsv",
-      "ppt", "pptx", "pptm", "pps", "ppsx", "pot", "potx", "odp",
-      "txt", "log", "md", "json", "xml",
-      "jpg", "jpeg", "png", "webp", "gif", "bmp", "heic", "heif",
-    ]
-    let temp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("alldoc-scan", isDirectory: true)
-    try? FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
-    var found: [String] = []
-    guard let enumerator = FileManager.default.enumerator(
-      at: url,
-      includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey],
-      options: [.skipsHiddenFiles]
-    ) else { return [] }
-    while let item = enumerator.nextObject() as? URL {
-      if found.count >= 2500 { break }
-      let values = try? item.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
-      if values?.isRegularFile != true { continue }
-      let ext = item.pathExtension.lowercased()
-      if !allowed.contains(ext) { continue }
-      let size = Int64(values?.fileSize ?? 0)
-      if size <= 0 || size > 100 * 1024 * 1024 { continue }
-      let dest = temp.appendingPathComponent(item.lastPathComponent)
-      if FileManager.default.fileExists(atPath: dest.path) {
-        try? FileManager.default.removeItem(at: dest)
-      }
-      do {
-        try FileManager.default.copyItem(at: item, to: dest)
-        found.append(dest.path)
-      } catch {
+  /// The picked folders that still exist, with access opened (paths for Flutter).
+  static func folders() -> [String] {
+    var saved = (UserDefaults.standard.array(forKey: foldersKey) as? [Data]) ?? []
+    var paths: [String] = []
+    var changed = false
+    for (i, data) in saved.enumerated().reversed() {
+      var stale = false
+      guard let url = try? URL(resolvingBookmarkData: data, options: [.withoutUI], relativeTo: nil, bookmarkDataIsStale: &stale) else {
         continue
       }
+      let path = url.standardizedFileURL.path
+      if openFolders[path] == nil {
+        if url.startAccessingSecurityScopedResource() {
+          openFolders[path] = url
+        } else {
+          continue
+        }
+      }
+      if stale, let fresh = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
+        saved[i] = fresh
+        changed = true
+      }
+      paths.insert(path, at: 0)
     }
-    return found
+    if changed { UserDefaults.standard.set(saved, forKey: foldersKey) }
+    return paths
+  }
+
+  static func removeFolder(_ path: String) {
+    var saved = (UserDefaults.standard.array(forKey: foldersKey) as? [Data]) ?? []
+    saved.removeAll { PlatformBridge.resolve($0)?.standardizedFileURL.path == path }
+    UserDefaults.standard.set(saved, forKey: foldersKey)
+    if let url = openFolders.removeValue(forKey: path) {
+      url.stopAccessingSecurityScopedResource()
+    }
+  }
+
+  private static func resolve(_ data: Data) -> URL? {
+    var stale = false
+    return try? URL(resolvingBookmarkData: data, options: [.withoutUI], relativeTo: nil, bookmarkDataIsStale: &stale)
   }
 
   static func storage() -> [String: Int64] {
@@ -393,5 +725,80 @@ enum PlatformBridge {
       "total": Int64(values?.volumeTotalCapacity ?? 0),
       "free": values?.volumeAvailableCapacityForImportantUsage ?? 0,
     ]
+  }
+}
+
+/// Delegate of the "pick a folder" document picker (kept alive by PlatformBridge while it is open).
+final class FolderPickerDelegate: NSObject, UIDocumentPickerDelegate {
+  private let done: (URL?) -> Void
+
+  init(done: @escaping (URL?) -> Void) {
+    self.done = done
+  }
+
+  func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+    done(urls.first)
+  }
+
+  func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    done(nil)
+  }
+}
+
+/// Data source of the QuickLook preview: one file.
+final class PreviewSource: NSObject, QLPreviewControllerDataSource, QLPreviewControllerDelegate {
+  private let url: URL
+
+  init(url: URL) {
+    self.url = url
+  }
+
+  func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+    1
+  }
+
+  func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+    url as NSURL
+  }
+
+  func previewControllerDidDismiss(_ controller: QLPreviewController) {
+    if PlatformBridge.preview === self { PlatformBridge.preview = nil }
+  }
+}
+
+/// Delegate of the "Save to Drive" export picker (kept alive by PlatformBridge while it is open).
+final class ExportPickerDelegate: NSObject, UIDocumentPickerDelegate {
+  private let done: (String) -> Void
+
+  init(done: @escaping (String) -> Void) {
+    self.done = done
+  }
+
+  func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+    done(urls.isEmpty ? "failed" : "ok")
+  }
+
+  func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+    done("cancelled")
+  }
+}
+
+/// Delegate of the feedback e-mail sheet: closes it and reports how it ended.
+final class MailDelegate: NSObject, MFMailComposeViewControllerDelegate {
+  private let done: (String) -> Void
+
+  init(done: @escaping (String) -> Void) {
+    self.done = done
+  }
+
+  func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+    let outcome: String
+    switch result {
+    case .sent: outcome = "sent"
+    case .saved: outcome = "saved"
+    case .cancelled: outcome = "cancelled"
+    default: outcome = "failed"
+    }
+    controller.dismiss(animated: true) { self.done(outcome) }
   }
 }

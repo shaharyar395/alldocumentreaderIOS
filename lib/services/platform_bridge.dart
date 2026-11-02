@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 /// A file that came from outside: "Open with" / share from another app, or a pinned
 /// "To home screen" shortcut ([shortcut] true; [uri] is then a plain file path).
@@ -71,6 +72,7 @@ class PlatformBridge {
 
   /// Android: asks the launcher to pin a shortcut that opens [path] in the app. The icon is the
   /// file type's icon ([kind] is a DocKind name: pdf, word, excel, ppt, txt, image, other).
+  /// iOS: adds the file to the app icon's Home Screen quick actions (at most 4, newest first).
   static Future<bool> pinShortcut(String path, String name, {String kind = 'other'}) async {
     try {
       return await _channel.invokeMethod<bool>('pinShortcut', {'path': path, 'name': name, 'kind': kind}) ?? false;
@@ -222,7 +224,8 @@ class PlatformBridge {
   }
 
   /// "Save to Drive": Android hands the file to the Google Drive app's upload screen ('ok'),
-  /// 'missing' when Drive is not installed, 'failed' otherwise. iOS opens the share sheet ('ok').
+  /// 'missing' when Drive is not installed, 'failed' otherwise. iOS opens the Files export picker
+  /// (Google Drive is a location there): 'ok', 'cancelled' or 'failed'.
   static Future<String> saveToDrive(String path) async {
     try {
       return await _channel.invokeMethod<String>('saveToDrive', {'path': path}) ?? 'failed';
@@ -232,10 +235,11 @@ class PlatformBridge {
     }
   }
 
-  /// Opens the phone's own Files app. False if nothing could be opened.
-  static Future<bool> openFileManager() async {
+  /// Opens the phone's own Files app (iOS: at this app's folder, or at [path] — a folder, or a
+  /// file's folder). False if nothing could be opened.
+  static Future<bool> openFileManager({String? path}) async {
     try {
-      return await _channel.invokeMethod<bool>('openFileManager') ?? false;
+      return await _channel.invokeMethod<bool>('openFileManager', {'path': ?path}) ?? false;
     } catch (error) {
       debugPrint('file manager: $error');
       return false;
@@ -261,21 +265,38 @@ class PlatformBridge {
     }
   }
 
-  static Future<void> rememberIosDirectory(String path) async {
+  /// iOS "Allow access": the Files folder picker. Returns the picked folder's path (the app keeps
+  /// access to it from now on), or null when the user cancels.
+  static Future<String?> pickIosFolder() async {
+    if (!Platform.isIOS) return null;
     try {
-      await _channel.invokeMethod<void>('rememberIosDirectory', {'path': path});
+      return await _channel.invokeMethod<String>('pickIosFolder');
     } catch (error) {
-      debugPrint('ios directory: $error');
+      debugPrint('ios folder picker: $error');
+      return null;
     }
   }
 
-  static Future<List<String>> iosBookmarkedFiles() async {
+  /// iOS: the folders the user picked (access opened for this run). Empty on Android.
+  static Future<List<String>> iosFolders() async {
+    if (!Platform.isIOS) return const [];
     try {
-      final raw = await _channel.invokeMethod<List<dynamic>>('iosBookmarkedFiles');
+      final raw = await _channel.invokeMethod<List<dynamic>>('iosFolders');
       if (raw == null) return const [];
       return [for (final item in raw) item.toString()].where((path) => path.isNotEmpty).toList();
     } catch (error) {
+      debugPrint('ios folders: $error');
       return const [];
+    }
+  }
+
+  /// iOS: forgets a picked folder (its files are no longer listed).
+  static Future<void> removeIosFolder(String path) async {
+    if (!Platform.isIOS) return;
+    try {
+      await _channel.invokeMethod<void>('removeIosFolder', {'path': path});
+    } catch (error) {
+      debugPrint('ios folder remove: $error');
     }
   }
 
@@ -288,6 +309,138 @@ class PlatformBridge {
     } catch (error) {
       debugPrint('assemblePdf: $error');
       return false;
+    }
+  }
+
+  /// iOS StoreKit 2: the product ids of the subscriptions active right now, or null when the
+  /// store could not be asked.
+  static Future<List<String>?> activeSubscriptions() async {
+    if (!Platform.isIOS) return null;
+    try {
+      final raw = await _channel.invokeMethod<List<dynamic>>('activeSubscriptions');
+      if (raw == null) return null;
+      return [for (final id in raw) id.toString()];
+    } catch (error) {
+      debugPrint('active subscriptions: $error');
+      return null;
+    }
+  }
+
+  /// iOS StoreKit 2: whether this Apple ID can still get the product's free trial (null: unknown).
+  static Future<bool?> introEligible(String productId) async {
+    if (!Platform.isIOS) return null;
+    try {
+      return await _channel.invokeMethod<bool>('introEligible', {'id': productId});
+    } catch (error) {
+      debugPrint('intro eligible: $error');
+      return null;
+    }
+  }
+
+  /// iOS: the App Store's "Manage subscriptions" sheet. False when it could not be shown.
+  static Future<bool> manageSubscriptions() async {
+    if (!Platform.isIOS) return false;
+    try {
+      return await _channel.invokeMethod<bool>('manageSubscriptions') ?? false;
+    } catch (error) {
+      debugPrint('manage subscriptions: $error');
+      return false;
+    }
+  }
+
+  /// iOS: Apple's rating prompt (the system decides whether and how often it shows).
+  static Future<void> requestReview() async {
+    if (!Platform.isIOS) return;
+    try {
+      await _channel.invokeMethod<void>('requestReview');
+    } catch (error) {
+      debugPrint('request review: $error');
+    }
+  }
+
+  /// iOS iCloud Drive: makes sure the file is on the phone (downloads a file that is only in
+  /// iCloud, waiting up to 2 minutes). Always true on Android when the file exists. False when
+  /// the file is gone or could not be downloaded.
+  static Future<bool> ensureLocal(String path) async {
+    if (!Platform.isIOS) return File(path).existsSync();
+    try {
+      return await _channel.invokeMethod<bool>('ensureLocal', {'path': path}) ?? File(path).existsSync();
+    } catch (error) {
+      debugPrint('ensure local: $error');
+      return File(path).existsSync();
+    }
+  }
+
+  /// iOS: shows the file in QuickLook inside the app. False when QuickLook can't show it.
+  static Future<bool> quickLook(String path) async {
+    if (!Platform.isIOS) return false;
+    try {
+      return await _channel.invokeMethod<bool>('quickLook', {'path': path}) ?? false;
+    } catch (error) {
+      debugPrint('quick look: $error');
+      return false;
+    }
+  }
+
+  /// iOS: Mail's compose sheet. Returns 'sent', 'saved', 'cancelled', 'failed', or
+  /// 'unavailable' (no mail account on the phone, or not iOS).
+  static Future<String> composeMail({
+    required List<String> to,
+    required String subject,
+    required String body,
+    List<String> attachments = const [],
+  }) async {
+    if (!Platform.isIOS) return 'unavailable';
+    try {
+      return await _channel.invokeMethod<String>('composeMail', {
+            'to': to,
+            'subject': subject,
+            'body': body,
+            'attachments': attachments,
+          }) ??
+          'unavailable';
+    } catch (error) {
+      debugPrint('compose mail: $error');
+      return 'unavailable';
+    }
+  }
+
+  static ({String name, String device, String documents})? _iosInfo;
+
+  /// [iosAppInfo] once it has been loaded (null before, and on Android).
+  static ({String name, String device, String documents})? get iosAppInfoCached => _iosInfo;
+
+  /// iOS: the app's display name, "iPhone" / "iPad" and the Documents folder (cached).
+  static Future<({String name, String device, String documents})?> iosAppInfo() async {
+    if (!Platform.isIOS) return null;
+    final cached = _iosInfo;
+    if (cached != null) return cached;
+    try {
+      final raw = await _channel.invokeMapMethod<String, Object?>('iosAppInfo');
+      if (raw == null) return null;
+      final info = (
+        name: raw['name']?.toString() ?? '',
+        device: raw['device']?.toString() ?? 'iPhone',
+        documents: raw['documents']?.toString() ?? '',
+      );
+      _iosInfo = info;
+      return info;
+    } catch (error) {
+      debugPrint('ios app info: $error');
+      return null;
+    }
+  }
+
+  static Map<String, String>? _widgetLabels;
+
+  /// iOS: the home-screen widgets' texts in the app's language (written to the App Group).
+  static Future<void> updateWidgetLabels(Map<String, String> labels) async {
+    if (!Platform.isIOS || mapEquals(_widgetLabels, labels)) return;
+    _widgetLabels = labels;
+    try {
+      await _channel.invokeMethod<void>('widgetLabels', {'labels': labels});
+    } catch (error) {
+      debugPrint('widget labels: $error');
     }
   }
 
@@ -318,4 +471,25 @@ String localPath(String uriOrPath) {
     return Uri.parse(uriOrPath).toFilePath(windows: Platform.isWindows);
   }
   return uriOrPath;
+}
+
+/// Where the share sheet's popover points on iPad (share_plus needs it there): the widget of
+/// [context] when it is a small on-screen widget (the tapped button / row), otherwise a point in
+/// the middle of the screen.
+Rect shareOrigin(BuildContext? context) {
+  Rect? centre;
+  if (context != null && context.mounted) {
+    final size = MediaQuery.maybeSizeOf(context);
+    if (size != null) centre = Rect.fromCenter(center: size.center(Offset.zero), width: 1, height: 1);
+    final box = context.findRenderObject();
+    if (box is RenderBox && box.attached && box.hasSize) {
+      final rect = box.localToGlobal(Offset.zero) & box.size;
+      final small = size == null || rect.width * rect.height < size.width * size.height * 0.4;
+      if (small && rect.width > 0 && rect.height > 0) return rect;
+    }
+  }
+  if (centre != null) return centre;
+  final view = WidgetsBinding.instance.platformDispatcher.implicitView;
+  final logical = view == null ? const Size(400, 800) : view.physicalSize / view.devicePixelRatio;
+  return Rect.fromCenter(center: logical.center(Offset.zero), width: 1, height: 1);
 }

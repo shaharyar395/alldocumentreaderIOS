@@ -27,6 +27,7 @@ class PdfVectorMark {
     this.height,
     this.rotation = 0,
     this.stroke,
+    this.strokeFraction,
   });
 
   /// 1-based page index.
@@ -35,6 +36,8 @@ class PdfVectorMark {
   /// pen, highlight, underline, strike: [points] is the stroke (page fractions, top-left origin).
   /// text: [points].first is the baseline start of the first line; lines are split at '\n'.
   /// whiteout: [points] = top-left and bottom-right of a filled rectangle in [color].
+  /// highlightRect: [points] = top-left and bottom-right of a see-through (90 / 255) filled
+  /// rectangle in [color] (the editor's highlight).
   /// image: [points].first = top-left, [width] (default 0.35) as a fraction of the page width.
   /// stamp: [points].first = centre, [width] / [height] as fractions of the page width / height,
   /// turned by [rotation]; PNG transparency is kept.
@@ -54,34 +57,55 @@ class PdfVectorMark {
 
   /// Line width in points (pen, highlight, underline, strike).
   final double? stroke;
+
+  /// Line width as a fraction of the page width (wins over [stroke]).
+  final double? strokeFraction;
 }
 
 /// Rewrites text inside the PDF content streams and appends vector marks.
 /// Returns null when the cross-reference table cannot be read, so the caller can fall back.
+///
+/// Marks are placed on the page as it is shown (its crop box, turned by /Rotate). [aspects]
+/// (1-based page → height / width of the page as the viewer drew it) picks the matching page
+/// box when a viewer ignores the crop box or the rotation. With [pageCount] the result is null
+/// when a different number of pages is found (the caller then falls back).
 Uint8List? rewritePdf(
   Uint8List data, {
   List<PdfTextChange> changes = const [],
   List<PdfVectorMark> marks = const [],
+  Map<int, double> aspects = const {},
+  int? pageCount,
 }) {
   if (changes.isEmpty && marks.isEmpty) return data;
   final xref = _readXref(data);
   if (xref == null) return null;
+  // an encrypted file (owner password only, so viewers open it) would show plain additions as
+  // garbage: the caller falls back
+  final tail = latin1.decode(data.length > 65536 ? data.sublist(data.length - 65536) : data, allowInvalid: true);
+  if (tail.contains('/Encrypt')) return null;
   final objects = _loadObjects(data, xref);
-  final pages = _pages(objects);
+  final pages = _pages(objects, xref.root);
   if (pages.isEmpty) return null;
+  if (pageCount != null && pageCount != pages.length) return null;
 
   final updated = <int, Uint8List>{};
   final fresh = <_Fresh>[];
   final dicts = <int, String>{};
-  var nextId = objects.keys.fold<int>(0, (max, id) => id > max ? id : max) + 1;
+  var nextId = math.max(
+        objects.keys.fold<int>(0, (max, id) => id > max ? id : max),
+        xref.entries.fold<int>(0, (max, entry) => entry.id > max ? entry.id : max),
+      ) +
+      1;
   int? fontId;
   int? stateId;
   var anyChange = false;
   for (var index = 0; index < pages.length; index++) {
     final page = pages[index];
     final pageMarks = marks.where((mark) => mark.page == index + 1).toList();
+    final geometry = page.geometryFor(aspects[index + 1]);
     final streams = [for (final id in page.contents) objects[id]];
-    final readable = streams.isNotEmpty && streams.every((stream) => stream != null && stream.decoded != null);
+    final empty = page.contents.isEmpty;
+    final readable = empty || streams.every((stream) => stream != null && stream.decoded != null);
     if (!readable) {
       if (pageMarks.isNotEmpty) return null;
       continue;
@@ -98,17 +122,20 @@ Uint8List? rewritePdf(
       final fonts = <String, int>{};
       final states = <String, int>{};
       final needsFont = pageMarks.any((mark) => mark.tool == 'text' && mark.text.isNotEmpty);
-      final needsState = pageMarks.any((mark) => mark.tool == 'highlight');
+      final needsState = pageMarks.any((mark) => mark.tool == 'highlight' || mark.tool == 'highlightRect');
       if (needsFont && fontId == null) {
         fontId = nextId++;
         fresh.add(_Fresh(fontId, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>', Uint8List(0), stream: false));
       }
       if (needsState && stateId == null) {
         stateId = nextId++;
-        fresh.add(_Fresh(stateId, '<< /Type /ExtGState /CA 0.4 /ca 0.4 /BM /Multiply >>', Uint8List(0), stream: false));
+        // EditRenderer: highlights are drawn with alpha 90 / 255
+        fresh.add(_Fresh(stateId, '<< /Type /ExtGState /CA 0.353 /ca 0.353 >>', Uint8List(0), stream: false));
       }
       if (needsFont) fonts[_helvName] = fontId!;
       if (needsState) states[_stateName] = stateId!;
+      final shownW = geometry.shownWidth;
+      final shownH = geometry.shownHeight;
       final ops = StringBuffer();
       for (final mark in pageMarks) {
         if (mark.tool == 'image' || mark.tool == 'stamp') {
@@ -118,16 +145,16 @@ Uint8List? rewritePdf(
           fresh.addAll(picture.objects);
           final name = 'Im${picture.id}';
           xobjects[name] = picture.id;
-          ops.writeln(_placement(mark, page.width, page.height, picture.width, picture.height, name));
+          ops.writeln(_placement(mark, shownW, shownH, picture.width, picture.height, name));
         } else {
-          ops.write(_operators(mark, page.width, page.height));
+          ops.write(_operators(mark, shownW, shownH));
         }
       }
       final resources = _resourcesOf(page, objects, dicts);
       var fontName = _helvName;
       var stateOk = false;
       if (resources == null) {
-        if (xobjects.isNotEmpty) return null;
+        if (xobjects.isNotEmpty || empty) return null;
         fontName = _fontName(texts.first, page.dict);
       } else {
         var (targetId, text, open) = resources;
@@ -139,6 +166,7 @@ Uint8List? rewritePdf(
         if (fonts.isNotEmpty) {
           final next = _injectResource(text, open, 'Font', fonts, objects, dicts);
           if (next == null) {
+            if (empty) return null;
             fontName = _fontName(texts.first, page.dict);
           } else {
             text = next;
@@ -156,6 +184,19 @@ Uint8List? rewritePdf(
       var appended = ops.toString();
       if (fontName != _helvName) appended = appended.replaceAll('/$_helvName ', '/$fontName ');
       if (!stateOk) appended = appended.replaceAll('/$_stateName gs ', '');
+      // marks are written in the coordinates of the page as it is shown (crop box, /Rotate)
+      appended = 'q ${geometry.matrix} cm\n${appended}Q\n';
+      if (empty) {
+        // a page without content: give it a content stream of its own
+        final streamId = nextId++;
+        fresh.add(_Fresh(streamId, '<< /Length ${latin1.encode(appended).length} >>', latin1.encode(appended)));
+        final pageText = dicts[page.id] ?? page.dict;
+        final close = pageText.lastIndexOf('>>');
+        if (close < 0) return null;
+        dicts[page.id] = '${pageText.substring(0, close).replaceAll(RegExp(r'/Contents\s*\[\s*\]'), '')}/Contents $streamId 0 R ${pageText.substring(close)}';
+        anyChange = true;
+        continue;
+      }
       // the page's own drawing runs in its own q … Q, so the marks start from the default state
       texts[0] = 'q\n${texts[0]}';
       texts[texts.length - 1] = '${texts[texts.length - 1]}\nQ\n$appended';
@@ -180,7 +221,7 @@ List<String>? readPdfPageTexts(Uint8List data) {
   final xref = _readXref(data);
   if (xref == null) return null;
   final objects = _loadObjects(data, xref);
-  final pages = _pages(objects);
+  final pages = _pages(objects, xref.root);
   if (pages.isEmpty) return null;
   return [
     for (final page in pages)
@@ -269,14 +310,28 @@ String _replaceText(String content, List<PdfTextChange> changes) {
 
 String _operators(PdfVectorMark mark, double width, double height) {
   final buffer = StringBuffer();
+  // pen lines may run off the page: the page clips them (no squeezing onto the edge)
+  final free = mark.tool == 'pen';
   String point((double, double) value) {
-    final x = (value.$1.clamp(0, 1) * width).toStringAsFixed(2);
-    final y = ((1 - value.$2.clamp(0, 1)) * height).toStringAsFixed(2);
+    final fx = free ? value.$1 : value.$1.clamp(0.0, 1.0);
+    final fy = free ? value.$2 : value.$2.clamp(0.0, 1.0);
+    final x = (fx * width).toStringAsFixed(2);
+    final y = ((1 - fy) * height).toStringAsFixed(2);
     return '$x $y';
   }
 
   String n(double value) => value.toStringAsFixed(3);
 
+  if (mark.tool == 'highlightRect') {
+    if (mark.points.length < 2) return '';
+    final (l, t) = mark.points[0];
+    final (r, b) = mark.points[1];
+    final x = math.min(l, r) * width;
+    final y = (1 - math.max(t, b)) * height;
+    final w = (r - l).abs() * width;
+    final h = (b - t).abs() * height;
+    return 'q /$_stateName gs ${_rgb(mark.color)} rg ${n(x)} ${n(y)} ${n(w)} ${n(h)} re f Q\n';
+  }
   if (mark.tool == 'whiteout') {
     if (mark.points.length < 2) return '';
     final (l, t) = mark.points[0];
@@ -308,7 +363,8 @@ String _operators(PdfVectorMark mark, double width, double height) {
   }
   if (mark.points.length < 2) return '';
   final highlight = mark.tool == 'highlight';
-  final stroke = mark.stroke ?? (highlight ? 10.0 : 1.5);
+  final fraction = mark.strokeFraction;
+  final stroke = fraction != null ? fraction * width : (mark.stroke ?? (highlight ? 10.0 : 1.5));
   final color = highlight && mark.color == 0xFF1C2434 ? '1 0.86 0.2' : _rgb(mark.color);
   final state = highlight ? '/$_stateName gs ' : '';
   if (mark.tool == 'underline' || mark.tool == 'strike') {
@@ -504,17 +560,32 @@ class _Fresh {
 
 Map<int, _Obj> _loadObjects(Uint8List data, _Xref xref) {
   final objects = <int, _Obj>{};
+  // object id → the object stream that holds its newest version
+  final compressed = <int, int>{};
   for (final entry in xref.entries) {
-    if (!entry.used || entry.streamObject) continue;
+    if (!entry.used) continue;
+    if (entry.streamObject) {
+      compressed[entry.id] = entry.offset;
+      continue;
+    }
     final object = _readObject(data, entry.offset, entry.id, entry.generation);
     if (object != null) objects[entry.id] = object;
   }
-  final seen = <int>{};
-  for (final entry in xref.entries.where((item) => item.streamObject)) {
-    if (!seen.add(entry.offset)) continue;
-    final container = objects[entry.offset];
-    if (container?.decoded == null) continue;
-    objects.addAll(_expandObjStm(container!));
+  if (compressed.isNotEmpty) {
+    for (final container in compressed.values.toSet()) {
+      final holder = objects[container];
+      if (holder?.decoded == null) continue;
+      // only the objects the cross-reference sends there: an older copy in an old object
+      // stream must not hide a newer version written by an incremental update
+      _expandObjStm(holder!).forEach((id, object) {
+        if (compressed[id] == container) objects[id] = object;
+      });
+    }
+  } else {
+    // objects found by scanning the file: open the object streams for what is still missing
+    for (final holder in objects.values.where((object) => object.decoded != null && RegExp(r'/Type\s*/ObjStm').hasMatch(object.dict)).toList()) {
+      _expandObjStm(holder).forEach((id, object) => objects.putIfAbsent(id, () => object));
+    }
   }
   return objects;
 }
@@ -671,36 +742,139 @@ _Xref? _readXref(Uint8List data) {
   if (startMatch == null) return _scanObjects(data);
   final startxref = int.parse(startMatch.group(1)!);
   if (startxref < 0 || startxref >= data.length) return _scanObjects(data);
-  if (data[startxref] != 0x78) {
-    final parsed = _readXrefStream(data, startxref);
-    if (parsed != null && parsed.entries.isNotEmpty) return parsed;
-    return _scanObjects(data);
-  }
-  final section = latin1.decode(data.sublist(startxref, (startxref + 65536).clamp(0, data.length)), allowInvalid: true);
-  if (!section.startsWith('xref')) return _scanObjects(data);
-  final trailer = RegExp(r'trailer\s*<<(.*?)>>', dotAll: true).firstMatch(section);
-  final root = RegExp(r'/Root\s+(\d+\s+\d+\s+R)').firstMatch(trailer?.group(1) ?? '')?.group(1);
-  if (root == null) return _scanObjects(data);
-  final entries = <_XrefEntry>[];
-  final lines = section.split(RegExp(r'\r?\n'));
-  var id = 0;
-  var expecting = 0;
-  for (final line in lines.skip(1)) {
-    if (line.startsWith('trailer')) break;
-    final head = RegExp(r'^(\d+)\s+(\d+)$').firstMatch(line.trim());
-    if (head != null) {
-      id = int.parse(head.group(1)!);
-      expecting = int.parse(head.group(2)!);
-      continue;
+  // newest section first, then every older one through /Prev (incremental updates, like the
+  // ones this app writes); a newer entry for an id wins over older ones
+  final merged = <int, _XrefEntry>{};
+  String? root;
+  final visited = <int>{};
+  int? offset = startxref;
+  while (offset != null && visited.length < 64 && visited.add(offset)) {
+    final section = _xrefSectionAt(data, offset);
+    if (section == null) {
+      if (visited.length == 1) return _scanObjects(data);
+      break;
     }
-    final row = RegExp(r'^(\d{10}) (\d{5}) ([nf])').firstMatch(line);
-    if (row == null || expecting <= 0) continue;
-    entries.add(_XrefEntry(id, int.parse(row.group(1)!), int.parse(row.group(2)!), row.group(3) == 'n'));
-    id++;
-    expecting--;
+    root ??= section.root;
+    for (final entry in section.entries) {
+      merged.putIfAbsent(entry.id, () => entry);
+    }
+    final hybrid = section.xrefStm;
+    if (hybrid != null && !visited.contains(hybrid)) {
+      final extra = _xrefSectionAt(data, hybrid);
+      if (extra != null) {
+        for (final entry in extra.entries) {
+          merged.putIfAbsent(entry.id, () => entry);
+        }
+      }
+    }
+    offset = section.prev;
   }
-  if (entries.isEmpty) return _scanObjects(data);
-  return _Xref(entries, startxref, root);
+  if (merged.isEmpty || root == null) return _scanObjects(data);
+  final list = merged.values.toList()..sort((a, b) => a.id.compareTo(b.id));
+  return _Xref(list, startxref, root);
+}
+
+class _XrefSection {
+  _XrefSection(this.entries, this.root, this.prev, this.xrefStm);
+  final List<_XrefEntry> entries;
+  final String? root;
+  final int? prev;
+  final int? xrefStm;
+}
+
+/// One cross-reference section (a classic "xref" table with its trailer, or an xref stream).
+_XrefSection? _xrefSectionAt(Uint8List data, int offset) {
+  var at = offset;
+  while (at < data.length && (data[at] == 32 || data[at] == 10 || data[at] == 13 || data[at] == 9 || data[at] == 12 || data[at] == 0)) {
+    at++;
+  }
+  if (at + 4 > data.length) return null;
+  if (data[at] == 0x78 && data[at + 1] == 0x72 && data[at + 2] == 0x65 && data[at + 3] == 0x66) {
+    final trailerAt = _indexOfBytes(data, latin1.encode('trailer'), at + 4);
+    if (trailerAt < 0) return null;
+    final table = latin1.decode(data.sublist(at + 4, trailerAt), allowInvalid: true);
+    final tokens = table.split(RegExp(r'\s+')).where((token) => token.isNotEmpty).toList();
+    final entries = <_XrefEntry>[];
+    var i = 0;
+    while (i + 1 < tokens.length) {
+      final first = int.tryParse(tokens[i]);
+      final count = int.tryParse(tokens[i + 1]);
+      if (first == null || count == null) break;
+      i += 2;
+      for (var k = 0; k < count && i + 2 < tokens.length; k++) {
+        final entryOffset = int.tryParse(tokens[i]);
+        final generation = int.tryParse(tokens[i + 1]);
+        final flag = tokens[i + 2];
+        if (entryOffset == null || generation == null || (flag != 'n' && flag != 'f')) return null;
+        entries.add(_XrefEntry(first + k, entryOffset, generation, flag == 'n'));
+        i += 3;
+      }
+    }
+    final dictAt = _indexOfBytes(data, const [0x3C, 0x3C], trailerAt);
+    if (dictAt < 0 || dictAt > trailerAt + 64) return null;
+    final dictEnd = _matchingDict(data, dictAt);
+    if (dictEnd < 0) return null;
+    final trailer = latin1.decode(data.sublist(dictAt, dictEnd), allowInvalid: true);
+    return _XrefSection(
+      entries,
+      RegExp(r'/Root\s+(\d+\s+\d+\s+R)').firstMatch(trailer)?.group(1),
+      int.tryParse(RegExp(r'/Prev\s+(\d+)').firstMatch(trailer)?.group(1) ?? ''),
+      int.tryParse(RegExp(r'/XRefStm\s+(\d+)').firstMatch(trailer)?.group(1) ?? ''),
+    );
+  }
+  final head = latin1.decode(data.sublist(at, (at + 40).clamp(0, data.length)), allowInvalid: true);
+  final idMatch = RegExp(r'^(\d+)\s+(\d+)\s+obj').firstMatch(head);
+  if (idMatch == null) return null;
+  final object = _readObject(data, at, int.parse(idMatch.group(1)!), int.parse(idMatch.group(2)!));
+  final bytes = object?.decoded;
+  if (object == null || bytes == null) return null;
+  final dict = object.dict;
+  final size = int.tryParse(RegExp(r'/Size\s+(\d+)').firstMatch(dict)?.group(1) ?? '');
+  final widths = RegExp(r'/W\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s*\]').firstMatch(dict);
+  if (size == null || widths == null) return null;
+  final typeWidth = int.parse(widths.group(1)!);
+  final offsetWidth = int.parse(widths.group(2)!);
+  final genWidth = int.parse(widths.group(3)!);
+  final stride = typeWidth + offsetWidth + genWidth;
+  if (stride <= 0) return null;
+  // /Index [first count first count …], [0 Size] when missing
+  final ranges = <(int, int)>[];
+  final index = RegExp(r'/Index\s*\[([^\]]*)\]').firstMatch(dict);
+  if (index != null) {
+    final nums = RegExp(r'\d+').allMatches(index.group(1)!).map((match) => int.parse(match.group(0)!)).toList();
+    for (var k = 0; k + 1 < nums.length; k += 2) {
+      ranges.add((nums[k], nums[k + 1]));
+    }
+  } else {
+    ranges.add((0, size));
+  }
+  final entries = <_XrefEntry>[];
+  var row = 0;
+  for (final (first, count) in ranges) {
+    for (var k = 0; k < count; k++, row++) {
+      final base = row * stride;
+      if (base + stride > bytes.length) break;
+      var type = typeWidth == 0 ? 1 : 0;
+      for (var cursor = 0; cursor < typeWidth; cursor++) {
+        type = (type << 8) | bytes[base + cursor];
+      }
+      var value = 0;
+      for (var cursor = 0; cursor < offsetWidth; cursor++) {
+        value = (value << 8) | bytes[base + typeWidth + cursor];
+      }
+      var generation = 0;
+      for (var cursor = 0; cursor < genWidth; cursor++) {
+        generation = (generation << 8) | bytes[base + typeWidth + offsetWidth + cursor];
+      }
+      entries.add(_XrefEntry(first + k, value, type == 2 ? 0 : generation, type == 1 || type == 2, streamObject: type == 2));
+    }
+  }
+  return _XrefSection(
+    entries,
+    RegExp(r'/Root\s+(\d+\s+\d+\s+R)').firstMatch(dict)?.group(1),
+    int.tryParse(RegExp(r'/Prev\s+(\d+)').firstMatch(dict)?.group(1) ?? ''),
+    null,
+  );
 }
 
 _Xref? _scanObjects(Uint8List data) {
@@ -718,43 +892,6 @@ _Xref? _scanObjects(Uint8List data) {
   final start = int.tryParse(RegExp(r'startxref\s+(\d+)').allMatches(text).lastOrNull?.group(1) ?? '') ?? 0;
   final list = entries.values.toList()..sort((a, b) => a.id.compareTo(b.id));
   return _Xref(list, start, root);
-}
-
-_Xref? _readXrefStream(Uint8List data, int startxref) {
-  final head = latin1.decode(data.sublist(startxref, (startxref + 40).clamp(0, data.length)), allowInvalid: true);
-  final idMatch = RegExp(r'^(\d+)\s+(\d+)\s+obj').firstMatch(head);
-  if (idMatch == null) return null;
-  final object = _readObject(data, startxref, int.parse(idMatch.group(1)!), int.parse(idMatch.group(2)!));
-  final bytes = object?.decoded;
-  if (object == null || bytes == null) return null;
-  final root = RegExp(r'/Root\s+(\d+\s+\d+\s+R)').firstMatch(object.dict)?.group(1);
-  final size = int.tryParse(RegExp(r'/Size\s+(\d+)').firstMatch(object.dict)?.group(1) ?? '');
-  final widths = RegExp(r'/W\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s*\]').firstMatch(object.dict);
-  if (root == null || size == null || widths == null) return null;
-  final typeWidth = int.parse(widths.group(1)!);
-  final offsetWidth = int.parse(widths.group(2)!);
-  final genWidth = int.parse(widths.group(3)!);
-  final stride = typeWidth + offsetWidth + genWidth;
-  final entries = <_XrefEntry>[];
-  for (var index = 0; index < size; index++) {
-    final base = index * stride;
-    if (base + stride > bytes.length) break;
-    var type = typeWidth == 0 ? 1 : 0;
-    for (var cursor = 0; cursor < typeWidth; cursor++) {
-      type = (type << 8) | bytes[base + cursor];
-    }
-    var offset = 0;
-    for (var cursor = 0; cursor < offsetWidth; cursor++) {
-      offset = (offset << 8) | bytes[base + typeWidth + cursor];
-    }
-    var generation = 0;
-    for (var cursor = 0; cursor < genWidth; cursor++) {
-      generation = (generation << 8) | bytes[base + typeWidth + offsetWidth + cursor];
-    }
-    entries.add(_XrefEntry(index, offset, generation, type == 1 || type == 2, streamObject: type == 2));
-  }
-  if (entries.isEmpty) return null;
-  return _Xref(entries, startxref, root);
 }
 
 class _Obj {
@@ -817,35 +954,208 @@ int? _length(String dict) {
 }
 
 class _PageRef {
-  _PageRef(this.id, this.generation, this.dict, this.contents, this.width, this.height);
+  _PageRef(this.id, this.generation, this.dict, this.contents, this.media, this.crop, this.rotate);
   final int id;
   final int generation;
   final String dict;
   final List<int> contents;
-  final double width;
-  final double height;
+
+  /// llx, lly, urx, ury (inherited from the page tree when the page has none).
+  final List<double> media;
+  final List<double>? crop;
+
+  /// 0, 90, 180 or 270 (clockwise, as the page is shown).
+  final int rotate;
+
+  /// The page as viewers show it: the crop box (inside the media box), turned by /Rotate.
+  late final _Geometry geometry = _Geometry(_visibleBox(media, crop), rotate);
+
+  /// Size of the page as it is shown, in points.
+  double get width => geometry.shownWidth;
+  double get height => geometry.shownHeight;
+
+  /// The geometry whose shown height / width is closest to [aspect] (what the viewer drew):
+  /// crop box + rotation first, then the media box, then both without the rotation.
+  _Geometry geometryFor(double? aspect) {
+    if (aspect == null || aspect <= 0) return geometry;
+    final options = <_Geometry>[
+      geometry,
+      _Geometry(media, rotate),
+      _Geometry(_visibleBox(media, crop), 0),
+      _Geometry(media, 0),
+    ];
+    var best = geometry;
+    var bestDiff = (geometry.aspect - aspect).abs();
+    for (final option in options.skip(1)) {
+      final diff = (option.aspect - aspect).abs();
+      if (diff < bestDiff - 0.01) {
+        best = option;
+        bestDiff = diff;
+      }
+    }
+    return best;
+  }
 }
 
-List<_PageRef> _pages(Map<int, _Obj> objects) {
+class _Geometry {
+  _Geometry(this.box, this.rotate);
+
+  /// llx, lly, urx, ury.
+  final List<double> box;
+  final int rotate;
+
+  double get boxWidth => math.max(1.0, box[2] - box[0]);
+  double get boxHeight => math.max(1.0, box[3] - box[1]);
+  double get shownWidth => rotate % 180 == 0 ? boxWidth : boxHeight;
+  double get shownHeight => rotate % 180 == 0 ? boxHeight : boxWidth;
+  double get aspect => shownHeight / shownWidth;
+
+  /// The cm matrix from shown-page coordinates (bottom-left origin, [shownWidth] × [shownHeight])
+  /// to the page's user space.
+  String get matrix {
+    String n(double value) => value.toStringAsFixed(4);
+    final llx = box[0];
+    final lly = box[1];
+    switch (rotate) {
+      case 90:
+        return '0 1 -1 0 ${n(llx + boxWidth)} ${n(lly)}';
+      case 180:
+        return '-1 0 0 -1 ${n(llx + boxWidth)} ${n(lly + boxHeight)}';
+      case 270:
+        return '0 -1 1 0 ${n(llx)} ${n(lly + boxHeight)}';
+      default:
+        return '1 0 0 1 ${n(llx)} ${n(lly)}';
+    }
+  }
+
+  /// A user-space point as fractions of the shown page (top-left origin).
+  (double, double) toShown(double x, double y) {
+    final u = x - box[0];
+    final v = y - box[1];
+    final (sx, sy) = switch (rotate) {
+      90 => (v, boxWidth - u),
+      180 => (boxWidth - u, boxHeight - v),
+      270 => (boxHeight - v, u),
+      _ => (u, v),
+    };
+    return (sx / shownWidth, 1 - sy / shownHeight);
+  }
+}
+
+List<double> _visibleBox(List<double> media, List<double>? crop) {
+  if (crop == null) return media;
+  final box = [
+    math.max(media[0], crop[0]),
+    math.max(media[1], crop[1]),
+    math.min(media[2], crop[2]),
+    math.min(media[3], crop[3]),
+  ];
+  if (box[2] - box[0] < 1 || box[3] - box[1] < 1) return media;
+  return box;
+}
+
+/// [dict] with everything inside nested dictionaries blanked out, so only its own keys match.
+String _topLevel(String dict) {
+  final out = StringBuffer();
+  var depth = 0;
+  var i = 0;
+  while (i < dict.length) {
+    if (i + 1 < dict.length && dict.codeUnitAt(i) == 0x3C && dict.codeUnitAt(i + 1) == 0x3C) {
+      depth++;
+      out.write(depth <= 1 ? '<<' : '  ');
+      i += 2;
+      continue;
+    }
+    if (i + 1 < dict.length && dict.codeUnitAt(i) == 0x3E && dict.codeUnitAt(i + 1) == 0x3E) {
+      out.write(depth <= 1 ? '>>' : '  ');
+      depth--;
+      i += 2;
+      continue;
+    }
+    out.write(depth <= 1 ? dict[i] : ' ');
+    i++;
+  }
+  return out.toString();
+}
+
+List<double>? _boxOf(String top, String key) {
+  final match = RegExp('/$key\\s*\\[([^\\]]*)\\]').firstMatch(top);
+  if (match == null) return null;
+  final values = RegExp(r'-?\d*\.?\d+').allMatches(match.group(1)!).map((m) => double.tryParse(m.group(0)!)).whereType<double>().toList();
+  if (values.length < 4) return null;
+  return [
+    math.min(values[0], values[2]),
+    math.min(values[1], values[3]),
+    math.max(values[0], values[2]),
+    math.max(values[1], values[3]),
+  ];
+}
+
+List<int> _contentsOf(String top) {
+  final contents = <int>[];
+  final array = RegExp(r'/Contents\s*\[(.*?)\]', dotAll: true).firstMatch(top);
+  final single = RegExp(r'/Contents\s+(\d+)\s+\d+\s+R').firstMatch(top);
+  if (array != null) {
+    for (final match in RegExp(r'(\d+)\s+\d+\s+R').allMatches(array.group(1)!)) {
+      contents.add(int.parse(match.group(1)!));
+    }
+  } else if (single != null) {
+    contents.add(int.parse(single.group(1)!));
+  }
+  return contents;
+}
+
+/// The pages in reading order (the page tree from the catalog), with their boxes and rotation
+/// (inherited from the tree). Falls back to every /Type /Page object by number.
+List<_PageRef> _pages(Map<int, _Obj> objects, [String? root]) {
   final pages = <_PageRef>[];
+  const a4 = <double>[0, 0, 595, 842];
+  _PageRef pageOf(int id, String dict, List<double>? media, List<double>? crop, int? rotate) {
+    final top = _topLevel(dict);
+    final ownRotate = int.tryParse(RegExp(r'/Rotate\s+(-?\d+)').firstMatch(top)?.group(1) ?? '');
+    final turn = ((((ownRotate ?? rotate ?? 0) % 360) + 360) % 360) ~/ 90 * 90;
+    return _PageRef(
+      id,
+      objects[id]!.generation,
+      dict,
+      _contentsOf(top),
+      _boxOf(top, 'MediaBox') ?? media ?? a4,
+      _boxOf(top, 'CropBox') ?? crop,
+      turn,
+    );
+  }
+
+  final rootId = int.tryParse(root?.trim().split(RegExp(r'\s+')).first ?? '');
+  final catalog = rootId == null ? null : objects[rootId]?.dict;
+  final treeId = catalog == null ? null : int.tryParse(RegExp(r'/Pages\s+(\d+)\s+\d+\s+R').firstMatch(_topLevel(catalog))?.group(1) ?? '');
+  if (treeId != null) {
+    final seen = <int>{};
+    void walk(int id, List<double>? media, List<double>? crop, int? rotate, int depth) {
+      if (depth > 40 || !seen.add(id)) return;
+      final object = objects[id];
+      if (object == null) return;
+      final top = _topLevel(object.dict);
+      final kids = RegExp(r'/Kids\s*\[(.*?)\]', dotAll: true).firstMatch(top);
+      if (kids != null) {
+        final nodeMedia = _boxOf(top, 'MediaBox') ?? media;
+        final nodeCrop = _boxOf(top, 'CropBox') ?? crop;
+        final nodeRotate = int.tryParse(RegExp(r'/Rotate\s+(-?\d+)').firstMatch(top)?.group(1) ?? '') ?? rotate;
+        for (final match in RegExp(r'(\d+)\s+\d+\s+R').allMatches(kids.group(1)!)) {
+          walk(int.parse(match.group(1)!), nodeMedia, nodeCrop, nodeRotate, depth + 1);
+        }
+        return;
+      }
+      if (RegExp(r'/Type\s*/Page(?!s)').hasMatch(top)) pages.add(pageOf(id, object.dict, media, crop, rotate));
+    }
+
+    walk(treeId, null, null, null, 0);
+  }
+  if (pages.isNotEmpty) return pages;
   final ordered = objects.keys.toList()..sort();
   for (final id in ordered) {
     final dict = objects[id]!.dict;
-    if (!RegExp(r'/Type\s*/Page(?!s)').hasMatch(dict)) continue;
-    final contents = <int>[];
-    final single = RegExp(r'/Contents\s+(\d+)\s+0\s+R').firstMatch(dict);
-    final array = RegExp(r'/Contents\s*\[(.*?)\]', dotAll: true).firstMatch(dict);
-    if (array != null) {
-      for (final match in RegExp(r'(\d+)\s+0\s+R').allMatches(array.group(1)!)) {
-        contents.add(int.parse(match.group(1)!));
-      }
-    } else if (single != null) {
-      contents.add(int.parse(single.group(1)!));
-    }
-    final box = RegExp(r'/MediaBox\s*\[\s*[\d.\-]+\s+[\d.\-]+\s+([\d.]+)\s+([\d.]+)\s*\]').firstMatch(dict);
-    final width = double.tryParse(box?.group(1) ?? '') ?? 595;
-    final height = double.tryParse(box?.group(2) ?? '') ?? 842;
-    pages.add(_PageRef(id, objects[id]!.generation, dict, contents, width, height));
+    if (!RegExp(r'/Type\s*/Page(?!s)').hasMatch(_topLevel(dict))) continue;
+    pages.add(pageOf(id, dict, null, null, null));
   }
   return pages;
 }
@@ -870,7 +1180,7 @@ Uint8List _incremental(
     final body = updated[id]!;
     var dict = object.dict;
     dict = dict.replaceFirst(RegExp(r'/Length\s+\d+(\s+\d+\s+R)?'), '/Length ${body.length}');
-    final header = '$id ${object.generation + 1} obj\n$dict\nstream\n';
+    final header = '$id ${object.generation} obj\n$dict\nstream\n';
     buffer.add(latin1.encode(header));
     buffer.add(body);
     buffer.add(latin1.encode('\nendstream\nendobj\n'));
@@ -879,7 +1189,7 @@ Uint8List _incremental(
     final object = objects[id];
     if (object == null) continue;
     offsets[id] = buffer.length;
-    buffer.add(latin1.encode('$id ${object.generation + 1} obj\n${dicts[id]}\nendobj\n'));
+    buffer.add(latin1.encode('$id ${object.generation} obj\n${dicts[id]}\nendobj\n'));
   }
   for (final item in fresh) {
     offsets[item.id] = buffer.length;
@@ -895,11 +1205,16 @@ Uint8List _incremental(
   final xrefText = StringBuffer('xref\n');
   final xrefIds = [...ids, ...dicts.keys, ...fresh.map((item) => item.id)]..sort();
   for (final id in xrefIds) {
-    final generation = objects[id]?.generation ?? -1;
+    // an updated object keeps its number and generation, so "id gen R" references still match
+    final generation = objects[id]?.generation ?? 0;
     xrefText.writeln('$id 1');
-    xrefText.writeln('${offsets[id]!.toString().padLeft(10, '0')} ${(generation + 1).toString().padLeft(5, '0')} n ');
+    xrefText.writeln('${offsets[id]!.toString().padLeft(10, '0')} ${generation.toString().padLeft(5, '0')} n ');
   }
-  final size = xrefIds.fold<int>(0, (max, id) => id > max ? id : max) + 1;
+  final size = math.max(
+        xrefIds.fold<int>(0, (max, id) => id > max ? id : max),
+        xref.entries.fold<int>(0, (max, entry) => entry.id > max ? entry.id : max),
+      ) +
+      1;
   xrefText.writeln('trailer');
   xrefText.writeln('<< /Size $size /Prev ${xref.startxref} /Root ${xref.root} >>');
   xrefText.writeln('startxref');
@@ -976,7 +1291,7 @@ List<List<PdfTextLine>>? readPdfTextLines(Uint8List data) {
   final xref = _readXref(data);
   if (xref == null) return null;
   final objects = _loadObjects(data, xref);
-  final pages = _pages(objects);
+  final pages = _pages(objects, xref.root);
   if (pages.isEmpty) return null;
   final result = <List<PdfTextLine>>[];
   for (final page in pages) {
@@ -1001,8 +1316,8 @@ List<PdfTextLine> _pageLines(_PageRef page, Map<int, _Obj> objects) {
   final widths = _fontWidths(page, objects);
   final runs = _textRunsWithPlace(content, widths);
   if (runs.isEmpty) return const [];
-  final w = page.width <= 0 ? 595.0 : page.width;
-  final h = page.height <= 0 ? 842.0 : page.height;
+  final geometry = page.geometry;
+  final h = geometry.shownHeight;
   runs.sort((a, b) {
     final dy = b.y - a.y;
     if (dy.abs() > math.min(a.size, b.size) * 0.5) return dy > 0 ? 1 : -1;
@@ -1018,13 +1333,16 @@ List<PdfTextLine> _pageLines(_PageRef page, Map<int, _Obj> objects) {
     if (run == null) return;
     final value = text.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
     if (value.isNotEmpty && run.x1 > run.x0) {
+      // user space → the page as shown (crop box origin, /Rotate)
+      final (ax, ay) = geometry.toShown(run.x0, run.y + size * 0.9);
+      final (bx, by) = geometry.toShown(run.x1, run.y - size * 0.25);
       lines.add(
         PdfTextLine(
           value,
-          (run.x0 / w).clamp(0.0, 1.0),
-          ((h - (run.y + size * 0.9)) / h).clamp(0.0, 1.0),
-          (run.x1 / w).clamp(0.0, 1.0),
-          ((h - (run.y - size * 0.25)) / h).clamp(0.0, 1.0),
+          math.min(ax, bx).clamp(0.0, 1.0),
+          math.min(ay, by).clamp(0.0, 1.0),
+          math.max(ax, bx).clamp(0.0, 1.0),
+          math.max(ay, by).clamp(0.0, 1.0),
           size / h,
           readable: readable,
         ),
