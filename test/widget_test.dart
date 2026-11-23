@@ -11,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('first launch shows splash then language', (tester) async {
-    await S.preload();
+    await tester.runAsync(() => S.preload());
     final settings = AppSettings.defaults();
     await tester.pumpWidget(
       AllDocApp(

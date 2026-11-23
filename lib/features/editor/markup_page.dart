@@ -1152,7 +1152,7 @@ class _MarkupPageState extends State<MarkupPage> {
     if (t.isEmpty) return;
     final size = _textSizeValue / 600;
     final width = math.min(0.96, _measure(t, size));
-    final cx = centred ? 0.5 : (x + width / 2).clamp(width / 2, math.max(width / 2, 1 - width / 2 + 0.2));
+    final cx = centred ? 0.5 : (x + width / 2).clamp(width / 2, math.max(width / 2, 1 - width / 2 + 0.2)).toDouble();
     final item = _TextItem(text: t, cx: cx, cy: y, width: width, size: size, color: _textColor);
     _itemsOf(page).add(item);
     _selected = item;
@@ -1236,8 +1236,8 @@ class _MarkupPageState extends State<MarkupPage> {
       return;
     }
     final maxY = rect.height / rect.width;
-    final nx = ((at.dx - rect.left) / rect.width).clamp(0.0, 1.0);
-    final ny = ((at.dy - rect.top) / rect.width).clamp(0.02, math.max(0.02, maxY - 0.02));
+    final nx = ((at.dx - rect.left) / rect.width).clamp(0.0, 1.0).toDouble();
+    final ny = ((at.dy - rect.top) / rect.width).clamp(0.02, math.max(0.02, maxY - 0.02)).toDouble();
     if (item is _TextItem) {
       item.cx = nx;
       item.cy = ny;
@@ -1991,7 +1991,7 @@ class _MarkupPageState extends State<MarkupPage> {
                       PopupMenuItem<int>(
                         value: option,
                         height: 34,
-                        padding: const EdgeInsetsDirectional.only(start: 14, end: 8),
+                        padding: EdgeInsetsDirectional.only(start: 14, end: 8).resolve(Directionality.of(context)),
                         child: Text('$option', style: TextStyle(fontSize: 13, color: option == _textSizeValue ? nc.primary : nc.textPrimary)),
                       ),
                   ],

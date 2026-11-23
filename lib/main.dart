@@ -6,12 +6,14 @@ import 'core/settings/app_settings.dart';
 import 'data/file_library.dart';
 import 'l10n/s.dart';
 import 'services/ad_service.dart';
+import 'services/apple_billing.dart';
 import 'services/billing_service.dart';
 import 'services/ios_growth.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await IosGrowth.start();
+  await AppleBilling.initBackend();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await S.preload();
   final settings = await AppSettings.load();

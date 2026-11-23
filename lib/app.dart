@@ -190,6 +190,7 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
       return;
     }
     if (state != AppLifecycleState.resumed) return;
+    if (guard.pausedAt != null) unawaited(AppScope.of(context).billing.onResume());
     final paused = guard.pausedAt;
     guard.pausedAt = null;
     if (settings.suppressNextResume) {

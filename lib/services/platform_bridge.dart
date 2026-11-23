@@ -26,9 +26,14 @@ class PlatformBridge {
   /// native side already waits 2.5 s for the changes to settle (see [startWatching]).
   static final ValueNotifier<int> mediaChanged = ValueNotifier<int>(0);
 
+  /// iOS StoreKit 2: a transaction from Transaction.updates (set by AppleBilling).
+  static void Function(Object? event)? onIapTransaction;
+
   static void listen(void Function(IncomingFile file) onIncoming) {
     _channel.setMethodCallHandler((call) async {
       switch (call.method) {
+        case 'onIapTransaction':
+          onIapTransaction?.call(call.arguments);
         case 'onIncomingUri':
           final file = _incoming(call.arguments);
           if (file != null) onIncoming(file);

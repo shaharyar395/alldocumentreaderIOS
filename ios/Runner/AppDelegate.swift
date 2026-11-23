@@ -13,6 +13,8 @@ import WidgetKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    // StoreKit 2: listen for transactions from launch (renewals, Ask to Buy, refunds).
+    Task { @MainActor in IAPStore.shared.start() }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -25,6 +27,7 @@ import WidgetKit
     )
     PlatformBridge.channel = channel
     channel.setMethodCallHandler { call, result in
+      if PlatformBridge.handleIap(call, result) { return }
       switch call.method {
       case "takePendingUri", "takePendingIncoming":
         // "Open in" / Files: a local path; a Home Screen quick action: {"uri": path, "shortcut": true}
@@ -800,5 +803,351 @@ final class MailDelegate: NSObject, MFMailComposeViewControllerDelegate {
     default: outcome = "failed"
     }
     controller.dismiss(animated: true) { self.done(outcome) }
+  }
+}
+
+
+// MARK: - StoreKit 2 subscriptions (YourDocs iOS Premium)
+
+/// StoreKit 2 for the iOS subscriptions `yourdocs_ios_premium_yearly` / `yourdocs_ios_premium_monthly`
+/// (the Android Google Play ids are never used here).
+///
+/// Verification is StoreKit's own `.verified` result on this device. Premium does not wait for
+/// a server. A transaction is finished only after Dart has applied that entitlement (`iapFinish`).
+/// Unverified results are never reported as purchases and never unlock anything.
+@MainActor
+final class IAPStore {
+  static let shared = IAPStore()
+  static let productIds = ["yourdocs_ios_premium_yearly", "yourdocs_ios_premium_monthly"]
+
+  /// Verified transactions waiting until Dart has saved the entitlement, then finish().
+  private var waiting: [UInt64: Transaction] = [:]
+  /// Events seen before Dart asked for them (the listener starts before the Flutter engine).
+  private var queued: [[String: Any]] = []
+  private var dartReady = false
+  private var updates: Task<Void, Never>?
+  private var products: [String: Product] = [:]
+
+  func start() {
+    guard updates == nil else { return }
+    updates = Task { @MainActor [weak self] in
+      for await result in Transaction.updates {
+        self?.handle(result, via: "updates")
+      }
+    }
+  }
+
+  private func handle(_ result: VerificationResult<Transaction>, via: String) {
+    switch result {
+    case .verified(let transaction):
+      waiting[transaction.id] = transaction
+      emit(payload(result, transaction, via: via))
+    case .unverified(let transaction, _):
+      // never unlock; leave it unfinished (StoreKit retries) and tell Dart for logging only
+      emit(["event": "unverified", "productId": transaction.productID, "transactionId": String(transaction.id), "via": via])
+    }
+  }
+
+  private func emit(_ event: [String: Any]) {
+    guard dartReady, let channel = PlatformBridge.channel else {
+      queued.append(event)
+      return
+    }
+    channel.invokeMethod("onIapTransaction", arguments: event)
+  }
+
+  func payload(_ result: VerificationResult<Transaction>, _ t: Transaction, via: String) -> [String: Any] {
+    var environment = ""
+    if #available(iOS 16.0, *) {
+      environment = t.environment.rawValue
+    }
+    return [
+      "event": "transaction",
+      "via": via,
+      "verified": true,
+      "jws": result.jwsRepresentation,
+      "bundleId": Self.bundleId(from: result.jwsRepresentation),
+      "transactionId": String(t.id),
+      "originalTransactionId": String(t.originalID),
+      "productId": t.productID,
+      "expiresMs": t.expirationDate.map { Int64($0.timeIntervalSince1970 * 1000) } ?? 0,
+      "revoked": t.revocationDate != nil,
+      "upgraded": t.isUpgraded,
+      "environment": environment,
+    ]
+  }
+
+  /// Dart is listening: returns the events seen so far plus every unfinished verified transaction.
+  func attach() async -> [[String: Any]] {
+    var events = queued
+    queued.removeAll()
+    // Open the listener before the unfinished walk. That walk suspends, and an update
+    // arriving then must reach Flutter instead of sitting in a queue nobody reads.
+    dartReady = true
+    var seen = Set(events.compactMap { $0["transactionId"] as? String })
+    for await result in Transaction.unfinished {
+      if case .verified(let t) = result, !seen.contains(String(t.id)) {
+        waiting[t.id] = t
+        seen.insert(String(t.id))
+        events.append(payload(result, t, via: "unfinished"))
+      }
+    }
+    return events
+  }
+
+  /// Product.products(for:) with Apple's localized price, period and introductory offer.
+  func loadProducts(_ ids: [String]) async throws -> [[String: Any]] {
+    let list = try await Product.products(for: ids)
+    var out: [[String: Any]] = []
+    for p in list {
+      products[p.id] = p
+      var item: [String: Any] = [
+        "id": p.id,
+        "displayName": p.displayName,
+        "displayPrice": p.displayPrice,
+        "price": NSDecimalNumber(decimal: p.price).doubleValue,
+        "currencyCode": p.priceFormatStyle.currencyCode,
+      ]
+      if let sub = p.subscription {
+        item["periodUnit"] = Self.unit(sub.subscriptionPeriod.unit)
+        item["periodValue"] = sub.subscriptionPeriod.value
+        if let intro = sub.introductoryOffer {
+          item["introMode"] = intro.paymentMode == .freeTrial ? "freeTrial"
+            : intro.paymentMode == .payAsYouGo ? "payAsYouGo" : "payUpFront"
+          item["introUnit"] = Self.unit(intro.period.unit)
+          item["introValue"] = intro.period.value
+          item["introPeriodCount"] = intro.periodCount
+          item["introDisplayPrice"] = intro.displayPrice
+          item["introEligible"] = await sub.isEligibleForIntroOffer
+        }
+      }
+      out.append(item)
+    }
+    return out
+  }
+
+  private static func unit(_ u: Product.SubscriptionPeriod.Unit) -> String {
+    switch u {
+    case .day: return "day"
+    case .week: return "week"
+    case .month: return "month"
+    case .year: return "year"
+    @unknown default: return "unknown"
+    }
+  }
+
+  /// Product.purchase(). The transaction is NOT finished here.
+  func purchase(id: String, accountToken: String?) async -> [String: Any] {
+    do {
+      var product = products[id]
+      if product == nil { product = try await Product.products(for: [id]).first }
+      guard let product else { return ["status": "unavailable"] }
+      var options: Set<Product.PurchaseOption> = []
+      if let token = accountToken, let uuid = UUID(uuidString: token) {
+        options.insert(.appAccountToken(uuid))
+      }
+      let result = try await product.purchase(options: options)
+      switch result {
+      case .success(let verification):
+        switch verification {
+        case .verified(let t):
+          waiting[t.id] = t
+          var out = payload(verification, t, via: "purchase")
+          out["status"] = "success"
+          if let detail = await subscriptionDetail(for: product, transactionId: t.id) {
+            out["state"] = detail.state
+            if detail.graceExpiresMs > 0 { out["graceExpiresMs"] = detail.graceExpiresMs }
+            if let renew = detail.willAutoRenew { out["willAutoRenew"] = renew }
+          }
+          return out
+        case .unverified:
+          return ["status": "unverified", "verified": false]
+        }
+      case .userCancelled:
+        return ["status": "cancelled"]
+      case .pending:
+        // Ask to Buy / Strong Customer Authentication: arrives later through Transaction.updates
+        return ["status": "pending"]
+      @unknown default:
+        return ["status": "failed"]
+      }
+    } catch StoreKitError.userCancelled {
+      return ["status": "cancelled"]
+    } catch StoreKitError.networkError {
+      return ["status": "failed", "reason": "network"]
+    } catch {
+      return ["status": "failed", "reason": String(describing: type(of: error))]
+    }
+  }
+
+  /// Called after Dart has applied the StoreKit entitlement for this transaction.
+  func finish(transactionId: String) async -> Bool {
+    guard let id = UInt64(transactionId) else { return false }
+    if let t = waiting.removeValue(forKey: id) {
+      await t.finish()
+      return true
+    }
+    for await result in Transaction.unfinished {
+      if case .verified(let t) = result, t.id == id {
+        await t.finish()
+        return true
+      }
+    }
+    return false
+  }
+
+  /// Transaction.currentEntitlements (verified only); with `sync`, AppStore.sync() first — that
+  /// may ask the user to sign in, so it is used only when they tap Restore.
+  func entitlements(sync: Bool) async -> [String: Any] {
+    var syncError: String?
+    if sync {
+      do {
+        try await AppStore.sync()
+      } catch StoreKitError.userCancelled {
+        syncError = "cancelled"
+      } catch {
+        syncError = "failed"
+      }
+    }
+    var items: [[String: Any]] = []
+    for await result in Transaction.currentEntitlements {
+      if case .verified(let t) = result, t.productType == .autoRenewable {
+        var item = payload(result, t, via: sync ? "restore" : "current")
+        item["inCurrentEntitlements"] = true
+        items.append(item)
+      }
+    }
+    let status = await subscriptionStatuses()
+    var out: [String: Any] = ["items": items, "statuses": status.items]
+    if let syncError { out["syncError"] = syncError }
+    if status.failed { out["statusError"] = true }
+    return out
+  }
+
+  /// `Product.SubscriptionInfo.status` for the two subscriptions: grace, billing retry, expiry,
+  /// revocation, and whether auto-renew is still on. A failed read is reported, not invented.
+  private func subscriptionStatuses() async -> (items: [[String: Any]], failed: Bool) {
+    var items: [[String: Any]] = []
+    var failed = false
+    var loadedAny = false
+    for id in Self.productIds {
+      var product = products[id]
+      if product == nil {
+        if let fetched = try? await Product.products(for: [id]).first {
+          products[fetched.id] = fetched
+          product = fetched
+        }
+      }
+      guard let product, let subscription = product.subscription else { continue }
+      do {
+        let list = try await subscription.status
+        loadedAny = true
+        for status in list {
+          switch status.transaction {
+          case .verified(let transaction):
+            var item = payload(status.transaction, transaction, via: "status")
+            item["state"] = Self.renewalStateName(status.state)
+            item["inCurrentEntitlements"] = false
+            if case .verified(let renewal) = status.renewalInfo {
+              item["willAutoRenew"] = renewal.willAutoRenew
+              if let date = renewal.gracePeriodExpirationDate {
+                item["graceExpiresMs"] = Int64(date.timeIntervalSince1970 * 1000)
+              }
+            }
+            items.append(item)
+          case .unverified(let transaction, _):
+            items.append([
+              "verified": false,
+              "productId": transaction.productID,
+              "transactionId": String(transaction.id),
+              "state": Self.renewalStateName(status.state),
+              "via": "status",
+            ])
+          }
+        }
+      } catch {
+        failed = true
+      }
+    }
+    if loadedAny { failed = false }
+    return (items, failed)
+  }
+
+  private func subscriptionDetail(for product: Product, transactionId: UInt64) async -> (state: String, graceExpiresMs: Int64, willAutoRenew: Bool?)? {
+    guard let subscription = product.subscription else { return nil }
+    guard let list = try? await subscription.status else { return nil }
+    var fallback: (state: String, graceExpiresMs: Int64, willAutoRenew: Bool?)?
+    for status in list {
+      guard case .verified(let transaction) = status.transaction else { continue }
+      var grace: Int64 = 0
+      var renew: Bool?
+      if case .verified(let renewal) = status.renewalInfo {
+        renew = renewal.willAutoRenew
+        if let date = renewal.gracePeriodExpirationDate {
+          grace = Int64(date.timeIntervalSince1970 * 1000)
+        }
+      }
+      let detail = (state: Self.renewalStateName(status.state), graceExpiresMs: grace, willAutoRenew: renew)
+      if transaction.id == transactionId { return detail }
+      if transaction.productID == product.id { fallback = detail }
+    }
+    return fallback
+  }
+
+  private static func renewalStateName(_ state: Product.SubscriptionInfo.RenewalState) -> String {
+    switch state {
+    case .subscribed: return "subscribed"
+    case .expired: return "expired"
+    case .inBillingRetryPeriod: return "inBillingRetryPeriod"
+    case .inGracePeriod: return "inGracePeriod"
+    case .revoked: return "revoked"
+    @unknown default: return "unknown"
+    }
+  }
+
+  /// Bundle id inside a JWS StoreKit has already verified. Empty when the payload cannot be read.
+  private static func bundleId(from jws: String) -> String {
+    let parts = jws.split(separator: ".", omittingEmptySubsequences: false)
+    guard parts.count >= 2 else { return "" }
+    var payload = String(parts[1]).replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+    let remainder = payload.count % 4
+    if remainder > 0 { payload += String(repeating: "=", count: 4 - remainder) }
+    guard let data = Data(base64Encoded: payload),
+          let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+          let id = object["bundleId"] as? String else { return "" }
+    return id
+  }
+}
+
+extension PlatformBridge {
+  /// The iOS purchase methods of the platform channel (see IAPStore).
+  static func handleIap(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) -> Bool {
+    let args = call.arguments as? [String: Any]
+    switch call.method {
+    case "iapAttach":
+      Task { @MainActor in result(await IAPStore.shared.attach()) }
+    case "iapProducts":
+      let ids = args?["ids"] as? [String] ?? []
+      Task { @MainActor in
+        do {
+          result(try await IAPStore.shared.loadProducts(ids))
+        } catch {
+          result(FlutterError(code: "products_failed", message: String(describing: type(of: error)), details: nil))
+        }
+      }
+    case "iapPurchase":
+      let id = args?["id"] as? String ?? ""
+      let token = args?["appAccountToken"] as? String
+      Task { @MainActor in result(await IAPStore.shared.purchase(id: id, accountToken: token)) }
+    case "iapFinish":
+      let id = args?["transactionId"] as? String ?? ""
+      Task { @MainActor in result(await IAPStore.shared.finish(transactionId: id)) }
+    case "iapEntitlements":
+      let sync = args?["sync"] as? Bool ?? false
+      Task { @MainActor in result(await IAPStore.shared.entitlements(sync: sync)) }
+    default:
+      return false
+    }
+    return true
   }
 }

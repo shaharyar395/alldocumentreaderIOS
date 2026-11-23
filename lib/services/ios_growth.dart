@@ -22,7 +22,7 @@ class IosGrowth {
     if (_ready || !Platform.isIOS || kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) return;
     _ready = true;
     try {
-      await Firebase.initializeApp();
+      if (Firebase.apps.isEmpty) await Firebase.initializeApp();
       // The downloaded plist had collection off. Turn it on so these events are stored.
       await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
     } catch (error) {

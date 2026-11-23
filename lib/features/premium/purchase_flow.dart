@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../../app_scope.dart';
 import '../../l10n/s.dart';
@@ -46,12 +47,12 @@ class PlanPrices {
       monthlyPerDay: m == null ? s.t('fallbackMonthlyPerDay') : _perDay(m, 30),
       savePercent: save,
       // iOS: no trial text for an Apple ID that already used it (StoreKit's intro eligibility)
-      trialDays: y != null && billing.yearlyTrialEligible == false ? 0 : 7,
+      trialDays: Platform.isIOS ? billing.yearlyTrialDays : 7,
     );
   }
 
-  static String _perDay(ProductDetails product, int days) {
-    return '${product.currencySymbol}${(product.rawPrice / days).toStringAsFixed(2)}';
+  static String _perDay(StorePlan plan, int days) {
+    return plan.formatLike(plan.rawPrice / days);
   }
 }
 
@@ -61,8 +62,8 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly}) async {
   final s = S.of(context);
   final scope = AppScope.of(context);
   final billing = scope.billing;
-  final product = yearly ? billing.yearly : billing.monthly;
-  if (product == null) {
+  final plan = yearly ? billing.yearly : billing.monthly;
+  if (plan == null) {
     final available = await billing.storeAvailable;
     if (!context.mounted) return false;
     if (!available && kDebugMode) {
@@ -92,8 +93,8 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly}) async {
   }
   // the store's payment sheet is not "leaving the app": no Welcome back after it
   scope.guard.arm(scope.settings);
-  final status = await billing.buy(product);
-  return status == PurchaseStatus.purchased || status == PurchaseStatus.restored || scope.settings.premium;
+  final outcome = await billing.buy(plan);
+  return outcome == PurchaseOutcome.success || scope.settings.premium;
 }
 
 /// Debug builds only: stand-in for the store's payment sheet (sheet_test_purchase.xml):

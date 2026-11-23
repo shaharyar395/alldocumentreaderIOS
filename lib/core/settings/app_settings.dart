@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,7 +30,15 @@ class AppSettings extends ChangeNotifier {
   /// purchase lasts its plan (30 / 365 days) across restarts, then ads come back.
   int testPremiumUntil = 0;
 
-  bool get testPremiumActive => testPremiumUntil > DateTime.now().millisecondsSinceEpoch;
+  /// Debug builds only. A value left behind by a debug run does nothing in release.
+  bool get testPremiumActive => kDebugMode && testPremiumUntil > DateTime.now().millisecondsSinceEpoch;
+
+  /// End of the last StoreKit period that had a real end date (ms). 0 is not a period:
+  /// it does not keep Premium while StoreKit cannot be read.
+  int premiumExpiryMs = 0;
+
+  /// iOS: per-install random UUID sent as StoreKit's appAccountToken (a hint, never proof).
+  String appAccountToken = '';
   ScanCrop scanCrop = ScanCrop.ask;
   bool coachSeen = false;
   bool discoverSeen = false;
@@ -86,6 +95,16 @@ class AppSettings extends ChangeNotifier {
         settings.premium = false;
         await prefs.setBool('premium', false);
       }
+    }
+    settings.premiumExpiryMs = prefs.getInt('premium_expiry_ms') ?? 0;
+    settings.appAccountToken = prefs.getString('app_account_token') ?? '';
+    if (settings.premium &&
+        settings.premiumExpiryMs > 0 &&
+        settings.premiumExpiryMs <= DateTime.now().millisecondsSinceEpoch &&
+        !settings.testPremiumActive) {
+      // the verified paid period (or grace period) is over: Premium off until the store says otherwise
+      settings.premium = false;
+      await prefs.setBool('premium', false);
     }
     settings.scanCrop = _crop(prefs.getString('scanCrop'));
     settings.coachSeen = prefs.getBool('coachSeen') ?? false;
@@ -224,8 +243,30 @@ class AppSettings extends ChangeNotifier {
     await _prefs?.setBool('premium', value);
   }
 
+  /// Premium from a StoreKit-verified subscription ([expiryMs] = end of the paid / grace
+  /// period), or off when StoreKit says it is not entitled.
+  Future<void> setStorePremium({required bool entitled, required int expiryMs}) async {
+    premiumExpiryMs = entitled ? expiryMs : 0;
+    await _prefs?.setInt('premium_expiry_ms', premiumExpiryMs);
+    await setPremium(entitled, fromStore: entitled);
+  }
+
+  /// The verified paid / grace period ended while the app was running (offline): Premium off.
+  Future<void> expireStorePremiumIfPast() async {
+    if (!premium || premiumExpiryMs <= 0 || testPremiumActive) return;
+    if (premiumExpiryMs > DateTime.now().millisecondsSinceEpoch) return;
+    await setStorePremium(entitled: false, expiryMs: 0);
+  }
+
+  Future<void> setAppAccountToken(String token) async {
+    appAccountToken = token;
+    await _prefs?.setString('app_account_token', token);
+  }
+
   /// Debug builds: the test sheet's unlock, for one plan period ([yearly]: 365 days, else 30).
+  /// Release builds ignore the call.
   Future<void> setTestPremium({required bool yearly}) async {
+    if (!kDebugMode) return;
     final days = yearly ? 365 : 30;
     testPremiumUntil = DateTime.now().add(Duration(days: days)).millisecondsSinceEpoch;
     await _prefs?.setInt('premium_test_until', testPremiumUntil);
