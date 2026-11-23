@@ -8,6 +8,7 @@ import 'package:flutter/material.dart' show AppLifecycleListener, Brightness, Co
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../core/settings/app_settings.dart';
+import 'ios_growth.dart';
 
 class AdUnits {
   static const testAppId = 'ca-app-pub-3940256099942544~3347511713';
@@ -16,7 +17,7 @@ class AdUnits {
   static const appIdIos = 'ca-app-pub-9297250663056879~5342069314';
   static const _bannerIos = 'ca-app-pub-9297250663056879/4972027516';
   static const _banner2Ios = 'ca-app-pub-9297250663056879/4893890487';
-  static const _appOpenIos = 'ca-app-pub-9297250663056879/8117065603';
+  static const _appOpenIos = 'ca-app-pub-9297250663056879/7104286702';
   static const _interstitialIos = 'ca-app-pub-9297250663056879/3837415956';
   static const _interstitial2Ios = 'ca-app-pub-9297250663056879/5059657426';
   static const _nativeIos = 'ca-app-pub-9297250663056879/4958925933';
@@ -224,6 +225,7 @@ class AdService {
       }
       final done = Completer<void>();
       ad.fullScreenContentCallback = FullScreenContentCallback(
+        onAdImpression: (_) => IosGrowth.adImpression(),
         onAdDismissedFullScreenContent: (ad) {
           _closed();
           ad.dispose();
@@ -267,6 +269,7 @@ class AdService {
     _lastInterstitial = DateTime.now();
     final closed = Completer<bool>();
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdImpression: (_) => IosGrowth.adImpression(),
       onAdDismissedFullScreenContent: (ad) {
         _closed();
         ad.dispose();
@@ -343,6 +346,10 @@ class AdService {
         request: const AdRequest(),
         nativeTemplateStyle: _nativeStyle(dark),
         listener: NativeAdListener(
+          onAdImpression: (_) => IosGrowth.adImpression(),
+          onPaidEvent: (ad, micros, precision, currency) {
+            IosGrowth.adRevenue(micros / 1000000.0, currency);
+          },
           onAdLoaded: (loaded) {
             if (loaded is NativeAd) fresh.add(loaded);
             finishOne(loaded);
@@ -424,6 +431,7 @@ class AdService {
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
+          _notePaid(ad);
           if (!done.isCompleted) done.complete(ad);
         },
         onAdFailedToLoad: (error) {
@@ -443,6 +451,7 @@ class AdService {
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
+          _notePaid(ad);
           _interstitials[slot]?.dispose();
           _interstitials[slot] = ad;
         },
@@ -459,6 +468,7 @@ class AdService {
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
+          _notePaid(ad);
           _rewardedLoading = false;
           _rewarded?.dispose();
           _rewarded = ad;
@@ -483,6 +493,7 @@ class AdService {
     final earned = Completer<bool>();
     var got = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdImpression: (_) => IosGrowth.adImpression(),
       onAdDismissedFullScreenContent: (ad) {
         _closed();
         ad.dispose();
@@ -515,6 +526,7 @@ class AdService {
       request: const AdRequest(),
       rewardedInterstitialAdLoadCallback: RewardedInterstitialAdLoadCallback(
         onAdLoaded: (ad) {
+          _notePaid(ad);
           _rewardedInterstitialLoading = false;
           _rewardedInterstitial?.dispose();
           _rewardedInterstitial = ad;
@@ -540,6 +552,7 @@ class AdService {
     final earned = Completer<bool>();
     var got = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdImpression: (_) => IosGrowth.adImpression(),
       onAdDismissedFullScreenContent: (ad) {
         _closed();
         ad.dispose();
@@ -565,5 +578,11 @@ class AdService {
     }
     _preloadRewardedInterstitial();
     return earned.future.timeout(const Duration(minutes: 2), onTimeout: () => got);
+  }
+
+  void _notePaid(AdWithoutView ad) {
+    ad.onPaidEvent = (ad, micros, precision, currency) {
+      IosGrowth.adRevenue(micros / 1000000.0, currency);
+    };
   }
 }

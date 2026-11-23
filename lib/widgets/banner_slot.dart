@@ -7,6 +7,7 @@ import '../app_scope.dart';
 import '../l10n/s.dart';
 import '../native/native_colors.dart';
 import '../services/ad_service.dart';
+import '../services/ios_growth.dart';
 
 class BannerSlot extends StatefulWidget {
   const BannerSlot({super.key, this.reserveSpace = false, this.unit = 1});
@@ -71,6 +72,10 @@ class _BannerSlotState extends State<BannerSlot> {
       size: size,
       request: const AdRequest(),
       listener: BannerAdListener(
+        onAdImpression: (_) => IosGrowth.adImpression(),
+        onPaidEvent: (ad, micros, precision, currency) {
+          IosGrowth.adRevenue(micros / 1000000.0, currency);
+        },
         onAdLoaded: (ad) {
           if (mounted) {
             setState(() {

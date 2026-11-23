@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../core/settings/app_settings.dart';
+import 'ios_growth.dart';
 import 'platform_bridge.dart';
 
 class ProductIds {
@@ -142,6 +143,11 @@ class BillingService {
       if (active && (purchase.productID == ProductIds.yearly || purchase.productID == ProductIds.monthly)) {
         _foundActive = true;
         await settings.setPremium(true, fromStore: true);
+        if (purchase.status == PurchaseStatus.purchased &&
+            purchase.productID == ProductIds.yearly &&
+            yearlyTrialEligible != false) {
+          IosGrowth.startTrial();
+        }
       }
       if (purchase.pendingCompletePurchase) {
         await _iap.completePurchase(purchase);

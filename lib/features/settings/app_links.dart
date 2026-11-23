@@ -16,7 +16,7 @@ const supportEmail = 'Mobappsinc@gmail.com';
 /// Contact address of the Terms of use (the same as the Android app's).
 const termsContactEmail = 'Mobappsinc@gmail.com';
 
-const privacyPolicyUrl = 'https://sites.google.com/view/mob-apps-inc/privacy-policy';
+const privacyPolicyUrl = 'https://sites.google.com/view/occessstudiollc/privacy-policy';
 
 /// The iOS app's App Store id (digits only), once the app has one in App Store Connect. While it
 /// is empty the iOS share text has no store link.

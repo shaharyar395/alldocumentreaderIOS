@@ -10,7 +10,7 @@ What it is
 A document reader: splash, first-launch language, 3-page onboarding, then a 3-tab home (All files, Tools, Settings).
 In-app viewers and editors for PDF, Word, Excel, PowerPoint, TXT, and images.
 Create, convert, scan, PDF edit/pages/merge/split, 16 crowned templates, Premium, ads, FAQ, feedback, explore.
-Privacy policy: https://sites.google.com/view/mob-apps-inc/privacy-policy
+Privacy policy: https://sites.google.com/view/occessstudiollc/privacy-policy
 Do not invent a support email.
 
 Launch
@@ -241,7 +241,7 @@ iOS publish — Documents Reader: Your DocsEra (do not copy these onto Android)
 - Display name: Documents Reader: Your DocsEra (ios/Runner/Info.plist and the Reader widget).
 - AdMob app id in Info.plist GADApplicationIdentifier: ca-app-pub-9297250663056879~5342069314
 - Ad units live in lib/services/ad_service.dart and are returned only when Platform.isIOS:
-  App open 8117065603, Banner 1 4972027516 (home), Banner 2 4893890487 (reader, lists, tools),
+  App open 7104286702, Banner 1 4972027516 (home), Banner 2 4893890487 (reader, lists, tools),
   Interstitial 1 3837415956 (open a category), Interstitial 2 5059657426 (after tools),
   Native 4958925933 (Explore more apps), Rewarded 3746575754 (one crowned template after free tries),
   Rewarded interstitial 2433494082 (after Image to PDF; reward skips interstitials for 15 minutes).
@@ -316,4 +316,5 @@ Claude — iOS parity round with the native app (Nov 2026)
   logo; iCloud placeholders listed + ensureLocal before open/share/rename/delete; recycle-bin originalPath stored as
   a ref; tpl_images moved to Application Support; App Store texts for FAQ / Terms on iOS; DejaVu fonts
   (assets/fonts) for Office/TXT → PDF on iOS (Thai, Indic, CJK still unsupported there).
-- Open items: App Store id (AppLinks.appStoreId), Adjust + Firebase for iOS (need iOS token + GoogleService-Info.plist).
+- Open item: App Store id (AppLinks.appStoreId).
+- iOS Firebase: ios/Runner/GoogleService-Info.plist (documents-reader-your-docsera). Analytics collection is turned on in the app even though the downloaded plist had it off. Adjust app token namo63wquby8. Events: ad_impression b0hkyj, ad_revenue_adjust 61z020, start_trial wzmgbk. iOS only.
