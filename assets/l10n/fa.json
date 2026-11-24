@@ -631,5 +631,22 @@
   "goToAppStore": "رفتن به App Store",
   "addToAppIconMenu": "افزودن به منوی نماد برنامه",
   "appIconMenuAdded": "به منوی نماد برنامه افزوده شد. برای باز کردن آن، نماد برنامه را لمس کنید و نگه دارید.",
-  "onMyDevice": "در {device} من"
+  "onMyDevice": "در {device} من",
+  "dsContinueReading": "ادامهٔ خواندن",
+  "dsPageOf": "ص {page}/{count}",
+  "dsPercentRead": "{percent}% خوانده شده",
+  "dsNewestFiles": "جدیدترین فایل‌های شما در یک فهرست",
+  "dsSwipeDeck": "نمایش کارت دیگر",
+  "dsNewFilesOne": "{count} فایل جدید",
+  "dsNewFilesMany": "{count} فایل جدید",
+  "dsCreateNew": "ایجاد جدید",
+  "dsScanHeroSub": "دوربین، برش و فیلترها",
+  "dsTellUs": "به ما بگویید",
+  "dsSave": "ذخیره",
+  "dsSaved": "ذخیره‌شده",
+  "iapPriceLoading": "در حال بارگیری قیمت…",
+  "iapVerificationPending": "پرداخت دریافت شد؛ تأیید در انتظار است. اگر Premium تا لحظاتی دیگر فعال نشد، روی «بازیابی» بزنید.",
+  "iapPendingApproval": "خرید شما در انتظار تأیید است. Premium به‌محض تأیید فعال می‌شود.",
+  "iapStoreUnavailable": "در حال حاضر دسترسی به App Store ممکن نیست. لطفاً بعداً دوباره تلاش کنید.",
+  "iapAutoRenewInfo": "مبلغ هنگام تأیید خرید از حساب Apple شما کسر می‌شود. اشتراک با همان قیمت به‌طور خودکار تمدید می‌شود، مگر اینکه تمدید خودکار دست‌کم ۲۴ ساعت پیش از پایان دورهٔ فعلی خاموش شود. می‌توانید آن را در تنظیمات حساب Apple مدیریت یا لغو کنید."
 }

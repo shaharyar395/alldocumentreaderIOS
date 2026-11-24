@@ -98,7 +98,7 @@ class _ExploreSheetState extends State<_ExploreSheet> {
             children: [
               NativeIcon(ND.icGiftBox, size: 72),
               const SizedBox(height: 8),
-              Text(s.t('thanksSupport'), textAlign: TextAlign.center, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: c.textPrimary)),
+              Text(s.t('thanksSupport'), textAlign: TextAlign.center, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500, color: c.textPrimary)),
               const SizedBox(height: 4),
               Text(s.t('dontMissApps'), textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: c.textSecondary)),
               const SizedBox(height: 16),

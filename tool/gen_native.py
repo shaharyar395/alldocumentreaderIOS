@@ -27,8 +27,14 @@ def load_colors(path):
     for c in ET.parse(path).getroot().findall('color'):
         out[c.get('name')] = (c.text or '').strip()
     return out
-light = load_colors(f"{RES}/values/colors.xml")
-night = load_colors(f"{RES}/values-night/colors.xml")
+def load_all(d):
+    # colors.xml plus the redesign's colors_ds_*.xml (1.0.35+)
+    out = {}
+    for p in sorted(glob.glob(f"{d}/colors*.xml")):
+        out.update(load_colors(p))
+    return out
+light = load_all(f"{RES}/values")
+night = load_all(f"{RES}/values-night")
 def resolve(v, table, depth=0):
     if v.startswith('@color/'):
         n = v[7:]

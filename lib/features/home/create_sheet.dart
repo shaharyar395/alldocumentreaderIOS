@@ -11,8 +11,9 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
-import '../../native/native_shapes.dart';
+import '../../services/app_analytics.dart';
 import '../../services/ocr_service.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/office_pdf.dart';
 import '../../services/office_text.dart';
 import '../../services/pdf_text.dart';
@@ -30,61 +31,89 @@ import '../editor/editor_flow.dart';
 import '../files/file_actions.dart';
 import '../files/storage_access.dart';
 
-/// The "+" sheet, like the Android sheet_create_files: "Create files" with Import files, Use
-/// templates and Create PDF cards (item_create_card), then "Convert format" with Image to PDF,
-/// Scan to PDF, Word to PDF, PDF to Word and PPT to PDF tiles (item_convert_tile). On Android every
-/// item needs file access first; iOS needs none (ensureAccess / needsAccessGate).
+/// The "+" sheet, like the Android sheet_create_files ("Plum deck" 1.0.35+): handle, "Create
+/// files" with Import files, Use templates and Create PDF cards (soft surface_variant cards, 18 dp
+/// corners, 60 dp) and "Convert format" with Image to PDF, Scan to PDF, Word to PDF, PDF to Word
+/// and PPT to PDF tiles. Every icon is an outlined circle (2 dp ring on the card colour) with the
+/// glyph in the format's colour; the circles pop in one after another. On Android every item
+/// needs file access first; iOS needs none (ensureAccess / needsAccessGate).
 Future<void> showCreateSheet(BuildContext context) {
   final s = S.of(context);
-  final cards = <(NDrawable, String, Future<void> Function())>[
-    (ND.icCreateImport, s.t('importFiles'), () => importFiles(context)),
-    (ND.icCreateTemplates, s.t('useTemplates'), () => openTemplates(context)),
-    (ND.icCreatePdfBadge, s.t('createPdf'), () => createBlankPdf(context)),
+  final nc = NC.of(context);
+  // (icon, colour, label, Android string name, action)
+  final cards = <(NDrawable, Color, String, String, Future<void> Function())>[
+    (ND.icCreateImport, nc.typeAll, s.t('importFiles'), 'import_files', () => importFiles(context)),
+    (ND.icCreateTemplates, nc.typeTxt, s.t('useTemplates'), 'use_templates', () => openTemplates(context)),
+    (ND.icCreatePdfBadge, nc.typePdf, s.t('createPdf'), 'create_pdf', () => createBlankPdf(context)),
   ];
-  final tiles = <(NDrawable, String, Future<void> Function())>[
-    (ND.icCvImage2pdf, s.t('imageToPdf'), () => imageToPdfFromList(context)),
-    (ND.icCvScan, s.t('scanToPdf'), () => pickImages(context, camera: true)),
-    (ND.icCvWord2pdf, s.t('wordToPdf'), () => convertOffice(context, slides: false)),
-    (ND.icCvPdf2word, s.t('pdfToWord'), () => convertPdfToWord(context)),
-    (ND.icCvPpt2pdf, s.t('pptToPdf'), () => convertOffice(context, slides: true)),
+  final tiles = <(NDrawable, Color, String, String, Future<void> Function())>[
+    (ND.icCvImage2pdf, nc.typeImage, s.t('imageToPdf'), 'image_to_pdf', () => imageToPdfFromList(context)),
+    (ND.icCvScan, nc.typeExcel, s.t('scanToPdf'), 'scan_to_pdf', () => pickImages(context, camera: true)),
+    (ND.icCvWord2pdf, nc.typeWord, s.t('wordToPdf'), 'word_to_pdf', () => convertOffice(context, slides: false)),
+    (ND.icCvPdf2word, nc.typePdf, s.t('pdfToWord'), 'pdf_to_word', () => convertPdfToWord(context)),
+    (ND.icCvPpt2pdf, nc.typePpt, s.t('pptToPdf'), 'ppt_to_pdf', () => convertOffice(context, slides: true)),
   ];
   return showAppSheet<void>(
     context,
     builder: (sheet) {
       final c = NC.of(sheet);
-      void run(Future<void> Function() action) {
+      final still = MediaQuery.maybeDisableAnimationsOf(sheet) ?? false;
+      void run(String item, Future<void> Function() action) {
+        logEvent('create_tap', {'item': item});
+        logEvent('create_${item}_tapped');
         Navigator.pop(sheet);
         ensureAccess(context).then((ok) {
           if (ok && context.mounted) action();
         });
       }
 
-      // item_create_card: 52 dp, bg_create_card (surface_variant, 10 dp, ripple), 30 dp icon,
-      // 14 sp bold label, 5 dp margin
-      Widget card((NDrawable, String, Future<void> Function()) item) {
+      // the outlined circle; [order] staggers its pop-in
+      Widget ring(NDrawable icon, Color color, double size, double glyph, int order) {
+        final circle = Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: c.surface, shape: BoxShape.circle, border: Border.all(color: color, width: 2)),
+          child: NativeIcon(icon, size: glyph, tint: color),
+        );
+        if (still) return circle;
+        final delay = 40 * order;
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: Duration(milliseconds: 300 + delay),
+          curve: Interval(delay / (300 + delay), 1, curve: Curves.easeOutBack),
+          builder: (context, v, child) => Transform.scale(scale: 0.8 + 0.2 * v, child: Opacity(opacity: v.clamp(0.0, 1.0), child: child)),
+          child: circle,
+        );
+      }
+
+      // item_create_card: 60 dp ds_a_sheet_tile (surface_variant, 18 dp corners), a 40 dp ring with
+      // a 20 dp glyph, 14 sp medium label; 5 dp margin
+      Widget card((NDrawable, Color, String, String, Future<void> Function()) item, int order) {
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.all(5),
             child: Material(
               color: c.surfaceVariant,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(18),
+              clipBehavior: Clip.antiAlias,
               child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () => run(item.$3),
+                splashColor: c.rowPressed,
+                onTap: () => run(item.$4, item.$5),
                 child: SizedBox(
-                  height: 52,
+                  height: 60,
                   child: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+                    padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
                     child: Row(
                       children: [
-                        NativeIcon(item.$1, size: 30),
+                        ring(item.$1, item.$2, 40, 20, order),
                         const SizedBox(width: 10),
                         Flexible(
                           child: Text(
-                            item.$2,
+                            item.$3,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c.textPrimary),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.textPrimary),
                           ),
                         ),
                       ],
@@ -97,35 +126,30 @@ Future<void> showCreateSheet(BuildContext context) {
         );
       }
 
-      // item_convert_tile: borderless ripple, a 52 dp bg_create_card square with the 30 dp icon,
-      // the 13 sp label 6 dp below; 4 dp top / 8 dp bottom padding
-      Widget tile((NDrawable, String, Future<void> Function())? item) {
+      // item_convert_tile: a 52 dp frame with a 48 dp ring and a 22 dp glyph, the 12 sp label 6 dp
+      // below; 4 dp top / 8 dp bottom padding
+      Widget tile((NDrawable, Color, String, String, Future<void> Function())? item, int order) {
         if (item == null) return const Expanded(child: SizedBox.shrink());
         return Expanded(
           child: Material(
             type: MaterialType.transparency,
-            child: InkResponse(
-              onTap: () => run(item.$3),
-              containedInkWell: false,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              splashColor: c.rowPressed,
+              onTap: () => run(item.$4, item.$5),
               child: Padding(
                 padding: const EdgeInsets.only(top: 4, bottom: 8),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      alignment: Alignment.center,
-                      decoration: NS.bgCreateCard(sheet),
-                      child: NativeIcon(item.$1, size: 30),
-                    ),
+                    SizedBox(width: 52, height: 52, child: Center(child: ring(item.$1, item.$2, 48, 22, order))),
                     const SizedBox(height: 6),
                     Text(
-                      item.$2,
+                      item.$3,
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13, color: c.textPrimary),
+                      style: TextStyle(fontSize: 12, color: c.textPrimary),
                     ),
                   ],
                 ),
@@ -135,28 +159,30 @@ Future<void> showCreateSheet(BuildContext context) {
         );
       }
 
-      // SheetTitle at 16 sp
-      Widget title(String text, {double top = 0, double bottom = 4}) {
-        return Padding(
-          padding: EdgeInsetsDirectional.only(start: 5, top: top, bottom: bottom),
-          child: Text(text, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary)),
-        );
-      }
-
       return SafeArea(
         top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(11, 18, 11, 16),
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              title(s.t('createFiles')),
-              Row(children: [card(cards[0]), card(cards[1])]),
-              Row(children: [card(cards[2]), const Expanded(child: SizedBox.shrink())]),
-              title(s.t('convertFormat'), top: 14, bottom: 8),
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [tile(tiles[0]), tile(tiles[1]), tile(tiles[2]), tile(tiles[3])]),
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [tile(tiles[4]), tile(null), tile(null), tile(null)]),
+              const SheetHandle(),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 6, top: 8, bottom: 6),
+                child: Text(s.t('createFiles'), style: sheetTitle(sheet)),
+              ),
+              Row(children: [card(cards[0], 0), card(cards[1], 1)]),
+              Row(children: [card(cards[2], 2), const Expanded(child: SizedBox.shrink())]),
+              DsSectionLabel(s.t('convertFormat'), padding: const EdgeInsetsDirectional.only(start: 6, top: 16, bottom: 8)),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [tile(tiles[0], 3), tile(tiles[1], 4), tile(tiles[2], 5), tile(tiles[3], 6)],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [tile(tiles[4], 7), tile(null, 0), tile(null, 0), tile(null, 0)],
+              ),
             ],
           ),
         ),
@@ -164,6 +190,10 @@ Future<void> showCreateSheet(BuildContext context) {
     },
   );
 }
+
+/// SheetTitle: 18 sp medium text_primary.
+TextStyle sheetTitle(BuildContext context) =>
+    TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: NC.of(context).textPrimary);
 
 /// "Import files": the system file browser; the chosen file opens straight away. Types the app
 /// does not handle get "File type not supported".
@@ -206,6 +236,7 @@ Future<void> importFiles(BuildContext context) async {
 /// Tools → Image to PDF ([camera] false: "Take a photo / Choose from gallery / Cancel") or
 /// Scan to PDF ([camera] true: the document scanner straight away) → page editor.
 Future<void> pickImages(BuildContext context, {required bool camera}) {
+  logEvent(camera ? 'scan_camera_tapped' : 'scan_gallery_tapped');
   return camera ? startScanToPdf(context) : startImageToPdf(context);
 }
 
@@ -218,7 +249,10 @@ Future<void> imageToPdfFromList(BuildContext context) async {
   );
   if (pick == null || !context.mounted) return;
   final job = ScanJob();
+  job.imageToPdf = true;
+  job.fromGallery = true;
   job.pages.add(job.newPage(pick.path));
+  IosAnalytics.log('image_choosed_from_galary');
   await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => ImagePdfPage(job: job)));
 }
 
@@ -258,12 +292,17 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
           : const ['doc', 'docx', 'docm', 'dot', 'dotx', 'rtf', 'odt', 'txt'],
       accept: (name) => canConvertOffice(name, slides: slides),
       rejectMessage: s.t('convertOldFormat'),
+      analyticsScreen: slides ? 'ppt_to_pdf' : 'word_to_pdf',
     );
     if (pick == null) return;
     path = pick.path;
     name = pick.name;
   }
   if (!context.mounted) return;
+  final screen = slides ? 'ppt_to_pdf' : 'word_to_pdf';
+  IosAnalytics.activate(screen);
+  IosAnalytics.log('${screen}_file_selected', {'file_type': slides ? 'ppt' : 'word', 'screen': screen});
+  IosAnalytics.log('convert_button_tapped', {'screen': screen});
   final pill = ProgressPill(context)..show(s.t('convertingProgress', {'percent': '0'}));
   try {
     final bytes = await officeFileToPdf(
@@ -275,7 +314,9 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
     pill.dismiss();
     if (!context.mounted) return;
     if (saved == null) throw StateError('save');
-    await scope.ads.showInterstitial(unit: 2);
+    IosAnalytics.converted(slides ? 'ppt' : 'word', 'pdf');
+    IosAnalytics.left(screen);
+    await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -299,12 +340,15 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
   String? path = entry?.fullPath;
   var name = entry?.name ?? 'Document.pdf';
   if (path == null) {
-    final pick = await pickOnePdf(context);
+    final pick = await pickOnePdf(context, analyticsScreen: 'pdf_to_word');
     if (pick == null) return;
     path = pick.path;
     name = pick.name;
   }
   if (!context.mounted) return;
+  IosAnalytics.activate('pdf_to_word');
+  IosAnalytics.log('pdf_to_word_file_selected', {'file_type': 'pdf', 'screen': 'pdf_to_word'});
+  IosAnalytics.log('convert_button_tapped', {'screen': 'pdf_to_word'});
   final source = path;
   final pill = ProgressPill(context)..show(s.t('convertingProgress', {'percent': '0'}));
   try {
@@ -328,7 +372,9 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
     final saved = await scope.library.importBytes(docx, name: '${stem.isEmpty ? 'Document' : stem}.docx', folder: 'convert');
     pill.dismiss();
     if (saved == null || !context.mounted) return;
-    await scope.ads.showInterstitial(unit: 2);
+    IosAnalytics.converted('pdf', 'word');
+    IosAnalytics.left('pdf_to_word');
+    await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word')),

@@ -631,5 +631,22 @@
   "goToAppStore": "Đến App Store",
   "addToAppIconMenu": "Thêm vào menu biểu tượng ứng dụng",
   "appIconMenuAdded": "Đã thêm vào menu biểu tượng ứng dụng. Chạm và giữ biểu tượng ứng dụng để mở.",
-  "onMyDevice": "Trên {device} của tôi"
+  "onMyDevice": "Trên {device} của tôi",
+  "dsContinueReading": "Đọc tiếp",
+  "dsPageOf": "tr. {page}/{count}",
+  "dsPercentRead": "Đã đọc {percent}%",
+  "dsNewestFiles": "Các tệp mới nhất của bạn trong một danh sách",
+  "dsSwipeDeck": "Hiện thẻ còn lại",
+  "dsNewFilesOne": "{count} tệp mới",
+  "dsNewFilesMany": "{count} tệp mới",
+  "dsCreateNew": "Tạo mới",
+  "dsScanHeroSub": "Máy ảnh, cắt và bộ lọc",
+  "dsTellUs": "Cho chúng tôi biết",
+  "dsSave": "Lưu",
+  "dsSaved": "Đã lưu",
+  "iapPriceLoading": "Đang tải giá…",
+  "iapVerificationPending": "Đã nhận thanh toán; đang chờ xác minh. Nếu Premium chưa mở khóa sau ít phút, hãy nhấn Khôi phục.",
+  "iapPendingApproval": "Giao dịch mua của bạn đang chờ phê duyệt. Premium sẽ mở khóa ngay khi được phê duyệt.",
+  "iapStoreUnavailable": "Hiện không thể kết nối App Store. Vui lòng thử lại sau.",
+  "iapAutoRenewInfo": "Khoản thanh toán được tính vào Tài khoản Apple của bạn khi bạn xác nhận mua. Gói đăng ký tự động gia hạn với cùng mức giá trừ khi tắt tự động gia hạn ít nhất 24 giờ trước khi kết thúc kỳ hiện tại. Bạn có thể quản lý hoặc hủy trong phần cài đặt Tài khoản Apple."
 }

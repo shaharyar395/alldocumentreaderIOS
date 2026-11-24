@@ -631,5 +631,22 @@
   "goToAppStore": "Pumunta sa App Store",
   "addToAppIconMenu": "Idagdag sa menu ng icon ng app",
   "appIconMenuAdded": "Naidagdag sa menu ng icon ng app. Pindutin nang matagal ang icon ng app para buksan ito.",
-  "onMyDevice": "Sa Aking {device}"
+  "onMyDevice": "Sa Aking {device}",
+  "dsContinueReading": "Ituloy ang pagbasa",
+  "dsPageOf": "p. {page}/{count}",
+  "dsPercentRead": "{percent}% nabasa",
+  "dsNewestFiles": "Ang pinakabago mong mga file, sa isang listahan",
+  "dsSwipeDeck": "Ipakita ang isa pang card",
+  "dsNewFilesOne": "{count} bagong file",
+  "dsNewFilesMany": "{count} bagong file",
+  "dsCreateNew": "Gumawa ng bago",
+  "dsScanHeroSub": "Camera, crop at mga filter",
+  "dsTellUs": "Sabihin sa amin",
+  "dsSave": "I-save",
+  "dsSaved": "Na-save",
+  "iapPriceLoading": "Nilo-load ang presyo…",
+  "iapVerificationPending": "Natanggap ang bayad; hinihintay ang beripikasyon. Kung hindi ma-unlock ang Premium sa ilang sandali, i-tap ang Ibalik.",
+  "iapPendingApproval": "Naghihintay ng pag-apruba ang iyong pagbili. Mau-unlock ang Premium sa sandaling maaprubahan ito.",
+  "iapStoreUnavailable": "Hindi maabot ang App Store ngayon. Pakisubukang muli mamaya.",
+  "iapAutoRenewInfo": "Sisingilin ang bayad sa iyong Apple Account kapag kinumpirma mo ang pagbili. Awtomatikong nagre-renew ang subscription sa parehong presyo maliban kung i-off ang auto-renew nang hindi bababa sa 24 oras bago matapos ang kasalukuyang panahon. Pamahalaan o kanselahin ito sa mga setting ng iyong Apple Account."
 }

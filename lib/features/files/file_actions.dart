@@ -28,7 +28,7 @@ import 'files_ui.dart';
 /// xls, ppt, odp …) go to another app on the phone; anything else, or a type no app can open,
 /// gets the "File type not supported" sheet. iOS: types the app doesn't open itself are shown
 /// in QuickLook first (old Office, RTF, OpenDocument, iWork …), then the "Open in" menu.
-Future<void> openEntry(BuildContext context, DocEntry entry) async {
+Future<void> openEntry(BuildContext context, DocEntry entry, {String source = 'home'}) async {
   final scope = AppScope.of(context);
   final library = scope.library;
   final path = entry.fullPath;
@@ -43,7 +43,7 @@ Future<void> openEntry(BuildContext context, DocEntry entry) async {
     await library.markOpened(entry);
     if (!context.mounted) return;
     final fresh = library.entries.cast<DocEntry?>().firstWhere((e) => e?.id == entry.id, orElse: () => entry)!;
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ReaderPage(entry: fresh)));
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ReaderPage(entry: fresh, source: source)));
     return;
   }
   if (Platform.isIOS && await PlatformBridge.quickLook(path)) {
@@ -227,7 +227,7 @@ class FileActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
-    final tint = danger ? c.danger : c.primary;
+    final tint = danger ? c.danger : c.dsFilesGlyph;
     final art = drawable;
     return InkResponse(
       onTap: onTap,
@@ -240,7 +240,7 @@ class FileActionTile extends StatelessWidget {
             Container(
               width: 48,
               height: 48,
-              decoration: NS.bgCircleAction(context),
+              decoration: BoxDecoration(color: c.accentContainer, shape: BoxShape.circle),
               alignment: Alignment.center,
               child: art != null ? NativeIcon(art, size: 22, tint: tint) : Icon(icon ?? Icons.circle_outlined, size: 22, color: tint),
             ),
@@ -259,8 +259,9 @@ class FileActionTile extends StatelessWidget {
   }
 }
 
-/// Header of the ⋮ sheets (sheet_file_menu.xml): 36dp type icon, 16sp bold name, the full path
-/// (12sp, 2 lines) and › — tapping it opens the info sheet.
+/// Header of the ⋮ sheet (sheet_file_menu.xml, "Plum deck"): a soft surface_variant card (16 dp
+/// corners, 16 dp from the sides) with the 44 dp type circle, the name (15 sp medium), the full
+/// path (12 sp, 2 lines) and a chevron; tapping it opens the info sheet.
 class FileMenuHeader extends StatelessWidget {
   const FileMenuHeader({super.key, required this.entry, required this.onTap});
 
@@ -270,54 +271,121 @@ class FileMenuHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(20, 18, 16, 14),
-        child: Row(
-          children: [
-            FileKindIcon(kind: entry.kind, size: 36),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.name,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+      child: Material(
+        color: c.surfaceVariant,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: c.rowPressed,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 10, 12),
+            child: Row(
+              children: [
+                FileKindIcon(kind: entry.kind, size: 44),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.name,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: c.textPrimary),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        displayPath(entry.fullPath, S.of(context)),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: c.textSecondary),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    displayPath(entry.fullPath, S.of(context)),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: c.textSecondary),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 6),
+                NativeMirrorIcon(ND.dsFilesIcChevron, size: 20, tint: c.navbarOff),
+              ],
             ),
-            NativeIcon(ND.icChevronRight, size: 22, tint: c.textSecondary),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// The ⋮ sheet of a file row, like the Android sheet_file_menu: header (→ info), then Share,
-/// Rename, To home screen (Android), Save to Drive and Delete. Completes once the chosen action
-/// is done, so lists can reload afterwards.
+/// item_file_action.xml: a 52 dp row (20 dp padding) with a 32 dp accent_container circle and the
+/// 18 dp glyph in ds_files_glyph, then the 15 sp label; Delete is drawn in the danger colour.
+class FileActionRow extends StatelessWidget {
+  const FileActionRow({super.key, required this.drawable, required this.label, required this.onTap, this.danger = false});
+
+  final NDrawable drawable;
+  final String label;
+  final VoidCallback onTap;
+  final bool danger;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    final tint = danger ? c.danger : c.dsFilesGlyph;
+    return InkWell(
+      onTap: onTap,
+      splashColor: c.rowPressed,
+      child: SizedBox(
+        height: 52,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: c.accentContainer, shape: BoxShape.circle),
+                child: NativeIcon(drawable, size: 18, tint: tint),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, color: danger ? c.danger : c.textPrimary)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A direction icon (chevron) that points the reading direction in RTL languages.
+class NativeMirrorIcon extends StatelessWidget {
+  const NativeMirrorIcon(this.drawable, {super.key, this.size, this.tint});
+
+  final NDrawable drawable;
+  final double? size;
+  final Color? tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = NativeIcon(drawable, size: size, tint: tint);
+    return Directionality.of(context) == TextDirection.rtl ? Transform.flip(flipX: true, child: icon) : icon;
+  }
+}
+
+/// The ⋮ sheet of a file row, like the Android sheet_file_menu ("Plum deck"): handle, the file card
+/// (→ info), then Share, Rename, To home screen (Android) / app icon menu (iOS), Save to Drive, a
+/// hairline and Delete. Completes once the chosen action is done, so lists can reload afterwards.
 Future<void> showFileMenu(BuildContext context, DocEntry entry) async {
   final s = S.of(context);
   final actions = <(NDrawable, String, Future<void> Function())>[
-    (ND.icShare, s.t('share'), () => shareEntry(context, entry)),
-    (ND.icRename, s.t('rename'), () => renameEntry(context, entry)),
-    (ND.icHomeAdd, homeScreenLabel(s), () => addToHomeScreen(context, entry)),
-    (ND.icStDrive, s.t('saveToDrive'), () => saveToDrive(context, entry)),
-    (ND.icDelete, s.t('delete'), () => confirmDelete(context, entry)),
+    (ND.dsFilesIcShare, s.t('share'), () => shareEntry(context, entry)),
+    (ND.dsFilesIcRename, s.t('rename'), () => renameEntry(context, entry)),
+    (ND.dsFilesIcHomeAdd, homeScreenLabel(s), () => addToHomeScreen(context, entry)),
+    (ND.dsFilesIcDrive, s.t('saveToDrive'), () => saveToDrive(context, entry)),
+    (ND.dsFilesIcDelete, s.t('delete'), () => confirmDelete(context, entry)),
   ];
   await loadDisplayPaths();
   if (!context.mounted) return;
@@ -326,30 +394,26 @@ Future<void> showFileMenu(BuildContext context, DocEntry entry) async {
     builder: (sheet) => SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SheetHandle(),
             FileMenuHeader(entry: entry, onTap: () => Navigator.pop(sheet, -1)),
-            Container(height: 1, color: NC.of(sheet).divider),
-            const SizedBox(height: 14),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var i = 0; i < actions.length; i++)
-                    Expanded(
-                      child: FileActionTile(
-                        drawable: actions[i].$1,
-                        label: actions[i].$2,
-                        onTap: () => Navigator.pop(sheet, i),
-                      ),
-                    ),
-                ],
+            for (var i = 0; i < actions.length; i++) ...[
+              if (i == actions.length - 1)
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(68, 4, 20, 4),
+                  child: Container(height: 1, color: NC.of(sheet).divider),
+                ),
+              FileActionRow(
+                drawable: actions[i].$1,
+                label: actions[i].$2,
+                danger: i == actions.length - 1,
+                onTap: () => Navigator.pop(sheet, i),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -393,7 +457,7 @@ Future<void> showDetails(BuildContext context, DocEntry entry) async {
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    child: Text(entry.name, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary)),
+                    child: Text(entry.name, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: c.textPrimary)),
                   ),
                   const SizedBox(height: 2),
                   SizedBox(

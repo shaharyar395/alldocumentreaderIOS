@@ -4,33 +4,53 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
 
 /// Shared native-looking pieces of the file screens (Android activity_file_list.xml,
 /// activity_directories.xml, activity_storage_browser.xml, activity_search.xml,
 /// activity_pick_file.xml, layout_list_state.xml and the FileSheets bottom sheets).
 
-/// 44dp toolbar ImageButton (10dp padding, borderless ripple, tinted text_primary).
+/// A top-bar action ("Plum deck" ds_files_bg_circle_btn_tight): a 40 dp surface circle with a
+/// hairline divider ring in a 44 x 48 dp slot, the icon tinted icon_main (or [tint]).
 class BarIconButton extends StatelessWidget {
   const BarIconButton({super.key, required this.drawable, required this.onTap, this.tooltip, this.padding = 10, this.size = 44, this.tint});
 
   final NDrawable drawable;
   final VoidCallback? onTap;
   final String? tooltip;
+
+  /// Kept for callers; the icon is 20 dp inside the 40 dp circle.
   final double padding;
   final double size;
   final Color? tint;
 
   @override
   Widget build(BuildContext context) {
-    return RowIconButton(
-      drawable: drawable,
-      onTap: onTap,
-      tooltip: tooltip,
-      size: size,
-      padding: padding,
-      tint: tint ?? NC.of(context).textPrimary,
+    final c = NC.of(context);
+    Widget button = SizedBox(
+      width: size < 44 ? 44 : size,
+      height: 48,
+      child: Center(
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Material(
+            color: c.surface,
+            shape: CircleBorder(side: BorderSide(color: c.divider, width: 1)),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              splashColor: c.rowPressed,
+              child: Padding(padding: const EdgeInsets.all(10), child: NativeIcon(drawable, tint: tint ?? c.iconMain)),
+            ),
+          ),
+        ),
+      ),
     );
+    final tip = tooltip;
+    if (tip != null) button = Tooltip(message: tip, child: button);
+    return Semantics(button: true, child: button);
   }
 }
 
@@ -40,7 +60,7 @@ class NativeTopBar extends StatelessWidget {
     super.key,
     this.title,
     this.titleWidget,
-    this.titleSize = 20,
+    this.titleSize = 18,
     this.onBack,
     this.actions = const [],
     this.height = 56,
@@ -65,22 +85,18 @@ class NativeTopBar extends StatelessWidget {
     return SizedBox(
       height: height,
       child: Padding(
-        padding: EdgeInsetsDirectional.only(start: 4, end: endPadding),
+        padding: EdgeInsetsDirectional.only(start: 8, end: endPadding),
         child: Row(
           children: [
-            BarIconButton(
-              drawable: ND.icBack,
-              padding: backPadding,
-              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-              onTap: onBack ?? () => Navigator.of(context).maybePop(),
-            ),
+            DsTopBack(onTap: onBack),
+            const SizedBox(width: 6),
             Expanded(
               child: titleWidget ??
                   Text(
                     title ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.w700, color: c.textPrimary),
+                    style: TextStyle(fontSize: titleSize, fontWeight: FontWeight.w500, color: c.textPrimary),
                   ),
             ),
             ...actions,
@@ -128,16 +144,18 @@ class NativeSearchBar extends StatelessWidget {
     return SizedBox(
       height: 56,
       child: Padding(
-        padding: const EdgeInsetsDirectional.only(start: 12, end: 4),
+        padding: const EdgeInsetsDirectional.only(start: 16, end: 4),
         child: Row(
           children: [
             Expanded(
               child: Container(
-                height: 40,
+                height: 44,
                 decoration: NS.bgSearchField(context),
                 padding: EdgeInsetsDirectional.only(start: 14, end: showClear ? 4 : 14),
                 child: Row(
                   children: [
+                    NativeIcon(ND.icSearch, size: 18, tint: c.textSecondary),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: NativeTextField(
                         controller: controller,
@@ -151,7 +169,7 @@ class NativeSearchBar extends StatelessWidget {
                     if (showClear && hasText)
                       RowIconButton(
                         drawable: ND.icClearCircle,
-                        tint: c.textHint,
+                        tint: c.textSecondary,
                         size: 32,
                         padding: 8,
                         onTap: () {
@@ -235,9 +253,11 @@ class NativeTextAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = NC.of(context);
     return SizedBox(
-      height: height,
+      height: height ?? 48,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        splashColor: c.rowPressed,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Center(
@@ -245,7 +265,7 @@ class NativeTextAction extends StatelessWidget {
             child: Text(
               label,
               maxLines: 1,
-              style: TextStyle(fontSize: 15, fontWeight: bold ? FontWeight.w700 : FontWeight.w400, color: color ?? c.textPrimary),
+              style: TextStyle(fontSize: 15, fontWeight: bold ? FontWeight.w500 : FontWeight.w400, color: color ?? c.primary),
             ),
           ),
         ),
@@ -254,8 +274,9 @@ class NativeTextAction extends StatelessWidget {
   }
 }
 
-/// TabLayout of the native screens: 44dp, scrollable from the start, 15sp bold labels,
-/// tab_indicator (24 x 3dp primary, 2dp corners) under the selected one, no ripple.
+/// DsFiles.Tabs: 48 dp, scrollable from 12 dp in; each tab is a pill (18 dp corners, inset 4 / 8 dp)
+/// with 18 dp side padding and 14 sp medium text: ds_files_sel with ds_files_on_sel text when
+/// selected, a surface pill with a divider hairline and text_primary otherwise.
 class NativeTabStrip extends StatelessWidget implements PreferredSizeWidget {
   const NativeTabStrip({
     super.key,
@@ -270,65 +291,62 @@ class NativeTabStrip extends StatelessWidget implements PreferredSizeWidget {
   final TabController? controller;
   final ValueChanged<int>? onTap;
 
-  /// tabSelectedTextColor (primary in file lists, text_primary in Directories).
+  /// Kept for callers (every strip uses the pill colours now).
   final Color? selectedColor;
   final double tabPadding;
 
   @override
-  Size get preferredSize => const Size.fromHeight(44);
+  Size get preferredSize => const Size.fromHeight(48);
 
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
-    const style = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
-    return Container(
-      height: 44,
-      color: c.surface,
-      alignment: AlignmentDirectional.centerStart,
-      child: TabBar(
-        controller: controller,
-        onTap: onTap,
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        padding: EdgeInsets.zero,
-        labelPadding: EdgeInsets.symmetric(horizontal: tabPadding),
-        labelColor: selectedColor ?? c.primary,
-        unselectedLabelColor: c.textSecondary,
-        labelStyle: style,
-        unselectedLabelStyle: style,
-        dividerColor: Colors.transparent,
-        dividerHeight: 0,
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        splashFactory: NoSplash.splashFactory,
-        indicator: _TabIndicator(c.primary),
-        indicatorSize: TabBarIndicatorSize.tab,
-        tabs: [for (final label in labels) Tab(height: 44, text: label)],
-      ),
-    );
-  }
-}
-
-/// res/drawable/tab_indicator.xml: a 24 x 3dp bar with 2dp corners, centred at the tab's bottom.
-class _TabIndicator extends Decoration {
-  const _TabIndicator(this.color);
-
-  final Color color;
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) => _TabIndicatorPainter(color);
-}
-
-class _TabIndicatorPainter extends BoxPainter {
-  _TabIndicatorPainter(this.color);
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final size = configuration.size;
-    if (size == null) return;
-    final rect = Rect.fromLTWH(offset.dx + (size.width - 24) / 2, offset.dy + size.height - 3, 24, 3);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(2)), Paint()..color = color);
+    final tabs = controller ?? DefaultTabController.maybeOf(context);
+    Widget strip(int selected) => SizedBox(
+          height: 48,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsetsDirectional.only(start: 12, end: 12),
+            children: [
+              for (var i = 0; i < labels.length; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: Semantics(
+                    selected: i == selected,
+                    button: true,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        tabs?.animateTo(i);
+                        onTap?.call(i);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: i == selected ? c.dsFilesSel : c.surface,
+                          borderRadius: BorderRadius.circular(18),
+                          border: i == selected ? null : Border.all(color: c.divider, width: 1),
+                        ),
+                        child: Text(
+                          labels[i],
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: i == selected ? c.dsFilesOnSel : c.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+    if (tabs == null) return strip(0);
+    return AnimatedBuilder(animation: tabs, builder: (context, _) => strip(tabs.index));
   }
 }
 
@@ -377,7 +395,7 @@ class NativeDirEmptyState extends StatelessWidget {
         children: [
           const NativeIcon(ND.icEmptyState, width: 160, height: 140),
           const SizedBox(height: 4),
-          Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary)),
+          Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: c.textPrimary)),
           if (sub != null) ...[
             const SizedBox(height: 6),
             Text(sub, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: c.textSecondary)),
@@ -426,7 +444,7 @@ class _NativeLoadingStateState extends State<NativeLoadingState> with SingleTick
             child: const NativeIcon(ND.icPaperPlane, size: 64),
           ),
           const SizedBox(height: 10),
-          Text(widget.text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c.textPrimary)),
+          Text(widget.text, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.textPrimary)),
         ],
       ),
     );
@@ -493,32 +511,55 @@ class _NativeSelectBarState extends State<NativeSelectBar> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
+    // "Plum deck" floating selection bar (ds_files_bg_selbar): a 60 dp navbar_bg pill with 28 dp
+    // corners, 16 dp from the sides and 12 dp from the bottom; each action is its icon and label
+    // side by side in ds_files_selbar_fg (14 sp medium).
     return SlideTransition(
-      position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(_in),
-      child: Material(
-        color: c.surface,
-        elevation: 8,
-        child: SizedBox(
-          height: 60,
-          child: Opacity(
-            opacity: widget.enabled ? 1 : 0.4,
-            child: Row(
-              children: [
-                for (final action in widget.actions)
-                  Expanded(
-                    child: InkWell(
-                      onTap: action.onTap,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NativeIcon(action.drawable, size: 22, tint: c.textPrimary),
-                          SizedBox(height: widget.labelGap),
-                          Text(action.label, maxLines: 1, style: TextStyle(fontSize: widget.labelSize, color: c.textPrimary)),
-                        ],
-                      ),
-                    ),
+      position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(CurvedAnimation(parent: _in, curve: Curves.easeOutCubic)),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+          child: Material(
+            color: c.navbarBg,
+            elevation: 8,
+            shadowColor: const Color(0x55000000),
+            borderRadius: BorderRadius.circular(28),
+            child: SizedBox(
+              height: 60,
+              child: Opacity(
+                opacity: widget.enabled ? 1 : 0.4,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Row(
+                    children: [
+                      for (final action in widget.actions)
+                        Expanded(
+                          child: InkWell(
+                            onTap: action.onTap,
+                            borderRadius: BorderRadius.circular(28),
+                            splashColor: const Color(0x33FFFFFF),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                NativeIcon(action.drawable, size: 22, tint: c.dsFilesSelbarFg),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    action.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.dsFilesSelbarFg),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
+                ),
+              ),
             ),
           ),
         ),
@@ -550,8 +591,9 @@ class NativePillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
-    final bg = gray ? c.btnGray : c.primary;
-    final fg = textColor ?? (gray ? c.textPrimary : c.white);
+    // "Plum deck": PillButton = primary + on_primary; GrayPillButton = the soft accent_container pill
+    final bg = gray ? c.accentContainer : c.primary;
+    final fg = textColor ?? (gray ? c.textPrimary : c.onPrimary);
     return SizedBox(
       height: height,
       width: double.infinity,
@@ -561,7 +603,7 @@ class NativePillButton extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onPressed,
-          splashColor: gray ? const Color(0x1F000000) : Colors.white24,
+          splashColor: gray ? c.rowPressed : Colors.white24,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -569,7 +611,7 @@ class NativePillButton extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: fg),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: fg),
               ),
             ),
           ),
@@ -579,9 +621,9 @@ class NativePillButton extends StatelessWidget {
   }
 }
 
-/// style/SheetTitle: 18sp bold text_primary.
+/// style/SheetTitle: 18 sp medium text_primary.
 TextStyle sheetTitleStyle(BuildContext context, {double size = 18}) =>
-    TextStyle(fontSize: size, fontWeight: FontWeight.w700, color: NC.of(context).textPrimary);
+    TextStyle(fontSize: size, fontWeight: FontWeight.w500, color: NC.of(context).textPrimary);
 
 /// MaterialRadioButton tinted with radio_tint (primary on, radio_off off): 20dp ring, 10dp dot.
 class NativeRadio extends StatelessWidget {
@@ -707,7 +749,7 @@ class NativeSheetHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MiddleEllipsisText(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary)),
+                    MiddleEllipsisText(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: c.textPrimary)),
                     if (sub != null && sub.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(sub, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: c.textSecondary)),
@@ -871,7 +913,7 @@ class FolderRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: c.textPrimary)),
+                      Text(name, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: c.textPrimary)),
                       const SizedBox(height: 3),
                       Text(meta, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: c.textSecondary)),
                     ],

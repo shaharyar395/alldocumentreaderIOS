@@ -631,5 +631,22 @@
   "goToAppStore": "Aller sur l'App Store",
   "addToAppIconMenu": "Ajouter au menu de l'icône de l'app",
   "appIconMenuAdded": "Ajouté au menu de l'icône de l'app. Touchez longuement l'icône de l'app pour l'ouvrir.",
-  "onMyDevice": "Sur mon {device}"
+  "onMyDevice": "Sur mon {device}",
+  "dsContinueReading": "Reprendre la lecture",
+  "dsPageOf": "p. {page}/{count}",
+  "dsPercentRead": "{percent} % lu",
+  "dsNewestFiles": "Vos fichiers les plus récents, dans une liste",
+  "dsSwipeDeck": "Afficher l'autre carte",
+  "dsNewFilesOne": "{count} nouveau fichier",
+  "dsNewFilesMany": "{count} nouveaux fichiers",
+  "dsCreateNew": "Créer",
+  "dsScanHeroSub": "Appareil photo, recadrage et filtres",
+  "dsTellUs": "Dites-le-nous",
+  "dsSave": "Enregistrer",
+  "dsSaved": "Enregistré",
+  "iapPriceLoading": "Chargement du prix…",
+  "iapVerificationPending": "Paiement reçu ; vérification en attente. Si Premium ne se débloque pas dans un instant, touchez Restaurer.",
+  "iapPendingApproval": "Votre achat est en attente d'approbation. Premium sera débloqué dès qu'il sera approuvé.",
+  "iapStoreUnavailable": "L'App Store est inaccessible pour le moment. Veuillez réessayer plus tard.",
+  "iapAutoRenewInfo": "Le paiement est débité de votre compte Apple à la confirmation de l'achat. L'abonnement se renouvelle automatiquement au même prix, sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Gérez-le ou résiliez-le dans les réglages de votre compte Apple."
 }

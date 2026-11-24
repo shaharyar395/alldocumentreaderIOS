@@ -631,5 +631,22 @@
   "goToAppStore": "前往 App Store",
   "addToAppIconMenu": "添加到应用图标菜单",
   "appIconMenuAdded": "已添加到应用图标菜单。按住应用图标即可打开。",
-  "onMyDevice": "我的 {device}"
+  "onMyDevice": "我的 {device}",
+  "dsContinueReading": "继续阅读",
+  "dsPageOf": "第 {page}/{count} 页",
+  "dsPercentRead": "已读 {percent}%",
+  "dsNewestFiles": "最新文件，集中在一个列表",
+  "dsSwipeDeck": "显示另一张卡片",
+  "dsNewFilesOne": "{count} 个新文件",
+  "dsNewFilesMany": "{count} 个新文件",
+  "dsCreateNew": "新建",
+  "dsScanHeroSub": "相机、裁剪和滤镜",
+  "dsTellUs": "告诉我们",
+  "dsSave": "保存",
+  "dsSaved": "已保存",
+  "iapPriceLoading": "正在加载价格…",
+  "iapVerificationPending": "已收到付款，正在验证。如果高级版稍后仍未解锁，请轻点“恢复”。",
+  "iapPendingApproval": "你的购买正在等待批准，批准后即可解锁高级版。",
+  "iapStoreUnavailable": "目前无法连接 App Store，请稍后再试。",
+  "iapAutoRenewInfo": "确认购买时将从你的 Apple 账户扣款。除非在当前周期结束前至少 24 小时关闭自动续订，否则订阅将按相同价格自动续订。你可以在 Apple 账户设置中管理或取消订阅。"
 }

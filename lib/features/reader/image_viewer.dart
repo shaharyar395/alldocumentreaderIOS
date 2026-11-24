@@ -160,7 +160,7 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
                           Expanded(
                             child: MiddleEllipsisText(
                               _entry.name,
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary),
                             ),
                           ),
                           NativeIconButton(

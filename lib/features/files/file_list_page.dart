@@ -6,8 +6,10 @@ import '../../data/file_library.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
+import '../../services/app_analytics.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/file_row.dart';
 import 'file_actions.dart';
 import 'files_ui.dart';
@@ -63,6 +65,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
     _searching = widget.initialQuery.isNotEmpty || widget.openSearch;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      IosAnalytics.activate(_screen);
       final settings = AppScope.of(context).settings;
       settings.markVisitedFileList();
       // the "+N" next to Recently added goes once the list was visited (files keep their "New" tag)
@@ -70,8 +73,22 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
     });
   }
 
+  String get _screen {
+    if (widget.recentlyAdded) return 'recently_added_list';
+    return switch (widget.kind) {
+      DocKind.pdf => 'pdf_list',
+      DocKind.word => 'word_list',
+      DocKind.excel => 'excel_list',
+      DocKind.ppt => 'ppt_list',
+      DocKind.txt => 'txt_list',
+      DocKind.image => 'image_list',
+      DocKind.other || null => 'all_files_list',
+    };
+  }
+
   @override
   void dispose() {
+    IosAnalytics.left(_screen);
     _query.dispose();
     _scroll.dispose();
     _tabController.dispose();
@@ -168,7 +185,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
           s.t('selected', {'count': '${chosen.length}'}),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: c.textPrimary),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: c.textPrimary),
         ),
         endPadding: 8,
         onBack: _stopSelecting,
@@ -209,15 +226,24 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
           BarIconButton(
             drawable: ND.icSearch,
             tooltip: s.t('search'),
-            onTap: () => setState(() => _searching = true),
+            onTap: () {
+              logEvent('file_list_search_tapped');
+              setState(() => _searching = true);
+            },
           ),
           BarIconButton(
             drawable: ND.icRefresh,
-            onTap: _refreshing ? null : _refreshButton,
+            onTap: _refreshing
+                ? null
+                : () {
+                    logEvent('file_list_refresh_tapped');
+                    _refreshButton();
+                  },
           ),
           BarIconButton(
             drawable: ND.icSelect,
             onTap: () {
+              logEvent('file_list_select_tapped');
               if (files.isEmpty) {
                 showToast(context, s.t('noFilesFound'));
               } else {
@@ -228,7 +254,10 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
           BarIconButton(
             drawable: ND.icFilter,
             tooltip: s.t('filterBy'),
-            onTap: () => _showFilter(context),
+            onTap: () {
+              logEvent('file_list_filter_tapped');
+              _showFilter(context);
+            },
           ),
         ],
       );
@@ -237,7 +266,10 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
     return PopScope(
       canPop: !_selecting && !(_searching && !widget.openSearch),
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
+        if (didPop) {
+          IosAnalytics.back(_screen);
+          return;
+        }
         if (_selecting) {
           _stopSelecting();
         } else if (_searching) {
@@ -245,11 +277,11 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
         }
       },
       child: Scaffold(
-        backgroundColor: c.surface,
+        backgroundColor: c.bgScreen,
         body: SafeArea(
           child: Column(
             children: [
-              ColoredBox(color: c.surface, child: bar),
+              ColoredBox(color: c.bgScreen, child: bar),
               if (_showTabs)
                 NativeTabStrip(
                   controller: _tabController,
@@ -275,7 +307,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                             : ListView.builder(
                                 controller: _scroll,
                                 physics: const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.only(top: 4, bottom: 16),
                                 itemCount: files.length,
                                 itemBuilder: (context, index) {
                                   final entry = files[index];
@@ -283,6 +315,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                                   return _anim.wrap(
                                     index,
                                     FileRow(
+                                      key: ValueKey(entry.id),
                                       entry: entry,
                                       selecting: _selecting,
                                       selected: selected,
@@ -292,7 +325,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                                             selected ? _selected.remove(entry.id) : _selected.add(entry.id);
                                           });
                                         } else {
-                                          openEntry(context, entry);
+                                          openEntry(context, entry, source: _screen);
                                         }
                                       },
                                       onLongPress: () {
@@ -304,6 +337,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                                       },
                                       onBookmark: () => toggleBookmarkWithPill(context, entry),
                                       onMore: () => showFileMenu(context, entry),
+                                      onDelete: () => confirmDelete(context, entry),
                                     ),
                                   );
                                 },
@@ -315,7 +349,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                   enabled: chosen.isNotEmpty,
                   actions: [
                     SelectBarAction(
-                      drawable: ND.icShare,
+                      drawable: ND.dsFilesIcShare,
                       label: s.t('share'),
                       onTap: () async {
                         if (chosen.isEmpty) {
@@ -326,7 +360,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                       },
                     ),
                     SelectBarAction(
-                      drawable: ND.icDelete,
+                      drawable: ND.dsFilesIcDelete,
                       label: s.t('delete'),
                       onTap: () async {
                         if (chosen.isEmpty) {

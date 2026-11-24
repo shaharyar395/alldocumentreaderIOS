@@ -6,6 +6,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../app_scope.dart';
 import '../l10n/s.dart';
 import '../native/native_colors.dart';
+import '../services/ad_remote_config.dart';
 import '../services/ad_service.dart';
 import '../services/ios_growth.dart';
 
@@ -28,6 +29,23 @@ class _BannerSlotState extends State<BannerSlot> {
   bool _ready = false;
   bool _failed = false;
   int? _width;
+
+  @override
+  void initState() {
+    super.initState();
+    AdRemoteConfig.changes.addListener(_onRemoteConfig);
+  }
+
+  /// Remote Config `enable_ads` / `banner_ads` / `enable_test_ads` changed (AdBar.refreshPolicy).
+  void _onRemoteConfig() {
+    if (!mounted) return;
+    final width = _width ?? MediaQuery.sizeOf(context).width.truncate();
+    setState(() {
+      _drop();
+      _failed = false;
+    });
+    _load(width);
+  }
 
   @override
   void didChangeDependencies() {
@@ -55,7 +73,7 @@ class _BannerSlotState extends State<BannerSlot> {
       waited = true;
       if (!mounted || _ad != null) return;
     }
-    if (!ads.canShow) {
+    if (!ads.canShow || !AdRemoteConfig.bannerAds) {
       // (no setState while still inside didChangeDependencies: the coming build sees it)
       _failed = true;
       if (waited && mounted) setState(() {});
@@ -109,6 +127,7 @@ class _BannerSlotState extends State<BannerSlot> {
 
   @override
   void dispose() {
+    AdRemoteConfig.changes.removeListener(_onRemoteConfig);
     _ad?.dispose();
     super.dispose();
   }

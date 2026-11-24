@@ -8,64 +8,307 @@ import 'native_icon.dart';
 abstract final class ND {
   /// res/drawable/bg_splash_deco.xml (360 x 360 dp)
   static const bgSplashDeco = NDrawable(width: 360.0, height: 360.0, viewportWidth: 360.0, viewportHeight: 360.0, children: [
-    NPath('M40,250 L120,210 L200,250 L120,290 Z', fill: NColor.hex(0xFFEEF2FA)),
-    NPath('M40,250 V300 L120,340 V290 Z', fill: NColor.hex(0xFFE6ECF7)),
-    NPath('M200,250 V300 L120,340 V290 Z', fill: NColor.hex(0xFFF1F4FB)),
-    NPath('M190,170 L260,135 L330,170 L260,205 Z', fill: NColor.hex(0xFFEEF2FA)),
-    NPath('M190,170 V230 L260,265 V205 Z', fill: NColor.hex(0xFFE8EDF8)),
-    NPath('M330,170 V230 L260,265 V205 Z', fill: NColor.hex(0xFFF2F5FB)),
-    NPath('M92,150 L130,131 L168,150 L130,169 Z', fill: NColor.hex(0xFFF1F4FB)),
-    NPath('M92,150 V186 L130,205 V169 Z', fill: NColor.hex(0xFFEBF0F9)),
-    NPath('M168,150 V186 L130,205 V169 Z', fill: NColor.hex(0xFFF4F6FC)),
-    NPath('M280,282 m-26,0 a26,26 0 1 0 52,0 a26,26 0 1 0 -52,0', stroke: NColor.hex(0xFFE4EAF6), strokeWidth: 4.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M106,200 H294 A36,36 0 0 1 330,236 V384 A36,36 0 0 1 294,420 H106 A36,36 0 0 1 70,384 V236 A36,36 0 0 1 106,200 Z', fill: NColor.ref('deck_back')),
+    NPath('M86,230 H274 A36,36 0 0 1 310,266 V404 A36,36 0 0 1 274,440 H86 A36,36 0 0 1 50,404 V266 A36,36 0 0 1 86,230 Z', fill: NColor.ref('deck_middle'), fillAlpha: 0.55),
+    NPath('M274,190 A26,26 0 1 0 326,190 A26,26 0 1 0 274,190 Z', fill: NColor.ref('accent_soft'), fillAlpha: 0.55),
+    NPath('M38,170 A10,10 0 1 0 58,170 A10,10 0 1 0 38,170 Z', fill: NColor.ref('accent_soft'), fillAlpha: 0.7),
+    NPath('M110,300 H220 M110,330 H260', stroke: NColor.ref('surface'), strokeWidth: 10.0, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.6),
+  ]);
+
+  /// res/drawable/ds_files_ic_chevron.xml (24 x 24 dp)
+  static const dsFilesIcChevron = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M10,6.5L15.5,12L10,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_delete.xml (24 x 24 dp)
+  static const dsFilesIcDelete = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4.5,6.5H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.5,6.5V4.8A0.8,0.8 0 0 1 10.3,4H13.7A0.8,0.8 0 0 1 14.5,4.8V6.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,6.5L7.4,19A1.6,1.6 0 0 0 9,20.5H15A1.6,1.6 0 0 0 16.6,19L17.5,6.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,10.5V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,10.5V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_drive.xml (24 x 24 dp)
+  static const dsFilesIcDrive = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,18.5A4,4 0 0 1 6.6,10.5A5.5,5.5 0 0 1 17.2,9.2A4.7,4.7 0 0 1 17.5,18.5Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,16V11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,13.4L12,11.4L14,13.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_home_add.xml (24 x 24 dp)
+  static const dsFilesIcHomeAdd = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4.5,10.5L12,4.5L19.5,10.5V19A1.5,1.5 0 0 1 18,20.5H6A1.5,1.5 0 0 1 4.5,19Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,10.8V16.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.3,13.5H14.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_info.xml (24 x 24 dp)
+  static const dsFilesIcInfo = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M3.5,12A8.5,8.5 0 1 1 20.5,12A8.5,8.5 0 1 1 3.5,12Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,7.8V7.9', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_rename.xml (24 x 24 dp)
+  static const dsFilesIcRename = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,20H8L18.6,9.4A2,2 0 0 0 18.6,6.6L17.4,5.4A2,2 0 0 0 14.6,5.4L4,16Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.2,6.8L17.2,10.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,20H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_select_all.xml (24 x 24 dp)
+  static const dsFilesIcSelectAll = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M8,3.5H18A2.5,2.5 0 0 1 20.5,6V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5.5,7.5H14.5A2,2 0 0 1 16.5,9.5V18.5A2,2 0 0 1 14.5,20.5H5.5A2,2 0 0 1 3.5,18.5V9.5A2,2 0 0 1 5.5,7.5Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,14.2L9.2,16.3L13,12.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ic_share.xml (24 x 24 dp)
+  static const dsFilesIcShare = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M8,10H6.5A1.5,1.5 0 0 0 5,11.5V18.5A1.5,1.5 0 0 0 6.5,20H17.5A1.5,1.5 0 0 0 19,18.5V11.5A1.5,1.5 0 0 0 17.5,10H16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,14V3.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.6,7L12,3.6L15.4,7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_files_ill_loading.xml (64 x 64 dp)
+  static const dsFilesIllLoading = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
+    NGroup(rotation: -10.0, px: 32.0, py: 32.0, children: [
+      NPath('M24,10 H40 A6,6 0 0 1 46,16 V48 A6,6 0 0 1 40,54 H24 A6,6 0 0 1 18,48 V16 A6,6 0 0 1 24,10 Z', fill: NColor.ref('ds_files_ill_mid')),
+    ]),
+    NPath('M24,10 H40 A6,6 0 0 1 46,16 V48 A6,6 0 0 1 40,54 H24 A6,6 0 0 1 18,48 V16 A6,6 0 0 1 24,10 Z', fill: NColor.ref('ds_files_ill_front'), stroke: NColor.ref('primary'), strokeWidth: 1.8),
+    NPath('M24,22H40M24,29H40M24,36H33', stroke: NColor.ref('ds_files_ill_line'), strokeWidth: 2.4, cap: StrokeCap.round),
+    NPath('M48,50m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0', fill: NColor.ref('accent')),
+  ]);
+
+  /// res/drawable/ds_set_w_excel.xml (28 x 28 dp)
+  static const dsSetWExcel = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFF1E8A55), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M6.5,3 H14 L19,8 V19.5 A1.5,1.5 0 0 1 17.5,21 H6.5 A1.5,1.5 0 0 1 5,19.5 V4.5 A1.5,1.5 0 0 1 6.5,3 Z M14,3 V6.5 A1.5,1.5 0 0 0 15.5,8 H19', stroke: NColor.hex(0xFF1E8A55), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.8,11 H15.2 A0.8,0.8 0 0 1 16,11.8 V17.2 A0.8,0.8 0 0 1 15.2,18 H8.8 A0.8,0.8 0 0 1 8,17.2 V11.8 A0.8,0.8 0 0 1 8.8,11 Z', stroke: NColor.hex(0xFF1E8A55), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8,14.5 H16 M12,11 V18', stroke: NColor.hex(0xFF1E8A55), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
+  ]);
+
+  /// res/drawable/ds_set_w_pdf.xml (28 x 28 dp)
+  static const dsSetWPdf = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFFE2483D), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M6.5,3 H14 L19,8 V19.5 A1.5,1.5 0 0 1 17.5,21 H6.5 A1.5,1.5 0 0 1 5,19.5 V4.5 A1.5,1.5 0 0 1 6.5,3 Z M14,3 V6.5 A1.5,1.5 0 0 0 15.5,8 H19', stroke: NColor.hex(0xFFE2483D), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.5,17.5 Q12,11.5 15.5,17.5', stroke: NColor.hex(0xFFE2483D), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
+  ]);
+
+  /// res/drawable/ds_set_w_ppt.xml (28 x 28 dp)
+  static const dsSetWPpt = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFFD2680F), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M6.5,3 H14 L19,8 V19.5 A1.5,1.5 0 0 1 17.5,21 H6.5 A1.5,1.5 0 0 1 5,19.5 V4.5 A1.5,1.5 0 0 1 6.5,3 Z M14,3 V6.5 A1.5,1.5 0 0 0 15.5,8 H19', stroke: NColor.hex(0xFFD2680F), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M9,18 V15.5 M12,18 V12.5 M15,18 V14', stroke: NColor.hex(0xFFD2680F), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
+  ]);
+
+  /// res/drawable/ds_set_w_word.xml (28 x 28 dp)
+  static const dsSetWWord = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFF3563D9), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M6.5,3 H14 L19,8 V19.5 A1.5,1.5 0 0 1 17.5,21 H6.5 A1.5,1.5 0 0 1 5,19.5 V4.5 A1.5,1.5 0 0 1 6.5,3 Z M14,3 V6.5 A1.5,1.5 0 0 0 15.5,8 H19', stroke: NColor.hex(0xFF3563D9), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.5,12 H15.5 M8.5,15 H15.5 M8.5,18 H12.5', stroke: NColor.hex(0xFF3563D9), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
+  ]);
+
+  /// res/drawable/ds_tools_ic_add_text.xml (24 x 24 dp)
+  static const dsToolsIcAddText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,7 V5 H14 V7 M9,5 V19 M7,19 H11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,12 V19 M14.5,15.5 H21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_annotate.xml (24 x 24 dp)
+  static const dsToolsIcAnnotate = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M14.5,5 L19,9.5 L11,17.5 L6.5,13 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,13 L4.5,17.5 L6.5,19.5 L11,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,21 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_camera.xml (24 x 24 dp)
+  static const dsToolsIcCamera = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,8.5 A2,2 0 0 1 6,6.5 H8 L9.5,4.5 H14.5 L16,6.5 H18 A2,2 0 0 1 20,8.5 V17.5 A2,2 0 0 1 18,19.5 H6 A2,2 0 0 1 4,17.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,9.5 A3.5,3.5 0 1 1 11.99,9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_chevron.xml (24 x 24 dp)
+  static const dsToolsIcChevron = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M9.5,6 L15.5,12 L9.5,18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_create_pdf.xml (24 x 24 dp)
+  static const dsToolsIcCreatePdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,3 H14 L19,8 V19 A2,2 0 0 1 17,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 Z M14,3 V8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11 V17 M9,14 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_edit_text.xml (24 x 24 dp)
+  static const dsToolsIcEditText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,7 V5 H14 V7 M9,5 V18 M7,18 H11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.5,9 V20 M15.5,9 H19.5 M15.5,20 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_feedback.xml (24 x 24 dp)
+  static const dsToolsIcFeedback = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M9.5,17.5 H14.5 M10.5,20.5 H13.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,3 A6,6 0 0 0 8.2,13.6 C8.9,14.3 9.3,15 9.4,15.5 H14.6 C14.7,15 15.1,14.3 15.8,13.6 A6,6 0 0 0 12,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_image2pdf.xml (24 x 24 dp)
+  static const dsToolsIcImage2pdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5,4 H19 A2,2 0 0 1 21,6 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 V6 A2,2 0 0 1 5,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,17 L8.5,12 L12.5,16 L15,13.5 L20.5,19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,8.5 A1.5,1.5 0 1 0 17,8.5 A1.5,1.5 0 1 0 14,8.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_import.xml (24 x 24 dp)
+  static const dsToolsIcImport = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M12,3.5 V14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,10 L12,14 L16,10', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,14 V18 A2,2 0 0 0 6,20 H18 A2,2 0 0 0 20,18 V14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_manage_pages.xml (24 x 24 dp)
+  static const dsToolsIcManagePages = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M8,7 V5 A2,2 0 0 1 10,3 H18 A2,2 0 0 1 20,5 V15 A2,2 0 0 1 18,17 H16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,7 H14 A2,2 0 0 1 16,9 V19 A2,2 0 0 1 14,21 H6 A2,2 0 0 1 4,19 V9 A2,2 0 0 1 6,7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_merge.xml (24 x 24 dp)
+  static const dsToolsIcMerge = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M6,3.5 V7.5 C6,11 12,11 12,14.5 V20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,3.5 V7.5 C18,11 12,11 12,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,17.5 L12,20.5 L15,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_pdf2word.xml (24 x 24 dp)
+  static const dsToolsIcPdf2word = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,3 H14 L19,8 V19 A2,2 0 0 1 17,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 Z M14,3 V8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,17 C9.5,13 12.5,12 15.5,13.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,11.8 L15.5,13.5 L13.8,15.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_ppt2pdf.xml (24 x 24 dp)
+  static const dsToolsIcPpt2pdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,3 H14 L19,8 V19 A2,2 0 0 1 17,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 Z M14,3 V8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,18 V15.5 M12,18 V12 M15,18 V14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_print.xml (24 x 24 dp)
+  static const dsToolsIcPrint = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,9 V4 H17 V9', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,17 H5 A2,2 0 0 1 3,15 V11 A2,2 0 0 1 5,9 H19 A2,2 0 0 1 21,11 V15 A2,2 0 0 1 19,17 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,14 H17 V20 H7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_recycle_bin.xml (24 x 24 dp)
+  static const dsToolsIcRecycleBin = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,7 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,7 V5 A1,1 0 0 1 10,4 H14 A1,1 0 0 1 15,5 V7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,7 L7,19 A2,2 0 0 0 9,21 H15 A2,2 0 0 0 17,19 L18,7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,11 V17 M14,11 V17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_scan.xml (24 x 24 dp)
+  static const dsToolsIcScan = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,8 V6 A2,2 0 0 1 6,4 H8 M16,4 H18 A2,2 0 0 1 20,6 V8 M20,16 V18 A2,2 0 0 1 18,20 H16 M8,20 H6 A2,2 0 0 1 4,18 V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,12 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_sign.xml (24 x 24 dp)
+  static const dsToolsIcSign = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M3,18 C5,13.5 7.5,13.5 7.5,16.5 C7.5,19 10,17.5 11,15.5 C12,13.5 13,16.5 14.5,17.5 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,10.5 L18.5,6 A1.4,1.4 0 0 1 20.5,8 L16,12.5 L13.5,13 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_split.xml (24 x 24 dp)
+  static const dsToolsIcSplit = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M12,3.5 V8.5 C12,12 6,12 6,15.5 V20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,8.5 C12,12 18,12 18,15.5 V20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,18 L6,20.5 L8.5,18 M15.5,18 L18,20.5 L20.5,18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_templates.xml (24 x 24 dp)
+  static const dsToolsIcTemplates = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5,4 H10 A1,1 0 0 1 11,5 V11 A1,1 0 0 1 10,12 H5 A1,1 0 0 1 4,11 V5 A1,1 0 0 1 5,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,4 H19 A1,1 0 0 1 20,5 V7 A1,1 0 0 1 19,8 H14 A1,1 0 0 1 13,7 V5 A1,1 0 0 1 14,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,11 H19 A1,1 0 0 1 20,12 V19 A1,1 0 0 1 19,20 H14 A1,1 0 0 1 13,19 V12 A1,1 0 0 1 14,11 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,15 H10 A1,1 0 0 1 11,16 V19 A1,1 0 0 1 10,20 H5 A1,1 0 0 1 4,19 V16 A1,1 0 0 1 5,15 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_tick.xml (24 x 24 dp)
+  static const dsToolsIcTick = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M6.5,12.5 L10.2,16 L17.5,8.5', stroke: NColor.ref('white'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_tools_ic_word2pdf.xml (24 x 24 dp)
+  static const dsToolsIcWord2pdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,3 H14 L19,8 V19 A2,2 0 0 1 17,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 Z M14,3 V8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,12 H15.5 M8.5,15 H15.5 M8.5,18 H12.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ds_view_swipe_hand.xml (58 x 86 dp)
+  static const dsViewSwipeHand = NDrawable(width: 58.0, height: 86.0, viewportWidth: 58.0, viewportHeight: 86.0, children: [
+    NPath('M28,12 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 2.0, strokeAlpha: 0.7),
+    NPath('M22,58 V14 A6,6 0 0 1 34,14 V36 A4.6,4.6 0 0 1 43,37.5 A4.6,4.6 0 0 1 51,41.5 V62 C51,74 44,82 33,82 H29 C21.5,82 16.5,78 13.5,72 L6.5,58.5 A4.4,4.4 0 0 1 13.6,53.6 Z', fill: NColor.hex(0xFFD5EFEB), stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M34,36 V46 M43,37.5 V47', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.0, cap: StrokeCap.round),
+    NPath('M25.5,13 A2.5,2.5 0 0 1 30.5,13', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 2.0, cap: StrokeCap.round),
   ]);
 
   /// res/drawable/ic_add.xml (24 x 24 dp)
   static const icAdd = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,5 V19 M5,12 H19', stroke: NColor.ref('icon_main'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,5 V19 M5,12 H19', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_alert_circle.xml (18 x 18 dp)
-  static const icAlertCircle = NDrawable(width: 18.0, height: 18.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,7.5 V13', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,16.3 m-1.1,0 a1.1,1.1 0 1 0 2.2,0 a1.1,1.1 0 1 0 -2.2,0', fill: NColor.hex(0xFFFFFFFF)),
+  /// res/drawable/ic_alert_circle.xml (24 x 24 dp)
+  static const icAlertCircle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M3,12 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,7.5 V13', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,16.4 V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_arrow_down.xml (24 x 24 dp)
   static const icArrowDown = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,5 V19 M6,13 L12,19 L18,13', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,5 V19 M6.5,13.5 L12,19 L17.5,13.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_arrow_right_w.xml (24 x 24 dp)
   static const icArrowRightW = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,12 H19 M13,6 L19,12 L13,18', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,12 H19 M13,6 L19,12 L13,18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_arrow_up.xml (24 x 24 dp)
   static const icArrowUp = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,19 V5 M6,11 L12,5 L18,11', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,19 V5 M6.5,10.5 L12,5 L17.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_auto_crop.xml (24 x 24 dp)
   static const icAutoCrop = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,9 V4 H9 M15,4 H20 V9 M20,15 V20 H15 M9,20 H4 V15', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.8,16 L12,8 L15.2,16 M10,13.2 H14', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,8 V6 A2,2 0 0 1 6,4 H8 M16,4 H18 A2,2 0 0 1 20,6 V8 M20,16 V18 A2,2 0 0 1 18,20 H16 M8,20 H6 A2,2 0 0 1 4,18 V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,8 L13,11 L16,12 L13,13 L12,16 L11,13 L8,12 L11,11 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_avatar.xml (80 x 80 dp)
   static const icAvatar = NDrawable(width: 80.0, height: 80.0, viewportWidth: 80.0, viewportHeight: 80.0, children: [
-    NPath('M40,40 m-40,0 a40,40 0 1 0 80,0 a40,40 0 1 0 -80,0', fill: NColor.hex(0xFFDCE3EC)),
-    NPath('M40,34 m-13,0 a13,13 0 1 0 26,0 a13,13 0 1 0 -26,0', fill: NColor.hex(0xFFC99A7C)),
-    NPath('M27,31 C27,20 53,20 53,31 C50,25 32,25 27,31 Z', fill: NColor.hex(0xFF3A2A20)),
-    NPath('M14,72 C16,56 28,51 40,51 C52,51 64,56 66,72 A40,40 0 0 1 14,72 Z', fill: NColor.hex(0xFF1F2E4A)),
-    NPath('M35,51 L40,62 L45,51 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M39,55 L40,70 L41,55 Z', fill: NColor.hex(0xFF3B6FB6)),
+    NPath('M12,0 H68 A12,12 0 0 1 80,12 V68 A12,12 0 0 1 68,80 H12 A12,12 0 0 1 0,68 V12 A12,12 0 0 1 12,0 Z', fill: NColor.ref('accent_container')),
+    NPath('M14,80 C14,62 26,54 40,54 C54,54 66,62 66,80 Z', fill: NColor.ref('primary')),
+    NPath('M26,34 A14,14 0 1 0 54,34 A14,14 0 1 0 26,34 Z', fill: NColor.ref('accent_soft')),
+    NPath('M26,32 C26,20 34,16 40,16 C48,16 55,21 54,32 C50,26 44,24 38,25 C33,26 29,28 26,32 Z', fill: NColor.ref('primary_dark')),
   ]);
 
   /// res/drawable/ic_back.xml (24 x 24 dp)
   static const icBack = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M20,12 H5 M11,5.5 L4.5,12 L11,18.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M19,12 H5.5 M11,6 L5,12 L11,18', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_banner_clouds.xml (96 x 64 dp)
@@ -78,29 +321,28 @@ abstract final class ND {
 
   /// res/drawable/ic_bm_pill_off.xml (20 x 20 dp)
   static const icBmPillOff = NDrawable(width: 20.0, height: 20.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,3.5 H17 A1.5,1.5 0 0 1 18.5,5 V20.5 L12,16.5 L5.5,20.5 V5 A1.5,1.5 0 0 1 7,3.5 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3.5,3.5 L20.5,20.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,3.5 H17 A1.5,1.5 0 0 1 18.5,5 V20 L12,16 L5.5,20 V5 A1.5,1.5 0 0 1 7,3.5 Z', stroke: NColor.ref('navbar_pill'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_bm_pill_on.xml (20 x 20 dp)
   static const icBmPillOn = NDrawable(width: 20.0, height: 20.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,3.5 H17 A1.5,1.5 0 0 1 18.5,5 V20.5 L12,16.5 L5.5,20.5 V5 A1.5,1.5 0 0 1 7,3.5 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M7,3.5 H17 A1.5,1.5 0 0 1 18.5,5 V20 L12,16 L5.5,20 V5 A1.5,1.5 0 0 1 7,3.5 Z', fill: NColor.ref('navbar_pill'), stroke: NColor.ref('navbar_pill'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_bookmark.xml (24 x 24 dp)
   static const icBookmark = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M17,3H7c-1.1,0 -2,0.9 -2,2v16l7,-3 7,3V5c0,-1.1 -0.9,-2 -2,-2z', fill: NColor.ref('icon_main')),
+    NPath('M7,3.5 H17 A1.5,1.5 0 0 1 18.5,5 V20 L12,16 L5.5,20 V5 A1.5,1.5 0 0 1 7,3.5 Z', fill: NColor.ref('icon_main'), stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_bookmark_border.xml (24 x 24 dp)
   static const icBookmarkBorder = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M17,3H7c-1.1,0 -1.99,0.9 -1.99,2L5,21l7,-3 7,3V5c0,-1.1 -0.9,-2 -2,-2zM17,18l-5,-2.18L7,18V5h10v13z', fill: NColor.ref('icon_main')),
+    NPath('M7,3.5 H17 A1.5,1.5 0 0 1 18.5,5 V20 L12,16 L5.5,20 V5 A1.5,1.5 0 0 1 7,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_camera.xml (24 x 24 dp)
   static const icCamera = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,8 H7.5 L9,5.5 H15 L16.5,8 H20 V19 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,13.3 m-3.3,0 a3.3,3.3 0 1 0 6.6,0 a3.3,3.3 0 1 0 -6.6,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,9 A2,2 0 0 1 6,7 H8 L9.5,4.8 H14.5 L16,7 H18 A2,2 0 0 1 20,9 V17.5 A2,2 0 0 1 18,19.5 H6 A2,2 0 0 1 4,17.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.6,13 A3.4,3.4 0 1 0 15.4,13 A3.4,3.4 0 1 0 8.6,13 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_camera_fab.xml (24 x 24 dp)
@@ -109,104 +351,116 @@ abstract final class ND {
     NPath('M12,13.3 m-3.3,0 a3.3,3.3 0 1 0 6.6,0 a3.3,3.3 0 1 0 -6.6,0', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_caret_down.xml (14 x 14 dp)
-  static const icCaretDown = NDrawable(width: 14.0, height: 14.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,10 L12,15 L17,10 Z', fill: NColor.ref('icon_main')),
+  /// res/drawable/ic_caret_down.xml (24 x 24 dp)
+  static const icCaretDown = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M8,10 L12,14 L16,10', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_caret_up.xml (14 x 14 dp)
-  static const icCaretUp = NDrawable(width: 14.0, height: 14.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,14 L12,9 L17,14 Z', fill: NColor.ref('icon_main')),
+  /// res/drawable/ic_caret_up.xml (24 x 24 dp)
+  static const icCaretUp = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M8,14 L12,10 L16,14', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_cat_all.xml (40 x 40 dp)
-  static const icCatAll = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M8,11 V17.5 H17 V11.5 H12.8 L11.6,10 H8.8 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_all.xml (44 x 44 dp)
+  static const icCatAll = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_all'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M9,3.5 H16.5 A2.5,2.5 0 0 1 19,6 V15.5', stroke: NColor.ref('type_all'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M7,7 H13.5 A2,2 0 0 1 15.5,9 V18.5 A2,2 0 0 1 13.5,20.5 H7 A2,2 0 0 1 5,18.5 V9 A2,2 0 0 1 7,7 Z', stroke: NColor.ref('type_all'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8,11.5 H12.5 M8,14.5 H12.5 M8,17.5 H10.5', stroke: NColor.ref('type_all'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_dir.xml (40 x 40 dp)
-  static const icCatDir = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M8,11 H12.5 M8,14 H11 M8,17 H11.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15,14.2 m-2.2,0 a2.2,2.2 0 1 0 4.4,0 a2.2,2.2 0 1 0 -4.4,0', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M16.6,15.8 L18,17.3', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_dir.xml (44 x 44 dp)
+  static const icCatDir = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_dir'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M3.5,7.5 A2,2 0 0 1 5.5,5.5 H9.4 L11.4,7.5 H18.5 A2,2 0 0 1 20.5,9.5 V17 A2,2 0 0 1 18.5,19 H5.5 A2,2 0 0 1 3.5,17 Z', stroke: NColor.ref('type_dir'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_excel.xml (40 x 40 dp)
-  static const icCatExcel = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFF008A3B)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M8.8,10.5 L16.2,17.5 M16.2,10.5 L8.8,17.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_excel.xml (44 x 44 dp)
+  static const icCatExcel = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_excel'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_excel'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M9.5,11 H14.5 A1,1 0 0 1 15.5,12 V17 A1,1 0 0 1 14.5,18 H9.5 A1,1 0 0 1 8.5,17 V12 A1,1 0 0 1 9.5,11 Z', stroke: NColor.ref('type_excel'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M12,11 V18 M8.5,14.5 H15.5', stroke: NColor.ref('type_excel'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_image.xml (40 x 40 dp)
-  static const icCatImage = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFFFDA800)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M7.5,17.5 L10.5,13.2 L12.6,15.8 L14.2,14 L17.5,17.5 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M15.3,11.3 m-1.3,0 a1.3,1.3 0 1 0 2.6,0 a1.3,1.3 0 1 0 -2.6,0', fill: NColor.hex(0xFFFFFFFF)),
+  /// res/drawable/ic_cat_image.xml (44 x 44 dp)
+  static const icCatImage = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_image'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M6.5,5 H17.5 A2.5,2.5 0 0 1 20,7.5 V16.5 A2.5,2.5 0 0 1 17.5,19 H6.5 A2.5,2.5 0 0 1 4,16.5 V7.5 A2.5,2.5 0 0 1 6.5,5 Z', stroke: NColor.ref('type_image'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M4.5,17 L9,12.5 L12.5,16 L15,13.5 L19.5,18', stroke: NColor.ref('type_image'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M14.1,9.2 A1.4,1.4 0 1 0 16.9,9.2 A1.4,1.4 0 1 0 14.1,9.2 Z', stroke: NColor.ref('type_image'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_pdf.xml (40 x 40 dp)
-  static const icCatPdf = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFFD10000)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M7.6,17 V12.2 H8.9 A1.2,1.2 0 0 1 8.9,14.6 H7.6', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.95, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11.2,17 V12.2 H11.8 A1.8,2.4 0 0 1 11.8,17 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.95, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15,17 V12.2 H17.3 M15,14.6 H16.8', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.95, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_pdf.xml (44 x 44 dp)
+  static const icCatPdf = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_pdf'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_pdf'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.5,17.5 C9.5,13.5 12,11.5 15.5,12.5 C13.5,14.2 11.2,15.8 8.5,17.5 Z', stroke: NColor.ref('type_pdf'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_ppt.xml (40 x 40 dp)
-  static const icCatPpt = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFFF26201)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M10,18 V10.5 H13.2 A2.6,2.6 0 0 1 13.2,15.7 H10', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_ppt.xml (44 x 44 dp)
+  static const icCatPpt = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_ppt'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_ppt'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M9,18 V15.5 M12,18 V12 M15,18 V14', stroke: NColor.ref('type_ppt'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_txt.xml (40 x 40 dp)
-  static const icCatTxt = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFF5F6B90)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M8.3,10.8 H16.7 M12.5,10.8 V18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_txt.xml (44 x 44 dp)
+  static const icCatTxt = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_txt'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M5,6 H19 M5,10 H19 M5,14 H16 M5,18 H12', stroke: NColor.ref('type_txt'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_cat_word.xml (40 x 40 dp)
-  static const icCatWord = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFF1560D6)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M7.8,10.5 L9.5,17 L12.5,12.3 L15.5,17 L17.2,10.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cat_word.xml (44 x 44 dp)
+  static const icCatWord = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_word'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_word'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.5,11.5 H15.5 M8.5,14.5 H15.5 M8.5,17.5 H12.5', stroke: NColor.ref('type_word'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_check.xml (24 x 24 dp)
   static const icCheck = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,12.5 L9.5,17.5 L19.5,6.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,12.5 L10,17.5 L19,7', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_check_badge.xml (22 x 22 dp)
-  static const icCheckBadge = NDrawable(width: 22.0, height: 22.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFFFFB300)),
-    NPath('M7.5,12.3 L10.6,15.3 L16.5,9', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icCheckBadge = NDrawable(width: 22.0, height: 22.0, viewportWidth: 22.0, viewportHeight: 22.0, children: [
+    NPath('M2,11 A9,9 0 1 0 20,11 A9,9 0 1 0 2,11 Z', fill: NColor.ref('accent')),
+    NPath('M7,11.3 L9.8,14 L15,8.5', stroke: NColor.ref('on_accent'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_check_blue.xml (20 x 20 dp)
-  static const icCheckBlue = NDrawable(width: 20.0, height: 20.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFF5865FF)),
-    NPath('M7.5,12.3 L10.6,15.3 L16.5,9', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icCheckBlue = NDrawable(width: 20.0, height: 20.0, viewportWidth: 20.0, viewportHeight: 20.0, children: [
+    NPath('M1.5,10 A8.5,8.5 0 1 0 18.5,10 A8.5,8.5 0 1 0 1.5,10 Z', fill: NColor.ref('accent')),
+    NPath('M6.3,10.2 L8.8,12.6 L13.8,7.4', stroke: NColor.ref('on_accent'), strokeWidth: 1.9, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_check_circle.xml (24 x 24 dp)
   static const icCheckCircle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', fill: NColor.hex(0xFF1FB35A)),
-    NPath('M7.8,12.3 L10.7,15.1 L16.3,9.3', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M2.5,12 A9.5,9.5 0 1 0 21.5,12 A9.5,9.5 0 1 0 2.5,12 Z', fill: NColor.ref('primary')),
+    NPath('M7.8,12.3 L10.8,15.2 L16.3,9.2', stroke: NColor.ref('on_primary'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_check_circle_outline.xml (24 x 24 dp)
   static const icCheckCircleOutline = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17,0 a8.5,8.5 0 1 0 -17,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,12.3 L10.8,15 L16,9.3', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17.0,0 a8.5,8.5 0 1 0 -17.0,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.2,12.3 L10.8,14.8 L15.8,9.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_chevron_right.xml (24 x 24 dp)
@@ -216,26 +470,28 @@ abstract final class ND {
 
   /// res/drawable/ic_clear_circle.xml (24 x 24 dp)
   static const icClearCircle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', fill: NColor.ref('icon_main')),
-    NPath('M9,9 L15,15 M15,9 L9,15', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,12A8.5,8.5 0 1 1 20.5,12A8.5,8.5 0 1 1 3.5,12Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.5,9.5L14.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.5,9.5L9.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_clock_badge.xml (24 x 24 dp)
   static const icClockBadge = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M12,6.8 V12.3 L15.4,14.3', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.9, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M2.5,12 A9.5,9.5 0 1 0 21.5,12 A9.5,9.5 0 1 0 2.5,12 Z', fill: NColor.ref('accent_container')),
+    NPath('M5.7,12 A6.3,6.3 0 1 0 18.3,12 A6.3,6.3 0 1 0 5.7,12 Z', stroke: NColor.ref('primary'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,8.8 V12.2 L14.2,13.6', stroke: NColor.ref('primary'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_close.xml (24 x 24 dp)
   static const icClose = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6.5,6.5 L17.5,17.5 M17.5,6.5 L6.5,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,6.5 L17.5,17.5 M17.5,6.5 L6.5,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_compare.xml (24 x 24 dp)
   static const icCompare = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,5 H19 A1.5,1.5 0 0 1 20.5,6.5 V17.5 A1.5,1.5 0 0 1 19,19 H5 A1.5,1.5 0 0 1 3.5,17.5 V6.5 A1.5,1.5 0 0 1 5,5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3.5,6.5 A1.5,1.5 0 0 1 5,5 H12 V19 H5 A1.5,1.5 0 0 1 3.5,17.5 Z', fill: NColor.ref('icon_main'), fillAlpha: 0.25),
-    NPath('M12,3 V21', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,4 H19 A2,2 0 0 1 21,6 V18 A2,2 0 0 1 19,20 H5 A2,2 0 0 1 3,18 V6 A2,2 0 0 1 5,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,2.5 V21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,9.5 L6.5,12 L8.5,14.5 M15.5,9.5 L17.5,12 L15.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_convert_done.xml (96 x 96 dp)
@@ -254,202 +510,184 @@ abstract final class ND {
 
   /// res/drawable/ic_convert_pdf.xml (24 x 24 dp)
   static const icConvertPdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13.3,21 H6.5 A2,2 0 0 1 4.5,19 V5 A2,2 0 0 1 6.5,3 H14 L19,8 V13.3', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7.2,13 V8.2 H8.7 A1.3,1.3 0 0 1 8.7,10.8 H7.2 M10.6,13 V8.2 H11.2 A2.1,2.4 0 0 1 11.2,13 Z M14.4,13 V8.2 H16.6 M14.4,10.6 H16.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.35, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.3,17.4 A2.9,2.9 0 0 1 20.5,16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20.9,14.8 L20.6,16.6 L18.8,16.3', stroke: NColor.ref('icon_main'), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20.7,18.6 A2.9,2.9 0 0 1 15.5,19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.1,21.2 L15.4,19.4 L17.2,19.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5.5,3.5 H10.5 A2,2 0 0 1 12.5,5.5 V10.5 A2,2 0 0 1 10.5,12.5 H5.5 A2,2 0 0 1 3.5,10.5 V5.5 A2,2 0 0 1 5.5,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,11.5 H18.5 A2,2 0 0 1 20.5,13.5 V18.5 A2,2 0 0 1 18.5,20.5 H13.5 A2,2 0 0 1 11.5,18.5 V13.5 A2,2 0 0 1 13.5,11.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,4 A5,5 0 0 1 20,9 M18.2,7.4 L20,9.2 L21.8,7.4 M9,20 A5,5 0 0 1 4,15 M2.2,16.6 L4,14.8 L5.8,16.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,18.2 Q16,13.2 18,18.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_convert_word.xml (24 x 24 dp)
   static const icConvertWord = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13.3,21 H6.5 A2,2 0 0 1 4.5,19 V5 A2,2 0 0 1 6.5,3 H14 L19,8 V13.3', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7.3,8 L8.9,14 L10.7,10.2 L12.5,14 L14.1,8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.3,17.4 A2.9,2.9 0 0 1 20.5,16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20.9,14.8 L20.6,16.6 L18.8,16.3', stroke: NColor.ref('icon_main'), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20.7,18.6 A2.9,2.9 0 0 1 15.5,19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.1,21.2 L15.4,19.4 L17.2,19.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5.5,3.5 H10.5 A2,2 0 0 1 12.5,5.5 V10.5 A2,2 0 0 1 10.5,12.5 H5.5 A2,2 0 0 1 3.5,10.5 V5.5 A2,2 0 0 1 5.5,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,11.5 H18.5 A2,2 0 0 1 20.5,13.5 V18.5 A2,2 0 0 1 18.5,20.5 H13.5 A2,2 0 0 1 11.5,18.5 V13.5 A2,2 0 0 1 13.5,11.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,4 A5,5 0 0 1 20,9 M18.2,7.4 L20,9.2 L21.8,7.4 M9,20 A5,5 0 0 1 4,15 M2.2,16.6 L4,14.8 L5.8,16.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.3,14.8 H17.7 M14.3,17.3 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_create_import.xml (32 x 32 dp)
-  static const icCreateImport = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M2.5,6 A1.5,1.5 0 0 1 4,4.5 H9.6 L11.6,6.5 H20 A1.5,1.5 0 0 1 21.5,8 V18.5 A1.5,1.5 0 0 1 20,20 H4 A1.5,1.5 0 0 1 2.5,18.5 Z', fill: NColor.hex(0xFF1E88E5)),
-    NPath('M2.5,10 H21.5 V18.5 A1.5,1.5 0 0 1 20,20 H4 A1.5,1.5 0 0 1 2.5,18.5 Z', fill: NColor.hex(0xFF42A5F5)),
+  /// res/drawable/ic_create_import.xml (24 x 24 dp)
+  static const icCreateImport = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M6.5,13.5 H17.5 A2.5,2.5 0 0 1 20,16.0 V18.0 A2.5,2.5 0 0 1 17.5,20.5 H6.5 A2.5,2.5 0 0 1 4,18.0 V16.0 A2.5,2.5 0 0 1 6.5,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,3.5 V12.5 M8.3,8.8 L12,12.5 L15.7,8.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_create_pdf_badge.xml (44 x 44 dp)
-  static const icCreatePdfBadge = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
-    NPath('M8,4 H28 L36,12 V38 A2,2 0 0 1 34,40 H8 A2,2 0 0 1 6,38 V6 A2,2 0 0 1 8,4 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M11,15 H26', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.1, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11,24 V16 H13.5 A2.2,2.2 0 0 1 13.5,20.4 H11 M18,24 V16 H19 A3,4 0 0 1 19,24 Z M25,24 V16 H29 M25,20 H28', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11,30 H22 M11,34 H18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.7),
-    NPath('M34,34 m-8,0 a8,8 0 1 0 16,0 a8,8 0 1 0 -16,0', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M34,30 V38 M30,34 H38', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_create_pdf_badge.xml (24 x 24 dp)
+  static const icCreatePdfBadge = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11.5 V17.5 M9,14.5 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_create_templates.xml (32 x 32 dp)
-  static const icCreateTemplates = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2 H19 A3,3 0 0 1 22,5 V19 A3,3 0 0 1 19,22 H5 A3,3 0 0 1 2,19 V5 A3,3 0 0 1 5,2 Z', fill: NColor.hex(0xFF1FA75A)),
-    NPath('M6,6 H18 M6,6 V18 M6,11 H18 M11,11 V18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M19,19 m-4.5,0 a4.5,4.5 0 1 0 9,0 a4.5,4.5 0 1 0 -9,0', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M19,16.8 V21.2 M16.8,19 H21.2', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_create_templates.xml (24 x 24 dp)
+  static const icCreateTemplates = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,4 H17 A3,3 0 0 1 20,7 V17 A3,3 0 0 1 17,20 H7 A3,3 0 0 1 4,17 V7 A3,3 0 0 1 7,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,9.5 H20 M10,9.5 V20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ic_credit_card_blue.xml (24 x 24 dp)
+  static const icCreditCardBlue = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M20,4 H4 C2.89,4 2.01,4.89 2.01,6 L2,18 C2,19.11 2.89,20 4,20 H20 C21.11,20 22,19.11 22,18 V6 C22,4.89 21.11,4 20,4 Z M20,18 H4 V12 H20 V18 Z M20,8 H4 V6 H20 V8 Z', fill: NColor.hex(0xFF1A73E8)),
   ]);
 
   /// res/drawable/ic_crop.xml (24 x 24 dp)
   static const icCrop = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,3 V18 H21 M3,6 H18 V21', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,3.5 V15 A2,2 0 0 0 9,17 H20.5 M3.5,7 H15 A2,2 0 0 1 17,9 V20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_crosshair.xml (44 x 44 dp)
   static const icCrosshair = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
-    NPath('M22,4 V40 M4,22 H40', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M22,15 A7,7 0 1 1 21.99,15 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6),
+    NPath('M22,4 V11 M22,33 V40 M4,22 H11 M33,22 H40', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round),
   ]);
 
-  /// res/drawable/ic_crown.xml (28 x 28 dp)
-  static const icCrown = NDrawable(width: 28.0, height: 28.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,8.5 L7.5,12 L12,5 L16.5,12 L21,8.5 L19.3,18.5 H4.7 Z', fill: NColor.hex(0xFFFFC21A)),
-    NPath('M4.7,18.5 H19.3 V20.5 H4.7 Z', fill: NColor.hex(0xFFF59E0B)),
-    NPath('M9.3,11.8 L12,16 L14.7,11.8', stroke: NColor.hex(0xFFE53935), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,5 m-1.2,0 a1.2,1.2 0 1 0 2.4,0 a1.2,1.2 0 1 0 -2.4,0', fill: NColor.hex(0xFFFFE082)),
+  /// res/drawable/ic_crown.xml (24 x 24 dp)
+  static const icCrown = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4.5,17 L3.5,8.5 L8.3,11.8 L12,5.5 L15.7,11.8 L20.5,8.5 L19.5,17 Z', fill: NColor.ref('crown'), stroke: NColor.ref('crown'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round, fillAlpha: 0.28),
+    NPath('M6,20 H18', stroke: NColor.ref('crown'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_curved_arrow.xml (36 x 36 dp)
-  static const icCurvedArrow = NDrawable(width: 36.0, height: 36.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,19 C10,19 16,15 20,7 M15.5,8 L20.3,6.3 L21.3,11.2', stroke: NColor.hex(0xFFFFA000), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_curved_arrow.xml (30 x 20 dp)
+  static const icCurvedArrow = NDrawable(width: 30.0, height: 20.0, viewportWidth: 30.0, viewportHeight: 20.0, children: [
+    NPath('M3,17 C11,18.5 18.5,14 21.5,5', stroke: NColor.ref('accent'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.6,7.6 L21.5,4.2 L24.4,8.4', stroke: NColor.ref('accent'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_cv_image2pdf.xml (32 x 32 dp)
-  static const icCvImage2pdf = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2 H19 A3,3 0 0 1 22,5 V19 A3,3 0 0 1 19,22 H5 A3,3 0 0 1 2,19 V5 A3,3 0 0 1 5,2 Z', fill: NColor.hex(0xFFFFB300)),
-    NPath('M5.5,16.5 L9.5,11 L12.5,14.5 L14.5,12.5 L17,16.5 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M15.5,8 m-1.6,0 a1.6,1.6 0 1 0 3.2,0 a1.6,1.6 0 1 0 -3.2,0', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M12.5,15.0 A1.5,1.5 0 0 1 14.0,13.5 H22.0 A1.5,1.5 0 0 1 23.5,15.0 V22.0 A1.5,1.5 0 0 1 22.0,23.5 H14.0 A1.5,1.5 0 0 1 12.5,22.0 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M14.5,21.0 V16.0 H15.7 A1.1,1.1 0 0 1 15.7,18.2 H14.5 M17.5,21.0 V16.0 H17.9 A1.3,2.5 0 0 1 17.9,21.0 Z M20.5,21.0 V16.0 H22.1 M20.5,18.5 H21.8', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cv_image2pdf.xml (24 x 24 dp)
+  static const icCvImage2pdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5.5,5 H11.5 A2,2 0 0 1 13.5,7 V12 A2,2 0 0 1 11.5,14 H5.5 A2,2 0 0 1 3.5,12 V7 A2,2 0 0 1 5.5,5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,12.5 L7,9.5 L9.5,12', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.5,8 A0.9,0.9 0 1 0 11.3,8 A0.9,0.9 0 1 0 9.5,8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9.5 H19 A1.5,1.5 0 0 1 20.5,11 V19 A1.5,1.5 0 0 1 19,20.5 H12.5 A1.5,1.5 0 0 1 11,19 V17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_cv_pdf2word.xml (32 x 32 dp)
-  static const icCvPdf2word = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2 H19 A3,3 0 0 1 22,5 V19 A3,3 0 0 1 19,22 H5 A3,3 0 0 1 2,19 V5 A3,3 0 0 1 5,2 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M5.5,15 V7 H7.7 A2,2 0 0 1 7.7,11 H5.5 M10.5,15 V7 H11.2 A2.3,4 0 0 1 11.2,15 Z M15,15 V7 H18 M15,11 H17.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12.5,15.0 A1.5,1.5 0 0 1 14.0,13.5 H22.0 A1.5,1.5 0 0 1 23.5,15.0 V22.0 A1.5,1.5 0 0 1 22.0,23.5 H14.0 A1.5,1.5 0 0 1 12.5,22.0 Z', fill: NColor.hex(0xFF1560D6)),
-    NPath('M14.7,16.1 L16.1,21.1 L18.0,17.8 L19.9,21.1 L21.3,16.1', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cv_pdf2word.xml (24 x 24 dp)
+  static const icCvPdf2word = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,12.5 C4.8,9 7,7.2 10,8 C8.3,9.6 6.3,11.2 4,12.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9.5 H19 A1.5,1.5 0 0 1 20.5,11 V19 A1.5,1.5 0 0 1 19,20.5 H12.5 A1.5,1.5 0 0 1 11,19 V17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,14 H18 M13.5,17 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_cv_ppt2pdf.xml (32 x 32 dp)
-  static const icCvPpt2pdf = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2 H19 A3,3 0 0 1 22,5 V19 A3,3 0 0 1 19,22 H5 A3,3 0 0 1 2,19 V5 A3,3 0 0 1 5,2 Z', fill: NColor.hex(0xFFF4511E)),
-    NPath('M8,17 V7 H11.8 A3,3 0 0 1 11.8,13 H8', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.9, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12.5,15.0 A1.5,1.5 0 0 1 14.0,13.5 H22.0 A1.5,1.5 0 0 1 23.5,15.0 V22.0 A1.5,1.5 0 0 1 22.0,23.5 H14.0 A1.5,1.5 0 0 1 12.5,22.0 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M14.5,21.0 V16.0 H15.7 A1.1,1.1 0 0 1 15.7,18.2 H14.5 M17.5,21.0 V16.0 H17.9 A1.3,2.5 0 0 1 17.9,21.0 Z M20.5,21.0 V16.0 H22.1 M20.5,18.5 H21.8', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cv_ppt2pdf.xml (24 x 24 dp)
+  static const icCvPpt2pdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4.5,12 V9.5 M7.2,12 V6 M9.9,12 V8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9.5 H19 A1.5,1.5 0 0 1 20.5,11 V19 A1.5,1.5 0 0 1 19,20.5 H12.5 A1.5,1.5 0 0 1 11,19 V17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,15.8 C14,14 15.2,13 17,13.5 C16,14.4 14.9,15.2 13.5,15.8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_cv_scan.xml (32 x 32 dp)
-  static const icCvScan = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2 H19 A3,3 0 0 1 22,5 V19 A3,3 0 0 1 19,22 H5 A3,3 0 0 1 2,19 V5 A3,3 0 0 1 5,2 Z', fill: NColor.hex(0xFF26C6DA)),
-    NPath('M6,9.5 V6 H9.5 M14.5,6 H18 V9.5 M18,14.5 V18 H14.5 M9.5,18 H6 V14.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6,12 H18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cv_scan.xml (24 x 24 dp)
+  static const icCvScan = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,9 V6 A2,2 0 0 1 6,4 H9 M15,4 H18 A2,2 0 0 1 20,6 V9 M20,15 V18 A2,2 0 0 1 18,20 H15 M9,20 H6 A2,2 0 0 1 4,18 V15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,12 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_cv_word2pdf.xml (32 x 32 dp)
-  static const icCvWord2pdf = NDrawable(width: 32.0, height: 32.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2 H19 A3,3 0 0 1 22,5 V19 A3,3 0 0 1 19,22 H5 A3,3 0 0 1 2,19 V5 A3,3 0 0 1 5,2 Z', fill: NColor.hex(0xFF1E6FE6)),
-    NPath('M5.5,7 L7.5,15 L10.5,9.5 L13.5,15 L15.5,7', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12.5,15.0 A1.5,1.5 0 0 1 14.0,13.5 H22.0 A1.5,1.5 0 0 1 23.5,15.0 V22.0 A1.5,1.5 0 0 1 22.0,23.5 H14.0 A1.5,1.5 0 0 1 12.5,22.0 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M14.5,21.0 V16.0 H15.7 A1.1,1.1 0 0 1 15.7,18.2 H14.5 M17.5,21.0 V16.0 H17.9 A1.3,2.5 0 0 1 17.9,21.0 Z M20.5,21.0 V16.0 H22.1 M20.5,18.5 H21.8', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_cv_word2pdf.xml (24 x 24 dp)
+  static const icCvWord2pdf = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,5 H11 M4,8.5 H11 M4,12 H8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9.5 H19 A1.5,1.5 0 0 1 20.5,11 V19 A1.5,1.5 0 0 1 19,20.5 H12.5 A1.5,1.5 0 0 1 11,19 V17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,13 L15,13 M17.2,15.8 L13.2,15.8 M15.4,13.8 L17.4,15.8 L15.4,17.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_delete.xml (24 x 24 dp)
   static const icDelete = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,6.5 H20 M9.5,6.5 V4 H14.5 V6.5 M6,6.5 L7,20.5 H17 L18,6.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M10,10.5 V16.5 M14,10.5 V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,7 H19.5 M9.5,7 V5.5 A1.5,1.5 0 0 1 11,4 H13 A1.5,1.5 0 0 1 14.5,5.5 V7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,7 L7.4,18.6 A2,2 0 0 0 9.4,20.5 H14.6 A2,2 0 0 0 16.6,18.6 L17.5,7 M10.3,11 V16.5 M13.7,11 V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_delete_forever.xml (24 x 24 dp)
   static const icDeleteForever = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,6.5 H20 M9.5,6.5 V4 H14.5 V6.5 M6,6.5 L7,20.5 H17 L18,6.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.8,11 L14.2,15.4 M14.2,11 L9.8,15.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,7 H19.5 M9.5,7 V5.5 A1.5,1.5 0 0 1 11,4 H13 A1.5,1.5 0 0 1 14.5,5.5 V7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,7 L7.4,18.6 A2,2 0 0 0 9.4,20.5 H14.6 A2,2 0 0 0 16.6,18.6 L17.5,7 M10,11.5 L14,15.5 M14,11.5 L10,15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_download.xml (24 x 24 dp)
   static const icDownload = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,4 V14 M8,10.5 L12,14.5 L16,10.5 M5,15.5 V19 H19 V15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,4 V14.5 M7.8,10.5 L12,14.7 L16.2,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,15.5 V18 A2,2 0 0 0 7,20 H17 A2,2 0 0 0 19,18 V15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_drag_dots.xml (24 x 24 dp)
   static const icDragDots = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M9,6 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFFB0B6C2)),
-    NPath('M9,12 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFFB0B6C2)),
-    NPath('M9,18 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFFB0B6C2)),
-    NPath('M15,6 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFFB0B6C2)),
-    NPath('M15,12 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFFB0B6C2)),
-    NPath('M15,18 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFFB0B6C2)),
+    NPath('M6,9 H18 M6,12 H18 M6,15 H18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_empty_state.xml (150 x 150 dp)
-  static const icEmptyState = NDrawable(width: 150.0, height: 150.0, viewportWidth: 150.0, viewportHeight: 150.0, children: [
-    NPath('M28,78 C22,52 44,34 70,38 C92,20 130,30 128,62 C140,82 124,108 98,106 C80,120 46,116 38,100 C28,98 26,88 28,78 Z', fill: NColor.hex(0xFFE8F1FC)),
-    NPath('M40,52 C52,44 62,46 70,40', stroke: NColor.hex(0xFF9FB6D6), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.8),
-    NPath('M34,40 L46,36 L50,50 L38,54 Z', fill: NColor.hex(0xFFFFC21A)),
-    NPath('M38,43 L45,41 M39,47 L46,45', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M28,96 C30,80 40,70 52,68 L64,78 L60,98 C50,104 36,104 28,96 Z', fill: NColor.hex(0xFFF9B8A0)),
-    NPath('M122,96 C120,80 110,70 98,68 L86,78 L90,98 C100,104 114,104 122,96 Z', fill: NColor.hex(0xFFF9B8A0)),
-    NPath('M52,68 C56,58 62,58 66,64', stroke: NColor.hex(0xFFF9B8A0), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M98,68 C94,58 88,58 84,64', stroke: NColor.hex(0xFFF9B8A0), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M62,64 H88 V74 H62 Z', fill: NColor.hex(0xFF1557C0)),
-    NPath('M60,82 m-15,0 a15,15 0 1 0 30,0 a15,15 0 1 0 -30,0', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M90,82 m-15,0 a15,15 0 1 0 30,0 a15,15 0 1 0 -30,0', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M60,82 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M90,82 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M116,36 L118,41 L123,43 L118,45 L116,50 L114,45 L109,43 L114,41 Z', fill: NColor.hex(0xFFFFC21A)),
-    NPath('M80,110 L82,115 L87,117 L82,119 L80,124 L78,119 L73,117 L78,115 Z', fill: NColor.hex(0xFF1A6FE0)),
+  /// res/drawable/ic_empty_state.xml (150 x 130 dp)
+  static const icEmptyState = NDrawable(width: 150.0, height: 130.0, viewportWidth: 150.0, viewportHeight: 130.0, children: [
+    NPath('M60,30 H106 A12,12 0 0 1 118,42 V96 A12,12 0 0 1 106,108 H60 A12,12 0 0 1 48,96 V42 A12,12 0 0 1 60,30 Z', fill: NColor.ref('deck_back')),
+    NPath('M52,24 H98 A12,12 0 0 1 110,36 V90 A12,12 0 0 1 98,102 H52 A12,12 0 0 1 40,90 V36 A12,12 0 0 1 52,24 Z', fill: NColor.ref('deck_middle'), fillAlpha: 0.55),
+    NPath('M44,18 H90 A12,12 0 0 1 102,30 V84 A12,12 0 0 1 90,96 H44 A12,12 0 0 1 32,84 V30 A12,12 0 0 1 44,18 Z', fill: NColor.ref('surface'), stroke: NColor.ref('primary'), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M44,36 H80 M44,46 H90 M44,56 H72', stroke: NColor.ref('divider'), strokeWidth: 4.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M85,86 A13,13 0 1 0 111,86 A13,13 0 1 0 85,86 Z', fill: NColor.ref('surface'), stroke: NColor.ref('accent'), strokeWidth: 3.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M107.5,95.5 L118,106', stroke: NColor.ref('accent'), strokeWidth: 4.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M19,34 A3,3 0 1 0 25,34 A3,3 0 1 0 19,34 Z M125.5,26 A2.5,2.5 0 1 0 130.5,26 A2.5,2.5 0 1 0 125.5,26 Z', fill: NColor.ref('accent_soft')),
   ]);
 
   /// res/drawable/ic_eraser.xml (24 x 24 dp)
   static const icEraser = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M8.5,20 H20 M4.8,14.2 L13.8,5.2 A1.6,1.6 0 0 1 16.1,5.2 L19.8,8.9 A1.6,1.6 0 0 1 19.8,11.2 L11,20 H8.5 L4.8,16.3 A1.5,1.5 0 0 1 4.8,14.2 Z M9.2,9.8 L15.2,15.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.6,4.4 A1.4,1.4 0 0 1 15.6,4.4 L19.6,8.4 A1.4,1.4 0 0 1 19.6,10.4 L11,19 H7.2 L4.4,16.2 A1.4,1.4 0 0 1 4.4,14.2 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,9 L15,15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,20 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_et_add_image.xml (24 x 24 dp)
   static const icEtAddImage = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13,4.5 H5 A1.5,1.5 0 0 0 3.5,6 V18 A1.5,1.5 0 0 0 5,19.5 H18 A1.5,1.5 0 0 0 19.5,18 V11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3.8,16.5 L8.5,11.8 L12.5,15.8 L14.5,13.8 L19.2,18.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M18,2.5 V8.5 M15,5.5 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,4 H6 A2,2 0 0 0 4,6 V18 A2,2 0 0 0 6,20 H18 A2,2 0 0 0 20,18 V11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,17 L9,12.5 L12.5,16 L14.5,14 L19.5,19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,3 V9 M15,6 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_et_add_text.xml (24 x 24 dp)
   static const icEtAddText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,19.5 L8.5,5 L14,19.5 M5.1,14.6 H11.9', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M18.5,3.5 V9.5 M15.5,6.5 H21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,7 V5 H14 V7 M9,5 V19 M7,19 H11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,12 V19 M14.5,15.5 H21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_et_annotate.xml (24 x 24 dp)
   static const icEtAnnotate = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6.5,15.5 L12,3.5 L17.5,15.5 M8.6,11 H15.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,20 H20', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.5,5 L19,9.5 L11,17.5 L6.5,13 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,13 L4.5,17.5 L6.5,19.5 L11,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,21 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_et_edit_text.xml (24 x 24 dp)
   static const icEtEditText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,8 V4 H8 M16,4 H20 V8 M20,16 V20 H16 M8,20 H4 V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.5,8.5 H15.5 M12,8.5 V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,7 V5 H14 V7 M9,5 V18 M7,18 H11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.5,9 V20 M15.5,9 H19.5 M15.5,20 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_et_sign.xml (24 x 24 dp)
   static const icEtSign = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M14.8,4.2 L19.8,9.2 L10.5,18.5 L5.2,19.2 L5.5,13.5 Z M12.8,6.2 L17.8,11.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,22 C8,20.5 11,23 15,21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,18 C5,13.5 7.5,13.5 7.5,16.5 C7.5,19 10,17.5 11,15.5 C12,13.5 13,16.5 14.5,17.5 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,10.5 L18.5,6 A1.4,1.4 0 0 1 20.5,8 L16,12.5 L13.5,13 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_expand.xml (24 x 24 dp)
   static const icExpand = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6.5,9.5 L12,15 L17.5,9.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,9.5 L12,15 L17.5,9.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_extract.xml (24 x 24 dp)
   static const icExtract = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13,3 H6 V21 H18 V14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11,12 L20,3 M14.5,3 H20 V8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,4 H7 A2,2 0 0 0 5,6 V18 A2,2 0 0 0 7,20 H17 A2,2 0 0 0 19,18 V15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,4 H20 V10', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M20,4 L11.5,12.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_fast_scroll_thumb.xml (22 x 26 dp)
@@ -460,9 +698,7 @@ abstract final class ND {
 
   /// res/drawable/ic_feat_merge.xml (24 x 24 dp)
   static const icFeatMerge = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.7,4 H9.3 A1.2,1.2 0 0 1 10.5,5.2 V11.8 A1.2,1.2 0 0 1 9.3,13 H4.7 A1.2,1.2 0 0 1 3.5,11.8 V5.2 A1.2,1.2 0 0 1 4.7,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M14.7,4 H19.3 A1.2,1.2 0 0 1 20.5,5.2 V11.8 A1.2,1.2 0 0 1 19.3,13 H14.7 A1.2,1.2 0 0 1 13.5,11.8 V5.2 A1.2,1.2 0 0 1 14.7,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7,13 V16 C7,17.5 8,18.5 9.5,18.5 H12 M17,13 V16 C17,17.5 16,18.5 14.5,18.5 H12 M12,18.5 V21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 V7.5 C6,10.5 12,10.5 12,13.5 V20.5 M18,3 V7.5 C18,10.5 12,10.5 12,13.5 M9,17.5 L12,20.5 L15,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_feedback.xml (24 x 24 dp)
@@ -481,102 +717,111 @@ abstract final class ND {
 
   /// res/drawable/ic_file_add.xml (24 x 24 dp)
   static const icFileAdd = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,3.5 H14 L18.5,8 V20.5 H6 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,10.5 V17.5 M8.5,14 H15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,3 H14 L19,8 V19 A2,2 0 0 1 17,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 Z M14,3 V8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11 V17 M9,14 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_file_other.xml (40 x 40 dp)
-  static const icFileOther = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2 H15 L20.5,7.5 V20.5 A1.5,1.5 0 0 1 19,22 H6 A1.5,1.5 0 0 1 4.5,20.5 V3.5 A1.5,1.5 0 0 1 6,2 Z', fill: NColor.hex(0xFF8E949E)),
-    NPath('M15,2 V6 A1.5,1.5 0 0 0 16.5,7.5 H20.5 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.45),
-    NPath('M8.5,12 H16.5 M8.5,15 H16.5 M8.5,18 H13', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_file_other.xml (44 x 44 dp)
+  static const icFileOther = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('text_secondary'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('text_secondary'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
-  /// res/drawable/ic_file_unknown.xml (40 x 40 dp)
-  static const icFileUnknown = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,2.5 H18 A2,2 0 0 1 20,4.5 V19.5 A2,2 0 0 1 18,21.5 H6 A2,2 0 0 1 4,19.5 V4.5 A2,2 0 0 1 6,2.5 Z', fill: NColor.hex(0xFFEEF1F6)),
-    NPath('M9.6,9.6 A2.4,2.4 0 1 1 13.2,11.7 C12.4,12.2 12,12.7 12,13.8', stroke: NColor.hex(0xFF5F6B7E), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,16.6 m-0.9,0 a0.9,0.9 0 1 0 1.8,0 a0.9,0.9 0 1 0 -1.8,0', fill: NColor.hex(0xFF5F6B7E)),
+  /// res/drawable/ic_file_unknown.xml (44 x 44 dp)
+  static const icFileUnknown = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('text_secondary'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('text_secondary'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M10.2,12.6 A1.8,1.8 0 1 1 12.6,14.3 C12.2,14.5 12,14.8 12,15.3 M12,17.8 V17.9', stroke: NColor.ref('text_secondary'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_filter.xml (24 x 24 dp)
   static const icFilter = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,6 H20 M4,11.5 H14 M4,17 H11', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M18,11 V19 M15.3,16.5 L18,19.3 L20.7,16.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,7H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,12H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,17H14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_flash_auto.xml (24 x 24 dp)
   static const icFlashAuto = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M11.2,2.8 L4.5,12.6 H9.6 L8.7,19.8 L15.4,10 H10.4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.6,21.4 L18.2,14.6 L20.8,21.4 M16.5,19.2 H19.9', stroke: NColor.ref('icon_main'), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,3 L4.5,11.5 H9 L8,18 L14,9.5 H9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,20.5 L17.5,14 L20,20.5 M15.9,18.3 H19.1', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_flash_off.xml (24 x 24 dp)
   static const icFlashOff = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13.2,2.8 L6,13.4 H11.6 L10.6,21.2 L18,10.4 H12.4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3.5,3.5 L20.5,20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,3 L5.5,13.5 H11.5 L10.5,21 L18.5,10 H12.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,4 L20,20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_flash_on.xml (24 x 24 dp)
   static const icFlashOn = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13.2,2.8 L6,13.4 H11.6 L10.6,21.2 L18,10.4 H12.4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,3 L5.5,13.5 H11.5 L10.5,21 L18.5,10 H12.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_focus_frame.xml (64 x 64 dp)
   static const icFocusFrame = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
-    NPath('M4,18 V4 H18 M46,4 H60 V18 M60,46 V60 H46 M18,60 H4 V46', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M32,6 A26,26 0 1 1 31.99,6 Z', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 2.5),
+    NPath('M32,29 A3,3 0 1 1 31.99,29 Z', fill: NColor.hex(0xFF8FD6CB)),
   ]);
 
-  /// res/drawable/ic_folder_blue.xml (40 x 40 dp)
-  static const icFolderBlue = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,6.5 A1.5,1.5 0 0 1 4.5,5 H9.6 L11.6,7 H19.5 A1.5,1.5 0 0 1 21,8.5 V18.5 A1.5,1.5 0 0 1 19.5,20 H4.5 A1.5,1.5 0 0 1 3,18.5 Z', fill: NColor.hex(0xFF1D5FE0)),
-    NPath('M3,9.5 H21 V18.5 A1.5,1.5 0 0 1 19.5,20 H4.5 A1.5,1.5 0 0 1 3,18.5 Z', fill: NColor.hex(0xFF2F74F0)),
-    NPath('M8,15.5 H12.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_folder_blue.xml (44 x 44 dp)
+  static const icFolderBlue = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_dir'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 12.0, ty: 12.0, sx: 0.8333, sy: 0.8333, children: [
+      NPath('M3.5,7.5 A2,2 0 0 1 5.5,5.5 H9.4 L11.4,7.5 H18.5 A2,2 0 0 1 20.5,9.5 V17 A2,2 0 0 1 18.5,19 H5.5 A2,2 0 0 1 3.5,17 Z', stroke: NColor.ref('type_dir'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_folder_filled.xml (40 x 40 dp)
   static const icFolderFilled = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,6.5 A1.5,1.5 0 0 1 4.5,5 H9.6 L11.6,7 H19.5 A1.5,1.5 0 0 1 21,8.5 V18.5 A1.5,1.5 0 0 1 19.5,20 H4.5 A1.5,1.5 0 0 1 3,18.5 Z', fill: NColor.hex(0xFFFFB938)),
-    NPath('M3,9.5 H21 V18.5 A1.5,1.5 0 0 1 19.5,20 H4.5 A1.5,1.5 0 0 1 3,18.5 Z', fill: NColor.hex(0xFFFFCA5C)),
+    NPath('M3.5,7.5 A2,2 0 0 1 5.5,5.5 H9.4 L11.4,7.5 H18.5 A2,2 0 0 1 20.5,9.5 V17 A2,2 0 0 1 18.5,19 H5.5 A2,2 0 0 1 3.5,17 Z', fill: NColor.ref('accent_container'), stroke: NColor.ref('type_dir'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,10.5 H20.5', stroke: NColor.ref('type_dir'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_folder_outline.xml (24 x 24 dp)
   static const icFolderOutline = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.5,7 A1.5,1.5 0 0 1 5,5.5 H9.6 L11.6,7.5 H19 A1.5,1.5 0 0 1 20.5,9 V17.5 A1.5,1.5 0 0 1 19,19 H5 A1.5,1.5 0 0 1 3.5,17.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,7.5 A2,2 0 0 1 5.5,5.5 H9.5 L11.5,7.5 H18.5 A2,2 0 0 1 20.5,9.5 V17 A2,2 0 0 1 18.5,19 H5.5 A2,2 0 0 1 3.5,17 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,10.5 H20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_gift_box.xml (72 x 72 dp)
   static const icGiftBox = NDrawable(width: 72.0, height: 72.0, viewportWidth: 72.0, viewportHeight: 72.0, children: [
-    NPath('M12,30 H60 V40 H12 Z', fill: NColor.hex(0xFFFF6B6B)),
-    NPath('M15,40 H57 V62 A3,3 0 0 1 54,65 H18 A3,3 0 0 1 15,62 Z', fill: NColor.hex(0xFFFF8787)),
-    NPath('M32,30 H40 V65 H32 Z', fill: NColor.hex(0xFFFFC53D)),
-    NPath('M36,30 C28,16 16,20 22,28 C24,30 30,30 36,30 Z M36,30 C44,16 56,20 50,28 C48,30 42,30 36,30 Z', fill: NColor.hex(0xFFFFC53D)),
-    NPath('M8,14 L10,19 L15,21 L10,23 L8,28 L6,23 L1,21 L6,19 Z', fill: NColor.hex(0xFF5B8DEF)),
-    NPath('M64,8 L65.5,12 L69.5,13.5 L65.5,15 L64,19 L62.5,15 L58.5,13.5 L62.5,12 Z', fill: NColor.hex(0xFFFFC53D)),
+    NPath('M2,36 A34,34 0 1 0 70,36 A34,34 0 1 0 2,36 Z', fill: NColor.ref('accent_container')),
+    NPath('M21,33 H51 A3,3 0 0 1 54,36 V53 A3,3 0 0 1 51,56 H21 A3,3 0 0 1 18,53 V36 A3,3 0 0 1 21,33 Z', fill: NColor.ref('surface'), stroke: NColor.ref('primary'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,25 H54 A3,3 0 0 1 57,28 V30 A3,3 0 0 1 54,33 H18 A3,3 0 0 1 15,30 V28 A3,3 0 0 1 18,25 Z', fill: NColor.ref('accent_soft'), stroke: NColor.ref('primary'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M36,25 V56', stroke: NColor.ref('primary'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M36,25 C31,15 22,17 25.5,22.5 C27.5,25 32,25 36,25 C40,25 44.5,25 46.5,22.5 C50,17 41,15 36,25 Z', stroke: NColor.ref('primary'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_grid.xml (24 x 24 dp)
   static const icGrid = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M9,3.5 V20.5 M15,3.5 V20.5 M3.5,9 H20.5 M3.5,15 H20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,4 H19 A1,1 0 0 1 20,5 V19 A1,1 0 0 1 19,20 H5 A1,1 0 0 1 4,19 V5 A1,1 0 0 1 5,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.3,4 V20 M14.7,4 V20 M4,9.3 H20 M4,14.7 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_hand_pointer.xml (56 x 64 dp)
-  static const icHandPointer = NDrawable(width: 56.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
-    NPath('M22,8 A4.5,4.5 0 0 1 31,8 V30 A4,4 0 0 1 39,30 V32 A3.75,3.75 0 0 1 46.5,33 V35 A3.5,3.5 0 0 1 53.5,36 V46 C53.5,55 47,61 38,61 H33 C26,61 22,58 18,52 L10,41 C8,38 12,34.5 15,37 L22,43 Z', fill: NColor.hex(0xFFFFE3D3), stroke: NColor.hex(0xFFD9967A), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M31,30 V38 M39,32 V39 M46.5,35 V40', stroke: NColor.hex(0xFFD9967A), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icHandPointer = NDrawable(width: 56.0, height: 64.0, viewportWidth: 56.0, viewportHeight: 64.0, children: [
+    NPath('M10,22 A18,18 0 1 0 46,22 A18,18 0 1 0 10,22 Z', fill: NColor.ref('accent_soft'), fillAlpha: 0.25),
+    NPath('M17,22 A11,11 0 1 0 39,22 A11,11 0 1 0 17,22 Z', fill: NColor.ref('accent_soft'), fillAlpha: 0.45),
+    NPath('M23,22 A5,5 0 1 0 33,22 A5,5 0 1 0 23,22 Z', fill: NColor.ref('accent')),
+    NPath('M28,58 L28,31 M21,38 L28,31 L35,38', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_help.xml (24 x 24 dp)
   static const icHelp = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17,0 a8.5,8.5 0 1 0 -17,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.7,9.6 A2.4,2.4 0 1 1 13.2,11.7 C12.4,12.2 12,12.7 12,13.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,16.7 m-1,0 a1,1 0 1 0 2,0 a1,1 0 1 0 -2,0', fill: NColor.ref('icon_main')),
+    NPath('M3.5,12A8.5,8.5 0 1 1 20.5,12A8.5,8.5 0 1 1 3.5,12Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.6,9.4A2.5,2.5 0 1 1 13,11.7C12.3,12 12,12.5 12,13.3V13.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,16.6V16.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_helpful_heart.xml (44 x 44 dp)
-  static const icHelpfulHeart = NDrawable(width: 44.0, height: 44.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,21 C11.6,21 11.2,20.85 10.9,20.6 C5.5,15.9 2.5,13.1 2.5,9.2 C2.5,6.2 4.8,4 7.6,4 C9.3,4 10.9,4.8 12,6.1 C13.1,4.8 14.7,4 16.4,4 C19.2,4 21.5,6.2 21.5,9.2 C21.5,13.1 18.5,15.9 13.1,20.6 C12.8,20.85 12.4,21 12,21 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M7,7.5 C6,8 5.4,9 5.5,10', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.6),
+  static const icHelpfulHeart = NDrawable(width: 44.0, height: 44.0, viewportWidth: 44.0, viewportHeight: 44.0, children: [
+    NPath('M1,22 A21,21 0 1 0 43,22 A21,21 0 1 0 1,22 Z', fill: NColor.ref('surface')),
+    NPath('M22,32 C14,26.5 10.5,22.5 10.5,18.3 C10.5,15.2 12.9,12.8 15.9,12.8 C18.4,12.8 20.3,14.2 22,16.6 C23.7,14.2 25.6,12.8 28.1,12.8 C31.1,12.8 33.5,15.2 33.5,18.3 C33.5,22.5 30,26.5 22,32 Z', fill: NColor.ref('accent'), stroke: NColor.ref('accent'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_highlighter.xml (24 x 24 dp)
@@ -592,43 +837,46 @@ abstract final class ND {
 
   /// res/drawable/ic_home_add.xml (24 x 24 dp)
   static const icHomeAdd = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,2.5 H17 A1.5,1.5 0 0 1 18.5,4 V20 A1.5,1.5 0 0 1 17,21.5 H7 A1.5,1.5 0 0 1 5.5,20 V4 A1.5,1.5 0 0 1 7,2.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,8.5 V15.5 M8.5,12 H15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,10.5 L12,4.5 L19.5,10.5 V18.5 A2,2 0 0 1 17.5,20.5 H6.5 A2,2 0 0 1 4.5,18.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11 V17 M9,14 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_horizontal.xml (24 x 24 dp)
   static const icHorizontal = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.5,5 H10.5 V19 H3.5 Z M13.5,5 H20.5 V19 H13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,5 H11 A2,2 0 0 1 13,7 V17 A2,2 0 0 1 11,19 H5 A2,2 0 0 1 3,17 V7 A2,2 0 0 1 5,5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M21,5 H19 A2,2 0 0 0 17,7 V17 A2,2 0 0 0 19,19 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_image_line.xml (24 x 24 dp)
   static const icImageLine = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,5 H20 V19 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4.5,17 L9.5,11.5 L13,15.5 L15.5,13 L19.5,17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.5,8.5 m-1.2,0 a1.2,1.2 0 1 0 2.4,0 a1.2,1.2 0 1 0 -2.4,0', fill: NColor.ref('icon_main')),
+    NPath('M6.5,5 H17.5 A2.5,2.5 0 0 1 20,7.5 V16.5 A2.5,2.5 0 0 1 17.5,19 H6.5 A2.5,2.5 0 0 1 4,16.5 V7.5 A2.5,2.5 0 0 1 6.5,5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,17 L9,12.5 L12.5,16 L15,13.5 L19.5,18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.1,9.2 A1.4,1.4 0 1 0 16.9,9.2 A1.4,1.4 0 1 0 14.1,9.2 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_info.xml (24 x 24 dp)
   static const icInfo = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M11,7h2v2h-2zM11,11h2v6h-2zM12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8z', fill: NColor.ref('icon_main')),
+    NPath('M3,12 A9,9 0 1 0 21,12 A9,9 0 1 0 3,12 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11 V16.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.9,7.9 A1.1,1.1 0 1 0 13.1,7.9 A1.1,1.1 0 1 0 10.9,7.9 Z', fill: NColor.ref('icon_main')),
   ]);
 
   /// res/drawable/ic_insert_page.xml (24 x 24 dp)
   static const icInsertPage = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,3 H14 L18,7 V21 H6 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,10 V17 M8.5,13.5 H15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 H14 L19,8 V12 M14,3 V8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,15 V21 M15,18 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_invert.xml (24 x 24 dp)
   static const icInvert = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17,0 a8.5,8.5 0 1 0 -17,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,3.5 A8.5,8.5 0 0 1 12,20.5 Z', fill: NColor.ref('icon_main')),
+    NPath('M12,3.5 C12,3.5 5.5,10.2 5.5,14.5 A6.5,6.5 0 0 0 18.5,14.5 C18.5,10.2 12,3.5 12,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,21 A6.5,6.5 0 0 0 18.5,14.5 C18.5,10.2 12,3.5 12,3.5 Z', fill: NColor.ref('icon_main')),
   ]);
 
   /// res/drawable/ic_language.xml (24 x 24 dp)
   static const icLanguage = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3,12 H21 M12,3 C8.5,7 8.5,17 12,21 M12,3 C15.5,7 15.5,17 12,21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,12 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,12 H21 M12,3 C9.2,5.8 9.2,18.2 12,21 C14.8,18.2 14.8,5.8 12,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_launcher_foreground.xml (108 x 108 dp)
@@ -654,29 +902,31 @@ abstract final class ND {
   ]);
 
   /// res/drawable/ic_laurel_left.xml (16 x 24 dp)
-  static const icLaurelLeft = NDrawable(width: 16.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 36.0, children: [
-    NPath('M16,4 C8,10 6,22 12,34', stroke: NColor.hex(0xFFE2B04A), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13.5,9 q-4,-3 -6.4,-1 q2.4,3 6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M11.2,15 q-4,-3 -6.4,-1 q2.4,3 6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M10.4,21 q-4,-3 -6.4,-1 q2.4,3 6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M11,27 q-4,-3 -6.4,-1 q2.4,3 6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M13,32 q-4,-3 -6.4,-1 q2.4,3 6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
+  static const icLaurelLeft = NDrawable(width: 16.0, height: 24.0, viewportWidth: 16.0, viewportHeight: 24.0, children: [
+    NPath('M11.5,22.5 C6,20 3.6,14.5 5,3.5', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,3.5 C2.6,4.6 2.4,7.2 3.8,8.6 C5.6,7.6 6.2,5.4 5,3.5 Z', fill: NColor.hex(0xFF8FD6CB)),
+    NPath('M4.2,9.6 C1.6,10 0.8,12.6 1.9,14.2 C4,13.6 5.2,11.6 4.2,9.6 Z', fill: NColor.hex(0xFF8FD6CB)),
+    NPath('M5.4,15.4 C3,16.3 2.6,19 4,20.4 C6,19.4 6.8,17.2 5.4,15.4 Z', fill: NColor.hex(0xFF8FD6CB)),
+    NPath('M5.6,6.6 C8.2,6.4 9.6,8.6 8.8,10.6 C6.6,10.4 5.4,8.6 5.6,6.6 Z', fill: NColor.hex(0xFF8FD6CB)),
+    NPath('M6.3,12.6 C8.9,12.6 10.2,14.9 9.3,16.8 C7.1,16.5 6,14.6 6.3,12.6 Z', fill: NColor.hex(0xFF8FD6CB)),
   ]);
 
   /// res/drawable/ic_laurel_right.xml (16 x 24 dp)
-  static const icLaurelRight = NDrawable(width: 16.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 36.0, children: [
-    NPath('M8,4 C16,10 18,22 12,34', stroke: NColor.hex(0xFFE2B04A), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M10.5,9 q4,-3 6.4,-1 q-2.4,3 -6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M12.8,15 q4,-3 6.4,-1 q-2.4,3 -6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M13.6,21 q4,-3 6.4,-1 q-2.4,3 -6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M13,27 q4,-3 6.4,-1 q-2.4,3 -6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
-    NPath('M11,32 q4,-3 6.4,-1 q-2.4,3 -6.4,1 Z', fill: NColor.hex(0xFFE2B04A)),
+  static const icLaurelRight = NDrawable(width: 16.0, height: 24.0, viewportWidth: 16.0, viewportHeight: 24.0, children: [
+    NGroup(tx: 16.0, sx: -1.0, children: [
+      NPath('M11.5,22.5 C6,20 3.6,14.5 5,3.5', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M5,3.5 C2.6,4.6 2.4,7.2 3.8,8.6 C5.6,7.6 6.2,5.4 5,3.5 Z', fill: NColor.hex(0xFF8FD6CB)),
+      NPath('M4.2,9.6 C1.6,10 0.8,12.6 1.9,14.2 C4,13.6 5.2,11.6 4.2,9.6 Z', fill: NColor.hex(0xFF8FD6CB)),
+      NPath('M5.4,15.4 C3,16.3 2.6,19 4,20.4 C6,19.4 6.8,17.2 5.4,15.4 Z', fill: NColor.hex(0xFF8FD6CB)),
+      NPath('M5.6,6.6 C8.2,6.4 9.6,8.6 8.8,10.6 C6.6,10.4 5.4,8.6 5.6,6.6 Z', fill: NColor.hex(0xFF8FD6CB)),
+      NPath('M6.3,12.6 C8.9,12.6 10.2,14.9 9.3,16.8 C7.1,16.5 6,14.6 6.3,12.6 Z', fill: NColor.hex(0xFF8FD6CB)),
+    ]),
   ]);
 
-  /// res/drawable/ic_loaded_ok.xml (18 x 18 dp)
-  static const icLoadedOk = NDrawable(width: 18.0, height: 18.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFF1FB35A)),
-    NPath('M7.5,12.3 L10.6,15.3 L16.5,9', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_loaded_ok.xml (24 x 24 dp)
+  static const icLoadedOk = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M2.5,12 A9.5,9.5 0 1 0 21.5,12 A9.5,9.5 0 1 0 2.5,12 Z', fill: NColor.ref('accent_container')),
+    NPath('M7.8,12.3 L10.8,15.2 L16.3,9.2', stroke: NColor.ref('primary'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_logo.xml (72 x 72 dp)
@@ -701,72 +951,78 @@ abstract final class ND {
 
   /// res/drawable/ic_mascot.xml (120 x 120 dp)
   static const icMascot = NDrawable(width: 120.0, height: 120.0, viewportWidth: 120.0, viewportHeight: 120.0, children: [
-    NPath('M60,20 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0', fill: NColor.hex(0xFFFFD54F)),
-    NPath('M60,26 V34', stroke: NColor.hex(0xFF8C9BB5), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20,70 C20,44 38,32 60,32 C82,32 100,44 100,70 C100,94 82,104 60,104 C38,104 20,94 20,70 Z', fill: NColor.hex(0xFFEEF1FF)),
-    NPath('M30,68 C30,52 44,44 60,44 C76,44 90,52 90,68 C90,82 76,88 60,88 C44,88 30,82 30,68 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M50,64 m-3,0 a3,3.6 0 1 0 6,0 a3,3.6 0 1 0 -6,0 M70,64 m-3,0 a3,3.6 0 1 0 6,0 a3,3.6 0 1 0 -6,0', fill: NColor.hex(0xFF2B3350)),
-    NPath('M55,73 Q60,77 65,73', stroke: NColor.hex(0xFF2B3350), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M18,76 C10,72 12,60 22,62 C30,64 40,76 44,86 Z', fill: NColor.hex(0xFFC9D1FF)),
-    NPath('M102,76 C110,72 108,60 98,62 C90,64 80,76 76,86 Z', fill: NColor.hex(0xFFC9D1FF)),
-    NPath('M60,100 C44,90 42,78 52,76 C56,75.5 59,78 60,81 C61,78 64,75.5 68,76 C78,78 76,90 60,100 Z', fill: NColor.hex(0xFFF0364A)),
-    NPath('M16,40 C12,36 18,31 21,35 C24,31 30,36 26,40 L21,45 Z', fill: NColor.hex(0xFFF0364A)),
-    NPath('M100,32 L102,37 L107,39 L102,41 L100,46 L98,41 L93,39 L98,37 Z', fill: NColor.hex(0xFFFFC21A)),
-    NPath('M38,16 L39.5,19.5 L43,21 L39.5,22.5 L38,26 L36.5,22.5 L33,21 L36.5,19.5 Z', fill: NColor.hex(0xFFFFC21A)),
+    NPath('M44,22 H78 A14,14 0 0 1 92,36 V90 A14,14 0 0 1 78,104 H44 A14,14 0 0 1 30,90 V36 A14,14 0 0 1 44,22 Z', fill: NColor.ref('deck_back')),
+    NPath('M38,18 H74 A14,14 0 0 1 88,32 V86 A14,14 0 0 1 74,100 H38 A14,14 0 0 1 24,86 V32 A14,14 0 0 1 38,18 Z', fill: NColor.ref('deck_middle')),
+    NPath('M32,14 H68 A14,14 0 0 1 82,28 V82 A14,14 0 0 1 68,96 H32 A14,14 0 0 1 18,82 V28 A14,14 0 0 1 32,14 Z', fill: NColor.ref('deck_front')),
+    NPath('M30,34 H58 M30,42 H52', stroke: NColor.ref('deck_text_soft'), strokeWidth: 3.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M35.4,62 A3.6,3.6 0 1 0 42.6,62 A3.6,3.6 0 1 0 35.4,62 Z M57.4,62 A3.6,3.6 0 1 0 64.6,62 A3.6,3.6 0 1 0 57.4,62 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M41,73 C45,78.5 55,78.5 59,73', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 3.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M28.5,70 A4.5,4.5 0 1 0 37.5,70 A4.5,4.5 0 1 0 28.5,70 Z M62.5,70 A4.5,4.5 0 1 0 71.5,70 A4.5,4.5 0 1 0 62.5,70 Z', fill: NColor.ref('accent_soft'), fillAlpha: 0.7),
   ]);
 
   /// res/drawable/ic_menu.xml (24 x 24 dp)
   static const icMenu = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,7 H20 M4,12 H20 M4,17 H20', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,7 H19.5 M4.5,12 H15 M4.5,17 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_minus.xml (24 x 24 dp)
   static const icMinus = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,12 H19', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,12 H18', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_more_vert.xml (24 x 24 dp)
   static const icMoreVert = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,10c-1.1,0 -2,0.9 -2,2s0.9,2 2,2 2,-0.9 2,-2 -0.9,-2 -2,-2zM12,16c-1.1,0 -2,0.9 -2,2s0.9,2 2,2 2,-0.9 2,-2 -0.9,-2 -2,-2z', fill: NColor.ref('icon_main')),
+    NPath('M10.3,5.5 A1.7,1.7 0 1 0 13.7,5.5 A1.7,1.7 0 1 0 10.3,5.5 Z M10.3,12 A1.7,1.7 0 1 0 13.7,12 A1.7,1.7 0 1 0 10.3,12 Z M10.3,18.5 A1.7,1.7 0 1 0 13.7,18.5 A1.7,1.7 0 1 0 10.3,18.5 Z', fill: NColor.ref('icon_main')),
   ]);
 
   /// res/drawable/ic_nav_files_off.xml (24 x 24 dp)
   static const icNavFilesOff = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,6.5 A1.5,1.5 0 0 1 4.5,5 H9.6 L11.6,7 H19.5 A1.5,1.5 0 0 1 21,8.5 V18.5 A1.5,1.5 0 0 1 19.5,20 H4.5 A1.5,1.5 0 0 1 3,18.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,15.5 H13', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,9.5 H17.5 A2.5,2.5 0 0 1 20,12.0 V18.0 A2.5,2.5 0 0 1 17.5,20.5 H6.5 A2.5,2.5 0 0 1 4,18.0 V12.0 A2.5,2.5 0 0 1 6.5,9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,6.5 H17.5 M9,3.5 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_nav_files_on.xml (24 x 24 dp)
   static const icNavFilesOn = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,6.5 A1.5,1.5 0 0 1 4.5,5 H9.6 L11.6,7 H19.5 A1.5,1.5 0 0 1 21,8.5 V18.5 A1.5,1.5 0 0 1 19.5,20 H4.5 A1.5,1.5 0 0 1 3,18.5 Z M8,14.6 H13 A0.9,0.9 0 0 1 13,16.4 H8 A0.9,0.9 0 0 1 8,14.6 Z', fill: NColor.ref('icon_main'), evenOdd: true),
+    NPath('M6.5,9.5 H17.5 A2.5,2.5 0 0 1 20,12.0 V18.0 A2.5,2.5 0 0 1 17.5,20.5 H6.5 A2.5,2.5 0 0 1 4,18.0 V12.0 A2.5,2.5 0 0 1 6.5,9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,6.5 H17.5 M9,3.5 H15', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_nav_settings_off.xml (24 x 24 dp)
   static const icNavSettingsOff = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2.8 L20,7.4 V16.6 L12,21.2 L4,16.6 V7.4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,12 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,7 H11 M15,7 H20 M4,17 H7 M11,17 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.8,7 A2.2,2.2 0 1 0 15.2,7 A2.2,2.2 0 1 0 10.8,7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.8,17 A2.2,2.2 0 1 0 11.2,17 A2.2,2.2 0 1 0 6.8,17 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_nav_settings_on.xml (24 x 24 dp)
   static const icNavSettingsOn = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2.8 L20,7.4 V16.6 L12,21.2 L4,16.6 V7.4 Z M12,12 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0 Z', fill: NColor.ref('icon_main'), stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round, evenOdd: true),
+    NPath('M4,7 H11 M15,7 H20 M4,17 H7 M11,17 H20', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.8,7 A2.2,2.2 0 1 0 15.2,7 A2.2,2.2 0 1 0 10.8,7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.8,17 A2.2,2.2 0 1 0 11.2,17 A2.2,2.2 0 1 0 6.8,17 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_nav_tools_off.xml (24 x 24 dp)
   static const icNavToolsOff = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,4 H10.5 V10.5 H4 Z M13.5,4 H20 V10.5 H13.5 Z M4,13.5 H10.5 V20 H4 Z M13.5,13.5 H20 V20 H13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,4 H8.5 A2,2 0 0 1 10.5,6 V8.5 A2,2 0 0 1 8.5,10.5 H6 A2,2 0 0 1 4,8.5 V6 A2,2 0 0 1 6,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,13.5 H18 A2,2 0 0 1 20,15.5 V18 A2,2 0 0 1 18,20 H15.5 A2,2 0 0 1 13.5,18 V15.5 A2,2 0 0 1 15.5,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,13.5 H8.5 A2,2 0 0 1 10.5,15.5 V18 A2,2 0 0 1 8.5,20 H6 A2,2 0 0 1 4,18 V15.5 A2,2 0 0 1 6,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,7.25 A3.25,3.25 0 1 0 20.0,7.25 A3.25,3.25 0 1 0 13.5,7.25 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_nav_tools_on.xml (24 x 24 dp)
   static const icNavToolsOn = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,4 H10.5 V10.5 H4 Z M13.5,4 H20 V10.5 H13.5 Z M4,13.5 H10.5 V20 H4 Z M13.5,13.5 H20 V20 H13.5 Z', fill: NColor.ref('icon_main'), stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,4 H8.5 A2,2 0 0 1 10.5,6 V8.5 A2,2 0 0 1 8.5,10.5 H6 A2,2 0 0 1 4,8.5 V6 A2,2 0 0 1 6,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,13.5 H18 A2,2 0 0 1 20,15.5 V18 A2,2 0 0 1 18,20 H15.5 A2,2 0 0 1 13.5,18 V15.5 A2,2 0 0 1 15.5,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,13.5 H8.5 A2,2 0 0 1 10.5,15.5 V18 A2,2 0 0 1 8.5,20 H6 A2,2 0 0 1 4,18 V15.5 A2,2 0 0 1 6,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,7.25 A3.25,3.25 0 1 0 20.0,7.25 A3.25,3.25 0 1 0 13.5,7.25 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_no_ads.xml (20 x 20 dp)
-  static const icNoAds = NDrawable(width: 20.0, height: 20.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17.0,0 a8.5,8.5 0 1 0 -17.0,0', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7,15 L9,9 L11,15 M7.6,13.3 H10.4 M13,9 V15 H13.8 A2.6,3 0 0 0 13.8,9 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6,6 L18,18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_no_ads.xml (24 x 24 dp)
+  static const icNoAds = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M6,6 H18 A3,3 0 0 1 21,9 V15 A3,3 0 0 1 18,18 H6 A3,3 0 0 1 3,15 V9 A3,3 0 0 1 6,6 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.9,12 a1.6,1.6 0 1,0 3.2,0 a1.6,1.6 0 1,0 -3.2,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12.5,10.5 H17 M12.5,13.5 H15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,4 L20,20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_no_ads_art.xml (120 x 120 dp)
@@ -781,14 +1037,14 @@ abstract final class ND {
 
   /// res/drawable/ic_no_crop.xml (24 x 24 dp)
   static const icNoCrop = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,9 V4 H9 M15,4 H20 V9 M20,15 V20 H15 M9,20 H4 V15', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4.5,4.5 L9.5,9.5 M19.5,4.5 L14.5,9.5 M19.5,19.5 L14.5,14.5 M4.5,19.5 L9.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,4 H19 A1,1 0 0 1 20,5 V19 A1,1 0 0 1 19,20 H5 A1,1 0 0 1 4,19 V5 A1,1 0 0 1 5,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,8 L11,11 M16,16 L13,13 M8,10.5 V8 H10.5 M16,13.5 V16 H13.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_none.xml (24 x 24 dp)
   static const icNone = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17,0 a8.5,8.5 0 1 0 -17,0', stroke: NColor.hex(0xFF0A5FD9), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6,18 L18,6', stroke: NColor.hex(0xFF0A5FD9), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17.0,0 a8.5,8.5 0 1 0 -17.0,0 Z', stroke: NColor.ref('text_secondary'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,18 L18,6', stroke: NColor.ref('text_secondary'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_open.xml (24 x 24 dp)
@@ -798,315 +1054,322 @@ abstract final class ND {
 
   /// res/drawable/ic_orient_landscape.xml (24 x 24 dp)
   static const icOrientLandscape = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,6.5 H18 L21,9.5 V17.5 H3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6.5,11 H15 M6.5,14 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,7 A2,2 0 0 1 5,5 H19 A2,2 0 0 1 21,7 V17 A2,2 0 0 1 19,19 H5 A2,2 0 0 1 3,17 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,9.5 H13', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_orient_portrait.xml (24 x 24 dp)
   static const icOrientPortrait = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,3 H14 L17,6 V21 H7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.5,11 H14.5 M9.5,14.5 H14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,3 H17 A2,2 0 0 1 19,5 V19 A2,2 0 0 1 17,21 H7 A2,2 0 0 1 5,19 V5 A2,2 0 0 1 7,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,8 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_page_slider_thumb.xml (30 x 46 dp)
   static const icPageSliderThumb = NDrawable(width: 30.0, height: 46.0, viewportWidth: 30.0, viewportHeight: 46.0, children: [
-    NPath('M7,1 H25 A4,4 0 0 1 29,5 V41 A4,4 0 0 1 25,45 H7 A6,6 0 0 1 1,39 V7 A6,6 0 0 1 7,1 Z', fill: NColor.hex(0x33000000)),
-    NPath('M8,2 H24 A4,4 0 0 1 28,6 V40 A4,4 0 0 1 24,44 H8 A6,6 0 0 1 2,38 V8 A6,6 0 0 1 8,2 Z', fill: NColor.hex(0xFF2B303A)),
-    NPath('M9,16 H21 M9,23 H21 M9,30 H21', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round),
+    NPath('M22,1 A6,6 0 0 1 28,7 V39 A6,6 0 0 1 16,39 V7 A6,6 0 0 1 22,1 Z', fill: NColor.hex(0x26000000)),
+    NPath('M22,2 A5,5 0 0 1 27,7 V39 A5,5 0 0 1 17,39 V7 A5,5 0 0 1 22,2 Z', fill: NColor.hex(0xFF8FD6CB)),
+    NPath('M20,18.5 H24 M20,23 H24 M20,27.5 H24', stroke: NColor.hex(0xFF0F766E), strokeWidth: 1.6, cap: StrokeCap.round),
   ]);
 
   /// res/drawable/ic_pages.xml (24 x 24 dp)
   static const icPages = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M13.3,21 H6.5 A2,2 0 0 1 4.5,19 V5 A2,2 0 0 1 6.5,3 H14 L19,8 V13.3', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,8.8 H12 M8,12.2 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M18,14.9 L20.7,16.45 V19.55 L18,21.1 L15.3,19.55 V16.45 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,3.5 H17 A2,2 0 0 1 19,5.5 V14.5 A2,2 0 0 1 17,16.5 H10 A2,2 0 0 1 8,14.5 V5.5 A2,2 0 0 1 10,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,8 V18.5 A2,2 0 0 0 7,20.5 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_paper_plane.xml (64 x 64 dp)
   static const icPaperPlane = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
-    NPath('M6,30 L58,10 L40,52 L30,38 Z', fill: NColor.hex(0xFF2F80ED)),
-    NPath('M30,38 L58,10 L26,50 Z', fill: NColor.hex(0xFF1557C0)),
-    NPath('M30,38 L40,52 L58,10 Z', fill: NColor.hex(0xFF5BA0FF)),
+    NPath('M23,12 H45 A7,7 0 0 1 52,19 V47 A7,7 0 0 1 45,54 H23 A7,7 0 0 1 16,47 V19 A7,7 0 0 1 23,12 Z', fill: NColor.ref('deck_back')),
+    NPath('M17,8 H39 A7,7 0 0 1 46,15 V43 A7,7 0 0 1 39,50 H17 A7,7 0 0 1 10,43 V15 A7,7 0 0 1 17,8 Z', fill: NColor.ref('surface'), stroke: NColor.ref('primary'), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,20 H36 M18,27 H38 M18,34 H30', stroke: NColor.ref('primary'), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M37,46 A9,9 0 1 0 55,46 A9,9 0 1 0 37,46 Z', fill: NColor.ref('accent')),
+    NPath('M42,46 H50 M46,42 V50', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_pen.xml (24 x 24 dp)
   static const icPen = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,19 L6,15 L15.5,5.5 L18.5,8.5 L9,18 Z M13.5,7.5 L16.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,4.5 L19.5,8.5 L9,19 L4.5,19.5 L5,15 Z M13.5,6.5 L17.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_pen_circle.xml (48 x 48 dp)
   static const icPenCircle = NDrawable(width: 48.0, height: 48.0, viewportWidth: 48.0, viewportHeight: 48.0, children: [
-    NPath('M24,24 m-22,0 a22,22 0 1 0 44,0 a22,22 0 1 0 -44,0', fill: NColor.hex(0xFFE53935)),
-    NPath('M15,33 L16,29 L27.5,17.5 L30.5,20.5 L19,32 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M14,35 H24', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M2,24 A22,22 0 1 0 46,24 A22,22 0 1 0 2,24 Z', fill: NColor.ref('accent')),
+    NPath('M15,33 L16,29 L27.5,17.5 L30.5,20.5 L19,32 Z M14,35.5 H24', stroke: NColor.ref('on_accent'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  ]);
+
+  /// res/drawable/ic_play_triangle.xml (24 x 24 dp)
+  static const icPlayTriangle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M3,20.5 V3.5 L14,12 Z', fill: NColor.hex(0xFF34A853)),
+    NPath('M14,12 L20.5,7.5 V16.5 Z', fill: NColor.hex(0xFFEA4335)),
+    NPath('M14,12 L3,20.5 L20.5,16.5 Z', fill: NColor.hex(0xFFFBBC04)),
+    NPath('M14,12 L3,3.5 L20.5,7.5 Z', fill: NColor.hex(0xFF4285F4)),
   ]);
 
   /// res/drawable/ic_print.xml (24 x 24 dp)
   static const icPrint = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,9 V3.5 H17 V9 M7,17 H4 V9 H20 V17 H17 M7,14 H17 V20.5 H7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,8.5 V4.5 H17 V8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,16.5 H5.5 A1.5,1.5 0 0 1 4,15 V10.5 A2,2 0 0 1 6,8.5 H18 A2,2 0 0 1 20,10.5 V15 A1.5,1.5 0 0 1 18.5,16.5 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,13.5 H16 A1,1 0 0 1 17,14.5 V19 A1,1 0 0 1 16,20 H8 A1,1 0 0 1 7,19 V14.5 A1,1 0 0 1 8,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_ads.xml (24 x 24 dp)
   static const icQAds = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.5,6.5 A1.5,1.5 0 0 1 5,5 H19 A1.5,1.5 0 0 1 20.5,6.5 V17.5 A1.5,1.5 0 0 1 19,19 H5 A1.5,1.5 0 0 1 3.5,17.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7,15.5 L9.4,8.5 L11.8,15.5 M7.8,13.2 H11 M14,8.5 V15.5 H15 A3,3.5 0 0 0 15,8.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,10 V14 A1,1 0 0 0 5,15 H7 L14,19 V5 L7,9 H5 A1,1 0 0 0 4,10 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,15 L8.5,20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.5,9.5 A3.5,3.5 0 0 1 17.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_copy.xml (24 x 24 dp)
   static const icQCopy = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M9,8 A1.5,1.5 0 0 1 10.5,6.5 H18 A1.5,1.5 0 0 1 19.5,8 V19 A1.5,1.5 0 0 1 18,20.5 H10.5 A1.5,1.5 0 0 1 9,19 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6,17.5 H5.5 A1,1 0 0 1 4.5,16.5 V5 A1.5,1.5 0 0 1 6,3.5 H14.5 A1,1 0 0 1 15.5,4.5 V5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.5,8.5 H17.5 A2,2 0 0 1 19.5,10.5 V17.5 A2,2 0 0 1 17.5,19.5 H10.5 A2,2 0 0 1 8.5,17.5 V10.5 A2,2 0 0 1 10.5,8.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,5.5 V5.5 A1.5,1.5 0 0 0 14,4 H6 A2,2 0 0 0 4,6 V14 A1.5,1.5 0 0 0 5.5,15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_create.xml (24 x 24 dp)
   static const icQCreate = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,3.5 H14.5 L19,8 V19 A1.5,1.5 0 0 1 17.5,20.5 H6 A1.5,1.5 0 0 1 4.5,19 V5 A1.5,1.5 0 0 1 6,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11.75,10 V16.5 M8.5,13.25 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,3 H14 L19,8 V19.5 A1.5,1.5 0 0 1 17.5,21 H6.5 A1.5,1.5 0 0 1 5,19.5 V4.5 A1.5,1.5 0 0 1 6.5,3 Z M14,3 V6.5 A1.5,1.5 0 0 0 15.5,8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,11 V17 M9,14 H15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_display.xml (24 x 24 dp)
   static const icQDisplay = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.5,5.5 A1.5,1.5 0 0 1 5,4 H19 A1.5,1.5 0 0 1 20.5,5.5 V15 A1.5,1.5 0 0 1 19,16.5 H5 A1.5,1.5 0 0 1 3.5,15 Z M9,20 H15 M12,16.5 V20', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M2.5,12 C5,7.5 8.5,5.5 12,5.5 C15.5,5.5 19,7.5 21.5,12 C19,16.5 15.5,18.5 12,18.5 C8.5,18.5 5,16.5 2.5,12 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,12 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_edit.xml (24 x 24 dp)
   static const icQEdit = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M14.5,4.5 L19.5,9.5 L9,20 H4 V15 Z M12.5,6.5 L17.5,11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,20 L4.8,16.2 L15.5,5.5 A2.1,2.1 0 0 1 18.5,8.5 L7.8,19.2 Z M13.5,7.5 L16.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_open.xml (24 x 24 dp)
   static const icQOpen = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.5,7 A1.5,1.5 0 0 1 5,5.5 H9.5 L11.5,7.5 H18 A1.5,1.5 0 0 1 19.5,9 V10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3.5,7 V18 A1,1 0 0 0 4.5,19 H17.5 L20.8,11.8 A0.9,0.9 0 0 0 20,10.5 H7.3 A1,1 0 0 0 6.4,11.1 L3.6,18.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,18 V7 A2,2 0 0 1 5,5 H9 L11,7 H17 A2,2 0 0 1 19,9 V10', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.4,18.6 L6.4,11 A1.5,1.5 0 0 1 7.8,10 H19.6 A1,1 0 0 1 20.5,11.4 L17.6,18.3 A1.2,1.2 0 0 1 16.5,19 H4 A0.7,0.7 0 0 1 3.4,18.6 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_search.xml (24 x 24 dp)
   static const icQSearch = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M10.5,10.5 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15,15 L20,20', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,10.5 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,15 L20,20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_q_slow.xml (24 x 24 dp)
   static const icQSlow = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,16 A8,8 0 1 1 20,16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,16 L8.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,16 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.ref('icon_main')),
+    NPath('M4,17 A8,8 0 1 1 20,17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,15 L8.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.8,15.5 a1.2,1.2 0 1,0 2.4,0 a1.2,1.2 0 1,0 -2.4,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_quote_big.xml (40 x 40 dp)
-  static const icQuoteBig = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,17 C3,11 5,7.5 10,6 L10.8,7.6 C8,8.8 7,10.6 7,12.5 H10 V17 Z M13,17 C13,11 15,7.5 20,6 L20.8,7.6 C18,8.8 17,10.6 17,12.5 H20 V17 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.06),
+  static const icQuoteBig = NDrawable(width: 40.0, height: 40.0, viewportWidth: 40.0, viewportHeight: 40.0, children: [
+    NPath('M7,27 C7,19 10,14 16.5,11.5 L17.8,14.5 C14.6,16.2 13,18.2 12.6,21 H16.5 V29.5 H7 Z M21,27 C21,19 24,14 30.5,11.5 L31.8,14.5 C28.6,16.2 27,18.2 26.6,21 H30.5 V29.5 H21 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.25),
   ]);
 
-  /// res/drawable/ic_ready_check.xml (40 x 40 dp)
-  static const icReadyCheck = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,12.5 L10.2,16.6 L18.2,8', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 3.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_ready_check.xml (52 x 52 dp)
+  static const icReadyCheck = NDrawable(width: 52.0, height: 52.0, viewportWidth: 52.0, viewportHeight: 52.0, children: [
+    NPath('M14,27 L22.5,35.5 L38,19', stroke: NColor.hex(0xFF1F2933), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_redo.xml (24 x 24 dp)
   static const icRedo = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M15,8 H9 A4.5,4.5 0 0 0 9,17 H16 M15,8 L18,5 M15,8 L18,11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,14.5 L19.5,10 L15,5.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M19.2,10 H10 A5.5,5.5 0 0 0 10,21 H14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_refresh.xml (24 x 24 dp)
   static const icRefresh = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M19,12 a7,7 0 1 1 -2.05,-4.95', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M17.3,3.2 L17.3,7.3 L13.2,7.3', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M19.5,12A7.5,7.5 0 1 1 17.3,6.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,3.2V7.2H14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_remove_circle.xml (24 x 24 dp)
   static const icRemoveCircle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17,0 a8.5,8.5 0 1 0 -17,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17.0,0 a8.5,8.5 0 1 0 -17.0,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
     NPath('M8,12 H16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_rename.xml (24 x 24 dp)
   static const icRename = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,4 H4 V20 H7 M17,4 H20 V20 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.5,8.5 H15.5 M12,8.5 V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.5,5.5 L18.5,9.5 L9,19 H5 V15 Z M12.5,7.5 L16.5,11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,20 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_reorder.xml (24 x 24 dp)
   static const icReorder = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,4 H20 V20 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.5,8 V16 M7.5,10 L9.5,8 L11.5,10 M14.5,16 V8 M12.5,14 L14.5,16 L16.5,14', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,4 V20 M4.5,7.5 L8,4 L11.5,7.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16,20 V4 M12.5,16.5 L16,20 L19.5,16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_restore.xml (24 x 24 dp)
   static const icRestore = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,12 A7.5,7.5 0 1 1 7,17.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M2.5,9.8 L4.5,12.3 L7,10', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,8 V12 L14.8,13.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,12 A7.5,7.5 0 1 0 6.7,6.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.2,3.8 V7.4 H7.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,8 V12.3 L14.8,14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_review_face.xml (18 x 18 dp)
-  static const icReviewFace = NDrawable(width: 18.0, height: 18.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFF5B8CFF)),
-    NPath('M8.6,10 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFF15172B)),
-    NPath('M15.4,10 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFF15172B)),
-    NPath('M7.8,14.2 C9.6,16.8 14.4,16.8 16.2,14.2', stroke: NColor.hex(0xFF15172B), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_review_face.xml (24 x 24 dp)
+  static const icReviewFace = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M3,12 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0 Z', fill: NColor.hex(0xFF8FD6CB)),
+    NPath('M8.5,13.5 Q12,17 15.5,13.5', stroke: NColor.hex(0xFF1F2933), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,9.5 V10 M15,9.5 V10', stroke: NColor.hex(0xFF1F2933), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_review_sparkle.xml (10 x 10 dp)
-  static const icReviewSparkle = NDrawable(width: 10.0, height: 10.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2 L13.6,10.4 L22,12 L13.6,13.6 L12,22 L10.4,13.6 L2,12 L10.4,10.4 Z', fill: NColor.hex(0xFF8FA2FF)),
+  /// res/drawable/ic_review_sparkle.xml (24 x 24 dp)
+  static const icReviewSparkle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M12,2.5 C12.8,8.2 15.8,11.2 21.5,12 C15.8,12.8 12.8,15.8 12,21.5 C11.2,15.8 8.2,12.8 2.5,12 C8.2,11.2 11.2,8.2 12,2.5 Z', fill: NColor.hex(0xFF8FD6CB)),
   ]);
 
   /// res/drawable/ic_rotate.xml (24 x 24 dp)
   static const icRotate = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,9 H14 V20 H6 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13,3.5 C17,3.5 19.5,6 19.5,10 M17.3,8.2 L19.5,10.4 L21.6,8.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M19.5,12 A7.5,7.5 0 1 1 16.8,6.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.5,2.8 L17.2,6.6 L13.4,6.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_rotate_left.xml (24 x 24 dp)
   static const icRotateLeft = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M14.5,9 H5 A1,1 0 0 0 4,10 V20 A1,1 0 0 0 5,21 H14.5 A1,1 0 0 0 15.5,20 V10 A1,1 0 0 0 14.5,9 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20,12.5 V9 A5,5 0 0 0 15,4 H11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13.5,2 L11.2,4 L13.5,6', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,6 A7,7 0 1 1 5,13', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.5,3.5 L12,6 L14.5,8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_rotate_right.xml (24 x 24 dp)
   static const icRotateRight = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M9.5,9 H19 A1,1 0 0 1 20,10 V20 A1,1 0 0 1 19,21 H9.5 A1,1 0 0 1 8.5,20 V10 A1,1 0 0 1 9.5,9 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,12.5 V9 A5,5 0 0 1 9,4 H12.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M10.5,2 L12.8,4 L10.5,6', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,6 A7,7 0 1 0 19,13', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.5,3.5 L12,6 L9.5,8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_add_text.xml (30 x 30 dp)
-  static const icRtAddText = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFF8B5CF6)),
-    NPath('M8.5,21.5 L13,9 L17.5,21.5 M10.1,17.2 H15.9', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M21,7.5 V12.5 M18.5,10 H23.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_add_text.xml (24 x 24 dp)
+  static const icRtAddText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5,6.5 V5 H15 V6.5 M10,5 V17 M8,17 H12', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,13 H20 M17.5,10.5 V15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_annotate.xml (30 x 30 dp)
-  static const icRtAnnotate = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFFFFA41B)),
-    NPath('M9,21 L10,17.5 L18.5,9 A1.8,1.8 0 0 1 21,11.5 L12.5,20 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M8,23.5 H22', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_annotate.xml (24 x 24 dp)
+  static const icRtAnnotate = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5.5,18.5 L15,9 L18,12 L8.5,21.5 H5.5 Z M13,11 L16,14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,4.5 C15.8,3.4 18.6,4 19.6,6.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_edit_text.xml (30 x 30 dp)
-  static const icRtEditText = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFFF0483E)),
-    NPath('M8,8 H22 V22 H8 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11,11.5 H19 M15,11.5 V19', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_edit_text.xml (24 x 24 dp)
+  static const icRtEditText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4.5,6 H12.5 M8.5,6 V16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.5,9.5 L18.5,13.5 L12,20 H8 V16 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_manage_pages.xml (30 x 30 dp)
-  static const icRtManagePages = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFF8B5CF6)),
-    NPath('M9,8 H18 L21,11 V22 H9 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,13 H18 M12,16.5 H16', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M21,17.5 m-4,0 a4,4 0 1 0 8,0 a4,4 0 1 0 -8,0', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M19,17.5 H23 M21,15.5 V19.5', stroke: NColor.hex(0xFF8B5CF6), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_manage_pages.xml (24 x 24 dp)
+  static const icRtManagePages = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5.8,4 H8.7 A1.8,1.8 0 0 1 10.5,5.8 V8.7 A1.8,1.8 0 0 1 8.7,10.5 H5.8 A1.8,1.8 0 0 1 4,8.7 V5.8 A1.8,1.8 0 0 1 5.8,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.3,4 H18.2 A1.8,1.8 0 0 1 20,5.8 V8.7 A1.8,1.8 0 0 1 18.2,10.5 H15.3 A1.8,1.8 0 0 1 13.5,8.7 V5.8 A1.8,1.8 0 0 1 15.3,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5.8,13.5 H8.7 A1.8,1.8 0 0 1 10.5,15.3 V18.2 A1.8,1.8 0 0 1 8.7,20 H5.8 A1.8,1.8 0 0 1 4,18.2 V15.3 A1.8,1.8 0 0 1 5.8,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16.75,13.5 V20 M13.5,16.75 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_merge.xml (30 x 30 dp)
-  static const icRtMerge = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFFE8453C)),
-    NPath('M8.5,8 H13 V13 H8.5 Z M17,8 H21.5 V13 H17 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M10.75,13 V15.5 C10.75,17 12,18 13.5,18 H16.5 C18,18 19.25,17 19.25,15.5 V13 M15,18 V22.5 M13,20.5 L15,22.5 L17,20.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_merge.xml (24 x 24 dp)
+  static const icRtMerge = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M5,4.5 V8 A4,4 0 0 0 9,12 H12 A4,4 0 0 1 16,16 V19.5 M19,4.5 V8 A4,4 0 0 1 15,12', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,17.5 L16,20 L18.5,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_pdf2word.xml (30 x 30 dp)
-  static const icRtPdf2word = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M6,2 H18 L25,9 V25 A3,3 0 0 1 22,28 H6 A3,3 0 0 1 3,25 V5 A3,3 0 0 1 6,2 Z', fill: NColor.hex(0xFFF0483E)),
-    NPath('M7,17 V10.5 H8.8 A1.6,1.6 0 0 1 8.8,13.7 H7 M11.2,17 V10.5 H12 A2.2,3.25 0 0 1 12,17 Z M16,17 V10.5 H18.8 M16,13.5 H18.4', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M17,18 H27.5 A1.5,1.5 0 0 1 29,19.5 V27.5 A1.5,1.5 0 0 1 27.5,29 H17 A1.5,1.5 0 0 1 15.5,27.5 V19.5 A1.5,1.5 0 0 1 17,18 Z', fill: NColor.hex(0xFF1E6FE6)),
-    NPath('M17.8,20.3 L19.3,26.6 L21.2,22.8 L23.1,26.6 L24.6,20.3', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_pdf2word.xml (24 x 24 dp)
+  static const icRtPdf2word = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,12.5 C4.8,9 7,7.2 10,8 C8.3,9.6 6.3,11.2 4,12.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9.5 H19 A1.5,1.5 0 0 1 20.5,11 V19 A1.5,1.5 0 0 1 19,20.5 H12.5 A1.5,1.5 0 0 1 11,19 V17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,14 H18 M13.5,17 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_print.xml (30 x 30 dp)
-  static const icRtPrint = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M9,4 H21 V10 H9 Z', fill: NColor.hex(0xFFFFC08A)),
-    NPath('M4,11 A2,2 0 0 1 6,9 H24 A2,2 0 0 1 26,11 V21 A2,2 0 0 1 24,23 H4 Z', fill: NColor.hex(0xFFFF7A1A)),
-    NPath('M9,18 H21 V26 H9 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M11.5,21 H18.5 M11.5,23.5 H16.5', stroke: NColor.hex(0xFFFF7A1A), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_print.xml (24 x 24 dp)
+  static const icRtPrint = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7,8.5 V4.5 H17 V8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,16.5 H5.5 A1.5,1.5 0 0 1 4,15 V10.5 A2,2 0 0 1 6,8.5 H18 A2,2 0 0 1 20,10.5 V15 A1.5,1.5 0 0 1 18.5,16.5 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,13.5 H16 A1,1 0 0 1 17,14.5 V19 A1,1 0 0 1 16,20 H8 A1,1 0 0 1 7,19 V14.5 A1,1 0 0 1 8,13.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_recycle_bin.xml (30 x 30 dp)
-  static const icRtRecycleBin = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFF1FB35A)),
-    NPath('M9,10 H21 M12.5,10 V8 H17.5 V10 M10.5,10 L11.5,22 H18.5 L19.5,10', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13.5,14 V19 M16.5,14 V19', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_recycle_bin.xml (24 x 24 dp)
+  static const icRtRecycleBin = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4.5,7 H19.5 M9.5,7 V5.5 A1.5,1.5 0 0 1 11,4 H13 A1.5,1.5 0 0 1 14.5,5.5 V7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,7 L7.4,18.6 A2,2 0 0 0 9.4,20.5 H14.6 A2,2 0 0 0 16.6,18.6 L17.5,7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.6,13.8 A2.6,2.6 0 0 1 14.2,12 M14.4,15.2 A2.6,2.6 0 0 1 9.8,17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_sign.xml (30 x 30 dp)
-  static const icRtSign = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFF1EA7FF)),
-    NPath('M9.5,20.5 L10.5,16.5 L18,9 A2,2 0 0 1 20.8,11.8 L13.3,19.3 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M8.5,23 C11,21.8 13,24.2 15.5,23 C17.5,22 19.5,23.4 21.5,22.6', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_sign.xml (24 x 24 dp)
+  static const icRtSign = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M4,17 C6,12 8,8 9.5,9 C11,10 7.5,16.5 9.5,16.5 C11,16.5 12,13 13.5,13.5 C15,14 14.5,16.5 16,16.5 C17,16.5 18,15.5 19.5,15', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,20.5 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_rt_split.xml (30 x 30 dp)
-  static const icRtSplit = NDrawable(width: 30.0, height: 30.0, viewportWidth: 30.0, viewportHeight: 30.0, children: [
-    NPath('M7,2 H23 A5,5 0 0 1 28,7 V23 A5,5 0 0 1 23,28 H7 A5,5 0 0 1 2,23 V7 A5,5 0 0 1 7,2 Z', fill: NColor.hex(0xFFF26201)),
-    NPath('M12.5,7.5 H17.5 V12.5 H12.5 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15,12.5 V14.5 C15,16 13,16.5 11,18 M15,14.5 C15,16 17,16.5 19,18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.5,18 H13 V22.5 H8.5 Z M17,18 H21.5 V22.5 H17 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_rt_split.xml (24 x 24 dp)
+  static const icRtSplit = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M6,4 H9 A2,2 0 0 1 11,6 V18 A2,2 0 0 1 9,20 H6 A2,2 0 0 1 4,18 V6 A2,2 0 0 1 6,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,4 H18 A2,2 0 0 1 20,6 V18 A2,2 0 0 1 18,20 H15 A2,2 0 0 1 13,18 V6 A2,2 0 0 1 15,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_search.xml (24 x 24 dp)
   static const icSearch = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M11,11 m-6.5,0 a6.5,6.5 0 1 0 13,0 a6.5,6.5 0 1 0 -13,0', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M16,16 L20.5,20.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.500000000000001,10.8 A6.3,6.3 0 1 0 17.1,10.8 A6.3,6.3 0 1 0 4.500000000000001,10.8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.6,15.6 L20,20', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_search_text.xml (24 x 24 dp)
   static const icSearchText = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M11,11 m-6.5,0 a6.5,6.5 0 1 0 13,0 a6.5,6.5 0 1 0 -13,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M16,16 L20.5,20.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.3,8.6 H13.7 M11,8.6 V14', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,5.5 H11 M3,9.5 H8 M3,13.5 H7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.5,13.5 a4.5,4.5 0 1,0 9.0,0 a4.5,4.5 0 1,0 -9.0,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18.3,16.8 L21,19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_select.xml (24 x 24 dp)
   static const icSelect = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,4 H20 V20 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,12 L11,15 L16.5,9', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,4.5 H15.5 A4,4 0 0 1 19.5,8.5 V15.5 A4,4 0 0 1 15.5,19.5 H8.5 A4,4 0 0 1 4.5,15.5 V8.5 A4,4 0 0 1 8.5,4.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,12.2 L11,14.7 L15.8,9.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_select_all.xml (24 x 24 dp)
   static const icSelectAll = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M8,3.5 H20.5 V16 H8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,7.5 V20.5 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11,9.8 L13.3,12.1 L17.5,7.9', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.5,7.5 H17 A3,3 0 0 1 20,10.5 V17 A3,3 0 0 1 17,20 H10.5 A3,3 0 0 1 7.5,17 V10.5 A3,3 0 0 1 10.5,7.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,15.5 V6.5 A2.5,2.5 0 0 1 6.5,4 H15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.8,13.8 L12.9,15.9 L16.8,11.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_setup.xml (24 x 24 dp)
   static const icSetup = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-3,0 a3,3 0 1 0 6,0 a3,3 0 1 0 -6,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,3 V5.5 M12,18.5 V21 M3,12 H5.5 M18.5,12 H21 M5.6,5.6 L7.4,7.4 M16.6,16.6 L18.4,18.4 M5.6,18.4 L7.4,16.6 M16.6,7.4 L18.4,5.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,7 H13.5 M18.5,7 H20 M4,17 H5.5 M10.5,17 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16,7 m-2.5,0 a2.5,2.5 0 1 0 5.0,0 a2.5,2.5 0 1 0 -5.0,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,17 m-2.5,0 a2.5,2.5 0 1 0 5.0,0 a2.5,2.5 0 1 0 -5.0,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_share.xml (24 x 24 dp)
   static const icShare = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M18,16.08c-0.76,0 -1.44,0.3 -1.96,0.77L8.91,12.7c0.05,-0.23 0.09,-0.46 0.09,-0.7s-0.04,-0.47 -0.09,-0.7l7.05,-4.11c0.54,0.5 1.25,0.81 2.04,0.81 1.66,0 3,-1.34 3,-3s-1.34,-3 -3,-3 -3,1.34 -3,3c0,0.24 0.04,0.47 0.09,0.7L8.04,9.81C7.5,9.31 6.79,9 6,9c-1.66,0 -3,1.34 -3,3s1.34,3 3,3c0.79,0 1.5,-0.31 2.04,-0.81l7.12,4.16c-0.05,0.21 -0.08,0.43 -0.08,0.65 0,1.61 1.31,2.92 2.92,2.92 1.61,0 2.92,-1.31 2.92,-2.92s-1.31,-2.92 -2.92,-2.92z', fill: NColor.ref('icon_main')),
+    NPath('M12,14 V3.8 M8,7.6 L12,3.6 L16,7.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,10.5 H7 A2,2 0 0 0 5,12.5 V18.5 A2,2 0 0 0 7,20.5 H17 A2,2 0 0 0 19,18.5 V12.5 A2,2 0 0 0 17,10.5 H15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_shield.xml (24 x 24 dp)
   static const icShield = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2.8 L19.5,5.8 V11.2 C19.5,15.9 16.3,19.8 12,21.2 C7.7,19.8 4.5,15.9 4.5,11.2 V5.8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.8,12 L11.2,14.3 L15.4,9.9', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,3.5 L19,6.3 V11.5 C19,15.8 16,19 12,20.5 C8,19 5,15.8 5,11.5 V6.3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,12 L11.2,14.2 L15.2,10', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_shortcut_permission.xml (140 x 110 dp)
-  static const icShortcutPermission = NDrawable(width: 140.0, height: 110.0, viewportWidth: 110.0, viewportHeight: 110.0, children: [
-    NPath('M70,55 m-50,0 a50,44 0 1 0 100,0 a50,44 0 1 0 -100,0', fill: NColor.hex(0xFFEAF3FF)),
-    NPath('M40,34 L78,22 L96,78 L58,90 Z', fill: NColor.hex(0xFF2F6FE4)),
-    NPath('M44,38 L76,28 L90,74 L58,84 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M50,46 L70,40 M52,54 L74,47 M54,62 L70,57', stroke: NColor.hex(0xFFBFD4FA), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,20 H110 V46 H84 Z', fill: NColor.hex(0xFFFFD54F)),
-    NPath('M88,24 H106 V42 H88 Z', fill: NColor.hex(0xFFFFE9A0)),
-    NPath('M30,70 C24,64 28,56 36,58 L60,68 C64,70 64,76 60,78 L44,92 C38,96 30,92 30,86 Z', fill: NColor.hex(0xFFF9B8A0)),
-    NPath('M96,62 L100,66 M104,58 L110,58 M100,52 L104,48', stroke: NColor.hex(0xFF2F6FE4), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M24,30 L26,34 L30,36 L26,38 L24,42 L22,38 L18,36 L22,34 Z', fill: NColor.hex(0xFFFFC21A)),
+  static const icShortcutPermission = NDrawable(width: 140.0, height: 110.0, viewportWidth: 140.0, viewportHeight: 110.0, children: [
+    NGroup(rotation: -8.0, px: 70.0, py: 55.0, children: [
+      NPath('M56,8 H84 A10,10 0 0 1 94,18 V92 A10,10 0 0 1 84,102 H56 A10,10 0 0 1 46,92 V18 A10,10 0 0 1 56,8 Z', fill: NColor.ref('ds_files_ill_back')),
+    ]),
+    NPath('M56,8 H84 A10,10 0 0 1 94,18 V92 A10,10 0 0 1 84,102 H56 A10,10 0 0 1 46,92 V18 A10,10 0 0 1 56,8 Z', fill: NColor.ref('ds_files_ill_front'), stroke: NColor.ref('primary'), strokeWidth: 2.0),
+    NPath('M57,22 H63 A3,3 0 0 1 66,25 V31 A3,3 0 0 1 63,34 H57 A3,3 0 0 1 54,31 V25 A3,3 0 0 1 57,22 Z', fill: NColor.ref('ds_files_ill_line')),
+    NPath('M77,22 H83 A3,3 0 0 1 86,25 V31 A3,3 0 0 1 83,34 H77 A3,3 0 0 1 74,31 V25 A3,3 0 0 1 77,22 Z', fill: NColor.ref('ds_files_ill_line')),
+    NPath('M57,42 H63 A3,3 0 0 1 66,45 V51 A3,3 0 0 1 63,54 H57 A3,3 0 0 1 54,51 V45 A3,3 0 0 1 57,42 Z', fill: NColor.ref('ds_files_ill_line')),
+    NPath('M77,42 H83 A3,3 0 0 1 86,45 V51 A3,3 0 0 1 83,54 H77 A3,3 0 0 1 74,51 V45 A3,3 0 0 1 77,42 Z', fill: NColor.ref('accent')),
+    NPath('M80,44.5V51.5M76.5,48H83.5', stroke: NColor.ref('white'), strokeWidth: 2.0, cap: StrokeCap.round),
+    NPath('M60,88H80', stroke: NColor.ref('ds_files_ill_mid'), strokeWidth: 4.0, cap: StrokeCap.round),
+    NPath('M100,72m-14,0a14,14 0 1,0 28,0a14,14 0 1,0 -28,0', fill: NColor.ref('primary')),
+    NPath('M93.5,72L98,76.5L106.5,67.5', stroke: NColor.ref('on_primary'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M30,30m-3.5,0a3.5,3.5 0 1,0 7,0a3.5,3.5 0 1,0 -7,0', fill: NColor.ref('accent_soft')),
+    NPath('M118,26m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0', fill: NColor.ref('accent')),
   ]);
 
   /// res/drawable/ic_sign_remove.xml (18 x 18 dp)
   static const icSignRemove = NDrawable(width: 18.0, height: 18.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0', fill: NColor.hex(0xFFB9BEC7)),
-    NPath('M8.8,8.8 L15.2,15.2 M15.2,8.8 L8.8,15.2', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,12 m-9,0 a9,9 0 1 0 18,0 a9,9 0 1 0 -18,0 Z', fill: NColor.ref('primary')),
+    NPath('M9,9 L15,15 M15,9 L9,15', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_sort.xml (24 x 24 dp)
@@ -1116,19 +1379,19 @@ abstract final class ND {
 
   /// res/drawable/ic_sound_off.xml (24 x 24 dp)
   static const icSoundOff = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,9.5 H7.5 L12,5.5 V18.5 L7.5,14.5 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.5,9.5 L20.5,14.5 M20.5,9.5 L15.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,9.5 H7.5 L12,5.5 V18.5 L7.5,14.5 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9.5 L20.5,14.5 M20.5,9.5 L15.5,14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_sound_on.xml (24 x 24 dp)
   static const icSoundOn = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,9.5 H7.5 L12,5.5 V18.5 L7.5,14.5 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15.2,9 A4,4 0 0 1 15.2,15 M17.6,6.6 A7.4,7.4 0 0 1 17.6,17.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,9.5 H7.5 L12,5.5 V18.5 L7.5,14.5 H4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.5,9 A4,4 0 0 1 15.5,15 M18,6.5 A7.5,7.5 0 0 1 18,17.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_sparkle.xml (24 x 24 dp)
   static const icSparkle = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,1 C12.8,7.5 16.5,11.2 23,12 C16.5,12.8 12.8,16.5 12,23 C11.2,16.5 7.5,12.8 1,12 C7.5,11.2 11.2,7.5 12,1 Z', fill: NColor.hex(0xFFFFC53D)),
+    NPath('M12,2 C12.6,8.2 15.8,11.4 22,12 C15.8,12.6 12.6,15.8 12,22 C11.4,15.8 8.2,12.6 2,12 C8.2,11.4 11.4,8.2 12,2 Z', fill: NColor.ref('accent_soft')),
   ]);
 
   /// res/drawable/ic_spiral.xml (14 x 160 dp)
@@ -1161,72 +1424,72 @@ abstract final class ND {
 
   /// res/drawable/ic_split_line.xml (24 x 24 dp)
   static const icSplitLine = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M9.5,3.5 H14.5 V9 H9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,9 V11 C12,12.5 9.5,13 7,15 M12,11 C12,12.5 14.5,13 17,15', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4.5,15 H9.5 V20.5 H4.5 Z M14.5,15 H19.5 V20.5 H14.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,3 V9.5 C12,12.5 6,12.5 6,15.5 V20.5 M12,9.5 C12,12.5 18,12.5 18,15.5 V20.5 M3.5,18 L6,20.5 L8.5,18 M15.5,18 L18,20.5 L20.5,18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_drive.xml (24 x 24 dp)
   static const icStDrive = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,18.5 H17.5 A4,4 0 0 0 18.2,10.6 A6,6 0 0 0 6.6,9.4 A4.6,4.6 0 0 0 7,18.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,16 V11 M9.8,13 L12,10.8 L14.2,13', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,18.5 H17 A4,4 0 0 0 17.5,10.5 A5.5,5.5 0 0 0 6.8,11.6 A3.5,3.5 0 0 0 7,18.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,16.5 V11.5 M9.8,13.6 L12,11.4 L14.2,13.6', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_faq.xml (24 x 24 dp)
   static const icStFaq = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17.0,0 a8.5,8.5 0 1 0 -17.0,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.6,9.6 A2.5,2.5 0 1 1 12.9,12 C12.3,12.3 12,12.8 12,13.6 V14', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,17 m-1,0 a1,1 0 1 0 2,0 a1,1 0 1 0 -2,0', fill: NColor.ref('icon_main')),
+    NPath('M5,4 H19 A2,2 0 0 1 21,6 V15 A2,2 0 0 1 19,17 H11 L6.5,20.5 V17 H5 A2,2 0 0 1 3,15 V6 A2,2 0 0 1 5,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.8,8.8 A2.2,2.2 0 1 1 12.8,10.8 C12.3,11.1 12,11.5 12,12.1', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,14.3 V14.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_feedback.xml (24 x 24 dp)
   static const icStFeedback = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,5.5 A1.5,1.5 0 0 1 6,4 H18 A1.5,1.5 0 0 1 19.5,5.5 V15 A1.5,1.5 0 0 1 18,16.5 H10 L6,20 V16.5 H6 A1.5,1.5 0 0 1 4.5,15 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.5,9 H15.5 M8.5,12 H13', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,4 C17,4 20.5,7.1 20.5,11 C20.5,14.9 17,18 12,18 C11,18 10.1,17.9 9.2,17.6 L4.5,19.5 L5.6,15.6 C4.3,14.4 3.5,12.8 3.5,11 C3.5,7.1 7,4 12,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,11 H8.6 M12,11 H12.1 M15.5,11 H15.6', stroke: NColor.ref('icon_main'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_file_manager.xml (24 x 24 dp)
   static const icStFileManager = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.5,6.5 A1.5,1.5 0 0 1 5,5 H9.5 L11.5,7 H19 A1.5,1.5 0 0 1 20.5,8.5 V17.5 A1.5,1.5 0 0 1 19,19 H5 A1.5,1.5 0 0 1 3.5,17.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M3.8,10 H20.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,7 A2,2 0 0 1 5,5 H9.2 L11.2,7 H19 A2,2 0 0 1 21,9 V17 A2,2 0 0 1 19,19 H5 A2,2 0 0 1 3,17 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,10.5 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_more_apps.xml (24 x 24 dp)
   static const icStMoreApps = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,7 m-2.6,0 a2.6,2.6 0 1 0 5.2,0 a2.6,2.6 0 1 0 -5.2,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M17,7 m-2.6,0 a2.6,2.6 0 1 0 5.2,0 a2.6,2.6 0 1 0 -5.2,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7,17 m-2.6,0 a2.6,2.6 0 1 0 5.2,0 a2.6,2.6 0 1 0 -5.2,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M17,17 m-2.6,0 a2.6,2.6 0 1 0 5.2,0 a2.6,2.6 0 1 0 -5.2,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,4 H8 A2,2 0 0 1 10,6 V8 A2,2 0 0 1 8,10 H6 A2,2 0 0 1 4,8 V6 A2,2 0 0 1 6,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16,4 H18 A2,2 0 0 1 20,6 V8 A2,2 0 0 1 18,10 H16 A2,2 0 0 1 14,8 V6 A2,2 0 0 1 16,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,14 H8 A2,2 0 0 1 10,16 V18 A2,2 0 0 1 8,20 H6 A2,2 0 0 1 4,18 V16 A2,2 0 0 1 6,14 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,17 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_scan.xml (24 x 24 dp)
   static const icStScan = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,8.5 V5.5 A1.5,1.5 0 0 1 5.5,4 H8.5 M15.5,4 H18.5 A1.5,1.5 0 0 1 20,5.5 V8.5 M20,15.5 V18.5 A1.5,1.5 0 0 1 18.5,20 H15.5 M8.5,20 H5.5 A1.5,1.5 0 0 1 4,18.5 V15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,12 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,8.5 V6 A2,2 0 0 1 6,4 H8.5 M15.5,4 H18 A2,2 0 0 1 20,6 V8.5 M20,15.5 V18 A2,2 0 0 1 18,20 H15.5 M8.5,20 H6 A2,2 0 0 1 4,18 V15.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,12 H17', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_subscriptions.xml (24 x 24 dp)
   static const icStSubscriptions = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,6 A1.5,1.5 0 0 1 6,4.5 H18 A1.5,1.5 0 0 1 19.5,6 V18 A1.5,1.5 0 0 1 18,19.5 H6 A1.5,1.5 0 0 1 4.5,18 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,9.5 L10.2,12.5 L12,8.5 L13.8,12.5 L16,9.5 L15.2,15.5 H8.8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5.5,5.5 H18.5 A2.5,2.5 0 0 1 21,8.0 V16.0 A2.5,2.5 0 0 1 18.5,18.5 H5.5 A2.5,2.5 0 0 1 3,16.0 V8.0 A2.5,2.5 0 0 1 5.5,5.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,10 H21 M7,14.5 H10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_terms.xml (24 x 24 dp)
   static const icStTerms = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,3.5 H14.5 L19,8 V19 A1.5,1.5 0 0 1 17.5,20.5 H6 A1.5,1.5 0 0 1 4.5,19 V5 A1.5,1.5 0 0 1 6,3.5 Z M14,3.8 V8.5 H18.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,12 H15.5 M8,15.5 H13.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,3 H14 L19,8 V19.5 A1.5,1.5 0 0 1 17.5,21 H6.5 A1.5,1.5 0 0 1 5,19.5 V4.5 A1.5,1.5 0 0 1 6.5,3 Z M14,3 V6.5 A1.5,1.5 0 0 0 15.5,8 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,12.5 H15.5 M8.5,16 H13', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_theme.xml (24 x 24 dp)
   static const icStTheme = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17.0,0 a8.5,8.5 0 1 0 -17.0,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,3.5 A8.5,8.5 0 0 1 12,20.5 Z', fill: NColor.ref('icon_main')),
+    NPath('M19.5,14.5 A8,8 0 1 1 9.5,4.5 A6.3,6.3 0 0 0 19.5,14.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17,3.5 V6 M15.75,4.75 H18.25', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_st_widget.xml (24 x 24 dp)
   static const icStWidget = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4,5 A1,1 0 0 1 5,4 H10 A1,1 0 0 1 11,5 V10 A1,1 0 0 1 10,11 H5 A1,1 0 0 1 4,10 Z M4,14 A1,1 0 0 1 5,13 H10 A1,1 0 0 1 11,14 V19 A1,1 0 0 1 10,20 H5 A1,1 0 0 1 4,19 Z M13,14 A1,1 0 0 1 14,13 H19 A1,1 0 0 1 20,14 V19 A1,1 0 0 1 19,20 H14 A1,1 0 0 1 13,19 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M16.5,3.8 V11.2 M12.8,7.5 H20.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,4 H8 A2,2 0 0 1 10,6 V8 A2,2 0 0 1 8,10 H6 A2,2 0 0 1 4,8 V6 A2,2 0 0 1 6,4 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,14 H8 A2,2 0 0 1 10,16 V18 A2,2 0 0 1 8,20 H6 A2,2 0 0 1 4,18 V16 A2,2 0 0 1 6,14 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16,14 H18 A2,2 0 0 1 20,16 V18 A2,2 0 0 1 18,20 H16 A2,2 0 0 1 14,18 V16 A2,2 0 0 1 16,14 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17,3.5 L20.5,7 L17,10.5 L13.5,7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_star.xml (24 x 24 dp)
@@ -1235,95 +1498,99 @@ abstract final class ND {
   ]);
 
   /// res/drawable/ic_star_empty.xml (40 x 40 dp)
-  static const icStarEmpty = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2.8 L14.8,8.6 L21.1,9.4 L16.5,13.8 L17.7,20.1 L12,17.1 L6.3,20.1 L7.5,13.8 L2.9,9.4 L9.2,8.6 Z', stroke: NColor.hex(0xFFC9CDD4), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icStarEmpty = NDrawable(width: 40.0, height: 40.0, viewportWidth: 40.0, viewportHeight: 40.0, children: [
+    NPath('M20,5.5 L24.1,13.8 L33.2,15.1 L26.6,21.5 L28.2,30.6 L20,26.3 L11.8,30.6 L13.4,21.5 L6.8,15.1 L15.9,13.8 Z', stroke: NColor.ref('text_hint'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_star_filled.xml (40 x 40 dp)
-  static const icStarFilled = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2.8 L14.8,8.6 L21.1,9.4 L16.5,13.8 L17.7,20.1 L12,17.1 L6.3,20.1 L7.5,13.8 L2.9,9.4 L9.2,8.6 Z', fill: NColor.hex(0xFFFFC21A), stroke: NColor.hex(0xFFF5A300), strokeWidth: 0.8, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icStarFilled = NDrawable(width: 40.0, height: 40.0, viewportWidth: 40.0, viewportHeight: 40.0, children: [
+    NPath('M20,5.5 L24.1,13.8 L33.2,15.1 L26.6,21.5 L28.2,30.6 L20,26.3 L11.8,30.6 L13.4,21.5 L6.8,15.1 L15.9,13.8 Z', fill: NColor.ref('accent'), stroke: NColor.ref('accent'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_star_hint.xml (40 x 40 dp)
-  static const icStarHint = NDrawable(width: 40.0, height: 40.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,2.8 L14.8,8.6 L21.1,9.4 L16.5,13.8 L17.7,20.1 L12,17.1 L6.3,20.1 L7.5,13.8 L2.9,9.4 L9.2,8.6 Z', fill: NColor.hex(0xFFFFF4D1), stroke: NColor.hex(0xFFFFB300), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.5,12.5 Q12,15 14.5,12.5', stroke: NColor.hex(0xFFFFB300), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icStarHint = NDrawable(width: 40.0, height: 40.0, viewportWidth: 40.0, viewportHeight: 40.0, children: [
+    NPath('M20,5.5 L24.1,13.8 L33.2,15.1 L26.6,21.5 L28.2,30.6 L20,26.3 L11.8,30.6 L13.4,21.5 L6.8,15.1 L15.9,13.8 Z', fill: NColor.ref('accent_container'), stroke: NColor.ref('accent'), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_strike.xml (24 x 24 dp)
   static const icStrike = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M16.5,7 C16,5.2 14.3,4 12,4 C9.5,4 7.5,5.4 7.5,7.5 C7.5,9.2 9,10.3 12,11 M4,12 H20 M8,16.5 C8.6,18.5 10.3,20 12.3,20 C15,20 17,18.4 17,16.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16.5,7.5 C16,5.8 14.3,4.8 12,4.8 C9.4,4.8 7.6,6.1 7.6,8 C7.6,9.4 8.5,10.4 10.3,11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,12 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.8,14.2 C16.2,14.8 16.4,15.4 16.4,16 C16.4,18 14.5,19.3 12,19.3 C9.5,19.3 7.7,18.2 7.2,16.4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_swipe_arrows.xml (220 x 80 dp)
   static const icSwipeArrows = NDrawable(width: 220.0, height: 80.0, viewportWidth: 220.0, viewportHeight: 80.0, children: [
-    NPath('M94,40 Q64,32 34,40', strokeGradient: NGradient(start: Offset(94.0, 40.0), end: Offset(34.0, 40.0), colors: [NColor.hex(0x00F5B800), NColor.hex(0xFFF5B800)]), strokeWidth: 9.0, cap: StrokeCap.round),
-    NPath('M8,42 L38,22 L33,41 L39,61 Z', fill: NColor.hex(0xFFF5B800)),
-    NPath('M126,40 Q156,32 186,40', strokeGradient: NGradient(start: Offset(126.0, 40.0), end: Offset(186.0, 40.0), colors: [NColor.hex(0x00F5B800), NColor.hex(0xFFF5B800)]), strokeWidth: 9.0, cap: StrokeCap.round),
-    NPath('M212,42 L182,22 L187,41 L181,61 Z', fill: NColor.hex(0xFFF5B800)),
-    NPath('M110,40 m-17,0 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0', fill: NColor.hex(0x66C79A16)),
-    NPath('M110,40 m-8,0 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0', fill: NColor.hex(0xFFFFC400)),
+    NPath('M30,26 L16,40 L30,54', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M52,26 L38,40 L52,54', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.6),
+    NPath('M74,26 L60,40 L74,54', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.3),
+    NPath('M190,26 L204,40 L190,54', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M168,26 L182,40 L168,54', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.6),
+    NPath('M146,26 L160,40 L146,54', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 6.0, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.3),
+    NPath('M90,40 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0 M100,40 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0 M110,40 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0 M120,40 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0 M130,40 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0', fill: NColor.hex(0x80D5EFEB)),
   ]);
 
   /// res/drawable/ic_text_file.xml (24 x 24 dp)
   static const icTextFile = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,3 H14 L19,8 V21 H6 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9,12 H16 M12.5,12 V18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,11.5 H15.5 M8.5,14.5 H15.5 M8.5,17.5 H12.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_text_highlight.xml (24 x 24 dp)
   static const icTextHighlight = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,14.5 L12,3.5 L17,14.5 M8.8,10.5 H15.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,17.5 H20 V21 H4 Z', fill: NColor.ref('icon_main'), fillAlpha: 0.35),
+    NPath('M8,14 L14.5,7.5 L17.5,10.5 L11,17 H8 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14.5,7.5 L16.5,5.5 L19.5,8.5 L17.5,10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,20.5 H20', stroke: NColor.ref('icon_main'), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tile_excel.xml (64 x 64 dp)
-  static const icTileExcel = NDrawable(width: 64.0, height: 64.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,1 H19.5 A3.5,3.5 0 0 1 23,4.5 V19.5 A3.5,3.5 0 0 1 19.5,23 H4.5 A3.5,3.5 0 0 1 1,19.5 V4.5 A3.5,3.5 0 0 1 4.5,1 Z', fill: NColor.hex(0xFF16A34A), fillAlpha: 0.92),
-    NPath('M8,5 H15 L18,8 V19 H8 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.95),
-    NPath('M15,5 V8 H18', fill: NColor.hex(0xFFDDDDDD)),
-    NPath('M5,9.5 H12 V16.5 H5 Z', fill: NColor.hex(0xFF16A34A)),
-    NPath('M6.5,11 L10.5,15 M10.5,11 L6.5,15', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.9, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13,11 H16.5 M13,13 H16.5 M13,15 H16.5', stroke: NColor.hex(0xFF16A34A), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icTileExcel = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
+    NPath('M1,32 A31,31 0 1 0 63,32 A31,31 0 1 0 1,32 Z', fill: NColor.ref('accent_container')),
+    NPath('M10,32 A22,22 0 1 0 54,32 A22,22 0 1 0 10,32 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_excel'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 20.0, ty: 20.0, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_excel'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M9.5,11 H14.5 A1,1 0 0 1 15.5,12 V17 A1,1 0 0 1 14.5,18 H9.5 A1,1 0 0 1 8.5,17 V12 A1,1 0 0 1 9.5,11 Z', stroke: NColor.ref('type_excel'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M12,11 V18 M8.5,14.5 H15.5', stroke: NColor.ref('type_excel'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_tile_pdf.xml (64 x 64 dp)
-  static const icTilePdf = NDrawable(width: 64.0, height: 64.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,1 H19.5 A3.5,3.5 0 0 1 23,4.5 V19.5 A3.5,3.5 0 0 1 19.5,23 H4.5 A3.5,3.5 0 0 1 1,19.5 V4.5 A3.5,3.5 0 0 1 4.5,1 Z', fill: NColor.hex(0xFFE53935), fillAlpha: 0.92),
-    NPath('M8,5 H15 L18,8 V19 H8 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.95),
-    NPath('M15,5 V8 H18', fill: NColor.hex(0xFFDDDDDD)),
-    NPath('M5,9.5 H13 V15 H5 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M6.2,14 V10.6 H7 A0.8,0.8 0 0 1 7,12.2 H6.2 M8.6,14 V10.6 H9 A1.2,1.7 0 0 1 9,14 Z M10.9,14 V10.6 H12.3 M10.9,12.3 H12', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.55, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13.8,11 H16.5 M13.8,13 H16.5 M9,17 H16.5', stroke: NColor.hex(0xFFE53935), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icTilePdf = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
+    NPath('M1,32 A31,31 0 1 0 63,32 A31,31 0 1 0 1,32 Z', fill: NColor.ref('accent_container')),
+    NPath('M10,32 A22,22 0 1 0 54,32 A22,22 0 1 0 10,32 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_pdf'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 20.0, ty: 20.0, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_pdf'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.5,17.5 C9.5,13.5 12,11.5 15.5,12.5 C13.5,14.2 11.2,15.8 8.5,17.5 Z', stroke: NColor.ref('type_pdf'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_tile_ppt.xml (64 x 64 dp)
-  static const icTilePpt = NDrawable(width: 64.0, height: 64.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,1 H19.5 A3.5,3.5 0 0 1 23,4.5 V19.5 A3.5,3.5 0 0 1 19.5,23 H4.5 A3.5,3.5 0 0 1 1,19.5 V4.5 A3.5,3.5 0 0 1 4.5,1 Z', fill: NColor.hex(0xFFF46A0A), fillAlpha: 0.92),
-    NPath('M8,5 H15 L18,8 V19 H8 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.95),
-    NPath('M15,5 V8 H18', fill: NColor.hex(0xFFDDDDDD)),
-    NPath('M5,9.5 H12 V16.5 H5 Z', fill: NColor.hex(0xFFF46A0A)),
-    NPath('M7.2,15.3 V10.8 H8.8 A1.3,1.3 0 0 1 8.8,13.4 H7.2', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.9, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13,11 H16.5 M13,13 H16.5 M13,15 H16.5', stroke: NColor.hex(0xFFF46A0A), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icTilePpt = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
+    NPath('M1,32 A31,31 0 1 0 63,32 A31,31 0 1 0 1,32 Z', fill: NColor.ref('accent_container')),
+    NPath('M10,32 A22,22 0 1 0 54,32 A22,22 0 1 0 10,32 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_ppt'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 20.0, ty: 20.0, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_ppt'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M9,18 V15.5 M12,18 V12 M15,18 V14', stroke: NColor.ref('type_ppt'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_tile_text.xml (64 x 64 dp)
-  static const icTileText = NDrawable(width: 64.0, height: 64.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,1 H19.5 A3.5,3.5 0 0 1 23,4.5 V19.5 A3.5,3.5 0 0 1 19.5,23 H4.5 A3.5,3.5 0 0 1 1,19.5 V4.5 A3.5,3.5 0 0 1 4.5,1 Z', fill: NColor.hex(0xFFE53935), fillAlpha: 0.92),
-    NPath('M8,5 H15 L18,8 V19 H8 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.95),
-    NPath('M15,5 V8 H18', fill: NColor.hex(0xFFDDDDDD)),
-    NPath('M8.5,8 H15.5 M12,8 V17', stroke: NColor.hex(0xFFE53935), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M5.5,5 H9 V8.5 H5.5 Z', fill: NColor.hex(0xFFE53935)),
+  static const icTileText = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
+    NPath('M1,32 A31,31 0 1 0 63,32 A31,31 0 1 0 1,32 Z', fill: NColor.ref('accent_container')),
+    NPath('M10,32 A22,22 0 1 0 54,32 A22,22 0 1 0 10,32 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_txt'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 20.0, ty: 20.0, children: [
+      NPath('M5,6 H19 M5,10 H19 M5,14 H16 M5,18 H12', stroke: NColor.ref('type_txt'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_tile_word.xml (64 x 64 dp)
-  static const icTileWord = NDrawable(width: 64.0, height: 64.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M4.5,1 H19.5 A3.5,3.5 0 0 1 23,4.5 V19.5 A3.5,3.5 0 0 1 19.5,23 H4.5 A3.5,3.5 0 0 1 1,19.5 V4.5 A3.5,3.5 0 0 1 4.5,1 Z', fill: NColor.hex(0xFF1560D6), fillAlpha: 0.92),
-    NPath('M8,5 H15 L18,8 V19 H8 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.95),
-    NPath('M15,5 V8 H18', fill: NColor.hex(0xFFDDDDDD)),
-    NPath('M5,9.5 H12 V16.5 H5 Z', fill: NColor.hex(0xFF1560D6)),
-    NPath('M6.2,11 L7.3,15.2 L8.5,12.4 L9.7,15.2 L10.8,11', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 0.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13,11 H16.5 M13,13 H16.5 M13,15 H16.5', stroke: NColor.hex(0xFF1560D6), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+  static const icTileWord = NDrawable(width: 64.0, height: 64.0, viewportWidth: 64.0, viewportHeight: 64.0, children: [
+    NPath('M1,32 A31,31 0 1 0 63,32 A31,31 0 1 0 1,32 Z', fill: NColor.ref('accent_container')),
+    NPath('M10,32 A22,22 0 1 0 54,32 A22,22 0 1 0 10,32 Z', fill: NColor.ref('surface'), stroke: NColor.ref('type_word'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 20.0, ty: 20.0, children: [
+      NPath('M13.5,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8.5 Z M13.5,3 V6.5 A2,2 0 0 0 15.5,8.5 H19', stroke: NColor.ref('type_word'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M8.5,11.5 H15.5 M8.5,14.5 H15.5 M8.5,17.5 H12.5', stroke: NColor.ref('type_word'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_tip_pointer_up.xml (22 x 11 dp)
@@ -1381,33 +1648,33 @@ abstract final class ND {
   ]);
 
   /// res/drawable/ic_tooltip_tail.xml (16 x 10 dp)
-  static const icTooltipTail = NDrawable(width: 16.0, height: 10.0, viewportWidth: 10.0, viewportHeight: 10.0, children: [
-    NPath('M0,0 H16 L10,9 Q8,11 6,9 Z', fill: NColor.hex(0xFFCCE4FF)),
+  static const icTooltipTail = NDrawable(width: 16.0, height: 10.0, viewportWidth: 16.0, viewportHeight: 10.0, children: [
+    NPath('M0,0 H16 L9.2,9 A1.5,1.5 0 0 1 6.8,9 Z', fill: NColor.ref('navbar_bg')),
   ]);
 
   /// res/drawable/ic_tpl_add_image.xml (24 x 24 dp)
   static const icTplAddImage = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5.5,4.5 H18.5 A2,2 0 0 1 20.5,6.5 V17.5 A2,2 0 0 1 18.5,19.5 H5.5 A2,2 0 0 1 3.5,17.5 V6.5 A2,2 0 0 1 5.5,4.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9,9.5 m-1.6,0 a1.6,1.6 0 1 0 3.2,0 a1.6,1.6 0 1 0 -3.2,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M4,17 L9.5,12.5 L13,15.5 L15.5,13.5 L20,17', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,4 H6 A2,2 0 0 0 4,6 V18 A2,2 0 0 0 6,20 H18 A2,2 0 0 0 20,18 V11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,17 L9,12.5 L12.5,16 L14.5,14 L19.5,19', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,3 V9 M15,6 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_blank.xml (26 x 26 dp)
   static const icTplBlank = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_bold.xml (24 x 24 dp)
   static const icTplBold = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,4.5 H12.8 A3.7,3.7 0 0 1 12.8,11.9 H7 Z M7,11.9 H13.8 A3.8,3.8 0 0 1 13.8,19.5 H7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,4.5 H12.5 A3.5,3.5 0 0 1 12.5,11.5 H7 Z M7,11.5 H13.5 A4,4 0 0 1 13.5,19.5 H7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 2.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_bullets.xml (24 x 24 dp)
   static const icTplBullets = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,6.5 m-1.5,0 a1.5,1.5 0 1 0 3.0,0 a1.5,1.5 0 1 0 -3.0,0', fill: NColor.ref('icon_main')),
-    NPath('M5,12 m-1.5,0 a1.5,1.5 0 1 0 3.0,0 a1.5,1.5 0 1 0 -3.0,0', fill: NColor.ref('icon_main')),
-    NPath('M5,17.5 m-1.5,0 a1.5,1.5 0 1 0 3.0,0 a1.5,1.5 0 1 0 -3.0,0', fill: NColor.ref('icon_main')),
-    NPath('M9.5,6.5 H20.5 M9.5,12 H20.5 M9.5,17.5 H20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.5,6.5 H20 M9.5,12 H20 M9.5,17.5 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,6.5 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0 Z', fill: NColor.ref('icon_main')),
+    NPath('M5,12 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0 Z', fill: NColor.ref('icon_main')),
+    NPath('M5,17.5 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0 Z', fill: NColor.ref('icon_main')),
   ]);
 
   /// res/drawable/ic_tpl_chat.xml (24 x 24 dp)
@@ -1418,222 +1685,258 @@ abstract final class ND {
 
   /// res/drawable/ic_tpl_color.xml (24 x 24 dp)
   static const icTplColor = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6,15 L12,3.5 L18,15 M8.2,11 H15.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M5,18 H19 A1,1 0 0 1 20,19 V20 A1,1 0 0 1 19,21 H5 A1,1 0 0 1 4,20 V19 A1,1 0 0 1 5,18 Z', fill: NColor.ref('icon_main')),
+    NPath('M12,3.5 A8.5,8.5 0 1 0 12,20.5 C13.3,20.5 13.8,19.4 13.2,18.4 C12.5,17.3 13.2,16 14.5,16 H16.5 A4,4 0 0 0 20.5,12 C20.5,7.3 16.7,3.5 12,3.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7.5,11.5 m-1.3,0 a1.3,1.3 0 1 0 2.6,0 a1.3,1.3 0 1 0 -2.6,0 Z', fill: NColor.ref('icon_main')),
+    NPath('M10,7.5 m-1.3,0 a1.3,1.3 0 1 0 2.6,0 a1.3,1.3 0 1 0 -2.6,0 Z', fill: NColor.ref('icon_main')),
+    NPath('M14.5,7.5 m-1.3,0 a1.3,1.3 0 1 0 2.6,0 a1.3,1.3 0 1 0 -2.6,0 Z', fill: NColor.ref('icon_main')),
   ]);
 
   /// res/drawable/ic_tpl_cornell.xml (26 x 26 dp)
   static const icTplCornell = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.5,3 V17 M5,17 H19', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9.5,3 V16.5 M4.5,16.5 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_flip_h.xml (24 x 24 dp)
   static const icTplFlipH = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,3 V21', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.5,6.5 L3,17.5 H9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M14.5,6.5 L21,17.5 H14.5 Z', fill: NColor.ref('icon_main'), stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,3 V21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,7 L4,17 H9 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,7 L20,17 H15 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_flip_v.xml (24 x 24 dp)
   static const icTplFlipV = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,12 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6.5,9.5 L17.5,3 V9.5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6.5,14.5 L17.5,21 V14.5 Z', fill: NColor.ref('icon_main'), stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3,12 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,9 L17,4 V9 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,15 L17,20 V15 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_fonts.xml (24 x 24 dp)
   static const icTplFonts = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M2.5,18 L7.5,5.5 L12.5,18 M4.3,13.6 H10.7', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M20.5,12 V18 M20.5,14.8 A3,3 0 1 0 20.5,15.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M3.5,18 L8.5,6 L13.5,18 M5.5,14 H11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.5,15.3 m-2.5,0 a2.5,2.5 0 1 0 5.0,0 a2.5,2.5 0 1 0 -5.0,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M20,12.5 V18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_format.xml (24 x 24 dp)
   static const icTplFormat = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3,18 L8,5.5 L13,18 M4.8,13.6 H11.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15,7 H21 M16.5,11.5 H21 M15,16 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,6 H20 M4,10 H14 M4,14 H20 M4,18 H14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_graph.xml (26 x 26 dp)
   static const icTplGraph = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7.8,2.5 V21.5 M10.6,2.5 V21.5 M13.4,2.5 V21.5 M16.2,2.5 V21.5 M5,5.3 H19 M5,8.1 H19 M5,10.9 H19 M5,13.7 H19 M5,16.5 H19 M5,19.3 H19', stroke: NColor.hex(0xFF7A8494), strokeWidth: 0.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,7 H19.5 M4.5,11 H19.5 M4.5,15 H19.5 M8.25,3 V21 M12,3 V21 M15.75,3 V21', stroke: NColor.ref('icon_main'), strokeWidth: 0.9, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_grid.xml (26 x 26 dp)
   static const icTplGrid = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.7,2.5 V21.5 M14.3,2.5 V21.5 M5,7.2 H19 M5,12 H19 M5,16.8 H19', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,9 H19.5 M4.5,15 H19.5 M9.5,3 V21 M14.5,3 V21', stroke: NColor.ref('icon_main'), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_italic.xml (24 x 24 dp)
   static const icTplItalic = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M10,4.5 H18 M6,19.5 H14 M14,4.5 L10,19.5', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10,4.5 H17 M7,19.5 H14 M13.5,4.5 L10.5,19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_line1.xml (26 x 26 dp)
   static const icTplLine1 = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7.5,7 H16.5 M7.5,10 H16.5 M7.5,13 H16.5 M7.5,16 H16.5 M7.5,19 H16.5', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7.5,7 H16.5 M7.5,10 H16.5 M7.5,13 H16.5 M7.5,16 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_line2.xml (26 x 26 dp)
   static const icTplLine2 = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7.5,7.5 H16.5 M7.5,12 H16.5 M7.5,16.5 H16.5', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7.5,8 H16.5 M7.5,12.5 H16.5 M7.5,17 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.1, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_notebook.xml (26 x 26 dp)
   static const icTplNotebook = NDrawable(width: 26.0, height: 26.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,2.5 H19 V21.5 H5 Z', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M7.5,7 H16.5 M7.5,10 H16.5 M7.5,13 H16.5 M7.5,16 H16.5 M7.5,19 H16.5', stroke: NColor.hex(0xFF7A8494), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.2,3 V21', stroke: NColor.hex(0xFFE57373), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,3 H18 A1.5,1.5 0 0 1 19.5,4.5 V19.5 A1.5,1.5 0 0 1 18,21 H6 A1.5,1.5 0 0 1 4.5,19.5 V4.5 A1.5,1.5 0 0 1 6,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M11,7.5 H16.5 M11,11 H16.5 M11,14.5 H16.5 M11,18 H16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.1, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8.5,3 V21', stroke: NColor.ref('accent'), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_numbers.xml (24 x 24 dp)
   static const icTplNumbers = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M3.6,5 L5,4.2 V9 M3.2,13 C3.4,12.2 4,11.8 4.7,11.8 C5.5,11.8 6.1,12.3 6.1,13 C6.1,14 3.3,15.2 3.3,16.2 H6.2 M3.4,18.4 H6 L4.5,19.8 C5.6,19.8 6.2,20.3 6.2,21 C6.2,21.8 5.5,22.3 4.7,22.3 C4,22.3 3.5,22 3.3,21.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M9.5,6.5 H20.5 M9.5,13.5 H20.5 M9.5,20 H20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M10.5,6.5 H20 M10.5,12 H20 M10.5,17.5 H20', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.6,4.8 L5.9,4 V9', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.2,13.3 C4.4,11.8 7,11.8 7,13.4 C7,14.8 4.2,15.6 4.2,17.2 H7.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_replace.xml (24 x 24 dp)
   static const icTplReplace = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5.1,7 H13.9 A1.6,1.6 0 0 1 15.5,8.6 V17.4 A1.6,1.6 0 0 1 13.9,19 H5.1 A1.6,1.6 0 0 1 3.5,17.4 V8.6 A1.6,1.6 0 0 1 5.1,7 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M5,17 L8.5,13 L11,15.5 L12.5,14 L14.5,17', stroke: NColor.ref('icon_main'), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M11,4 H19.5 V12 M17.2,9.8 L19.5,12 L21.8,9.8', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,9 H11 A1,1 0 0 1 12,10 V16 A1,1 0 0 1 11,17 H5 A1,1 0 0 1 4,16 V10 A1,1 0 0 1 5,9 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,15.5 L7,13 L9,15 L12,12', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M14,6 H20 M17.5,3.5 L20,6 L17.5,8.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M20,18 H15 M17.5,15.5 L15,18 L17.5,20.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_rotate.xml (24 x 24 dp)
   static const icTplRotate = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M18.5,9 A7,7 0 0 0 6,8 M5.5,15 A7,7 0 0 0 18,16', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M6,4.5 V8 H9.5 M18,19.5 V16 H14.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M19,12 A7,7 0 0 1 6.5,16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,12 A7,7 0 0 1 17.5,7.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M17.5,3.5 V7.5 H13.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6.5,20.5 V16.5 H10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_size.xml (24 x 24 dp)
   static const icTplSize = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M2.5,19 L8,5 L13.5,19 M4.5,14.2 H11.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M13.5,19 L17,10 L20.5,19 M14.8,16 H19.2', stroke: NColor.ref('icon_main'), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,7 V5 H13 V7 M8.5,5 V19 M6.5,19 H10.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M18,5 V19 M15.5,7.5 L18,5 L20.5,7.5 M15.5,16.5 L18,19 L20.5,16.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_strike.xml (24 x 24 dp)
   static const icTplStrike = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M16.5,6.5 C15.6,5 14,4.2 12,4.2 C9.5,4.2 7.6,5.5 7.6,7.6 C7.6,9 8.6,9.9 10.3,10.5 M15.8,14 C16.2,14.6 16.4,15.3 16.4,16 C16.4,18.4 14.4,19.8 11.9,19.8 C9.6,19.8 7.8,18.8 7,17.2 M4,12 H20', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M16.5,7 C16,5 14,4 12,4 C9.5,4 7.5,5.5 7.5,7.5 C7.5,9.5 9.5,10.5 12,11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,12 H19.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M8,17 C8.8,19 10.5,20 12.5,20 C15,20 16.8,18.5 16.8,16.5 C16.8,15.5 16.4,14.6 15.8,14', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_tpl_underline.xml (24 x 24 dp)
   static const icTplUnderline = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,4 V11 A5,5 0 0 0 17,11 V4 M5,20 H19', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,4 V11 A5,5 0 0 0 17,11 V4', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M6,20 H18', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_trial_calendar.xml (22 x 22 dp)
-  static const icTrialCalendar = NDrawable(width: 22.0, height: 22.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M6.5,5.5 H17.5 A2.5,2.5 0 0 1 20,8.0 V18.0 A2.5,2.5 0 0 1 17.5,20.5 H6.5 A2.5,2.5 0 0 1 4,18.0 V8.0 A2.5,2.5 0 0 1 6.5,5.5 Z', fill: NColor.hex(0xFFFFA41B)),
-    NPath('M4,10 H20', stroke: NColor.hex(0xFF2A2410), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8,3.5 V7 M16,3.5 V7', stroke: NColor.hex(0xFFFFA41B), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M10,13 H14 L11.5,18', stroke: NColor.hex(0xFF2A2410), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_trial_calendar.xml (24 x 24 dp)
+  static const icTrialCalendar = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M6.5,5 H17.5 A2.5,2.5 0 0 1 20,7.5 V17.5 A2.5,2.5 0 0 1 17.5,20 H6.5 A2.5,2.5 0 0 1 4,17.5 V7.5 A2.5,2.5 0 0 1 6.5,5 Z', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,10 H20 M8.5,3 V7 M15.5,3 V7', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,15 H12.1', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 2.6, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_trial_lock.xml (22 x 22 dp)
-  static const icTrialLock = NDrawable(width: 22.0, height: 22.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,10.5 H17 A2,2 0 0 1 19,12.5 V18.5 A2,2 0 0 1 17,20.5 H7 A2,2 0 0 1 5,18.5 V12.5 A2,2 0 0 1 7,10.5 Z', fill: NColor.hex(0xFFFFA41B)),
-    NPath('M8,10.5 V8 A4,4 0 0 1 16,8', stroke: NColor.hex(0xFFFFA41B), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,15.3 m-1.4,0 a1.4,1.4 0 1 0 2.8,0 a1.4,1.4 0 1 0 -2.8,0', fill: NColor.hex(0xFF2A2410)),
+  /// res/drawable/ic_trial_lock.xml (24 x 24 dp)
+  static const icTrialLock = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M7.5,11 V8 A4.5,4.5 0 0 1 16.3,6.6', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7.5,11 H16.5 A2.5,2.5 0 0 1 19,13.5 V18.5 A2.5,2.5 0 0 1 16.5,21 H7.5 A2.5,2.5 0 0 1 5,18.5 V13.5 A2.5,2.5 0 0 1 7.5,11 Z', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,15 V17', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
-  /// res/drawable/ic_trial_shield.xml (22 x 22 dp)
-  static const icTrialShield = NDrawable(width: 22.0, height: 22.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,3 L19,6 V11.5 C19,16 16,19.5 12,21 C8,19.5 5,16 5,11.5 V6 Z', fill: NColor.hex(0xFFFFA41B)),
-    NPath('M12,11.5 m-2.2,0 a2.2,2.2 0 1 0 4.4,0 a2.2,2.2 0 1 0 -4.4,0', fill: NColor.hex(0xFF2A2410)),
-    NPath('M12,13.5 V16', stroke: NColor.hex(0xFF2A2410), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+  /// res/drawable/ic_trial_shield.xml (24 x 24 dp)
+  static const icTrialShield = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
+    NPath('M12,3 L19.5,6 V11.5 C19.5,16 16.5,19.3 12,21 C7.5,19.3 4.5,16 4.5,11.5 V6 Z', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,8.5 L13.1,10.9 L15.6,11.2 L13.7,12.9 L14.2,15.4 L12,14.1 L9.8,15.4 L10.3,12.9 L8.4,11.2 L10.9,10.9 Z', stroke: NColor.hex(0xFF8FD6CB), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_underline.xml (24 x 24 dp)
   static const icUnderline = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M7,4 V11 A5,5 0 0 0 17,11 V4 M5,20 H19', stroke: NColor.ref('icon_main'), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7.5,4.5 V11 A4.5,4.5 0 0 0 16.5,11 V4.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5.5,19.5 H18.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_undo.xml (24 x 24 dp)
   static const icUndo = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M9,8 H15 A4.5,4.5 0 0 1 15,17 H8 M9,8 L6,5 M9,8 L6,11', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M9,14.5 L4.5,10 L9,5.5', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.8,10 H14 A5.5,5.5 0 0 1 14,21 H10', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_unsupported.xml (140 x 120 dp)
-  static const icUnsupported = NDrawable(width: 140.0, height: 120.0, viewportWidth: 120.0, viewportHeight: 120.0, children: [
-    NPath('M70,62 m-52,0 a52,46 0 1 0 104,0 a52,46 0 1 0 -104,0', fill: NColor.hex(0xFFEAF3FF)),
-    NPath('M58,20 L90,30 L80,62 L48,52 Z', fill: NColor.hex(0xFFFFC21A)),
-    NPath('M66,34 L70,42 L78,43 L72,48 L74,56 L66,52 L59,56 L60,48 L55,42 L63,41 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.9),
-    NPath('M50,58 C46,70 44,84 48,100 L66,102 C70,92 74,82 74,70 L70,52 C68,46 62,48 62,54 L62,64 C60,56 52,52 50,58 Z', fill: NColor.hex(0xFFF9B8A0)),
-    NPath('M62,54 V66', stroke: NColor.hex(0xFFE39A7E), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,18 L86,22 L90,24 L86,26 L84,30 L82,26 L78,24 L82,22 Z', fill: NColor.hex(0xFF1A6FE0)),
-    NPath('M100,70 L101.5,73 L104.5,74.5 L101.5,76 L100,79 L98.5,76 L95.5,74.5 L98.5,73 Z', fill: NColor.hex(0xFF1A6FE0)),
+  static const icUnsupported = NDrawable(width: 140.0, height: 120.0, viewportWidth: 140.0, viewportHeight: 120.0, children: [
+    NGroup(rotation: -12.0, px: 70.0, py: 60.0, children: [
+      NPath('M53,22 H87 A8,8 0 0 1 95,30 V90 A8,8 0 0 1 87,98 H53 A8,8 0 0 1 45,90 V30 A8,8 0 0 1 53,22 Z', fill: NColor.ref('ds_files_ill_back')),
+    ]),
+    NGroup(rotation: 8.0, px: 70.0, py: 60.0, children: [
+      NPath('M53,22 H87 A8,8 0 0 1 95,30 V90 A8,8 0 0 1 87,98 H53 A8,8 0 0 1 45,90 V30 A8,8 0 0 1 53,22 Z', fill: NColor.ref('ds_files_ill_mid')),
+    ]),
+    NPath('M53,22 H87 A8,8 0 0 1 95,30 V90 A8,8 0 0 1 87,98 H53 A8,8 0 0 1 45,90 V30 A8,8 0 0 1 53,22 Z', fill: NColor.ref('ds_files_ill_front'), stroke: NColor.ref('primary'), strokeWidth: 2.0),
+    NPath('M63.5,47A6.5,6.5 0 1 1 72.5,53C70.8,53.8 70,55 70,57V58.5', stroke: NColor.ref('primary'), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M70,65V65.2', stroke: NColor.ref('primary'), strokeWidth: 3.6, cap: StrokeCap.round),
+    NPath('M55,79H85M55,86H74', stroke: NColor.ref('ds_files_ill_line'), strokeWidth: 3.0, cap: StrokeCap.round),
+    NPath('M104,30m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0', fill: NColor.ref('accent')),
+    NPath('M30,92m-3,0a3,3 0 1,0 6,0a3,3 0 1,0 -6,0', fill: NColor.ref('accent_soft')),
+    NPath('M114,84m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0', fill: NColor.ref('accent_soft')),
   ]);
 
   /// res/drawable/ic_vertical.xml (24 x 24 dp)
   static const icVertical = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,4 H19 V10.5 H5 Z M5,13.5 H19 V20 H5 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M7,3 H17 A2,2 0 0 1 19,5 V11 A2,2 0 0 1 17,13 H7 A2,2 0 0 1 5,11 V5 A2,2 0 0 1 7,3 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M5,21 V19 A2,2 0 0 1 7,17 H17 A2,2 0 0 1 19,19 V21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_w_arrow.xml (24 x 24 dp)
   static const icWArrow = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M5,12 H19 M13,6 L19,12 L13,18', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M1,12 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NPath('M7.5,12 H16.5 M12.5,8 L16.5,12 L12.5,16', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_w_bookmark.xml (28 x 28 dp)
   static const icWBookmark = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
-    NPath('M8,1 H20 A7,7 0 0 1 27,8 V20 A7,7 0 0 1 20,27 H8 A7,7 0 0 1 1,20 V8 A7,7 0 0 1 8,1 Z', fill: NColor.hex(0xFFFFA000)),
-    NPath('M9.5,7.5 H18.5 V21 L14,17.5 L9.5,21 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M7,4.5 H17 A1,1 0 0 1 18,5.5 V20 L12,16 L6,20 V5.5 A1,1 0 0 1 7,4.5 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_w_edit.xml (24 x 24 dp)
   static const icWEdit = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M14.5,4.5 L19.5,9.5 L9,20 H4 V15 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4,20 L4.8,16.2 L15.5,5.5 A2.1,2.1 0 0 1 18.5,8.5 L7.8,19.2 Z M13.5,7.5 L16.5,10.5', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_w_edit_red.xml (36 x 36 dp)
   static const icWEditRed = NDrawable(width: 36.0, height: 36.0, viewportWidth: 36.0, viewportHeight: 36.0, children: [
-    NPath('M10,2 H26 A8,8 0 0 1 34,10 V26 A8,8 0 0 1 26,34 H10 A8,8 0 0 1 2,26 V10 A8,8 0 0 1 10,2 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M11,8 H21 L26,13 V28 H11 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M22.5,17 L25,19.5 L18.5,26 H16 V23.5 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1,18 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 7.2, ty: 7.2, sx: 0.9, sy: 0.9, children: [
+      NPath('M4,20 L4.8,16.2 L15.5,5.5 A2.1,2.1 0 0 1 18.5,8.5 L7.8,19.2 Z M13.5,7.5 L16.5,10.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_w_edit_tile.xml (28 x 28 dp)
   static const icWEditTile = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
-    NPath('M8,1 H20 A7,7 0 0 1 27,8 V20 A7,7 0 0 1 20,27 H8 A7,7 0 0 1 1,20 V8 A7,7 0 0 1 8,1 Z', fill: NColor.hex(0xFFE53935)),
-    NPath('M16.5,7.5 L20.5,11.5 L12,20 H8 V16 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M4,20 L4.8,16.2 L15.5,5.5 A2.1,2.1 0 0 1 18.5,8.5 L7.8,19.2 Z M13.5,7.5 L16.5,10.5', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_w_editor_art.xml (100 x 90 dp)
   static const icWEditorArt = NDrawable(width: 100.0, height: 90.0, viewportWidth: 100.0, viewportHeight: 90.0, children: [
-    NPath('M22,12 H58 L70,24 V80 A4,4 0 0 1 66,84 H22 A4,4 0 0 1 18,80 V16 A4,4 0 0 1 22,12 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M26,30 H56 M26,40 H62 M26,50 H50 M26,60 H58', stroke: NColor.hex(0xFFD3D8E0), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M26,70 H44', stroke: NColor.hex(0xFFE53935), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,20 L90,26 L64,52 L56,54 L58,46 Z', fill: NColor.hex(0xFFFFC53D)),
-    NPath('M58,46 L64,52 L56,54 Z', fill: NColor.hex(0xFF1B1F2A)),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -9.0, px: 47.0, py: 47.0, children: [
+      NPath('M32,14 H62 A8,8 0 0 1 70,22 V72 A8,8 0 0 1 62,80 H32 A8,8 0 0 1 24,72 V22 A8,8 0 0 1 32,14 Z', fill: NColor.hex(0xFF8FD6CB)),
+    ]),
+    NPath('M30,10 H60 A8,8 0 0 1 68,18 V70 A8,8 0 0 1 60,78 H30 A8,8 0 0 1 22,70 V18 A8,8 0 0 1 30,10 Z', fill: NColor.hex(0xFFD5EFEB)),
+    NPath('M30,10 H60 A8,8 0 0 1 68,18 V70 A8,8 0 0 1 60,78 H30 A8,8 0 0 1 22,70 V18 A8,8 0 0 1 30,10 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M31,22 H50', stroke: NColor.hex(0xFF0F766E), strokeWidth: 3.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M31,32 H59 M31,41 H56 M31,50 H52', stroke: NColor.hex(0xFF9AA7B4), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M57,64 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 60.0, ty: 52.0, sx: 1.0, sy: 1.0, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M4,20 L4.8,16.2 L15.5,5.5 A2.1,2.1 0 0 1 18.5,8.5 L7.8,19.2 Z M13.5,7.5 L16.5,10.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_w_home.xml (28 x 28 dp)
   static const icWHome = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
-    NPath('M8,1 H20 A7,7 0 0 1 27,8 V20 A7,7 0 0 1 20,27 H8 A7,7 0 0 1 1,20 V8 A7,7 0 0 1 8,1 Z', fill: NColor.hex(0xFF1E6FE6)),
-    NPath('M8,13.5 L14,8.5 L20,13.5 V20 H16 V16 H12 V20 H8 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M4,11 L12,4.5 L20,11 M6,9.5 V19 A1,1 0 0 0 7,20 H17 A1,1 0 0 0 18,19 V9.5 M10,20 V14.5 H14 V20', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_w_recent.xml (28 x 28 dp)
   static const icWRecent = NDrawable(width: 28.0, height: 28.0, viewportWidth: 28.0, viewportHeight: 28.0, children: [
-    NPath('M8,1 H20 A7,7 0 0 1 27,8 V20 A7,7 0 0 1 20,27 H8 A7,7 0 0 1 1,20 V8 A7,7 0 0 1 8,1 Z', fill: NColor.hex(0xFF1FB35A)),
-    NPath('M14,14 m-6.5,0 a6.5,6.5 0 1 0 13.0,0 a6.5,6.5 0 1 0 -13.0,0', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M14,10.5 V14 L16.5,15.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M1.1999999999999993,14 a12.8,12.8 0 1,0 25.6,0 a12.8,12.8 0 1,0 -25.6,0 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 6.0, ty: 6.0, sx: 0.6667, sy: 0.6667, children: [
+      NPath('M3.5,12 a8.5,8.5 0 1,0 17.0,0 a8.5,8.5 0 1,0 -17.0,0 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M12,7.5 V12 L15,14', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.5, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ic_w_search.xml (24 x 24 dp)
   static const icWSearch = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M10.5,10.5 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0', stroke: NColor.hex(0xFF8E949E), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M15,15 L20,20', stroke: NColor.hex(0xFF8E949E), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M4.5,10.5 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0 Z', stroke: NColor.hex(0xFF64748B), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15,15 L20,20', stroke: NColor.hex(0xFF64748B), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_zoom_in.xml (24 x 24 dp)
   static const icZoomIn = NDrawable(width: 24.0, height: 24.0, viewportWidth: 24.0, viewportHeight: 24.0, children: [
-    NPath('M12,12 m-8.5,0 a8.5,8.5 0 1 0 17,0 a8.5,8.5 0 1 0 -17,0', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M12,8 V16 M8,12 H16', stroke: NColor.ref('icon_main'), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,12 m-4,0 a4,4 0 1 0 8,0 a4,4 0 1 0 -8,0 Z', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M12,3 V5.5 M12,18.5 V21 M3,12 H5.5 M18.5,12 H21', stroke: NColor.ref('icon_main'), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/ic_zoom_out.xml (24 x 24 dp)
@@ -1754,169 +2057,125 @@ abstract final class ND {
 
   /// res/drawable/ill_prem_ads.xml (180 x 150 dp)
   static const illPremAds = NDrawable(width: 180.0, height: 150.0, viewportWidth: 180.0, viewportHeight: 150.0, children: [
-    NPath('M140,50 m-30,0 a30,30 0 1 0 60,0 a30,30 0 1 0 -60,0', fill: NColor.hex(0xFF3D8BFF), fillAlpha: 0.18),
-    NPath('M140,50 m-18.0,0 a18.0,18.0 0 1 0 36.0,0 a18.0,18.0 0 1 0 -36.0,0', fill: NColor.hex(0xFF3D8BFF), fillAlpha: 0.18),
-    NPath('M40,150 C44,118 60,104 78,100 L96,96 C104,110 108,130 110,150 Z', fill: NColor.hex(0xFFC99A7B), fillAlpha: 0.55),
-    NPath('M86,10 H134 A12,12 0 0 1 146,22 V136 A12,12 0 0 1 134,148 H86 A12,12 0 0 1 74,136 V22 A12,12 0 0 1 86,10 Z', fill: NColor.hex(0xFF0D0E11)),
-    NPath('M86,16 H134 A8,8 0 0 1 142,24 V136 A8,8 0 0 1 134,144 H86 A8,8 0 0 1 78,136 V24 A8,8 0 0 1 86,16 Z', fill: NColor.hex(0xFFF5F7FB)),
-    NPath('M84,24 H112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,31 H102', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M87,40 H93 A3,3 0 0 1 96,43 V49 A3,3 0 0 1 93,52 H87 A3,3 0 0 1 84,49 V43 A3,3 0 0 1 87,40 Z', fill: NColor.hex(0xFFE8453C), fillAlpha: 0.9),
-    NPath('M84,56 H96', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M105,40 H111 A3,3 0 0 1 114,43 V49 A3,3 0 0 1 111,52 H105 A3,3 0 0 1 102,49 V43 A3,3 0 0 1 105,40 Z', fill: NColor.hex(0xFF2B7BF0), fillAlpha: 0.9),
-    NPath('M102,56 H114', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M123,40 H129 A3,3 0 0 1 132,43 V49 A3,3 0 0 1 129,52 H123 A3,3 0 0 1 120,49 V43 A3,3 0 0 1 123,40 Z', fill: NColor.hex(0xFF18A558), fillAlpha: 0.9),
-    NPath('M120,56 H132', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M87,62 H93 A3,3 0 0 1 96,65 V71 A3,3 0 0 1 93,74 H87 A3,3 0 0 1 84,71 V65 A3,3 0 0 1 87,62 Z', fill: NColor.hex(0xFFF5A623), fillAlpha: 0.9),
-    NPath('M84,78 H96', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M105,62 H111 A3,3 0 0 1 114,65 V71 A3,3 0 0 1 111,74 H105 A3,3 0 0 1 102,71 V65 A3,3 0 0 1 105,62 Z', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.9),
-    NPath('M102,78 H114', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M123,62 H129 A3,3 0 0 1 132,65 V71 A3,3 0 0 1 129,74 H123 A3,3 0 0 1 120,71 V65 A3,3 0 0 1 123,62 Z', fill: NColor.hex(0xFF22C3E6), fillAlpha: 0.9),
-    NPath('M120,78 H132', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M87,84 H93 A3,3 0 0 1 96,87 V93 A3,3 0 0 1 93,96 H87 A3,3 0 0 1 84,93 V87 A3,3 0 0 1 87,84 Z', fill: NColor.hex(0xFFFF7043), fillAlpha: 0.9),
-    NPath('M84,100 H96', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M105,84 H111 A3,3 0 0 1 114,87 V93 A3,3 0 0 1 111,96 H105 A3,3 0 0 1 102,93 V87 A3,3 0 0 1 105,84 Z', fill: NColor.hex(0xFF36B37E), fillAlpha: 0.9),
-    NPath('M102,100 H114', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M123,84 H129 A3,3 0 0 1 132,87 V93 A3,3 0 0 1 129,96 H123 A3,3 0 0 1 120,93 V87 A3,3 0 0 1 123,84 Z', fill: NColor.hex(0xFF5C6BC0), fillAlpha: 0.9),
-    NPath('M120,100 H132', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M87,106 H93 A3,3 0 0 1 96,109 V115 A3,3 0 0 1 93,118 H87 A3,3 0 0 1 84,115 V109 A3,3 0 0 1 87,106 Z', fill: NColor.hex(0xFFE8453C), fillAlpha: 0.9),
-    NPath('M84,122 H96', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M105,106 H111 A3,3 0 0 1 114,109 V115 A3,3 0 0 1 111,118 H105 A3,3 0 0 1 102,115 V109 A3,3 0 0 1 105,106 Z', fill: NColor.hex(0xFF2B7BF0), fillAlpha: 0.9),
-    NPath('M102,122 H114', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M123,106 H129 A3,3 0 0 1 132,109 V115 A3,3 0 0 1 129,118 H123 A3,3 0 0 1 120,115 V109 A3,3 0 0 1 123,106 Z', fill: NColor.hex(0xFF18A558), fillAlpha: 0.9),
-    NPath('M120,122 H132', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M140,50 m-17,0 a17,17 0 1 0 34,0 a17,17 0 1 0 -34,0', fill: NColor.hex(0xFF3D8BFF)),
-    NPath('M140,50 m-17,0 a17,17 0 1 0 34,0 a17,17 0 1 0 -34,0', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round, strokeAlpha: 0.6),
-    NPath('M131,56 L134.5,44 L138,56 M132.2,52.5 H136.8 M141,44 V56 H142.8 A4.2,6 0 0 0 142.8,44 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M129,40 L151,60', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -11.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,22 H118 A12,12 0 0 1 130,34 V116 A12,12 0 0 1 118,128 H62 A12,12 0 0 1 50,116 V34 A12,12 0 0 1 62,22 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.55),
+    ]),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: 6.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,20 H118 A12,12 0 0 1 130,32 V114 A12,12 0 0 1 118,126 H62 A12,12 0 0 1 50,114 V32 A12,12 0 0 1 62,20 Z', fill: NColor.hex(0xFF7CC4BA)),
+    ]),
+    NPath('M62,16 H118 A12,12 0 0 1 130,28 V110 A12,12 0 0 1 118,122 H62 A12,12 0 0 1 50,110 V28 A12,12 0 0 1 62,16 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M64,34 H96', stroke: NColor.hex(0xFF0F766E), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M64,48 H116 M64,60 H110 M64,72 H104', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M64,86 H116 M64,98 H96', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M113,112 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 119.6, ty: 97.6, sx: 1.2, sy: 1.2, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M6,6 H18 A3,3 0 0 1 21,9 V15 A3,3 0 0 1 18,18 H6 A3,3 0 0 1 3,15 V9 A3,3 0 0 1 6,6 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M4,4 L20,20', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ill_prem_convert.xml (180 x 150 dp)
   static const illPremConvert = NDrawable(width: 180.0, height: 150.0, viewportWidth: 180.0, viewportHeight: 150.0, children: [
-    NPath('M150,110 m-28,0 a28,28 0 1 0 56,0 a28,28 0 1 0 -56,0', fill: NColor.hex(0xFFFF8A3D), fillAlpha: 0.18),
-    NPath('M150,110 m-16.8,0 a16.8,16.8 0 1 0 33.6,0 a16.8,16.8 0 1 0 -33.6,0', fill: NColor.hex(0xFFFF8A3D), fillAlpha: 0.18),
-    NPath('M40,150 C44,118 60,104 78,100 L96,96 C104,110 108,130 110,150 Z', fill: NColor.hex(0xFFC99A7B), fillAlpha: 0.55),
-    NPath('M86,10 H134 A12,12 0 0 1 146,22 V136 A12,12 0 0 1 134,148 H86 A12,12 0 0 1 74,136 V22 A12,12 0 0 1 86,10 Z', fill: NColor.hex(0xFF0D0E11)),
-    NPath('M86,16 H134 A8,8 0 0 1 142,24 V136 A8,8 0 0 1 134,144 H86 A8,8 0 0 1 78,136 V24 A8,8 0 0 1 86,16 Z', fill: NColor.hex(0xFFF5F7FB)),
-    NPath('M84,24 H112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,31 H102', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,44 H134', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,52 H126', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,60 H118', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,68 H134', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,76 H126', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,84 H118', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,92 H134', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M63,34 H87 A5,5 0 0 1 92,39 V51 A5,5 0 0 1 87,56 H63 A5,5 0 0 1 58,51 V39 A5,5 0 0 1 63,34 Z', fill: NColor.hex(0xFFE8453C)),
-    NPath('M64,50 V40 H68 A3,3 0 0 1 68,46 H64 M74,50 V40 H76 A4,5 0 0 1 76,50 Z M84,50 V40 H89 M84,45 H88', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.5, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M104,64 C130,62 146,80 140,104', stroke: NColor.hex(0xFFFFA41B), strokeWidth: 7.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M132,100 L141,112 L150,99 Z', fill: NColor.hex(0xFFFFA41B)),
-    NPath('M146,124 m-12,0 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0', fill: NColor.hex(0xFF2B7BF0)),
-    NPath('M139,119 L142,130 L146,122 L150,130 L153,119', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M164,132 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFFFF7043)),
-    NPath('M161,137 V127 H165 A3,3 0 0 1 165,133 H161', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -11.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,22 H118 A12,12 0 0 1 130,34 V116 A12,12 0 0 1 118,128 H62 A12,12 0 0 1 50,116 V34 A12,12 0 0 1 62,22 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.55),
+    ]),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: 6.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,20 H118 A12,12 0 0 1 130,32 V114 A12,12 0 0 1 118,126 H62 A12,12 0 0 1 50,114 V32 A12,12 0 0 1 62,20 Z', fill: NColor.hex(0xFF7CC4BA)),
+    ]),
+    NPath('M62,16 H118 A12,12 0 0 1 130,28 V110 A12,12 0 0 1 118,122 H62 A12,12 0 0 1 50,110 V28 A12,12 0 0 1 62,16 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M64,34 H96', stroke: NColor.hex(0xFF0F766E), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M69,46 H83 A5,5 0 0 1 88,51 V65 A5,5 0 0 1 83,70 H69 A5,5 0 0 1 64,65 V51 A5,5 0 0 1 69,46 Z', fill: NColor.hex(0xFFCCE7E3)),
+    NPath('M101,46 H115 A5,5 0 0 1 120,51 V65 A5,5 0 0 1 115,70 H101 A5,5 0 0 1 96,65 V51 A5,5 0 0 1 101,46 Z', fill: NColor.hex(0xFFD5EFEB)),
+    NPath('M80,90 A12,12 0 0 1 104,90', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M99,84 L104.5,90.5 L110,85', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M64,108 H116', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M113,112 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 119.6, ty: 97.6, sx: 1.2, sy: 1.2, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M15,4 A5,5 0 0 1 20,9 M18.2,7.4 L20,9.2 L21.8,7.4 M9,20 A5,5 0 0 1 4,15 M2.2,16.6 L4,14.8 L5.8,16.6', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M5.5,3.5 H10.5 A2,2 0 0 1 12.5,5.5 V10.5 A2,2 0 0 1 10.5,12.5 H5.5 A2,2 0 0 1 3.5,10.5 V5.5 A2,2 0 0 1 5.5,3.5 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M13.5,11.5 H18.5 A2,2 0 0 1 20.5,13.5 V18.5 A2,2 0 0 1 18.5,20.5 H13.5 A2,2 0 0 1 11.5,18.5 V13.5 A2,2 0 0 1 13.5,11.5 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ill_prem_merge.xml (180 x 150 dp)
   static const illPremMerge = NDrawable(width: 180.0, height: 150.0, viewportWidth: 180.0, viewportHeight: 150.0, children: [
-    NPath('M150,60 m-28,0 a28,28 0 1 0 56,0 a28,28 0 1 0 -56,0', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.18),
-    NPath('M150,60 m-16.8,0 a16.8,16.8 0 1 0 33.6,0 a16.8,16.8 0 1 0 -33.6,0', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.18),
-    NPath('M40,150 C44,118 60,104 78,100 L96,96 C104,110 108,130 110,150 Z', fill: NColor.hex(0xFFC99A7B), fillAlpha: 0.55),
-    NPath('M86,10 H134 A12,12 0 0 1 146,22 V136 A12,12 0 0 1 134,148 H86 A12,12 0 0 1 74,136 V22 A12,12 0 0 1 86,10 Z', fill: NColor.hex(0xFF0D0E11)),
-    NPath('M86,16 H134 A8,8 0 0 1 142,24 V136 A8,8 0 0 1 134,144 H86 A8,8 0 0 1 78,136 V24 A8,8 0 0 1 86,16 Z', fill: NColor.hex(0xFFF5F7FB)),
-    NPath('M84,24 H112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,31 H102', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M87,40 H105 A3,3 0 0 1 108,43 V69 A3,3 0 0 1 105,72 H87 A3,3 0 0 1 84,69 V43 A3,3 0 0 1 87,40 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M87,40 H105 A3,3 0 0 1 108,43 V69 A3,3 0 0 1 105,72 H87 A3,3 0 0 1 84,69 V43 A3,3 0 0 1 87,40 Z', stroke: NColor.hex(0xFFE8453C), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M88,50 H104 M88,56 H100 M88,62 H103', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M115,40 H133 A3,3 0 0 1 136,43 V69 A3,3 0 0 1 133,72 H115 A3,3 0 0 1 112,69 V43 A3,3 0 0 1 115,40 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M115,40 H133 A3,3 0 0 1 136,43 V69 A3,3 0 0 1 133,72 H115 A3,3 0 0 1 112,69 V43 A3,3 0 0 1 115,40 Z', stroke: NColor.hex(0xFF2B7BF0), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M116,50 H132 M116,56 H128 M116,62 H131', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M96,74 C96,86 110,84 110,92 M124,74 C124,86 110,84 110,92', stroke: NColor.hex(0xFF8B5CF6), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M105,90 L110,98 L115,90 Z', fill: NColor.hex(0xFF8B5CF6)),
-    NPath('M97,100 H123 A3,3 0 0 1 126,103 V135 A3,3 0 0 1 123,138 H97 A3,3 0 0 1 94,135 V103 A3,3 0 0 1 97,100 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M97,100 H123 A3,3 0 0 1 126,103 V135 A3,3 0 0 1 123,138 H97 A3,3 0 0 1 94,135 V103 A3,3 0 0 1 97,100 Z', stroke: NColor.hex(0xFF8B5CF6), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M99,110 H121 M99,116 H117 M99,122 H120 M99,128 H114', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.3, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M146,46 H160 A8,8 0 0 1 168,54 V68 A8,8 0 0 1 160,76 H146 A8,8 0 0 1 138,68 V54 A8,8 0 0 1 146,46 Z', fill: NColor.hex(0xFF8B5CF6)),
-    NPath('M144,61 H162 M144,61 L148,57 M144,61 L148,65 M162,61 L158,57 M162,61 L158,65', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -11.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,22 H118 A12,12 0 0 1 130,34 V116 A12,12 0 0 1 118,128 H62 A12,12 0 0 1 50,116 V34 A12,12 0 0 1 62,22 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.55),
+    ]),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: 6.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,20 H118 A12,12 0 0 1 130,32 V114 A12,12 0 0 1 118,126 H62 A12,12 0 0 1 50,114 V32 A12,12 0 0 1 62,20 Z', fill: NColor.hex(0xFF7CC4BA)),
+    ]),
+    NPath('M62,16 H118 A12,12 0 0 1 130,28 V110 A12,12 0 0 1 118,122 H62 A12,12 0 0 1 50,110 V28 A12,12 0 0 1 62,16 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M65,28 H81 A5,5 0 0 1 86,33 V57 A5,5 0 0 1 81,62 H65 A5,5 0 0 1 60,57 V33 A5,5 0 0 1 65,28 Z', fill: NColor.hex(0xFFCCE7E3)),
+    NPath('M99,28 H115 A5,5 0 0 1 120,33 V57 A5,5 0 0 1 115,62 H99 A5,5 0 0 1 94,57 V33 A5,5 0 0 1 99,28 Z', fill: NColor.hex(0xFFD5EFEB)),
+    NPath('M73,66 V74 C73,82 90,80 90,88 V102 M107,66 V74 C107,82 90,80 90,88', stroke: NColor.hex(0xFF0F766E), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M84,96 L90,102 L96,96', stroke: NColor.hex(0xFF0F766E), strokeWidth: 3.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M113,112 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 119.6, ty: 97.6, sx: 1.2, sy: 1.2, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M6,3 V7.5 C6,10.5 12,10.5 12,13.5 V20.5 M18,3 V7.5 C18,10.5 12,10.5 12,13.5 M9,17.5 L12,20.5 L15,17.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ill_prem_pages.xml (180 x 150 dp)
   static const illPremPages = NDrawable(width: 180.0, height: 150.0, viewportWidth: 180.0, viewportHeight: 150.0, children: [
-    NPath('M150,96 m-26,0 a26,26 0 1 0 52,0 a26,26 0 1 0 -52,0', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.18),
-    NPath('M150,96 m-15.6,0 a15.6,15.6 0 1 0 31.2,0 a15.6,15.6 0 1 0 -31.2,0', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.18),
-    NPath('M40,150 C44,118 60,104 78,100 L96,96 C104,110 108,130 110,150 Z', fill: NColor.hex(0xFFC99A7B), fillAlpha: 0.55),
-    NPath('M86,10 H134 A12,12 0 0 1 146,22 V136 A12,12 0 0 1 134,148 H86 A12,12 0 0 1 74,136 V22 A12,12 0 0 1 86,10 Z', fill: NColor.hex(0xFF0D0E11)),
-    NPath('M86,16 H134 A8,8 0 0 1 142,24 V136 A8,8 0 0 1 134,144 H86 A8,8 0 0 1 78,136 V24 A8,8 0 0 1 86,16 Z', fill: NColor.hex(0xFFF5F7FB)),
-    NPath('M84,24 H112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,31 H102', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M88,40 H106 A2,2 0 0 1 108,42 V66 A2,2 0 0 1 106,68 H88 A2,2 0 0 1 86,66 V42 A2,2 0 0 1 88,40 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M88,40 H106 A2,2 0 0 1 108,42 V66 A2,2 0 0 1 106,68 H88 A2,2 0 0 1 86,66 V42 A2,2 0 0 1 88,40 Z', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M90,48 H104 M90,53 H101 M90,58 H103', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M114,40 H132 A2,2 0 0 1 134,42 V66 A2,2 0 0 1 132,68 H114 A2,2 0 0 1 112,66 V42 A2,2 0 0 1 114,40 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M114,40 H132 A2,2 0 0 1 134,42 V66 A2,2 0 0 1 132,68 H114 A2,2 0 0 1 112,66 V42 A2,2 0 0 1 114,40 Z', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M116,48 H130 M116,53 H127 M116,58 H129', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M88,72 H106 A2,2 0 0 1 108,74 V98 A2,2 0 0 1 106,100 H88 A2,2 0 0 1 86,98 V74 A2,2 0 0 1 88,72 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M88,72 H106 A2,2 0 0 1 108,74 V98 A2,2 0 0 1 106,100 H88 A2,2 0 0 1 86,98 V74 A2,2 0 0 1 88,72 Z', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M90,80 H104 M90,85 H101 M90,90 H103', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M114,72 H132 A2,2 0 0 1 134,74 V98 A2,2 0 0 1 132,100 H114 A2,2 0 0 1 112,98 V74 A2,2 0 0 1 114,72 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M114,72 H132 A2,2 0 0 1 134,74 V98 A2,2 0 0 1 132,100 H114 A2,2 0 0 1 112,98 V74 A2,2 0 0 1 114,72 Z', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M116,80 H130 M116,85 H127 M116,90 H129', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M88,104 H106 A2,2 0 0 1 108,106 V130 A2,2 0 0 1 106,132 H88 A2,2 0 0 1 86,130 V106 A2,2 0 0 1 88,104 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M88,104 H106 A2,2 0 0 1 108,106 V130 A2,2 0 0 1 106,132 H88 A2,2 0 0 1 86,130 V106 A2,2 0 0 1 88,104 Z', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M90,112 H104 M90,117 H101 M90,122 H103', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M114,104 H132 A2,2 0 0 1 134,106 V130 A2,2 0 0 1 132,132 H114 A2,2 0 0 1 112,130 V106 A2,2 0 0 1 114,104 Z', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M114,104 H132 A2,2 0 0 1 134,106 V130 A2,2 0 0 1 132,132 H114 A2,2 0 0 1 112,130 V106 A2,2 0 0 1 114,104 Z', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M116,112 H130 M116,117 H127 M116,122 H129', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M142,80 H156 A8,8 0 0 1 164,88 V102 A8,8 0 0 1 156,110 H142 A8,8 0 0 1 134,102 V88 A8,8 0 0 1 142,80 Z', fill: NColor.hex(0xFF8B5CF6)),
-    NPath('M142,90 H156 M142,96 H152 M142,102 H154', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M160,108 m-7,0 a7,7 0 1 0 14,0 a7,7 0 1 0 -14,0', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M157,108 H163 M160,105 V111', stroke: NColor.hex(0xFF8B5CF6), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -11.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,22 H118 A12,12 0 0 1 130,34 V116 A12,12 0 0 1 118,128 H62 A12,12 0 0 1 50,116 V34 A12,12 0 0 1 62,22 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.55),
+    ]),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: 6.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,20 H118 A12,12 0 0 1 130,32 V114 A12,12 0 0 1 118,126 H62 A12,12 0 0 1 50,114 V32 A12,12 0 0 1 62,20 Z', fill: NColor.hex(0xFF7CC4BA)),
+    ]),
+    NPath('M62,16 H118 A12,12 0 0 1 130,28 V110 A12,12 0 0 1 118,122 H62 A12,12 0 0 1 50,110 V28 A12,12 0 0 1 62,16 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M66,28 H82 A4,4 0 0 1 86,32 V56 A4,4 0 0 1 82,60 H66 A4,4 0 0 1 62,56 V32 A4,4 0 0 1 66,28 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M98,28 H114 A4,4 0 0 1 118,32 V56 A4,4 0 0 1 114,60 H98 A4,4 0 0 1 94,56 V32 A4,4 0 0 1 98,28 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M66,68 H82 A4,4 0 0 1 86,72 V96 A4,4 0 0 1 82,100 H66 A4,4 0 0 1 62,96 V72 A4,4 0 0 1 66,68 Z', stroke: NColor.hex(0xFF0F766E), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M98,68 H114 A4,4 0 0 1 118,72 V96 A4,4 0 0 1 114,100 H98 A4,4 0 0 1 94,96 V72 A4,4 0 0 1 98,68 Z', fill: NColor.hex(0xFF0D8A7F), fillAlpha: 0.9),
+    NPath('M70,38 H78 M70,44 H80 M102,38 H110 M102,44 H112 M70,78 H78 M70,84 H80', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M113,112 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 119.6, ty: 97.6, sx: 1.2, sy: 1.2, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M6,4 H8 A2,2 0 0 1 10,6 V8 A2,2 0 0 1 8,10 H6 A2,2 0 0 1 4,8 V6 A2,2 0 0 1 6,4 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M16,4 H18 A2,2 0 0 1 20,6 V8 A2,2 0 0 1 18,10 H16 A2,2 0 0 1 14,8 V6 A2,2 0 0 1 16,4 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M6,14 H8 A2,2 0 0 1 10,16 V18 A2,2 0 0 1 8,20 H6 A2,2 0 0 1 4,18 V16 A2,2 0 0 1 6,14 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+      NPath('M16,14 H18 A2,2 0 0 1 20,16 V18 A2,2 0 0 1 18,20 H16 A2,2 0 0 1 14,18 V16 A2,2 0 0 1 16,14 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ill_prem_sign.xml (180 x 150 dp)
   static const illPremSign = NDrawable(width: 180.0, height: 150.0, viewportWidth: 180.0, viewportHeight: 150.0, children: [
-    NPath('M60,60 m-26,0 a26,26 0 1 0 52,0 a26,26 0 1 0 -52,0', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.18),
-    NPath('M60,60 m-15.6,0 a15.6,15.6 0 1 0 31.2,0 a15.6,15.6 0 1 0 -31.2,0', fill: NColor.hex(0xFF8B5CF6), fillAlpha: 0.18),
-    NPath('M40,150 C44,118 60,104 78,100 L96,96 C104,110 108,130 110,150 Z', fill: NColor.hex(0xFFC99A7B), fillAlpha: 0.55),
-    NPath('M86,10 H134 A12,12 0 0 1 146,22 V136 A12,12 0 0 1 134,148 H86 A12,12 0 0 1 74,136 V22 A12,12 0 0 1 86,10 Z', fill: NColor.hex(0xFF0D0E11)),
-    NPath('M86,16 H134 A8,8 0 0 1 142,24 V136 A8,8 0 0 1 134,144 H86 A8,8 0 0 1 78,136 V24 A8,8 0 0 1 86,16 Z', fill: NColor.hex(0xFFF5F7FB)),
-    NPath('M84,24 H112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,31 H102', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,44 H134', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,52 H126', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,60 H118', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,68 H134', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,76 H126', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,84 H118', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,92 H134', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M88,120 C94,106 100,128 106,114 C110,106 114,126 124,112 C128,108 132,116 138,112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M150,70 L166,118 L160,121 L146,74 Z', fill: NColor.hex(0xFFF1F1F1)),
-    NPath('M160,121 L163,128 L166,118 Z', fill: NColor.hex(0xFF2A2F3A)),
-    NPath('M26,40 H58 A6,6 0 0 1 64,46 V84 A6,6 0 0 1 58,90 H26 A6,6 0 0 1 20,84 V46 A6,6 0 0 1 26,40 Z', fill: NColor.hex(0xFFFFFFFF), fillAlpha: 0.95),
-    NPath('M28,54 H56 M28,62 H50 M28,70 H54', stroke: NColor.hex(0xFF9AA3B2), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M28,80 L34,76 L38,82 L46,74', stroke: NColor.hex(0xFF6C5CE7), strokeWidth: 2.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -11.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,22 H118 A12,12 0 0 1 130,34 V116 A12,12 0 0 1 118,128 H62 A12,12 0 0 1 50,116 V34 A12,12 0 0 1 62,22 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.55),
+    ]),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: 6.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,20 H118 A12,12 0 0 1 130,32 V114 A12,12 0 0 1 118,126 H62 A12,12 0 0 1 50,114 V32 A12,12 0 0 1 62,20 Z', fill: NColor.hex(0xFF7CC4BA)),
+    ]),
+    NPath('M62,16 H118 A12,12 0 0 1 130,28 V110 A12,12 0 0 1 118,122 H62 A12,12 0 0 1 50,110 V28 A12,12 0 0 1 62,16 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M64,34 H96', stroke: NColor.hex(0xFF0F766E), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M64,48 H116 M64,60 H110 M64,72 H104', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M64,100 C70,86 76,108 83,94 C88,85 92,104 98,96 C101,92 104,96 112,94', stroke: NColor.hex(0xFF0D8A7F), strokeWidth: 3.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M62,108 H118', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 2.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M113,112 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 119.6, ty: 97.6, sx: 1.2, sy: 1.2, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M4,20 L4.8,16.2 L15.5,5.5 A2.1,2.1 0 0 1 18.5,8.5 L7.8,19.2 Z M13.5,7.5 L16.5,10.5', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/ill_prem_templates.xml (180 x 150 dp)
   static const illPremTemplates = NDrawable(width: 180.0, height: 150.0, viewportWidth: 180.0, viewportHeight: 150.0, children: [
-    NPath('M60,60 m-26,0 a26,26 0 1 0 52,0 a26,26 0 1 0 -52,0', fill: NColor.hex(0xFF22C3E6), fillAlpha: 0.18),
-    NPath('M60,60 m-15.6,0 a15.6,15.6 0 1 0 31.2,0 a15.6,15.6 0 1 0 -31.2,0', fill: NColor.hex(0xFF22C3E6), fillAlpha: 0.18),
-    NPath('M40,150 C44,118 60,104 78,100 L96,96 C104,110 108,130 110,150 Z', fill: NColor.hex(0xFFC99A7B), fillAlpha: 0.55),
-    NPath('M86,10 H134 A12,12 0 0 1 146,22 V136 A12,12 0 0 1 134,148 H86 A12,12 0 0 1 74,136 V22 A12,12 0 0 1 86,10 Z', fill: NColor.hex(0xFF0D0E11)),
-    NPath('M86,16 H134 A8,8 0 0 1 142,24 V136 A8,8 0 0 1 134,144 H86 A8,8 0 0 1 78,136 V24 A8,8 0 0 1 86,16 Z', fill: NColor.hex(0xFFF5F7FB)),
-    NPath('M84,24 H112', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M84,31 H102', stroke: NColor.hex(0xFFB0B6C2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M96,52 m-10,0 a10,10 0 1 0 20,0 a10,10 0 1 0 -20,0', fill: NColor.hex(0xFF4A6FA5)),
-    NPath('M96,48 m-4,0 a4,4 0 1 0 8,0 a4,4 0 1 0 -8,0', fill: NColor.hex(0xFFF2D0B8)),
-    NPath('M89,59 C91,54 101,54 103,59', fill: NColor.hex(0xFF1B1F2A)),
-    NPath('M112,46 H134 M112,53 H128', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 1.8, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M86,72 H134 M86,80 H126 M86,88 H132 M86,96 H120 M86,104 H130', stroke: NColor.hex(0xFFC4C9D2), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M121,110 H151 A3,3 0 0 1 154,113 V119 A3,3 0 0 1 151,122 H121 A3,3 0 0 1 118,119 V113 A3,3 0 0 1 121,110 Z', fill: NColor.hex(0xFFE8EEFF)),
-    NPath('M121,110 H151 A3,3 0 0 1 154,113 V119 A3,3 0 0 1 151,122 H121 A3,3 0 0 1 118,119 V113 A3,3 0 0 1 121,110 Z', stroke: NColor.hex(0xFF2B7BF0), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M123,116 H149', stroke: NColor.hex(0xFF2B7BF0), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M88,128 H140 A4,4 0 0 1 144,132 V136 A4,4 0 0 1 140,140 H88 A4,4 0 0 1 84,136 V132 A4,4 0 0 1 88,128 Z', fill: NColor.hex(0xFF1B1F2A), fillAlpha: 0.85),
-    NPath('M90,134 H96 M102,134 H108 M114,134 H120 M126,134 H132', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 1.4, cap: StrokeCap.round, join: StrokeJoin.round),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: -11.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,22 H118 A12,12 0 0 1 130,34 V116 A12,12 0 0 1 118,128 H62 A12,12 0 0 1 50,116 V34 A12,12 0 0 1 62,22 Z', fill: NColor.hex(0xFF8FD6CB), fillAlpha: 0.55),
+    ]),
+    NGroup(tx: 0.0, ty: 0.0, sx: 1.0, sy: 1.0, rotation: 6.0, px: 90.0, py: 75.0, children: [
+      NPath('M62,20 H118 A12,12 0 0 1 130,32 V114 A12,12 0 0 1 118,126 H62 A12,12 0 0 1 50,114 V32 A12,12 0 0 1 62,20 Z', fill: NColor.hex(0xFF7CC4BA)),
+    ]),
+    NPath('M62,16 H118 A12,12 0 0 1 130,28 V110 A12,12 0 0 1 118,122 H62 A12,12 0 0 1 50,110 V28 A12,12 0 0 1 62,16 Z', fill: NColor.hex(0xFFFFFFFF)),
+    NPath('M68,28 H82 A6,6 0 0 1 88,34 V50 A6,6 0 0 1 82,56 H68 A6,6 0 0 1 62,50 V34 A6,6 0 0 1 68,28 Z', fill: NColor.hex(0xFFCCE7E3)),
+    NPath('M98,28 H112 A6,6 0 0 1 118,34 V50 A6,6 0 0 1 112,56 H98 A6,6 0 0 1 92,50 V34 A6,6 0 0 1 98,28 Z', fill: NColor.hex(0xFFD5EFEB)),
+    NPath('M68,60 H82 A6,6 0 0 1 88,66 V82 A6,6 0 0 1 82,88 H68 A6,6 0 0 1 62,82 V66 A6,6 0 0 1 68,60 Z', fill: NColor.hex(0xFFD5EFEB)),
+    NPath('M98,60 H112 A6,6 0 0 1 118,66 V82 A6,6 0 0 1 112,88 H98 A6,6 0 0 1 92,82 V66 A6,6 0 0 1 98,60 Z', fill: NColor.hex(0xFF0F766E), fillAlpha: 0.85),
+    NPath('M64,102 H116', stroke: NColor.hex(0xFFCCE7E3), strokeWidth: 5.0, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M113,112 a21,21 0 1,0 42,0 a21,21 0 1,0 -42,0 Z', fill: NColor.hex(0xFF0D8A7F)),
+    NGroup(tx: 119.6, ty: 97.6, sx: 1.2, sy: 1.2, rotation: 0.0, px: 0.0, py: 0.0, children: [
+      NPath('M12,3.5 C12.7,8.6 15.4,11.3 20.5,12 C15.4,12.7 12.7,15.4 12,20.5 C11.3,15.4 8.6,12.7 3.5,12 C8.6,11.3 11.3,8.6 12,3.5 Z', stroke: NColor.hex(0xFFFFFFFF), strokeWidth: 2.2, cap: StrokeCap.round, join: StrokeJoin.round),
+    ]),
   ]);
 
   /// res/drawable/tpl_art_bags.xml (220 x 200 dp)
@@ -2039,9 +2298,9 @@ abstract final class ND {
   /// res/drawable/tpl_handle_rotate.xml (26 x 26 dp)
   static const tplHandleRotate = NDrawable(width: 26.0, height: 26.0, viewportWidth: 26.0, viewportHeight: 26.0, children: [
     NPath('M13,13 m-12,0 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0', fill: NColor.hex(0xFFFFFFFF)),
-    NPath('M13,13 m-12,0 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0', stroke: NColor.hex(0xFFD5DAE2), strokeWidth: 1.0, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M18.2,11 A5.5,5.5 0 0 0 8.4,10.2 M7.8,15 A5.5,5.5 0 0 0 17.6,15.8', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
-    NPath('M8.2,7.2 V10.4 H11.4 M17.8,18.8 V15.6 H14.6', stroke: NColor.hex(0xFF1B1F2A), strokeWidth: 1.6, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M13,13 m-11.5,0 a11.5,11.5 0 1 0 23,0 a11.5,11.5 0 1 0 -23,0', stroke: NColor.hex(0xFFFFB59E), strokeWidth: 1.5),
+    NPath('M13,7.5 A5.5,5.5 0 1 1 7.5,13', stroke: NColor.hex(0xFF6B2D6B), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
+    NPath('M15.2,5.4 L13,7.5 L15.2,9.6', stroke: NColor.hex(0xFF6B2D6B), strokeWidth: 1.7, cap: StrokeCap.round, join: StrokeJoin.round),
   ]);
 
   /// res/drawable/tpl_ic_mail.xml (16 x 16 dp)

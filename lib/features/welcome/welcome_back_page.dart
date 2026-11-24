@@ -33,7 +33,7 @@ class _WelcomeBackPageState extends State<WelcomeBackPage> {
     return PopScope(
       canPop: false,
       child: Material(
-        color: c.surface,
+        color: c.bgScreen,
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, box) {
@@ -65,7 +65,7 @@ class _WelcomeBackPageState extends State<WelcomeBackPage> {
                               textAlign: TextAlign.center,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: c.textPrimary),
+                              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500, color: c.textPrimary),
                             ),
                           ),
                         ),

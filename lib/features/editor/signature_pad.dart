@@ -107,7 +107,7 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
         if (didPop) SystemChrome.setPreferredOrientations(const [DeviceOrientation.portraitUp]);
       },
       child: Scaffold(
-      backgroundColor: nc.surface,
+      backgroundColor: nc.bgScreen,
       body: SafeArea(
         child: Column(
           children: [
@@ -134,7 +134,7 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
                   const Spacer(),
                   // bg_done_btn: #111317, #D9DCE1 while there is no ink
                   Material(
-                    color: _hasInk ? const Color(0xFF111317) : const Color(0xFFD9DCE1),
+                    color: _hasInk ? const Color(0xFF0E1414) : const Color(0xFFD9DCE1),
                     borderRadius: BorderRadius.circular(18),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
@@ -143,7 +143,7 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
                         height: 34,
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         alignment: Alignment.center,
-                        child: Text(s.t('done'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                        child: Text(s.t('done'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white)),
                       ),
                     ),
                   ),

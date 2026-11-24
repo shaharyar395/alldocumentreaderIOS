@@ -18,6 +18,8 @@ class IosGrowth {
 
   static bool _ready = false;
 
+  static bool get ready => _ready;
+
   static Future<void> start() async {
     if (_ready || !Platform.isIOS || kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) return;
     _ready = true;
@@ -37,7 +39,16 @@ class IosGrowth {
     }
   }
 
-  static void adImpression() => _event(_adImpression, 'ad_impression');
+  /// Adjust impression plus GA4 `ad_impression` named by [format] (banner, interstitial, app_open, native, rewarded).
+  static void adImpression({String format = 'banner'}) {
+    if (!_ready || !Platform.isIOS) return;
+    try {
+      Adjust.trackEvent(AdjustEvent(_adImpression));
+    } catch (error) {
+      debugPrint('adjust ad_impression: $error');
+    }
+    _firebase('ad_impression', {'ad_format': format});
+  }
 
   static void adRevenue(double amount, String currency) {
     if (!_ready || !Platform.isIOS) return;

@@ -8,8 +8,8 @@ import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
-import '../../native/native_icon.dart';
 import '../../widgets/banner_slot.dart';
+import '../../widgets/chrome.dart';
 
 /// Language: "Default" (the phone's language) and the 23 app languages; a banner ad at the bottom
 /// ("Loading ad…" until it arrives). On the first start it also asks for the notification
@@ -74,52 +74,47 @@ class _LanguagePageState extends State<LanguagePage> {
     final s = S.of(context);
     final c = NC.of(context);
     final selected = _selected ?? '';
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    // activity_language.xml ("Plum deck"): a page-coloured bar (back circle when opened from
+    // Settings, "Language" as the screen title, the accent ✓ circle) and white card rows
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: c.bgScreen,
         body: Column(
           children: [
-            // blue bar: (back only when opened from Settings) "Language" ... check mark
-            Material(
-              color: c.primary,
-              child: SafeArea(
-                bottom: false,
-                child: SizedBox(
-                  height: 56,
-                  child: Row(
-                    children: [
-                      if (!widget.firstLaunch) ...[
-                        const SizedBox(width: 4),
-                        _BarButton(
-                          onTap: () => Navigator.pop(context),
-                          child: NativeIcon(ND.icBack, size: 24, tint: c.white),
-                        ),
-                        const SizedBox(width: 8),
-                      ] else
-                        const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          s.t('language'),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: c.white),
-                        ),
-                      ),
-                      _BarButton(
-                        onTap: _apply,
-                        tooltip: s.t('done'),
-                        child: NativeIcon(ND.icCheck, size: 24, tint: c.white),
-                      ),
+            SafeArea(
+              bottom: false,
+              child: SizedBox(
+                height: 56,
+                child: Row(
+                  children: [
+                    if (!widget.firstLaunch) ...[
                       const SizedBox(width: 6),
-                    ],
-                  ),
+                      DsTopBack(onTap: () => Navigator.pop(context)),
+                      const SizedBox(width: 6),
+                    ] else
+                      const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(s.t('language'), maxLines: 1, overflow: TextOverflow.ellipsis, style: dsScreenTitle(context)),
+                    ),
+                    DsCircleButton(
+                      fill: c.accent,
+                      circle: 44,
+                      icon: ND.icCheck,
+                      tint: c.onAccent,
+                      iconPadding: 13,
+                      tooltip: s.t('done'),
+                      onTap: _apply,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                 ),
               ),
             ),
             Expanded(
               child: ListView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                 // "Default" first, then the languages
                 itemCount: languages.length + 1,
                 itemBuilder: (context, index) {
@@ -139,43 +134,15 @@ class _LanguagePageState extends State<LanguagePage> {
                 },
               ),
             ),
-            // AdBar on @color/surface (the nav bar area too)
+            // AdBar on the page colour (the nav bar area too)
             ColoredBox(
-              color: c.surface,
+              color: c.bgScreen,
               child: const SafeArea(top: false, child: BannerSlot(reserveSpace: true, unit: 2)),
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-/// A 48 dp borderless-ripple button of the blue bar (btnBack / btnDone).
-class _BarButton extends StatelessWidget {
-  const _BarButton({required this.onTap, required this.child, this.tooltip});
-
-  final VoidCallback onTap;
-  final Widget child;
-  final String? tooltip;
-
-  @override
-  Widget build(BuildContext context) {
-    final button = SizedBox(
-      width: 48,
-      height: 48,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkResponse(
-          onTap: onTap,
-          radius: 24,
-          splashColor: const Color(0x33FFFFFF),
-          child: Center(child: child),
-        ),
-      ),
-    );
-    final text = tooltip;
-    return text == null ? button : Tooltip(message: text, child: button);
   }
 }
 
@@ -194,18 +161,24 @@ class _LanguageRow extends StatelessWidget {
     final c = NC.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
+      // ds_a_lang_row: a white card (16 dp corners); the chosen one accent_container with a
+      // 1.5 dp accent edge
       child: Material(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(10),
+        color: selected ? c.accentContainer : c.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: selected ? BorderSide(color: c.accent, width: 1.5) : BorderSide.none,
+        ),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          borderRadius: BorderRadius.circular(10),
+          splashColor: c.rowPressed,
           onTap: onTap,
           child: Directionality(
             textDirection: TextDirection.ltr,
             child: SizedBox(
-              height: 58,
+              height: 56,
               child: Padding(
-                padding: const EdgeInsets.only(left: 22, right: 10),
+                padding: const EdgeInsets.only(left: 20, right: 10),
                 child: Row(
                   children: [
                     Expanded(
@@ -213,7 +186,7 @@ class _LanguageRow extends StatelessWidget {
                         name,
                         textAlign: TextAlign.left,
                         textDirection: TextDirection.ltr,
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: c.textPrimary),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: c.textPrimary),
                       ),
                     ),
                     // MaterialRadioButton: 48 dp touch area, 20 dp ring

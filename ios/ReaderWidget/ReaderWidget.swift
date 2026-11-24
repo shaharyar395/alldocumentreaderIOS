@@ -38,18 +38,18 @@ struct WidgetLabels {
 
 /// Colours of the Android widgets (bg_widget, bg_widget_pill, ic_w_*, type_* colours).
 private enum WColor {
-    static let top = Color(red: 0xF4 / 255, green: 0xF8 / 255, blue: 1)
-    static let ink = Color(red: 0x1B / 255, green: 0x1F / 255, blue: 0x2A / 255)
-    static let grey = Color(red: 0x8E / 255, green: 0x94 / 255, blue: 0x9E / 255)
-    static let pillBorder = Color(red: 0xE1 / 255, green: 0xE7 / 255, blue: 0xF2 / 255)
-    static let home = Color(red: 0x1E / 255, green: 0x6F / 255, blue: 0xE6 / 255)
-    static let recent = Color(red: 0x1F / 255, green: 0xB3 / 255, blue: 0x5A / 255)
-    static let bookmark = Color(red: 1, green: 0xA0 / 255, blue: 0)
-    static let edit = Color(red: 0xE5 / 255, green: 0x39 / 255, blue: 0x35 / 255)
-    static let pdf = Color(red: 0xD1 / 255, green: 0, blue: 0)
-    static let word = Color(red: 0x15 / 255, green: 0x60 / 255, blue: 0xD6 / 255)
-    static let excel = Color(red: 0, green: 0x8A / 255, blue: 0x3B / 255)
-    static let ppt = Color(red: 0xF2 / 255, green: 0x62 / 255, blue: 1 / 255)
+    static let top = Color(red: 0xEA / 255, green: 0xF4 / 255, blue: 0xF3 / 255)
+    static let ink = Color(red: 0x1F / 255, green: 0x29 / 255, blue: 0x33 / 255)
+    static let grey = Color(red: 0x64 / 255, green: 0x74 / 255, blue: 0x8B / 255)
+    static let pillBorder = Color(red: 0xE2 / 255, green: 0xE8 / 255, blue: 0xF0 / 255)
+    static let home = Color(red: 0x0F / 255, green: 0x76 / 255, blue: 0x6E / 255)
+    static let recent = Color(red: 0x0F / 255, green: 0x76 / 255, blue: 0x6E / 255)
+    static let bookmark = Color(red: 0x0F / 255, green: 0x76 / 255, blue: 0x6E / 255)
+    static let edit = Color(red: 0x0D / 255, green: 0x8A / 255, blue: 0x7F / 255)
+    static let pdf = Color(red: 0xD1 / 255, green: 0x43 / 255, blue: 0x43 / 255)
+    static let word = Color(red: 0x2F / 255, green: 0x5F / 255, blue: 0xC8 / 255)
+    static let excel = Color(red: 0x1E / 255, green: 0x8A / 255, blue: 0x55 / 255)
+    static let ppt = Color(red: 0xC9 / 255, green: 0x62 / 255, blue: 0x0E / 255)
 
     static var background: LinearGradient {
         LinearGradient(colors: [top, .white], startPoint: .top, endPoint: .bottom)

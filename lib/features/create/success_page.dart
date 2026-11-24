@@ -14,6 +14,9 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+import '../../services/ios_analytics.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
@@ -70,10 +73,13 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _intro.forward();
+    final screen = '${widget.featureKey ?? 'conversion'}_result';
+    WidgetsBinding.instance.addPostFrameCallback((_) => IosAnalytics.activate(screen));
   }
 
   @override
   void dispose() {
+    IosAnalytics.left('${widget.featureKey ?? 'conversion'}_result');
     _intro.dispose();
     super.dispose();
   }
@@ -174,7 +180,9 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
     );
   }
 
-  Future<void> _afterTool(Future<void> Function() tool) async {
+  Future<void> _afterTool(String action, Future<void> Function() tool) async {
+    final key = widget.featureKey ?? 'conversion';
+    IosAnalytics.log('${key}_result_${action}_tapped');
     await tool();
     if (!mounted) return;
     setState(_refreshEntry);
@@ -210,17 +218,17 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
     final nc = NC.of(context);
     // same order as the native result screen: Edit text, Annotate, Add text, Sign / PDF to Word,
     // Manage pages, Print PDF
-    final tools = <(NDrawable, String, Future<void> Function())>[
-      (ND.icRtEditText, s.t('editText'), () => openMarkup(context, entry: _entry, tool: MarkTool.editText)),
-      (ND.icRtAnnotate, s.t('annotate'), () => openMarkup(context, entry: _entry, tool: MarkTool.pen)),
-      (ND.icRtAddText, s.t('addText'), () => openMarkup(context, entry: _entry, tool: MarkTool.text)),
-      (ND.icRtSign, s.t('sign'), () => openMarkup(context, entry: _entry, tool: MarkTool.sign)),
-      (ND.icRtPdf2word, s.t('pdfToWord'), () => convertPdfToWord(context, entry: _entry)),
-      (ND.icRtManagePages, s.t('managePages'), () => openManagePages(context, entry: _entry)),
-      (ND.icRtPrint, s.t('printPdf'), _print),
+    final tools = <(NDrawable, String, String, Future<void> Function())>[
+      (ND.icRtEditText, s.t('editText'), 'edit_text', () => openMarkup(context, entry: _entry, tool: MarkTool.editText)),
+      (ND.icRtAnnotate, s.t('annotate'), 'annotate', () => openMarkup(context, entry: _entry, tool: MarkTool.pen)),
+      (ND.icRtAddText, s.t('addText'), 'add_text', () => openMarkup(context, entry: _entry, tool: MarkTool.text)),
+      (ND.icRtSign, s.t('sign'), 'sign', () => openMarkup(context, entry: _entry, tool: MarkTool.sign)),
+      (ND.icRtPdf2word, s.t('pdfToWord'), 'pdf_to_word', () => convertPdfToWord(context, entry: _entry)),
+      (ND.icRtManagePages, s.t('managePages'), 'manage_pages', () => openManagePages(context, entry: _entry)),
+      (ND.icRtPrint, s.t('printPdf'), 'print_pdf', () => _print()),
     ];
     return Scaffold(
-      backgroundColor: nc.surface,
+      backgroundColor: nc.bgScreen,
       appBar: AppBar(
         toolbarHeight: 56,
         backgroundColor: nc.surface,
@@ -263,7 +271,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                             _entry.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: nc.textPrimary),
                           ),
                         ),
                         NativeIconButton(ND.icRename, size: 34, padding: 8, tint: nc.textHint, tooltip: s.t('rename'), onPressed: _rename),
@@ -311,7 +319,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                             customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
                             onTap: () => openEntry(context, _entry),
                             child: Center(
-                              child: Text(s.t('open'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: nc.primary)),
+                              child: Text(s.t('open'), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: nc.primary)),
                             ),
                           ),
                         ),
@@ -336,13 +344,14 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                         alignment: AlignmentDirectional.centerStart,
                         child: Text(
                           s.t('splitDone', {'count': '${_parts.length}'}),
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: nc.textPrimary),
                         ),
                       ),
                     ),
                     const SizedBox(height: 6),
                     for (final part in _parts) _partRow(part, nc),
                   ],
+                  const _ResultNativeAd(),
                   if (_isPdf) ...[
                     const SizedBox(height: 36),
                     // "—— Tools ——" with fading lines
@@ -374,7 +383,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: NativeToolGrid(
                         cells: [
-                          for (final tool in tools) NativeToolCell(icon: tool.$1, label: tool.$2, onTap: () => _afterTool(tool.$3)),
+                          for (final tool in tools) NativeToolCell(icon: tool.$1, label: tool.$2, onTap: () => _afterTool(tool.$3, tool.$4)),
                         ],
                       ),
                     ),
@@ -413,7 +422,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
           children: [
             const NativeIcon(ND.icCheckCircleOutline, size: 24, tint: Colors.white),
             const SizedBox(width: 8),
-            Text(_title(s), style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
+            Text(_title(s), style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -527,7 +536,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
                           decoration: BoxDecoration(color: const Color(0xB3333A45), borderRadius: BorderRadius.circular(3)),
                           child: Text(
                             '$_pages',
-                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ),
@@ -578,7 +587,7 @@ class _SuccessPageState extends State<SuccessPage> with SingleTickerProviderStat
               Expanded(
                 child: Text(
                   s.t('satisfiedQuestion', {'feature': widget.feature ?? ''}),
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: nc.textPrimary),
                 ),
               ),
               NativeIconButton(
@@ -615,5 +624,51 @@ class _Spiral extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const FittedBox(fit: BoxFit.fill, child: NativeIcon(ND.icSpiral, width: 14, height: 160));
+  }
+}
+
+/// One native ad for this result screen, between Open/Share and the tools. Destroyed with the screen.
+class _ResultNativeAd extends StatefulWidget {
+  const _ResultNativeAd();
+
+  @override
+  State<_ResultNativeAd> createState() => _ResultNativeAdState();
+}
+
+class _ResultNativeAdState extends State<_ResultNativeAd> {
+  NativeAd? _ad;
+  var _asked = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_asked || AppScope.of(context).settings.premium) return;
+    _asked = true;
+    _load();
+  }
+
+  Future<void> _load() async {
+    final ad = await AppScope.of(context).ads.loadResultNative();
+    if (!mounted) {
+      ad?.dispose();
+      return;
+    }
+    setState(() => _ad = ad);
+  }
+
+  @override
+  void dispose() {
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ad = _ad;
+    if (ad == null || AppScope.of(context).settings.premium) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: SizedBox(height: 280, child: AdWidget(ad: ad)),
+    );
   }
 }

@@ -99,7 +99,7 @@ class _PillState extends State<_Pill> with SingleTickerProviderStateMixin {
                         widget.text,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
+                        style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],

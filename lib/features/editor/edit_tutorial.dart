@@ -65,8 +65,8 @@ class _TutorialState extends State<_Tutorial> with SingleTickerProviderStateMixi
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: on ? const Color(0xFFE3EDFD) : Colors.transparent, borderRadius: BorderRadius.circular(13)),
-          child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: on ? nc.primary : nc.textSecondary)),
+          decoration: BoxDecoration(color: on ? const Color(0xFFE6F4F2) : Colors.transparent, borderRadius: BorderRadius.circular(13)),
+          child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: on ? nc.primary : nc.textSecondary)),
         ),
       );
     }
@@ -120,7 +120,7 @@ class _TutorialState extends State<_Tutorial> with SingleTickerProviderStateMixi
             child: Text(
               _sign ? s.t('tutSignTitle') : s.t('tutEditTitle'),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary),
             ),
           ),
           const SizedBox(height: 20),
@@ -169,7 +169,7 @@ class TutorialDemoPainter extends CustomPainter {
     final left = (size.width - pw) / 2;
     const top = 52.0;
     final phone = Rect.fromLTRB(left, top, left + pw, size.height + 40);
-    canvas.drawRRect(RRect.fromRectAndRadius(phone, const Radius.circular(26)), Paint()..color = const Color(0xFF1F2126));
+    canvas.drawRRect(RRect.fromRectAndRadius(phone, const Radius.circular(26)), Paint()..color = const Color(0xFF1F2933));
     final screen = Rect.fromLTRB(phone.left + 7, phone.top + 7, phone.right - 7, phone.bottom);
     canvas.drawRRect(RRect.fromRectAndRadius(screen, const Radius.circular(20)), Paint()..color = Colors.white);
     canvas.save();
@@ -195,7 +195,7 @@ class TutorialDemoPainter extends CustomPainter {
     final painter = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(fontSize: size, color: color, fontWeight: bold ? FontWeight.w700 : FontWeight.w400, fontStyle: italic ? FontStyle.italic : FontStyle.normal),
+        style: TextStyle(fontSize: size, color: color, fontWeight: bold ? FontWeight.w500 : FontWeight.w400, fontStyle: italic ? FontStyle.italic : FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -225,7 +225,7 @@ class TutorialDemoPainter extends CustomPainter {
     final hy = sc.top + 66;
     const heading = 'The Cognitive Load of Fixed Layouts';
     final red = _seg(0.66, 0.74);
-    final headColor = Color.lerp(const Color(0xFF30343C), const Color(0xFFE53935), red)!;
+    final headColor = Color.lerp(const Color(0xFF1F2933), const Color(0xFFE53935), red)!;
     final headWidth = _text(c, heading, x, hy, 8.5, headColor, bold: true);
     _bars(c, x, hy + 12, w, 6);
     // selection box + mini toolbar
@@ -267,7 +267,7 @@ class TutorialDemoPainter extends CustomPainter {
     for (var i = 0; i < 5; i++) {
       final cx = sc.left + step * (i + 0.5);
       final active = i == 3 && red > 0;
-      final color = (i == 0 && panel == 0) || active ? const Color(0xFF1E6FE6) : const Color(0xFF5B6475);
+      final color = (i == 0 && panel == 0) || active ? const Color(0xFF0F766E) : const Color(0xFF5B6475);
       c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTRB(cx - 6, iconsY - 6, cx + 6, iconsY + 6), const Radius.circular(2)), Paint()..color = color);
     }
     if (panel > 0) {
@@ -276,17 +276,17 @@ class TutorialDemoPainter extends CustomPainter {
         Offset(sc.left + 14, iconsY + 20),
         Offset(sc.left + sc.width * 0.6, iconsY + 20),
         Paint()
-          ..color = const Color(0xFF1E6FE6)
+          ..color = const Color(0xFF0F766E)
           ..strokeWidth = 2
           ..strokeCap = StrokeCap.round,
       );
-      c.drawCircle(Offset(sc.left + 40, iconsY + 20), 4, Paint()..color = const Color(0xFF1E6FE6));
+      c.drawCircle(Offset(sc.left + 40, iconsY + 20), 4, Paint()..color = const Color(0xFF0F766E));
       const labels = ['B', 'I', 'S', 'U'];
       for (var i = 0; i < labels.length; i++) {
         final cx = sc.left + step * (i + 0.8);
-        if (i == 0 && red > 0) c.drawCircle(Offset(cx, iconsY + 40), 9, Paint()..color = const Color(0xFFE3EDFD));
-        final lw = _text(c, labels[i], 0, 0, 9, const Color(0xFF30343C), bold: true, measureOnly: true);
-        _text(c, labels[i], cx - lw / 2, iconsY + 43, 9, const Color(0xFF30343C), bold: true);
+        if (i == 0 && red > 0) c.drawCircle(Offset(cx, iconsY + 40), 9, Paint()..color = const Color(0xFFE6F4F2));
+        final lw = _text(c, labels[i], 0, 0, 9, const Color(0xFF1F2933), bold: true, measureOnly: true);
+        _text(c, labels[i], cx - lw / 2, iconsY + 43, 9, const Color(0xFF1F2933), bold: true);
       }
     }
     // finger taps
@@ -297,7 +297,7 @@ class TutorialDemoPainter extends CustomPainter {
   void _drawSign(Canvas c, Rect sc) {
     final x = sc.left + 14;
     final w = sc.width - 28;
-    const ink = Color(0xFF30343C);
+    const ink = Color(0xFF1F2933);
     _text(c, '2. DEFAULT & GOVERNING LAW', x, sc.top + 24, 7, ink, bold: true);
     _bars(c, x, sc.top + 32, w, 3);
     _text(c, 'LENDER', x, sc.top + 70, 6.5, ink, bold: true);
@@ -310,10 +310,10 @@ class TutorialDemoPainter extends CustomPainter {
     c.drawLine(Offset(sc.right - 74, sc.top + 92), Offset(sc.right - 14, sc.top + 92), line);
     // "+ Add signature" bar
     final barY = sc.bottom - 34;
-    c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTRB(x, barY - 14, sc.right - 14, barY + 10), const Radius.circular(10)), Paint()..color = const Color(0xFFEAF1FE));
+    c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTRB(x, barY - 14, sc.right - 14, barY + 10), const Radius.circular(10)), Paint()..color = const Color(0xFFD5EFEB));
     const label = '+  Add signature';
-    final labelW = _text(c, label, 0, 0, 8, const Color(0xFF1E6FE6), bold: true, measureOnly: true);
-    _text(c, label, sc.center.dx - labelW / 2, barY + 1, 8, const Color(0xFF1E6FE6), bold: true);
+    final labelW = _text(c, label, 0, 0, 8, const Color(0xFF0F766E), bold: true, measureOnly: true);
+    _text(c, label, sc.center.dx - labelW / 2, barY + 1, 8, const Color(0xFF0F766E), bold: true);
     _tap(c, sc.center.dx, barY - 2, _seg(0.06, 0.18));
 
     // signature pad

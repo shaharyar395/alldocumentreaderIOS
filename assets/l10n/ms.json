@@ -631,5 +631,22 @@
   "goToAppStore": "Pergi ke App Store",
   "addToAppIconMenu": "Tambah ke menu ikon apl",
   "appIconMenuAdded": "Ditambah ke menu ikon apl. Sentuh dan tahan ikon apl untuk membukanya.",
-  "onMyDevice": "Pada {device} Saya"
+  "onMyDevice": "Pada {device} Saya",
+  "dsContinueReading": "Teruskan membaca",
+  "dsPageOf": "hlm. {page}/{count}",
+  "dsPercentRead": "{percent}% dibaca",
+  "dsNewestFiles": "Fail terbaharu anda dalam satu senarai",
+  "dsSwipeDeck": "Tunjukkan kad lain",
+  "dsNewFilesOne": "{count} fail baharu",
+  "dsNewFilesMany": "{count} fail baharu",
+  "dsCreateNew": "Cipta baharu",
+  "dsScanHeroSub": "Kamera, potong dan penapis",
+  "dsTellUs": "Beritahu kami",
+  "dsSave": "Simpan",
+  "dsSaved": "Disimpan",
+  "iapPriceLoading": "Memuatkan harga…",
+  "iapVerificationPending": "Bayaran diterima; pengesahan belum selesai. Jika Premium tidak dibuka sebentar lagi, ketik Pulihkan.",
+  "iapPendingApproval": "Pembelian anda menunggu kelulusan. Premium dibuka sebaik sahaja ia diluluskan.",
+  "iapStoreUnavailable": "App Store tidak dapat dihubungi sekarang. Sila cuba lagi kemudian.",
+  "iapAutoRenewInfo": "Bayaran dicaj ke Akaun Apple anda apabila anda mengesahkan pembelian. Langganan diperbaharui secara automatik pada harga yang sama melainkan pembaharuan automatik dimatikan sekurang-kurangnya 24 jam sebelum tempoh semasa tamat. Urus atau batalkannya dalam tetapan Akaun Apple anda."
 }

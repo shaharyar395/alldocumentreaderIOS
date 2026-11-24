@@ -60,13 +60,22 @@ class _PaywallRevealCloseState extends State<PaywallRevealClose> {
 
   @override
   Widget build(BuildContext context) {
-    final button = InkResponse(
-      onTap: _shown ? widget.onTap : null,
-      radius: 22,
-      child: const SizedBox(
-        width: 44,
-        height: 44,
-        child: Center(child: NativeIcon(ND.icClose, size: 20, tint: Color(0xB3FFFFFF))),
+    // ds_prem_btn_round: a 40 dp #26FFFFFF circle in a 48 dp target, #D5EFEB ×
+    final button = SizedBox(
+      width: 48,
+      height: 48,
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Material(
+          color: const Color(0x26FFFFFF),
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: _shown ? widget.onTap : null,
+            splashColor: const Color(0x33FFFFFF),
+            child: const Padding(padding: EdgeInsets.all(11), child: NativeIcon(ND.icClose, tint: Color(0xFFD5EFEB))),
+          ),
+        ),
       ),
     );
     return IgnorePointer(
@@ -90,14 +99,21 @@ class PaywallRestoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkResponse(
-      onTap: onTap,
-      radius: 40,
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        alignment: Alignment.center,
-        child: Text(label, style: TextStyle(color: color, fontSize: 13)),
+    // ds_prem_pill: a 36 dp #26FFFFFF pill (18 dp corners), #D5EFEB 13 sp text
+    return Material(
+      color: const Color(0x26FFFFFF),
+      borderRadius: BorderRadius.circular(18),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: const Color(0x33FFFFFF),
+        child: Container(
+          height: 36,
+          constraints: const BoxConstraints(minWidth: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
+          child: Text(label, style: const TextStyle(color: Color(0xFFD5EFEB), fontSize: 13)),
+        ),
       ),
     );
   }
@@ -147,7 +163,7 @@ class _PaywallContinueButtonState extends State<PaywallContinueButton> with Sing
 
   @override
   Widget build(BuildContext context) {
-    const radius = BorderRadius.all(Radius.circular(28));
+    const radius = BorderRadius.all(Radius.circular(26));
     return SizedBox(
       height: 52,
       child: Material(
@@ -196,7 +212,7 @@ class _PaywallContinueButtonState extends State<PaywallContinueButton> with Sing
                                 widget.label,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                                style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w500),
                               ),
                             ),
                     ),

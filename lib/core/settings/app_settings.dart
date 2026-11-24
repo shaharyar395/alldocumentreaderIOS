@@ -39,6 +39,9 @@ class AppSettings extends ChangeNotifier {
 
   /// iOS: per-install random UUID sent as StoreKit's appAccountToken (a hint, never proof).
   String appAccountToken = '';
+
+  /// none, yearly, monthly, or pro. Free accounts stay on none.
+  String subscriptionPlan = 'none';
   ScanCrop scanCrop = ScanCrop.ask;
   bool coachSeen = false;
   bool discoverSeen = false;
@@ -98,6 +101,7 @@ class AppSettings extends ChangeNotifier {
     }
     settings.premiumExpiryMs = prefs.getInt('premium_expiry_ms') ?? 0;
     settings.appAccountToken = prefs.getString('app_account_token') ?? '';
+    settings.subscriptionPlan = prefs.getString('subscription_plan') ?? 'none';
     if (settings.premium &&
         settings.premiumExpiryMs > 0 &&
         settings.premiumExpiryMs <= DateTime.now().millisecondsSinceEpoch &&
@@ -245,9 +249,17 @@ class AppSettings extends ChangeNotifier {
 
   /// Premium from a StoreKit-verified subscription ([expiryMs] = end of the paid / grace
   /// period), or off when StoreKit says it is not entitled.
-  Future<void> setStorePremium({required bool entitled, required int expiryMs}) async {
+  Future<void> setStorePremium({required bool entitled, required int expiryMs, String? plan}) async {
     premiumExpiryMs = entitled ? expiryMs : 0;
     await _prefs?.setInt('premium_expiry_ms', premiumExpiryMs);
+    if (!entitled) {
+      subscriptionPlan = 'none';
+    } else if (plan != null && plan.isNotEmpty) {
+      subscriptionPlan = plan;
+    } else if (subscriptionPlan == 'none') {
+      subscriptionPlan = 'pro';
+    }
+    await _prefs?.setString('subscription_plan', subscriptionPlan);
     await setPremium(entitled, fromStore: entitled);
   }
 

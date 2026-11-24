@@ -631,5 +631,22 @@
   "goToAppStore": "App Store'a git",
   "addToAppIconMenu": "Uygulama simgesi menüsüne ekle",
   "appIconMenuAdded": "Uygulama simgesi menüsüne eklendi. Açmak için uygulama simgesine dokunup basılı tutun.",
-  "onMyDevice": "{device} cihazımda"
+  "onMyDevice": "{device} cihazımda",
+  "dsContinueReading": "Okumaya devam et",
+  "dsPageOf": "s. {page}/{count}",
+  "dsPercentRead": "%{percent} okundu",
+  "dsNewestFiles": "En yeni dosyalarınız tek listede",
+  "dsSwipeDeck": "Diğer kartı göster",
+  "dsNewFilesOne": "{count} yeni dosya",
+  "dsNewFilesMany": "{count} yeni dosya",
+  "dsCreateNew": "Yeni oluştur",
+  "dsScanHeroSub": "Kamera, kırpma ve filtreler",
+  "dsTellUs": "Bize söyleyin",
+  "dsSave": "Kaydet",
+  "dsSaved": "Kaydedildi",
+  "iapPriceLoading": "Fiyat yükleniyor…",
+  "iapVerificationPending": "Ödeme alındı; doğrulama bekleniyor. Premium birazdan açılmazsa Geri Yükle'ye dokunun.",
+  "iapPendingApproval": "Satın alımınız onay bekliyor. Onaylandığı anda Premium açılır.",
+  "iapStoreUnavailable": "App Store'a şu anda ulaşılamıyor. Lütfen daha sonra tekrar deneyin.",
+  "iapAutoRenewInfo": "Ödeme, satın alımı onayladığınızda Apple Hesabınızdan tahsil edilir. Otomatik yenileme, geçerli dönemin bitiminden en az 24 saat önce kapatılmadıkça abonelik aynı fiyatla otomatik olarak yenilenir. Aboneliği Apple Hesabı ayarlarınızdan yönetebilir veya iptal edebilirsiniz."
 }

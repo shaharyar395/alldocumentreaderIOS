@@ -631,5 +631,22 @@
   "goToAppStore": "Buka App Store",
   "addToAppIconMenu": "Tambahkan ke menu ikon aplikasi",
   "appIconMenuAdded": "Ditambahkan ke menu ikon aplikasi. Sentuh dan tahan ikon aplikasi untuk membukanya.",
-  "onMyDevice": "Di {device} Saya"
+  "onMyDevice": "Di {device} Saya",
+  "dsContinueReading": "Lanjutkan membaca",
+  "dsPageOf": "hlm. {page}/{count}",
+  "dsPercentRead": "{percent}% dibaca",
+  "dsNewestFiles": "File terbaru Anda dalam satu daftar",
+  "dsSwipeDeck": "Tampilkan kartu lainnya",
+  "dsNewFilesOne": "{count} file baru",
+  "dsNewFilesMany": "{count} file baru",
+  "dsCreateNew": "Buat baru",
+  "dsScanHeroSub": "Kamera, pangkas, dan filter",
+  "dsTellUs": "Beri tahu kami",
+  "dsSave": "Simpan",
+  "dsSaved": "Disimpan",
+  "iapPriceLoading": "Memuat harga…",
+  "iapVerificationPending": "Pembayaran diterima; verifikasi tertunda. Jika Premium belum terbuka sebentar lagi, ketuk Pulihkan.",
+  "iapPendingApproval": "Pembelian Anda menunggu persetujuan. Premium terbuka begitu disetujui.",
+  "iapStoreUnavailable": "App Store tidak dapat dijangkau saat ini. Silakan coba lagi nanti.",
+  "iapAutoRenewInfo": "Pembayaran ditagihkan ke Akun Apple Anda saat Anda mengonfirmasi pembelian. Langganan diperpanjang otomatis dengan harga yang sama kecuali perpanjangan otomatis dimatikan setidaknya 24 jam sebelum periode berjalan berakhir. Kelola atau batalkan di pengaturan Akun Apple Anda."
 }

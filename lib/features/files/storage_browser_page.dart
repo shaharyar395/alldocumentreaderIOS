@@ -109,7 +109,7 @@ class _StorageBrowserPageState extends State<StorageBrowserPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: c.surface,
+        backgroundColor: c.bgScreen,
         body: SafeArea(
           child: Column(
             children: [

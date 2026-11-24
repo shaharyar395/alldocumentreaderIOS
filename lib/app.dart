@@ -21,6 +21,10 @@ import 'features/splash/splash_page.dart';
 import 'features/welcome/welcome_back_page.dart';
 import 'l10n/s.dart';
 import 'services/ad_service.dart';
+import 'services/in_app_messages.dart';
+import 'services/ios_analytics.dart';
+import 'services/local_reminders.dart';
+import 'services/push_notifications.dart';
 import 'services/billing_service.dart';
 import 'services/platform_bridge.dart';
 import 'widgets/chrome.dart';
@@ -186,10 +190,21 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
     // really in the background only when paused / hidden; "inactive" is also the iOS
     // Notification Center or the app switcher peek, which is not leaving the app
     if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      // Android App.kt (1.0.39): one "app_left" event (+ "<screen>_screen_left") per exit, not
+      // when a full-screen ad or the system pickers / share sheet take over
+      if (guard.pausedAt == null && !ads.fullScreenActive && !settings.suppressNextResume) {
+        IosAnalytics.log('app_left', {
+          'screen': IosAnalytics.currentScreen,
+          'last_action': IosAnalytics.lastAction,
+          'reason': 'home',
+        });
+      }
       guard.pausedAt ??= DateTime.now();
+      if (!ads.fullScreenActive) IosAnalytics.left();
       return;
     }
     if (state != AppLifecycleState.resumed) return;
+    if (!ads.fullScreenActive) unawaited(LocalReminders.onRealOpen());
     if (guard.pausedAt != null) unawaited(AppScope.of(context).billing.onResume());
     final paused = guard.pausedAt;
     guard.pausedAt = null;
@@ -206,16 +221,23 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
 
   Future<void> _showWelcome() async {
     _welcome = true;
-    await Navigator.of(context).push(
+    final navigator = Navigator.of(context);
+    final ads = AppScope.of(context).ads;
+    await InAppMessages.hold();
+    await navigator.push(
       PageRouteBuilder(
         opaque: true,
-        transitionDuration: const Duration(milliseconds: 180),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
         pageBuilder: (_, _, _) => const WelcomeBackPage(),
       ),
     );
     _welcome = false;
     if (!mounted) return;
-    await AppScope.of(context).ads.showAppOpen(wait: const Duration(seconds: 4));
+    await WidgetsBinding.instance.endOfFrame;
+    await ads.showAppOpen(wait: const Duration(seconds: 4));
+    await WidgetsBinding.instance.endOfFrame;
+    if (mounted) await InAppMessages.release();
   }
 
   void _afterSplash() {
@@ -229,6 +251,10 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
         _stage = _Stage.shell;
       }
     });
+    unawaited(InAppMessages.release());
+    // one notification prompt (reminders + Firebase push), then the all_users topic
+    unawaited(PushNotifications.requestPermissionAndStart());
+    unawaited(LocalReminders.onRealOpen());
   }
 
   /// Cold start: a file from another app or a home-screen shortcut skips the normal splash,

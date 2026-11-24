@@ -8,6 +8,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../premium/premium_page.dart';
 import '../settings/feedback_page.dart';
@@ -95,10 +96,12 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
     super.initState();
     _scroll.addListener(_syncTab);
     _drawThumbs();
+    IosAnalytics.activate('templates');
   }
 
   @override
   void dispose() {
+    IosAnalytics.left('templates');
     _tabs.dispose();
     _scroll.dispose();
     super.dispose();
@@ -151,7 +154,7 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
     final cell = (MediaQuery.sizeOf(context).width - 16) / 2;
     final cellHeight = (cell - 12) * 842 / 595 + 12;
     return Scaffold(
-      backgroundColor: nc.surface,
+      backgroundColor: nc.bgScreen,
       appBar: NativeTopBar(title: s.t('selectTemplate')),
       body: Column(
         children: [
@@ -171,11 +174,23 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
               splashFactory: NoSplash.splashFactory,
               labelColor: nc.primary,
               unselectedLabelColor: nc.textSecondary,
-              labelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-              unselectedLabelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+              labelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              unselectedLabelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
               indicator: _TabIndicator(nc.primary),
-              onTap: (index) => _jumpTo(TplCategory.values[index]),
-              tabs: [for (final category in TplCategory.values) Tab(height: 44, text: tplCategoryLabel(s, category))],
+              onTap: (index) {
+                final category = TplCategory.values[index];
+                IosAnalytics.log('${category.name}_templates_tapped', {'category': category.name, 'screen': 'templates'});
+                _jumpTo(category);
+              },
+              tabs: [
+                for (final category in TplCategory.values)
+                  Tab(
+                    height: 44,
+                    child: Center(
+                      child: Text(tplCategoryLabel(s, category), textAlign: TextAlign.center),
+                    ),
+                  ),
+              ],
             ),
           ),
           Expanded(
@@ -223,7 +238,7 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
                                 Expanded(child: Text(s.t('tplNeedMore'), style: TextStyle(fontSize: 15, color: nc.textPrimary))),
                                 const NativeIcon(ND.icTplChat, size: 20),
                                 const SizedBox(width: 4),
-                                Text(s.t('tellUsShort'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.primary)),
+                                Text(s.t('tellUsShort'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.primary)),
                               ],
                             ),
                           ),
@@ -257,6 +272,7 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: () async {
+                IosAnalytics.log('${template.id}_selected', {'template': template.id, 'category': template.category.name});
                 await openTemplateEditor(context, template.id);
                 if (mounted) setState(() {});
               },

@@ -631,5 +631,22 @@
   "goToAppStore": "Go to App Store",
   "addToAppIconMenu": "Add to app icon menu",
   "appIconMenuAdded": "Added to the app icon menu. Touch and hold the app icon to open it.",
-  "onMyDevice": "On My {device}"
+  "onMyDevice": "On My {device}",
+  "dsContinueReading": "Continue reading",
+  "dsPageOf": "p. {page}/{count}",
+  "dsPercentRead": "{percent}% read",
+  "dsNewestFiles": "Your newest files, in one list",
+  "dsSwipeDeck": "Show the other card",
+  "dsNewFilesOne": "{count} new file",
+  "dsNewFilesMany": "{count} new files",
+  "dsCreateNew": "Create new",
+  "dsScanHeroSub": "Camera, crop and filters",
+  "dsTellUs": "Tell us",
+  "dsSave": "Save",
+  "dsSaved": "Saved",
+  "iapPriceLoading": "Loading price…",
+  "iapVerificationPending": "Payment received; verification pending. If Premium does not unlock in a moment, tap Restore.",
+  "iapPendingApproval": "Your purchase is waiting for approval. Premium unlocks as soon as it is approved.",
+  "iapStoreUnavailable": "The App Store can't be reached right now. Please try again later.",
+  "iapAutoRenewInfo": "Payment is charged to your Apple Account when you confirm the purchase. The subscription renews automatically at the same price unless auto-renew is turned off at least 24 hours before the end of the current period. Manage or cancel it in your Apple Account settings."
 }

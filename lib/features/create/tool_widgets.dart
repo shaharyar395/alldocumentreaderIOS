@@ -33,7 +33,7 @@ class ProgressPill {
             Center(
               child: Material(
                 color: nc.surface,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(20),
                 child: Container(
                   height: 56,
                   constraints: const BoxConstraints(minWidth: 210),
@@ -44,14 +44,14 @@ class ProgressPill {
                       SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2.2, color: nc.primary),
+                        child: CircularProgressIndicator(strokeWidth: 2.2, color: nc.accent),
                       ),
                       const SizedBox(width: 12),
                       ValueListenableBuilder<String>(
                         valueListenable: _text,
                         builder: (context, value, _) => Text(
                           value,
-                          style: TextStyle(color: nc.textPrimary, fontWeight: FontWeight.w700, fontSize: 15),
+                          style: TextStyle(color: nc.textPrimary, fontWeight: FontWeight.w500, fontSize: 15),
                         ),
                       ),
                     ],
@@ -102,7 +102,10 @@ class NativePillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final nc = NC.of(context);
     final enabled = onPressed != null;
-    final bg = gray ? nc.btnGray : (enabled ? (color ?? nc.primary) : const Color(0xFFB7CFF3));
+    // "Plum deck": primary pill (on_primary text), GrayPillButton = the soft accent_container pill;
+    // disabled = 40% primary
+    final base = color ?? nc.primary;
+    final bg = gray ? nc.accentContainer : (enabled ? base : base.withValues(alpha: 0.4));
     return SizedBox(
       height: height,
       width: width,
@@ -111,8 +114,8 @@ class NativePillButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
-          splashColor: gray ? const Color(0x1F000000) : const Color(0x33FFFFFF),
-          highlightColor: gray ? const Color(0x1F000000) : const Color(0x1FFFFFFF),
+          splashColor: gray ? nc.rowPressed : const Color(0x33FFFFFF),
+          highlightColor: gray ? nc.rowPressed : const Color(0x1FFFFFFF),
           onTap: onPressed,
           child: Center(
             child: Padding(
@@ -121,7 +124,7 @@ class NativePillButton extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700, color: gray ? nc.textPrimary : Colors.white),
+                style: TextStyle(fontSize: fontSize > 15 ? 15 : fontSize, fontWeight: FontWeight.w500, color: gray ? nc.textPrimary : (color == null ? nc.onPrimary : Colors.white)),
               ),
             ),
           ),
@@ -192,7 +195,7 @@ class NativeTopBar extends StatelessWidget implements PreferredSizeWidget {
     final nc = NC.of(context);
     return AppBar(
       toolbarHeight: 56,
-      backgroundColor: color ?? nc.surface,
+      backgroundColor: color ?? nc.bgScreen,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -200,16 +203,16 @@ class NativeTopBar extends StatelessWidget implements PreferredSizeWidget {
       titleSpacing: 0,
       title: Row(
         children: [
-          const SizedBox(width: 4),
-          NativeIconButton(ND.icBack, tint: nc.textPrimary, onPressed: onBack ?? () => Navigator.maybePop(context)),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
+          DsTopBack(onTap: onBack ?? () => Navigator.maybePop(context)),
+          const SizedBox(width: 6),
           Expanded(
             child: titleWidget ??
                 Text(
                   title ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary),
                 ),
           ),
           ...actions,
@@ -391,7 +394,7 @@ class NativeBottomAction extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
                   ),
                 ),
               ),
@@ -426,7 +429,7 @@ Future<bool> confirmSheet(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+              Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary)),
               const SizedBox(height: 10),
               Text(message, textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: nc.textPrimary)),
               const SizedBox(height: 20),
@@ -493,7 +496,7 @@ Future<String?> _askSheet(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                  child: Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary)),
                 ),
                 const SizedBox(height: 16),
                 Container(
@@ -695,7 +698,7 @@ class _TextEntryPageState extends State<_TextEntryPage> {
                     alignment: Alignment.center,
                     child: Text(
                       s.t('clearText'),
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),

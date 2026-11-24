@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 import '../../app_scope.dart';
 import '../../l10n/s.dart';
+import '../../services/apple_billing.dart';
 import '../../services/billing_service.dart';
+import '../../services/ios_analytics.dart';
 
 /// Plan prices for the paywall, from the store — or the Android app's fallback texts when the
 /// store returns nothing (debug builds, store not reachable).
@@ -58,7 +60,7 @@ class PlanPrices {
 
 /// Opens the store's payment sheet for the yearly / monthly plan. Returns true when Premium is
 /// on afterwards. Debug builds without a store offer the sandbox unlock (as before).
-Future<bool> buyPremium(BuildContext context, {required bool yearly}) async {
+Future<bool> buyPremium(BuildContext context, {required bool yearly, String screen = 'premium'}) async {
   final s = S.of(context);
   final scope = AppScope.of(context);
   final billing = scope.billing;
@@ -94,6 +96,22 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly}) async {
   // the store's payment sheet is not "leaving the app": no Welcome back after it
   scope.guard.arm(scope.settings);
   final outcome = await billing.buy(plan);
+  final planName = yearly ? 'yearly' : 'monthly';
+  final logged = switch (outcome) {
+    PurchaseOutcome.success => 'success',
+    PurchaseOutcome.cancelled => 'canceled',
+    PurchaseOutcome.pending || PurchaseOutcome.verifying => 'pending',
+    PurchaseOutcome.failed || PurchaseOutcome.unavailable => 'failed',
+  };
+  IosAnalytics.purchaseFinished(plan: planName, screen: screen, outcome: logged, reason: AppleBilling.lastError);
+  if (outcome == PurchaseOutcome.success) {
+    await scope.settings.setStorePremium(
+      entitled: true,
+      expiryMs: scope.settings.premiumExpiryMs,
+      plan: planName,
+    );
+    await IosAnalytics.bindUser(scope.settings);
+  }
   return outcome == PurchaseOutcome.success || scope.settings.premium;
 }
 

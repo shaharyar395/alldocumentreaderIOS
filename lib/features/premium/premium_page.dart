@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,6 +8,7 @@ import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../settings/app_links.dart';
 import '../settings/native_bars.dart';
@@ -64,7 +66,9 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     if (_started) return;
     _started = true;
     _premiumAtStart = AppScope.of(context).settings.premium;
-    _ready = !_premiumAtStart;
+    // "Get Ready for Your 7-Day Free Trial": on iOS only when App Store Connect really offers this
+    // Apple Account a 7-day free trial (never promise a trial that is not there)
+    _ready = !_premiumAtStart && (!Platform.isIOS || AppScope.of(context).billing.yearlyTrialDays == 7);
     if (_ready) {
       _readyTimer = Timer(const Duration(milliseconds: _readyMs), () {
         if (!mounted) return;
@@ -137,7 +141,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     final top = MediaQuery.paddingOf(context).top;
     return NativeLightStatusBar(
       child: Scaffold(
-        backgroundColor: const Color(0xFF16171C),
+        backgroundColor: const Color(0xFF1F2933),
         body: Stack(
           children: [
             // bg_paywall
@@ -147,15 +151,15 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xFF16171C), Color(0xFF14152E), Color(0xFF0E0F1E)],
+                    colors: [Color(0xFF1F2933), Color(0xFF0B1F1E)],
                   ),
                 ),
               ),
             ),
             Column(
               children: [
-                // status bar strip (#FF1A1B20 like Theme.DocReader.Premium)
-                Container(height: top, color: const Color(0xFF1A1B20)),
+                // status bar strip (#FF1F2933 like Theme.DocReader.Premium)
+                Container(height: top, color: const Color(0xFF1F2933)),
                 Expanded(
                   child: Stack(
                     children: [
@@ -172,7 +176,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: [Color(0x00111229), Color(0xFF111229)],
+                                colors: [Color(0x000F2A28), Color(0xFF0F2A28)],
                               ),
                             ),
                           ),
@@ -236,7 +240,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
               child: Stack(
                 children: [
                   Positioned(left: 0, right: 0, top: 0, height: 200, child: _hero(s)),
-                  // bg_paywall_body (marginTop -16dp, 22dp top corners)
+                  // bg_paywall_body (marginTop -16dp): #103534 with 28 dp top corners
                   const Positioned(
                     left: 0,
                     right: 0,
@@ -244,12 +248,8 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                     bottom: 0,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFF2B2F7A), Color(0xFF1C1D4C), Color(0xFF111229)],
-                        ),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                        color: Color(0xFF103534),
                       ),
                     ),
                   ),
@@ -287,9 +287,14 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
         if (v.abs() < 50) return;
         _goTo(v < 0 ? _slide + 1 : _slide - 1, forward: v < 0);
       },
+      // bg_paywall_hero: #14706A → #1F2933 (315°) with a soft teal glow at the end
       child: DecoratedBox(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Color(0xFF1A1B20), Color(0xFF2A2C33), Color(0xFF15161A)]),
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [Color(0xFF14706A), Color(0xFF1F2933)],
+          ),
         ),
         child: ClipRect(
           child: LayoutBuilder(
@@ -316,19 +321,20 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                             child: _HeroSlide(title: slides[incoming].$1, art: slides[incoming].$2),
                           ),
                         ),
-                      // dots: bottom|start, marginStart 18dp, marginBottom 30dp (bg_dot_paywall)
+                      // dots: bottom|start, marginStart 18dp, marginBottom 30dp (bg_dot_paywall:
+                      // #8FD6CB, the current one 14 dp wide and opaque, the others 6 dp at 35%)
                       PositionedDirectional(
-                        start: 18,
+                        start: 15,
                         bottom: 30,
                         child: Row(
                           children: [
                             for (var i = 0; i < _slideCount; i++)
                               Container(
-                                width: i == (incoming ?? _slide) ? 14 : 4,
-                                height: 4,
-                                margin: const EdgeInsetsDirectional.only(end: 5),
+                                width: i == (incoming ?? _slide) ? 14 : 6,
+                                height: 6,
+                                margin: const EdgeInsets.symmetric(horizontal: 3),
                                 decoration: BoxDecoration(
-                                  color: i == (incoming ?? _slide) ? Colors.white : const Color(0x66FFFFFF),
+                                  color: i == (incoming ?? _slide) ? const Color(0xFF8FD6CB) : const Color(0x598FD6CB),
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                               ),
@@ -349,13 +355,13 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   // ------------------------------------------------------------------ body
 
   Widget _body(S s, bool premium) {
+    // PremiumActivity.setupFeatures ("Plum deck"): the same five benefits and glyphs
     const features = [
-      (ND.icQAds, 'featAdFree'),
-      (ND.icQEdit, 'featEditSign'),
+      (ND.icStSubscriptions, 'featAdFree'),
+      (ND.icStFeedback, 'featEditSign'),
       (ND.icStTerms, 'featConvert'),
       (ND.icStWidget, 'featTemplates'),
       (ND.icPages, 'featPages'),
-      (ND.icFeatMerge, 'featMerge'),
     ];
     const reviews = [
       ('review1Title', 'review1Name', 'review1Text'),
@@ -369,7 +375,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
           child: PaywallGradientText(
             s.t('getPremium'),
             textAlign: TextAlign.center,
-            colors: const [Color(0xFF6FA8FF), Color(0xFFB18CFF)],
+            colors: const [Color(0xFFD5EFEB), Color(0xFF0D8A7F)],
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
           ),
         ),
@@ -393,12 +399,12 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 child: Column(
                   children: [
-                    Text(s.t('premiumTrustedTop'), style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 9)),
+                    Text(s.t('premiumTrustedTop'), style: const TextStyle(color: Color(0xFFCCE7E3), fontSize: 9)),
                     Text(
                       s.t('premiumTrustedCount'),
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
                     ),
-                    Text(s.t('premiumTrustedBottom'), style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 9)),
+                    Text(s.t('premiumTrustedBottom'), style: const TextStyle(color: Color(0xFFCCE7E3), fontSize: 9)),
                   ],
                 ),
               ),
@@ -406,28 +412,42 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
             ],
           ),
         ),
-        // benefits: 38dp rows, white 18dp icon, 14sp text, ic_check_blue
+        // benefits: a 32 dp ds_prem_ring with the 17 dp glyph in #8FD6CB, 14 sp white text,
+        // ic_check_blue (20 dp); 10 dp apart; they rise in one after another
         Padding(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
           child: Column(
             children: [
-              for (final f in features)
-                SizedBox(
-                  height: 38,
-                  child: Row(
-                    children: [
-                      NativeIcon(f.$1, size: 18, tint: Colors.white),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          s.t(f.$2),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+              for (var i = 0; i < features.length; i++)
+                _RiseIn(
+                  delay: Duration(milliseconds: (_ready ? _readyMs + 100 : 120) + 40 * i),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: const Color(0x1FFFFFFF),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFF8FD6CB), width: 1.5),
+                          ),
+                          child: NativeIcon(features[i].$1, size: 17, tint: const Color(0xFF8FD6CB)),
                         ),
-                      ),
-                      const NativeIcon(ND.icCheckBlue, size: 18),
-                    ],
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            s.t(features[i].$2),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        ),
+                        const NativeIcon(ND.icCheckBlue, size: 20),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -444,7 +464,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
               Flexible(
                 child: PaywallGradientText(
                   s.t('userReviews'),
-                  colors: const [Color(0xFF5B8CFF), Color(0xFFA9BCFF)],
+                  colors: const [Color(0xFF8FD6CB), Color(0xFF0D8A7F)],
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -459,14 +479,14 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     );
   }
 
-  /// bg_review_card: #14FFFFFF, 1dp #1FFFFFFF stroke, 14dp corners; faint quote top end.
+  /// bg_review_card: #14FFFFFF, 1 dp #1F8FD6CB stroke, 18 dp corners; faint quote top end.
   Widget _reviewCard(String title, String name, String text) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: const Color(0x14FFFFFF),
-        border: Border.all(color: const Color(0x1FFFFFFF)),
-        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0x1F8FD6CB)),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Stack(
         children: [
@@ -487,12 +507,12 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                       ),
                     const SizedBox(width: 5),
                     Flexible(
-                      child: Text(name, style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 12)),
+                      child: Text(name, style: const TextStyle(color: Color(0xFFCCE7E3), fontSize: 12)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(text, style: const TextStyle(color: Color(0x99FFFFFF), fontSize: 12.5, height: 1.5)),
+                Text(text, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12.5, height: 1.5)),
               ],
             ),
           ),
@@ -506,7 +526,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   Widget _bottomPanel(BuildContext context, S s, PlanPrices prices, bool premium, String continueLabel) {
     final save = prices.savePercent;
     return ColoredBox(
-      color: const Color(0xFF111229),
+      color: const Color(0xFF0F2A28),
       child: SafeArea(
         top: false,
         child: Padding(
@@ -529,7 +549,10 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                           : s.t('planPerDay', {'price': prices.yearlyPerDay}),
                       price: s.t('planPriceYear', {'price': prices.yearly}),
                       selected: _yearly,
-                      onTap: () => setState(() => _yearly = true),
+                      onTap: () {
+                        IosAnalytics.planSelected('yearly', 'premium');
+                        setState(() => _yearly = true);
+                      },
                     ),
                   ),
                   if (save != null)
@@ -540,14 +563,10 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                         height: 20,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         alignment: Alignment.center,
+                        // bg_save_pink ("Plum deck"): the action teal, 10 dp corners
                         decoration: const BoxDecoration(
-                          gradient: LinearGradient(colors: [Color(0xFFFF3B6B), Color(0xFFD03BFF)]),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            topRight: Radius.circular(8),
-                            bottomLeft: Radius.circular(2),
-                            bottomRight: Radius.circular(8),
-                          ),
+                          color: Color(0xFF0D8A7F),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                         child: Text(
                           s.t('planSavePercent', {'percent': '$save'}),
@@ -555,7 +574,6 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                             color: Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ),
@@ -568,12 +586,15 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                 subtitle: s.t('planPerDay', {'price': prices.monthlyPerDay}),
                 price: s.t('planPriceMonth', {'price': prices.monthly}),
                 selected: !_yearly,
-                onTap: () => setState(() => _yearly = false),
+                onTap: () {
+                  IosAnalytics.planSelected('monthly', 'premium');
+                  setState(() => _yearly = false);
+                },
               ),
               const SizedBox(height: 16),
               PaywallContinueButton(
                 label: continueLabel,
-                colors: const [Color(0xFF3E5BFF), Color(0xFF7C3FF2)],
+                colors: const [Color(0xFF14A394), Color(0xFF0D8A7F)],
                 busy: _busy,
                 arrow: !premium,
                 onTap: _busy ? null : _continue,
@@ -583,8 +604,17 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                 Text(
                   s.t('cancelAnytime'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0x99FFFFFF), fontSize: 13),
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                 ),
+                // App Store auto-renewable subscription information (App Review 3.1.2)
+                if (Platform.isIOS) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    s.t('iapAutoRenewInfo'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5, height: 1.35),
+                  ),
+                ],
               ],
               const SizedBox(height: 6),
               Row(
@@ -622,10 +652,10 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Color(0x80FFFFFF),
+              color: Color(0xFF94A3B8),
               fontSize: 11,
               decoration: TextDecoration.underline,
-              decorationColor: Color(0x80FFFFFF),
+              decorationColor: Color(0xFF94A3B8),
             ),
           ),
         ),
@@ -633,7 +663,8 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     );
   }
 
-  /// bg_paywall_plan: #232559, selected #26296A with a 1.5dp #8C8FFF stroke; 12dp corners, 58dp.
+  /// bg_paywall_plan ("Plum deck"): #14FFFFFF with a 1 dp #33FFFFFF hairline; chosen = #268FD6CB
+  /// with a 2 dp #8FD6CB outline; 18 dp corners, 62 dp.
   Widget _plan({
     required String title,
     required String subtitle,
@@ -642,18 +673,20 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     required VoidCallback onTap,
   }) {
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-      side: selected ? const BorderSide(color: Color(0xFF8C8FFF), width: 1.5) : BorderSide.none,
+      borderRadius: BorderRadius.circular(18),
+      side: selected
+          ? const BorderSide(color: Color(0xFF8FD6CB), width: 2)
+          : const BorderSide(color: Color(0x33FFFFFF), width: 1),
     );
     return Material(
-      color: selected ? const Color(0xFF26296A) : const Color(0xFF232559),
+      color: selected ? const Color(0x268FD6CB) : const Color(0x14FFFFFF),
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         customBorder: shape,
         child: SizedBox(
-          height: 58,
+          height: 62,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
@@ -667,20 +700,20 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Color(0x99FFFFFF), fontSize: 11),
+                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(price, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                Text(price, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
               ],
             ),
           ),
@@ -699,7 +732,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
       return;
     }
     setState(() => _busy = true);
-    final ok = await buyPremium(context, yearly: _yearly);
+    final ok = await buyPremium(context, yearly: _yearly, screen: 'premium');
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) {
@@ -727,8 +760,10 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
 
   Future<void> _restore() async {
     final s = S.of(context);
+    IosAnalytics.log('restore_tap', {'screen': 'premium'});
     setState(() => _busy = true);
     final ok = await AppScope.of(context).billing.restore();
+    IosAnalytics.log(ok ? 'restore_succeeded' : 'restore_failed', {'screen': 'premium', 'result': ok ? 'success' : 'failed'});
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) {
@@ -774,7 +809,7 @@ class _HeroSlide extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 21,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
                 shadows: [Shadow(color: Color(0x99000000), blurRadius: 6)],
               ),
             ),
@@ -844,7 +879,7 @@ class _ReadyViewState extends State<_ReadyView> with TickerProviderStateMixin {
         child: Container(
           width: size,
           height: size,
-          decoration: const BoxDecoration(color: Color(0xCCB9C4FF), shape: BoxShape.circle),
+          decoration: const BoxDecoration(color: Color(0xCC8FD6CB), shape: BoxShape.circle),
         ),
       ),
     );
@@ -865,7 +900,7 @@ class _ReadyViewState extends State<_ReadyView> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final s = S.of(context);
     return ColoredBox(
-      color: const Color(0xFF16171C),
+      color: const Color(0xFF103534),
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 40),
@@ -892,7 +927,7 @@ class _ReadyViewState extends State<_ReadyView> with TickerProviderStateMixin {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
-                                colors: [Color(0x66FF5A3C), Color(0x33FF5A3C), Color(0x00FF5A3C)],
+                                colors: [Color(0x590D8A7F), Color(0x268FD6CB), Color(0x008FD6CB)],
                               ),
                             ),
                           ),
@@ -906,9 +941,9 @@ class _ReadyViewState extends State<_ReadyView> with TickerProviderStateMixin {
                           decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [Color(0xFFFF3D3D), Color(0xFFFF6A3D), Color(0xFFFFC56E)],
+                              begin: Alignment.bottomLeft,
+                              end: Alignment.topRight,
+                              colors: [Color(0xFF8FD6CB), Color(0xFF0D8A7F)],
                             ),
                             boxShadow: [BoxShadow(color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 3))],
                           ),
@@ -932,8 +967,8 @@ class _ReadyViewState extends State<_ReadyView> with TickerProviderStateMixin {
                       PaywallGradientText(
                         s.t('readyTop'),
                         textAlign: TextAlign.center,
-                        colors: const [Color(0xFFFF5A3C), Color(0xFFFFB259)],
-                        style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w700, fontStyle: FontStyle.italic),
+                        colors: const [Color(0xFFD5EFEB), Color(0xFF8FD6CB)],
+                        style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
                       ),
                     ),
                     _line(
@@ -941,8 +976,8 @@ class _ReadyViewState extends State<_ReadyView> with TickerProviderStateMixin {
                       PaywallGradientText(
                         s.t('readyBottom'),
                         textAlign: TextAlign.center,
-                        colors: const [Color(0xFFFF4B3A), Color(0xFFFFC56E)],
-                        style: const TextStyle(fontSize: 31, fontWeight: FontWeight.w700, fontStyle: FontStyle.italic),
+                        colors: const [Color(0xFF8FD6CB), Color(0xFF0D8A7F)],
+                        style: const TextStyle(fontSize: 31, fontWeight: FontWeight.w500, fontStyle: FontStyle.italic),
                       ),
                     ),
                   ],
@@ -966,5 +1001,26 @@ class _Overshoot extends Curve {
   double transformInternal(double t) {
     final x = t - 1;
     return x * x * ((tension + 1) * x + tension) + 1;
+  }
+}
+
+/// Slides up 12 dp and fades in after [delay] (the benefit rows of PremiumActivity).
+class _RiseIn extends StatelessWidget {
+  const _RiseIn({required this.delay, required this.child});
+
+  final Duration delay;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
+    final total = delay.inMilliseconds + 260;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: Duration(milliseconds: total),
+      curve: Interval(delay.inMilliseconds / total, 1, curve: const Cubic(0.4, 0, 0.2, 1)),
+      builder: (context, v, child) => Opacity(opacity: v, child: Transform.translate(offset: Offset(0, 12 * (1 - v)), child: child)),
+      child: child,
+    );
   }
 }

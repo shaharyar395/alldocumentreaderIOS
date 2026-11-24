@@ -56,7 +56,7 @@ JSON files must be UTF-8 without a BOM.
 
 Monetization
 Tools are free. Only ads and the crowned templates need Premium.
-Product ids: premium_yearly (7-day trial) and premium_monthly. StoreKit 2 and Play Billing.
+Product ids: iOS yourdocs_ios_premium_yearly / yourdocs_ios_premium_monthly (App Store, AppleProductIds); Android yourdocs_premium_yearly / yourdocs_premium_monthly (Google Play, ProductIds). Never mixed.
 Debug unlock only in kDebugMode when the store has no product. Do not remove that unless asked.
 Do NOT invent production AdMob or IAP ids.
 Ads use Google TEST unit ids unless the user supplies real ones via --dart-define or the empty local* overrides in AdUnits / ProductIds.
@@ -318,3 +318,53 @@ Claude — iOS parity round with the native app (Nov 2026)
   (assets/fonts) for Office/TXT → PDF on iOS (Thai, Indic, CJK still unsupported there).
 - Open item: App Store id (AppLinks.appStoreId).
 - iOS Firebase: ios/Runner/GoogleService-Info.plist (documents-reader-your-docsera). Analytics collection is turned on in the app even though the downloaded plist had it off. Adjust app token namo63wquby8. Events: ad_impression b0hkyj, ad_revenue_adjust 61z020, start_trial wzmgbk. iOS only.
+
+Claude — "Plum deck" layout + "Deep teal" colours (Nov 2026, from Android 1.0.39)
+- Resources: tool/gen_native.py now reads every res/values*/colors*.xml (colors_ds_*.xml of the redesign) and
+  was re-run against Android 1.0.39 (/home/claude/AllDocumentReader → YourDocs-android): lib/native/* hold the
+  new colours (light + dark), outline icons and shapes. Poppins (300/400/500/700, OFL: assets/fonts/Poppins-OFL.txt)
+  is the app font (pubspec fonts + ThemeData.fontFamily). Theme: Deep teal, 24 dp dialogs / sheets, 48 dp pills.
+- Shared pieces (widgets/chrome.dart): DsTopBack (accent_container circle), DsTopAction / DsCircleButton (40 dp
+  circles, press scale), DsTextTabs (accent pill under the tab), DsSectionLabel, kNavBarClearance (92 dp),
+  dsScreenTitle / dsTopBarTitle. Both NativeTopBar classes, BarIconButton, NativeSearchBar, NativeTabStrip (pill
+  tabs), NativeSelectBar (floating navbar_bg pill), pill buttons and NativeBackButton use the new look.
+- Shell: floating navbar_bg pill bar (selected tab twice as wide with the sliding navbar_pill + label) and the
+  accent + (Create sheet) at its end; the Discover tip points at it. Home: title + crown/search circles, the card
+  deck (HomeDeck: Continue reading with page + progress / Recently added with +N, drag sideways to switch, dots),
+  outlined type circles, Recent / Bookmarks text tabs, file rows as rounded cards.
+- FileRow: 72 dp card (16 dp in, 4 dp apart); with onDelete (home, file lists, search) dragging toward the start
+  reveals Bookmark + Delete (Delete asks first); one row open at a time, scrolling closes it.
+- Continue reading: data/reading_progress.dart (SharedPreferences "rp:<ref>" = page|count|time, "rp_last"; keyed
+  by DocEntry.relativePath, kept on rename, dropped on delete, max 100). ReaderPage(startPage:) opens there once
+  the page exists; the reader saves the page (600 ms after it changes, on leaving the app and on close).
+- Reader: page-coloured bar (back circle, convert / Pages / search / ⋮ circles), ds_d_canvas pages, page chip,
+  accent Edit button, floating navbar_bg tool bar Mode / Rotate / Invert / Share / Save (Save = bookmark).
+- Tools: hero "Scan to PDF" card, Convert & Create as outlined circles in the type colours, Edit & Manage and
+  Others as card lists, accent_container feedback card. Settings: stacked "Remove ads" card, card groups of rows
+  with accent_container icon circles, choice sheet with rounded options. + sheet: outlined coloured circles.
+  ⋮ sheet: file card + action list (Delete in red). Premium / Start trial: the dark teal paywall of Android 1.0.36
+  (5 benefits in rings, teal Continue, plan cards). Onboarding: light page with a glow, mock screens on a fanned
+  card stack, page 1 shows the new home. Splash: logo on a small fanned deck. Language: page bar + card rows.
+- iOS widgets (ReaderWidget.swift) and the launch background use the new colours; LaunchBackground = page colour.
+- Analytics: services/app_analytics.dart only forwards logEvent(...) (Android event names: tool / settings / create /
+  viewer / continue reading) to IosAnalytics (Firebase). Screens use IosAnalytics.activate / left; app_left in app.dart.
+- Texts: tool/new_keys_plum_deck.json (pulled from the Android strings in all 23 languages, merged).
+- Not needed on iOS: Android 1.0.37's "reinstall shows onboarding again" (iOS deletes UserDefaults on uninstall).
+
+Claude — iOS = Android design + Android 1.0.75 parity (24 Nov 2026, on Cursor's AlldocumentreaderIOS)
+- Base: Cursor's 24 Nov iOS project. Merged in Claude's "Plum deck" redesign (section above). Cursor's StoreKit 2
+  payment code is untouched: AppDelegate.swift, apple_billing.dart, apple_entitlement.dart, billing_service.dart,
+  purchase_flow.dart, app_settings.dart, platform_bridge.dart, the premium / start-trial _continue/_buy/_restore
+  methods, Runner.entitlements and GoogleService-Info.plist are byte-identical to Cursor's.
+- Analytics: one pipeline (IosAnalytics → Firebase). services/app_analytics.dart only forwards logEvent(...).
+- Shell (activity_main.xml 1.0.75): page, then the banner, then the pill tab bar (16 dp sides, 12 dp bottom); the bar
+  no longer covers content (kNavBarClearance 16). Discover tip tail 6 dp above the +.
+- Home header: SliverFloatingHeader + floatHeaderSlivers (scroll|enterAlways|snap); Cursor's leftover-fling stop
+  now holds the NestedScrollView's own positions (no separate list controller).
+- PDF edit main tools = the reader's floating bar (60 dp, navbar_bg, 16/16/12). Scan filters = item_scan_filter.xml
+  1.0.75 (58 dp thumb, 14 dp corners, accent ring + round accent check, 76 dp min width).
+- services/ad_remote_config.dart: Remote Config enable_ads / enable_test_ads / banner_ads / native_ads /
+  interstitial_ads / file_type_ad_cooldown_sec (Android defaults), applied in AdService + BannerSlot.
+- services/push_notifications.dart: FCM, topic all_users, permission + received / opened events (Android params).
+  Needs Xcode Push Notifications capability + APNs key in Firebase; without them nothing happens.
+- New packages: firebase_remote_config ^5.4.0, firebase_messaging ^15.2.0 → run flutter pub get + pod install.

@@ -356,7 +356,7 @@ void _drawSelection(Canvas canvas, _Item item, double w) {
     canvas.drawRect(
       rect,
       Paint()
-        ..color = const Color(0xFF1E6FE6)
+        ..color = const Color(0xFF0F766E)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2,
     );
@@ -1466,7 +1466,7 @@ class _MarkupPageState extends State<MarkupPage> {
     _openPanel(_Panel.none);
     _loadLines();
     showTopPill(context, s.t('savedSuccessfully'), icon: ND.icCheckCircleOutline, topMargin: 60, decoration: NS.bgTopPill(context));
-    await scope.ads.showInterstitial(unit: 2);
+    await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
   }
 
   /// Everything on the pages as PDF marks (page fractions; covers first on each page, like
@@ -1653,7 +1653,7 @@ class _MarkupPageState extends State<MarkupPage> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         body: SafeArea(
           bottom: false,
           child: Column(
@@ -1689,7 +1689,8 @@ class _MarkupPageState extends State<MarkupPage> {
               ),
               Expanded(child: ColoredBox(color: Colors.black, child: _pages(nc))),
               Material(
-                color: nc.surface,
+                // the main tools float on the page colour (1.0.75); the panels keep their sheet
+                color: _panel == _Panel.none ? nc.bgScreen : nc.surface,
                 child: SafeArea(top: false, child: _bottom(s, nc)),
               ),
             ],
@@ -1702,7 +1703,7 @@ class _MarkupPageState extends State<MarkupPage> {
   /// btnDone: 34dp bg_done_btn, min 64dp, a white spinner while saving.
   Widget _doneButton(S s) {
     return Material(
-      color: const Color(0xFF111317),
+      color: const Color(0xFF0E1414),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -1714,7 +1715,7 @@ class _MarkupPageState extends State<MarkupPage> {
           alignment: Alignment.center,
           child: _saving
               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : Text(s.t('done'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+              : Text(s.t('done'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white)),
         ),
       ),
     );
@@ -1801,23 +1802,31 @@ class _MarkupPageState extends State<MarkupPage> {
     }
   }
 
-  /// mainTools: 62dp, item_bottom_tool × 5 (Edit text, Add text, Add image, Annotate, Sign).
+  /// mainTools (activity_pdf_edit.xml, Android 1.0.75): the same floating bar as the reader
+  /// (ds_view_bar: navbar_bg, 28 dp corners, 60 dp, elevation 8, 16 dp from the sides and 12 dp
+  /// from the bottom) with item_bottom_tool × 5 (Edit text, Add text, Add image, Annotate, Sign):
+  /// 22 dp outline icon + 11 sp label in ds_view_tool_tint.
   Widget _mainTools(S s, NC nc) {
     Widget tool(NDrawable icon, String label, VoidCallback onTap, {double opacity = 1}) {
       return Expanded(
-        child: Material(
-          type: MaterialType.transparency,
+        child: Semantics(
+          button: true,
+          label: label,
+          excludeSemantics: true,
           child: InkResponse(
-            radius: 36,
             onTap: _saving ? null : onTap,
+            containedInkWell: false,
+            radius: 26,
+            splashColor: const Color(0x338FD6CB),
+            highlightColor: Colors.transparent,
             child: Opacity(
               opacity: opacity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  NativeIcon(icon, size: 22, tint: nc.textPrimary),
-                  const SizedBox(height: 3),
-                  Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: nc.textPrimary)),
+                  NativeIcon(icon, size: 22, tint: nc.navbarOff),
+                  const SizedBox(height: 2),
+                  Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: nc.navbarOff)),
                 ],
               ),
             ),
@@ -1826,16 +1835,28 @@ class _MarkupPageState extends State<MarkupPage> {
       );
     }
 
-    return SizedBox(
-      height: 62,
-      child: Row(
-        children: [
-          tool(ND.icEtEditText, s.t('editText'), _editTextTool, opacity: _linesLoaded && !_hasLines ? 0.4 : 1),
-          tool(ND.icEtAddText, s.t('addText'), () => _openPanel(_Panel.addText)),
-          tool(ND.icEtAddImage, s.t('addImage'), _addImage),
-          tool(ND.icEtAnnotate, s.t('annotate'), () => _openPanel(_Panel.annotate)),
-          tool(ND.icEtSign, s.t('sign'), () => _openPanel(_Panel.sign)),
-        ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Material(
+        color: nc.navbarBg,
+        elevation: 8,
+        shadowColor: const Color(0x55000000),
+        borderRadius: BorderRadius.circular(28),
+        child: SizedBox(
+          height: 60,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Row(
+              children: [
+                tool(ND.icEtEditText, s.t('editText'), _editTextTool, opacity: _linesLoaded && !_hasLines ? 0.4 : 1),
+                tool(ND.icEtAddText, s.t('addText'), () => _openPanel(_Panel.addText)),
+                tool(ND.icEtAddImage, s.t('addImage'), _addImage),
+                tool(ND.icEtAnnotate, s.t('annotate'), () => _openPanel(_Panel.annotate)),
+                tool(ND.icEtSign, s.t('sign'), () => _openPanel(_Panel.sign)),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -2099,7 +2120,7 @@ class _MarkupPageState extends State<MarkupPage> {
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            splashColor: const Color(0x1F1E6FE6),
+            splashColor: const Color(0x1F0F766E),
             onTap: _addSignature,
             child: SizedBox(width: width, height: width ?? 44, child: Center(child: child)),
           ),
@@ -2112,7 +2133,7 @@ class _MarkupPageState extends State<MarkupPage> {
           _backChevron(nc),
           Expanded(
             child: _signatures.isEmpty
-                ? addButton(child: Text(s.t('addSignature'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.primary)))
+                ? addButton(child: Text(s.t('addSignature'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.primary)))
                 : SizedBox(
                     height: 56,
                     child: ListView(
@@ -2121,7 +2142,7 @@ class _MarkupPageState extends State<MarkupPage> {
                         Center(
                           child: addButton(
                             width: 52,
-                            child: Text(s.t('addShort'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: nc.primary)),
+                            child: Text(s.t('addShort'), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: nc.primary)),
                           ),
                         ),
                         for (final sign in _signatures)
@@ -2257,9 +2278,9 @@ class _LayerPainter extends CustomPainter {
     final w = size.width;
     if (w <= 0) return;
     if (host._tool == _Tool.editText) {
-      final fill = Paint()..color = const Color(0x141E6FE6);
+      final fill = Paint()..color = const Color(0x140F766E);
       final outline = Paint()
-        ..color = const Color(0xFF1E6FE6)
+        ..color = const Color(0xFF0F766E)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.2;
       for (final line in host._linesOf(page)) {

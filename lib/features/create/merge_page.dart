@@ -91,7 +91,7 @@ class _MergePageState extends State<MergePage> {
       pill.dismiss();
       if (!mounted) return;
       if (entry == null) throw StateError('save');
-      await scope.ads.showInterstitial(unit: 2);
+      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -117,14 +117,14 @@ class _MergePageState extends State<MergePage> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         appBar: NativeTopBar(
           onBack: _back,
           titleWidget: Text(
             s.t('mergePdf'),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: nc.textPrimary),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: nc.textPrimary),
           ),
           actions: [
             NativeIconButton(ND.icFileAdd, tint: nc.textPrimary, tooltip: s.t('addFiles'), onPressed: _busy ? null : _add),
@@ -175,7 +175,7 @@ class _MergePageState extends State<MergePage> {
                                   file.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(

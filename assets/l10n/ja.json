@@ -631,5 +631,22 @@
   "goToAppStore": "App Store へ移動",
   "addToAppIconMenu": "アプリアイコンのメニューに追加",
   "appIconMenuAdded": "アプリアイコンのメニューに追加しました。アプリアイコンを長押しすると開けます。",
-  "onMyDevice": "この{device}内"
+  "onMyDevice": "この{device}内",
+  "dsContinueReading": "続きを読む",
+  "dsPageOf": "{page}/{count} ページ",
+  "dsPercentRead": "{percent}% 読了",
+  "dsNewestFiles": "最新のファイルをひとつのリストに",
+  "dsSwipeDeck": "もう一方のカードを表示",
+  "dsNewFilesOne": "新しいファイル {count} 件",
+  "dsNewFilesMany": "新しいファイル {count} 件",
+  "dsCreateNew": "新規作成",
+  "dsScanHeroSub": "カメラ・トリミング・フィルター",
+  "dsTellUs": "お知らせください",
+  "dsSave": "保存",
+  "dsSaved": "保存済み",
+  "iapPriceLoading": "価格を読み込み中…",
+  "iapVerificationPending": "お支払いを受け付けました。確認待ちです。しばらくしてもプレミアムが有効にならない場合は「復元」をタップしてください。",
+  "iapPendingApproval": "購入は承認待ちです。承認され次第、プレミアムが有効になります。",
+  "iapStoreUnavailable": "現在App Storeに接続できません。しばらくしてからもう一度お試しください。",
+  "iapAutoRenewInfo": "お支払いは購入の確定時にApple Accountに請求されます。現在の期間が終了する24時間前までに自動更新をオフにしない限り、サブスクリプションは同じ価格で自動的に更新されます。管理や解約はApple Accountの設定から行えます。"
 }

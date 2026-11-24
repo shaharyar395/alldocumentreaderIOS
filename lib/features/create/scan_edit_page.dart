@@ -11,6 +11,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/doc_scanner.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/image_ops.dart';
 import '../../widgets/chrome.dart';
 import 'image_pdf_page.dart';
@@ -38,10 +39,13 @@ String scanFilterLabel(S s, ScanFilter filter) {
 /// to remove a page, "< n/N >", hold to compare with the original, look filters with "Apply to
 /// all", Retake, Pages (add more), Rotate and Crop. Done → "Processing… (x%)" → Image to PDF list.
 class ScanEditPage extends StatefulWidget {
-  const ScanEditPage({super.key, required this.job, this.start = 0, this.fromList = false});
+  const ScanEditPage({super.key, required this.job, this.start = 0, this.fromList = false, this.imageToPdf = false});
 
   final ScanJob job;
   final int start;
+
+  /// Image to PDF editor. Scan to PDF leaves this false. Applied after the screen exists.
+  final bool imageToPdf;
 
   /// Opened from the Image to PDF list (returns true when pages changed).
   final bool fromList;
@@ -71,6 +75,24 @@ class _ScanEditPageState extends State<ScanEditPage> {
 
   ScanPage? get _current => _index >= 0 && _index < _pages.length ? _pages[_index] : null;
 
+  bool _modeReady = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_modeReady) return;
+    _modeReady = true;
+    widget.job.imageToPdf = widget.imageToPdf;
+    IosAnalytics.activate(widget.imageToPdf ? 'image_to_pdf_scan_edit' : 'scan_to_pdf');
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left(widget.imageToPdf ? 'image_to_pdf_scan_edit' : 'scan_to_pdf');
+    _pager.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -79,11 +101,6 @@ class _ScanEditPageState extends State<ScanEditPage> {
     _snapshot = [for (final page in _pages) page.copy()];
   }
 
-  @override
-  void dispose() {
-    _pager.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +113,7 @@ class _ScanEditPageState extends State<ScanEditPage> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         // native top bar: ← … [Done] (#111317 pill) or ✓ in crop mode
         appBar: NativeTopBar(
           onBack: _back,
@@ -645,7 +662,7 @@ class _FilterThumbsState extends State<_FilterThumbs> {
   List<Uint8List>? _thumbs;
   final ScrollController _scroll = ScrollController();
 
-  static const _itemWidth = 68.0;
+  static const _itemWidth = 76.0;
 
   @override
   void initState() {
@@ -669,8 +686,10 @@ class _FilterThumbsState extends State<_FilterThumbs> {
     _scroll.jumpTo(target.clamp(0.0, _scroll.position.maxScrollExtent));
   }
 
-  /// item_scan_filter.xml: 68dp wide, 56dp bg_filter_thumb (white; selected 2dp primary, else
-  /// 1dp #E1E4EA; 6dp) with 2dp padding, selected shade #4D1B2A4A + white ✓, label 12sp.
+  /// item_scan_filter.xml (Android 1.0.75): at least 76 dp wide (8 dp side padding), a 58 dp
+  /// bg_filter_thumb (surface, 14 dp corners; 2.5 dp accent ring when selected, else 1 dp divider)
+  /// whose picture is clipped 2.5 dp inside (bg_filter_clip, 11.5 dp); selected = #4D1F2933 shade
+  /// + the 24 dp round accent check (ds_tools_bg_check_on); label 12 sp primary / text_secondary.
   @override
   Widget build(BuildContext context) {
     final nc = NC.of(context);
@@ -688,24 +707,52 @@ class _FilterThumbsState extends State<_FilterThumbs> {
           behavior: HitTestBehavior.opaque,
           onTap: () => widget.onSelect(filter),
           child: Padding(
-            padding: const EdgeInsets.only(top: 2, bottom: 6),
+            padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
             child: Column(
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: on ? nc.primary : const Color(0xFFE1E4EA), width: on ? 2 : 1),
-                  ),
+                SizedBox(
+                  width: 58,
+                  height: 58,
                   child: Stack(
-                    fit: StackFit.expand,
+                    alignment: Alignment.center,
                     children: [
-                      if (thumbs != null) Image.memory(thumbs[index], fit: BoxFit.cover, gaplessPlayback: true),
-                      if (on) const ColoredBox(color: Color(0x4D1B2A4A)),
-                      if (on) const Center(child: NativeIcon(ND.icCheck, size: 20, tint: Colors.white)),
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: nc.surface,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: on ? nc.accent : nc.divider, width: on ? 2.5 : 1),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.5),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(11.5),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ColoredBox(color: nc.surface),
+                                if (thumbs != null) Image.memory(thumbs[index], fit: BoxFit.cover, gaplessPlayback: true),
+                                if (on) const ColoredBox(color: Color(0x4D1F2933)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (on)
+                        Container(
+                          width: 24,
+                          height: 24,
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: nc.accent,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: const NativeIcon(ND.dsToolsIcTick, size: 16),
+                        ),
                     ],
                   ),
                 ),
@@ -714,7 +761,8 @@ class _FilterThumbsState extends State<_FilterThumbs> {
                   widget.labelOf(filter),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, fontWeight: on ? FontWeight.w700 : FontWeight.w400, color: on ? nc.primary : nc.textSecondary),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, height: 1.1, color: on ? nc.primary : nc.textSecondary),
                 ),
               ],
             ),
@@ -756,7 +804,7 @@ class _CropEditorState extends State<CropEditor> {
   static const _pad = 22.0;
 
   /// CropView frame / handle blue.
-  static const _blue = Color(0xFF1E6FE6);
+  static const _blue = Color(0xFF0F766E);
 
   Rect _imageRect(Size size) {
     final aw = size.width - 2 * _pad;
@@ -964,7 +1012,7 @@ class _DoneButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: onPressed == null ? const Color(0xFFD9DCE1) : const Color(0xFF111317),
+      color: onPressed == null ? const Color(0xFFD9DCE1) : const Color(0xFF0E1414),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -974,7 +1022,7 @@ class _DoneButton extends StatelessWidget {
           height: 36,
           padding: const EdgeInsets.symmetric(horizontal: 18),
           alignment: Alignment.center,
-          child: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+          child: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white)),
         ),
       ),
     );

@@ -631,5 +631,22 @@
   "goToAppStore": "ไปที่ App Store",
   "addToAppIconMenu": "เพิ่มในเมนูไอคอนแอป",
   "appIconMenuAdded": "เพิ่มในเมนูไอคอนแอปแล้ว แตะไอคอนแอปค้างไว้เพื่อเปิด",
-  "onMyDevice": "บน {device} ของฉัน"
+  "onMyDevice": "บน {device} ของฉัน",
+  "dsContinueReading": "อ่านต่อ",
+  "dsPageOf": "หน้า {page}/{count}",
+  "dsPercentRead": "อ่านแล้ว {percent}%",
+  "dsNewestFiles": "ไฟล์ล่าสุดของคุณในรายการเดียว",
+  "dsSwipeDeck": "แสดงการ์ดอีกใบ",
+  "dsNewFilesOne": "ไฟล์ใหม่ {count} ไฟล์",
+  "dsNewFilesMany": "ไฟล์ใหม่ {count} ไฟล์",
+  "dsCreateNew": "สร้างใหม่",
+  "dsScanHeroSub": "กล้อง ครอบตัด และฟิลเตอร์",
+  "dsTellUs": "บอกเรา",
+  "dsSave": "บันทึก",
+  "dsSaved": "บันทึกแล้ว",
+  "iapPriceLoading": "กำลังโหลดราคา…",
+  "iapVerificationPending": "ได้รับการชำระเงินแล้ว กำลังรอการยืนยัน หาก Premium ยังไม่ปลดล็อกในอีกสักครู่ ให้แตะ “กู้คืน”",
+  "iapPendingApproval": "การซื้อของคุณกำลังรอการอนุมัติ Premium จะปลดล็อกทันทีที่ได้รับอนุมัติ",
+  "iapStoreUnavailable": "ไม่สามารถเชื่อมต่อ App Store ได้ในขณะนี้ โปรดลองอีกครั้งในภายหลัง",
+  "iapAutoRenewInfo": "ระบบจะเรียกเก็บเงินจากบัญชี Apple ของคุณเมื่อยืนยันการซื้อ การสมัครสมาชิกจะต่ออายุอัตโนมัติในราคาเดิม เว้นแต่จะปิดการต่ออายุอัตโนมัติอย่างน้อย 24 ชั่วโมงก่อนสิ้นสุดรอบปัจจุบัน คุณสามารถจัดการหรือยกเลิกได้ในการตั้งค่าบัญชี Apple"
 }

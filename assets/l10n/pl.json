@@ -631,5 +631,22 @@
   "goToAppStore": "Przejdź do App Store",
   "addToAppIconMenu": "Dodaj do menu ikony aplikacji",
   "appIconMenuAdded": "Dodano do menu ikony aplikacji. Dotknij i przytrzymaj ikonę aplikacji, aby otworzyć plik.",
-  "onMyDevice": "Na moim urządzeniu {device}"
+  "onMyDevice": "Na moim urządzeniu {device}",
+  "dsContinueReading": "Czytaj dalej",
+  "dsPageOf": "s. {page}/{count}",
+  "dsPercentRead": "Przeczytano {percent}%",
+  "dsNewestFiles": "Najnowsze pliki na jednej liście",
+  "dsSwipeDeck": "Pokaż drugą kartę",
+  "dsNewFilesOne": "{count} nowy plik",
+  "dsNewFilesMany": "{count} nowych plików",
+  "dsCreateNew": "Utwórz nowy",
+  "dsScanHeroSub": "Aparat, kadrowanie i filtry",
+  "dsTellUs": "Napisz do nas",
+  "dsSave": "Zapisz",
+  "dsSaved": "Zapisano",
+  "iapPriceLoading": "Wczytywanie ceny…",
+  "iapVerificationPending": "Płatność otrzymana; trwa weryfikacja. Jeśli Premium nie odblokuje się za chwilę, dotknij Przywróć.",
+  "iapPendingApproval": "Zakup czeka na zatwierdzenie. Premium odblokuje się zaraz po zatwierdzeniu.",
+  "iapStoreUnavailable": "App Store jest teraz niedostępny. Spróbuj ponownie później.",
+  "iapAutoRenewInfo": "Płatność zostanie pobrana z Twojego konta Apple po potwierdzeniu zakupu. Subskrypcja odnawia się automatycznie w tej samej cenie, chyba że automatyczne odnawianie zostanie wyłączone co najmniej 24 godziny przed końcem bieżącego okresu. Możesz nią zarządzać lub ją anulować w ustawieniach konta Apple."
 }

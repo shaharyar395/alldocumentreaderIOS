@@ -142,7 +142,7 @@ class _HelpfulSheetState extends State<_HelpfulSheet> with SingleTickerProviderS
               Text(
                 s.t('helpfulTitle', {'app': 'All Document Reader'}),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: c.textPrimary),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: c.textPrimary),
               ),
               const SizedBox(height: 28),
               Row(
@@ -172,12 +172,12 @@ class _HelpfulSheetState extends State<_HelpfulSheet> with SingleTickerProviderS
                         onPressed: () => Navigator.pop(context, 'yes'),
                         style: FilledButton.styleFrom(
                           backgroundColor: c.primary,
-                          foregroundColor: c.white,
+                          foregroundColor: c.onPrimary,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                         ),
-                        child: Text(s.t('helpfulYes'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        child: Text(s.t('helpfulYes'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                       ),
                     ),
                   ),
@@ -323,7 +323,7 @@ class _RateSheetState extends State<_RateSheet> with SingleTickerProviderStateMi
     final title = s.t('rateTitle');
     final part = s.t('rateTitleHighlight');
     final at = part.isEmpty ? -1 : title.indexOf(part);
-    final style = TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: c.textPrimary);
+    final style = TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: c.textPrimary);
     if (at < 0) return Text(title, textAlign: TextAlign.center, style: style);
     return Text.rich(
       TextSpan(
@@ -420,7 +420,7 @@ class _RateSheetState extends State<_RateSheet> with SingleTickerProviderStateMi
                     Flexible(
                       child: Text(
                         s.t('rateBest'),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFFFFA000)),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFFFFA000)),
                       ),
                     ),
                     Padding(
@@ -438,13 +438,13 @@ class _RateSheetState extends State<_RateSheet> with SingleTickerProviderStateMi
                   onPressed: _rating > 0 ? () => Navigator.pop(context, _rating) : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: c.primary,
-                    foregroundColor: c.white,
-                    disabledBackgroundColor: const Color(0xFFC3D7F7),
+                    foregroundColor: c.onPrimary,
+                    disabledBackgroundColor: const Color(0xFFCCE9E4),
                     disabledForegroundColor: c.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   ),
-                  child: Text(s.t('rate'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: Text(s.t('rate'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 ),
               ),
             ],

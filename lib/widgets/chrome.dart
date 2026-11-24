@@ -112,8 +112,9 @@ class _Toast extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final Color bg = warning ? const Color(0xFFE36B2C) : (dark ? const Color(0xFF3C4043) : const Color(0xFFF1F3F4));
-    final Color fg = warning ? Colors.white : (dark ? const Color(0xFFE8EAED) : const Color(0xFF202124));
+    final c = NC.of(context);
+    final Color bg = warning ? c.danger : (dark ? c.surfaceVariant : c.navbarBg);
+    final Color fg = warning ? Colors.white : (dark ? c.textPrimary : Colors.white);
     final media = MediaQuery.of(context);
     return Positioned(
       left: 24,
@@ -127,13 +128,13 @@ class _Toast extends StatelessWidget {
               color: bg,
               elevation: 2,
               shadowColor: Colors.black.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(24),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 child: Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: fg, fontSize: 14, height: 1.3, fontWeight: FontWeight.w400, decoration: TextDecoration.none),
+                  style: TextStyle(fontFamily: 'Poppins', color: fg, fontSize: 14, height: 1.3, fontWeight: FontWeight.w400, decoration: TextDecoration.none),
                 ),
               ),
             ),
@@ -202,7 +203,7 @@ void showTopPill(
                         message,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14, decoration: TextDecoration.none),
+                        style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14, decoration: TextDecoration.none),
                       ),
                     ),
                   ],
@@ -347,7 +348,7 @@ class SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
       child: Text(
         text,
-        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: NC.of(context).toolsSection),
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: NC.of(context).textSecondary),
       ),
     );
   }
@@ -404,6 +405,227 @@ class ToolTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ------------------------------------------------------------------ "Plum deck" pieces (1.0.35+)
+
+/// Space under the last list item (Android @dimen/nav_bar_clearance). Android 1.0.75: the tab bar
+/// sits under the page and the banner, not over the content, so only a small gap is left.
+const double kNavBarClearance = 16;
+
+/// TopBarBack: the 48 dp back button, a 40 dp accent_container circle with ic_back (text_primary).
+class DsTopBack extends StatelessWidget {
+  const DsTopBack({super.key, this.onTap, this.tint});
+
+  final VoidCallback? onTap;
+  final Color? tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    return DsCircleButton(
+      fill: c.accentContainer,
+      icon: ND.icBack,
+      tint: tint ?? c.textPrimary,
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      mirrorInRtl: true,
+      onTap: onTap ?? () => Navigator.of(context).maybePop(),
+    );
+  }
+}
+
+/// TopBarAction: a 48 dp target with a 40 dp surface circle and a hairline divider ring; the icon
+/// is tinted text_primary unless [tint] is given (pass [keepColors] for coloured art like the crown).
+class DsTopAction extends StatelessWidget {
+  const DsTopAction({super.key, required this.icon, required this.onTap, this.tint, this.keepColors = false, this.tooltip, this.iconPadding = 14});
+
+  final NDrawable icon;
+  final VoidCallback? onTap;
+  final Color? tint;
+  final bool keepColors;
+  final String? tooltip;
+  final double iconPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    return DsCircleButton(
+      fill: c.surface,
+      ring: c.divider,
+      icon: icon,
+      tint: keepColors ? null : (tint ?? c.textPrimary),
+      tooltip: tooltip,
+      onTap: onTap,
+      iconPadding: iconPadding,
+    );
+  }
+}
+
+/// A 48 dp touch target with a 40 dp circle ([fill], optional 1 dp [ring]) and a centred icon.
+/// Pressing scales it to 0.96 (ds_a_press_scale).
+class DsCircleButton extends StatefulWidget {
+  const DsCircleButton({
+    super.key,
+    required this.fill,
+    required this.icon,
+    required this.onTap,
+    this.ring,
+    this.tint,
+    this.tooltip,
+    this.size = 48,
+    this.circle = 40,
+    this.iconPadding = 14,
+    this.mirrorInRtl = false,
+  });
+
+  /// Back arrows point the reading direction in Arabic, Persian and Urdu.
+  final bool mirrorInRtl;
+  final Color fill;
+  final Color? ring;
+  final NDrawable icon;
+  final Color? tint;
+  final VoidCallback? onTap;
+  final String? tooltip;
+  final double size;
+  final double circle;
+  final double iconPadding;
+
+  @override
+  State<DsCircleButton> createState() => _DsCircleButtonState();
+}
+
+class _DsCircleButtonState extends State<DsCircleButton> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    final inset = (widget.size - widget.circle) / 2;
+    Widget button = Listener(
+      onPointerDown: (_) => setState(() => _down = true),
+      onPointerCancel: (_) => setState(() => _down = false),
+      onPointerUp: (_) => setState(() => _down = false),
+      child: AnimatedScale(
+        scale: _down ? 0.96 : 1,
+        duration: const Duration(milliseconds: 90),
+        child: SizedBox(
+          width: widget.size,
+          height: widget.size,
+          child: Padding(
+            padding: EdgeInsets.all(inset),
+            child: Material(
+              color: widget.fill,
+              shape: CircleBorder(side: widget.ring == null ? BorderSide.none : BorderSide(color: widget.ring!, width: 1)),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: widget.onTap,
+                splashColor: c.rowPressed,
+                highlightColor: c.rowPressed.withValues(alpha: 0.4),
+                child: Padding(
+                  padding: EdgeInsets.all(widget.iconPadding - inset),
+                  child: widget.mirrorInRtl && Directionality.of(context) == TextDirection.rtl
+                      ? Transform.flip(flipX: true, child: NativeIcon(widget.icon, tint: widget.tint))
+                      : NativeIcon(widget.icon, tint: widget.tint),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final tip = widget.tooltip;
+    if (tip != null) button = Tooltip(message: tip, child: button);
+    return Semantics(button: true, child: button);
+  }
+}
+
+/// ScreenTitle: 22 sp medium text_primary (the big title of the main tabs).
+TextStyle dsScreenTitle(BuildContext context) =>
+    TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: NC.of(context).textPrimary, height: 1.25);
+
+/// TopBarTitle: 18 sp medium text_primary.
+TextStyle dsTopBarTitle(BuildContext context) =>
+    TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: NC.of(context).textPrimary);
+
+/// Widget.DocReader.Tabs text tabs: 15 sp medium, text_primary when selected (text_secondary
+/// otherwise) over an 18 x 4 dp accent pill that slides between the tabs; 10 dp side padding,
+/// 48 dp high, no ripple.
+class DsTextTabs extends StatelessWidget {
+  const DsTextTabs({super.key, required this.labels, required this.index, required this.onSelect});
+
+  final List<String> labels;
+  final int index;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    return SizedBox(
+      height: 48,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < labels.length; i++)
+            Semantics(
+              selected: i == index,
+              button: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onSelect(i),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 180),
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: i == index ? c.textPrimary : c.textSecondary,
+                        ),
+                        child: Text(labels[i], textAlign: TextAlign.center),
+                      ),
+                      Positioned(
+                        bottom: 4,
+                        child: AnimatedScale(
+                          scale: i == index ? 1 : 0,
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutBack,
+                          child: Container(
+                            width: 18,
+                            height: 4,
+                            decoration: BoxDecoration(color: c.accent, borderRadius: BorderRadius.circular(2)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Section label (13 sp medium text_secondary, sentence case), 16 dp from the sides.
+class DsSectionLabel extends StatelessWidget {
+  const DsSectionLabel(this.text, {super.key, this.padding = const EdgeInsets.fromLTRB(16, 18, 16, 8)});
+
+  final String text;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding,
+      child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: NC.of(context).textSecondary)),
     );
   }
 }

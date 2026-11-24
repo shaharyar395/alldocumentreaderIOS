@@ -14,6 +14,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/doc_scanner.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/image_ops.dart';
 import '../../widgets/chrome.dart';
 import 'scan_edit_page.dart';
@@ -48,6 +49,11 @@ class ScanPage {
 class ScanJob {
   final List<ScanPage> pages = [];
   int _next = 1;
+
+  /// Set after the editor screen exists. True for Image to PDF, false for Scan to PDF.
+  bool imageToPdf = false;
+  bool fromCamera = false;
+  bool fromGallery = false;
 
   ScanPage newPage(String source, {List<double>? quad}) => ScanPage(id: _next++, source: source, quad: quad);
 
@@ -204,27 +210,28 @@ Future<List<double>?> detectPageEdgesIn(PixelBuf buf) async {
 /// Tools → Image to PDF: "Take a photo / Choose from gallery / Cancel" → page editor.
 Future<void> startImageToPdf(BuildContext context) async {
   final job = ScanJob();
-  final added = await addScanPages(context, job);
+  final added = await addScanPages(context, job, imageToPdf: true);
   if (!context.mounted || added.isEmpty) return;
   job.pages.addAll(added);
-  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanEditPage(job: job)));
+  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanEditPage(job: job, imageToPdf: true)));
 }
 
 /// Scan to PDF: the document scanner opens straight away → page editor.
 Future<void> startScanToPdf(BuildContext context) async {
   final job = ScanJob();
-  final added = await addScanPages(context, job, source: ScanSource.camera);
+  final added = await addScanPages(context, job, source: ScanSource.camera, imageToPdf: false);
   if (!context.mounted || added.isEmpty) return;
   job.pages.addAll(added);
-  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanEditPage(job: job)));
+  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanEditPage(job: job, imageToPdf: false)));
 }
 
 enum ScanSource { ask, camera, gallery }
 
 /// "Take a photo / Choose from gallery / Cancel" action sheet (sheet_image_source.xml on a
 /// transparent sheet: two 56dp rows in a bg_white_round card, a separate Cancel card, 16sp bold).
-Future<ScanSource?> chooseScanSource(BuildContext context) {
+Future<ScanSource?> chooseScanSource(BuildContext context, {bool imageToPdf = false}) {
   final s = S.of(context);
+  if (imageToPdf) IosAnalytics.log('image_to_pdf_selection_screen_active');
   return showModalBottomSheet<ScanSource>(
     context: context,
     useSafeArea: true,
@@ -233,14 +240,17 @@ Future<ScanSource?> chooseScanSource(BuildContext context) {
     elevation: 0,
     builder: (sheet) {
       final nc = NC.of(sheet);
-      Widget row(String label, ScanSource? value, BorderRadius radius) => InkWell(
+      Widget row(String label, ScanSource? value, BorderRadius radius, [String? event]) => InkWell(
             borderRadius: radius,
-            onTap: () => Navigator.pop(sheet, value),
+            onTap: () {
+              if (event != null) IosAnalytics.log(event);
+              Navigator.pop(sheet, value);
+            },
             child: SizedBox(
               height: 56,
               width: double.infinity,
               child: Center(
-                child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: nc.textPrimary)),
               ),
             ),
           );
@@ -259,14 +269,18 @@ Future<ScanSource?> chooseScanSource(BuildContext context) {
                 borderRadius: all,
                 child: Column(
                   children: [
-                    row(s.t('takeAPhoto'), ScanSource.camera, top),
+                    row(s.t('takeAPhoto'), ScanSource.camera, top, imageToPdf ? 'take_a_photo_tapped' : null),
                     Container(height: 0.6, color: nc.surfaceVariant),
-                    row(s.t('chooseFromGallery'), ScanSource.gallery, bottom),
+                    row(s.t('chooseFromGallery'), ScanSource.gallery, bottom, imageToPdf ? 'choose_from_galary_selected' : null),
                   ],
                 ),
               ),
               const SizedBox(height: 10),
-              Material(color: nc.surface, borderRadius: all, child: row(s.t('cancel'), null, all)),
+              Material(
+                color: nc.surface,
+                borderRadius: all,
+                child: row(s.t('cancel'), null, all, imageToPdf ? 'image_to_pdf_selection_cancel_tapped' : null),
+              ),
             ],
           ),
         ),
@@ -277,24 +291,40 @@ Future<ScanSource?> chooseScanSource(BuildContext context) {
 
 /// New pages from the camera / document scanner or the gallery, cropped as the person chooses.
 /// Empty when they back out.
-Future<List<ScanPage>> addScanPages(BuildContext context, ScanJob job, {ScanSource source = ScanSource.ask, int maxPages = 50}) async {
+Future<List<ScanPage>> addScanPages(
+  BuildContext context,
+  ScanJob job, {
+  ScanSource source = ScanSource.ask,
+  int maxPages = 50,
+  bool imageToPdf = false,
+}) async {
   var from = source;
   if (from == ScanSource.ask) {
-    final picked = await chooseScanSource(context);
+    final picked = await chooseScanSource(context, imageToPdf: imageToPdf);
     if (picked == null || !context.mounted) return const [];
     from = picked;
+  } else if (imageToPdf == false && source == ScanSource.camera) {
+    IosAnalytics.activate('scan_to_pdf');
   }
   final scope = AppScope.of(context);
   scope.guard.arm(scope.settings);
   List<String> paths;
   var cropped = false;
   if (from == ScanSource.camera) {
-    final shots = await takeDocumentPhotos(maxPages: maxPages);
+    final shots = await takeDocumentPhotos(maxPages: maxPages, preferInAppCamera: true);
     if (shots == null) return const [];
     paths = shots.paths;
     cropped = shots.fromScanner;
+    if (imageToPdf && paths.isNotEmpty) {
+      job.fromCamera = true;
+      IosAnalytics.log('scanned_captured_a_photo');
+    }
   } else {
     paths = await pickGalleryImages();
+    if (imageToPdf && paths.isNotEmpty) {
+      job.fromGallery = true;
+      IosAnalytics.log('image_choosed_from_galary');
+    }
   }
   if (paths.isEmpty || !context.mounted) return const [];
   var autoCrop = false;
@@ -366,7 +396,7 @@ Future<bool> askCropMethod(BuildContext context) async {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(s.t('chooseCroppingMethod'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                Text(s.t('chooseCroppingMethod'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: nc.textPrimary)),
                 const SizedBox(height: 6),
                 Text(s.t('cropMethodHint'), style: TextStyle(color: nc.textSecondary, fontSize: 14)),
                 const SizedBox(height: 16),

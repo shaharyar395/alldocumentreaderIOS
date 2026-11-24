@@ -21,18 +21,26 @@ class ScanShots {
 /// edge detection, several pages in a row, automatic crop and straightening. When the scanner
 /// can't start (no Google Play services, old device…) the plain camera opens instead.
 /// Returns null when the person backs out.
-Future<ScanShots?> takeDocumentPhotos({int maxPages = 50}) async {
-  try {
-    final pictures = await CunningDocumentScanner.getPictures(noOfPages: maxPages);
-    if (pictures == null || pictures.isEmpty) return null;
-    return ScanShots(await _keep(pictures), fromScanner: true);
-  } on CunningDocumentScannerException catch (error) {
-    // a refused camera permission would refuse the plain camera too
-    if (error.code == 'permission_denied') return null;
-    debugPrint('document scanner unavailable: $error');
-  } catch (error) {
-    debugPrint('document scanner unavailable: $error');
+/// [preferInAppCamera] is used for Scan to PDF and Image to PDF → Take a photo. The system
+/// scanner's close control does not leave those screens, so the plain camera is used there.
+/// A later retake can still use the system scanner.
+Future<ScanShots?> takeDocumentPhotos({int maxPages = 50, bool preferInAppCamera = false}) async {
+  if (!preferInAppCamera) {
+    try {
+      final pictures = await CunningDocumentScanner.getPictures(noOfPages: maxPages);
+      if (pictures == null || pictures.isEmpty) return null;
+      return ScanShots(await _keep(pictures), fromScanner: true);
+    } on CunningDocumentScannerException catch (error) {
+      if (error.code == 'permission_denied') return null;
+      debugPrint('document scanner unavailable: $error');
+    } catch (error) {
+      debugPrint('document scanner unavailable: $error');
+    }
   }
+  return _plainCamera();
+}
+
+Future<ScanShots?> _plainCamera() async {
   try {
     final shot = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 95);
     if (shot == null) return null;

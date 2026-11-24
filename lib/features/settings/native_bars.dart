@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../widgets/chrome.dart';
 
 /// Shared native-look pieces of the Settings / Premium / Reader screens.
 
@@ -54,6 +55,8 @@ class NativeBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // "Plum deck": the 40 dp accent_container circle on light pages; a plain arrow over dark art
+    if (tint == null) return DsTopBack(onTap: onTap);
     return NativeIconButton(
       icon: ND.icBack,
       tint: tint ?? NC.of(context).textPrimary,
@@ -133,16 +136,18 @@ class NativeApplyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // "Plum deck" PillButton: primary with on_primary text (40% when disabled), 15 sp medium
+    final nc = NC.of(context);
     final enabled = onTap != null;
     final text = Text(
       label,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w700),
+      style: TextStyle(color: nc.onPrimary, fontSize: fontSize > 15 ? 15 : fontSize, fontWeight: FontWeight.w500),
     );
     final lead = leading;
     return Material(
-      color: enabled ? NC.of(context).primary : const Color(0xFFB7CFF3),
+      color: enabled ? nc.primary : nc.primary.withValues(alpha: 0.4),
       borderRadius: BorderRadius.circular(24),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

@@ -631,5 +631,22 @@
   "goToAppStore": "Ir para a App Store",
   "addToAppIconMenu": "Adicionar ao menu do ícone do app",
   "appIconMenuAdded": "Adicionado ao menu do ícone do app. Toque e segure o ícone do app para abrir.",
-  "onMyDevice": "No meu {device}"
+  "onMyDevice": "No meu {device}",
+  "dsContinueReading": "Continuar lendo",
+  "dsPageOf": "p. {page}/{count}",
+  "dsPercentRead": "{percent}% lido",
+  "dsNewestFiles": "Seus arquivos mais recentes em uma lista",
+  "dsSwipeDeck": "Mostrar o outro cartão",
+  "dsNewFilesOne": "{count} arquivo novo",
+  "dsNewFilesMany": "{count} arquivos novos",
+  "dsCreateNew": "Criar novo",
+  "dsScanHeroSub": "Câmera, recorte e filtros",
+  "dsTellUs": "Conte para nós",
+  "dsSave": "Salvar",
+  "dsSaved": "Salvo",
+  "iapPriceLoading": "Carregando preço…",
+  "iapVerificationPending": "Pagamento recebido; verificação pendente. Se o Premium não for liberado em instantes, toque em Restaurar.",
+  "iapPendingApproval": "Sua compra está aguardando aprovação. O Premium será liberado assim que for aprovada.",
+  "iapStoreUnavailable": "Não é possível acessar a App Store agora. Tente novamente mais tarde.",
+  "iapAutoRenewInfo": "O pagamento é cobrado na sua Conta Apple quando você confirma a compra. A assinatura é renovada automaticamente pelo mesmo preço, a menos que a renovação automática seja desativada pelo menos 24 horas antes do fim do período atual. Gerencie ou cancele nos ajustes da sua Conta Apple."
 }

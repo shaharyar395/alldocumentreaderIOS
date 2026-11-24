@@ -631,5 +631,22 @@
   "goToAppStore": "App Store로 이동",
   "addToAppIconMenu": "앱 아이콘 메뉴에 추가",
   "appIconMenuAdded": "앱 아이콘 메뉴에 추가되었습니다. 앱 아이콘을 길게 눌러 여세요.",
-  "onMyDevice": "나의 {device}"
+  "onMyDevice": "나의 {device}",
+  "dsContinueReading": "이어 읽기",
+  "dsPageOf": "{page}/{count}쪽",
+  "dsPercentRead": "{percent}% 읽음",
+  "dsNewestFiles": "최신 파일을 한 목록에",
+  "dsSwipeDeck": "다른 카드 보기",
+  "dsNewFilesOne": "새 파일 {count}개",
+  "dsNewFilesMany": "새 파일 {count}개",
+  "dsCreateNew": "새로 만들기",
+  "dsScanHeroSub": "카메라, 자르기, 필터",
+  "dsTellUs": "알려 주세요",
+  "dsSave": "저장",
+  "dsSaved": "저장됨",
+  "iapPriceLoading": "가격 불러오는 중…",
+  "iapVerificationPending": "결제가 접수되었으며 확인 중입니다. 잠시 후에도 프리미엄이 열리지 않으면 '복원'을 누르세요.",
+  "iapPendingApproval": "구매가 승인을 기다리고 있습니다. 승인되는 즉시 프리미엄이 열립니다.",
+  "iapStoreUnavailable": "지금은 App Store에 연결할 수 없습니다. 나중에 다시 시도하세요.",
+  "iapAutoRenewInfo": "결제는 구매를 확인할 때 Apple 계정으로 청구됩니다. 현재 기간이 끝나기 최소 24시간 전에 자동 갱신을 끄지 않으면 구독은 같은 가격으로 자동 갱신됩니다. Apple 계정 설정에서 관리하거나 취소할 수 있습니다."
 }

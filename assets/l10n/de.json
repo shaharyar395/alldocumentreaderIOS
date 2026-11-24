@@ -631,5 +631,22 @@
   "goToAppStore": "Zum App Store",
   "addToAppIconMenu": "Zum App-Symbolmenü hinzufügen",
   "appIconMenuAdded": "Zum App-Symbolmenü hinzugefügt. Halte das App-Symbol gedrückt, um die Datei zu öffnen.",
-  "onMyDevice": "Auf meinem {device}"
+  "onMyDevice": "Auf meinem {device}",
+  "dsContinueReading": "Weiterlesen",
+  "dsPageOf": "S. {page}/{count}",
+  "dsPercentRead": "{percent} % gelesen",
+  "dsNewestFiles": "Deine neuesten Dateien in einer Liste",
+  "dsSwipeDeck": "Andere Karte anzeigen",
+  "dsNewFilesOne": "{count} neue Datei",
+  "dsNewFilesMany": "{count} neue Dateien",
+  "dsCreateNew": "Neu erstellen",
+  "dsScanHeroSub": "Kamera, Zuschneiden und Filter",
+  "dsTellUs": "Sag es uns",
+  "dsSave": "Merken",
+  "dsSaved": "Gemerkt",
+  "iapPriceLoading": "Preis wird geladen…",
+  "iapVerificationPending": "Zahlung erhalten; Bestätigung ausstehend. Wenn Premium nicht gleich freigeschaltet wird, tippe auf „Wiederherstellen“.",
+  "iapPendingApproval": "Dein Kauf wartet auf Genehmigung. Premium wird freigeschaltet, sobald er genehmigt ist.",
+  "iapStoreUnavailable": "Der App Store ist gerade nicht erreichbar. Bitte versuche es später erneut.",
+  "iapAutoRenewInfo": "Die Zahlung wird bei Bestätigung des Kaufs deinem Apple Account belastet. Das Abo verlängert sich automatisch zum gleichen Preis, sofern die automatische Verlängerung nicht spätestens 24 Stunden vor Ende des aktuellen Zeitraums deaktiviert wird. Verwalten oder kündigen kannst du es in den Einstellungen deines Apple Accounts."
 }

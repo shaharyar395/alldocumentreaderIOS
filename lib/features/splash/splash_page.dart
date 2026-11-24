@@ -101,12 +101,14 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
+    // activity_splash.xml ("Plum deck"): the page colour, the logo on a little fanned deck
+    // (two cards turned 12° and 5° behind a 104 dp card), title, subtitle, the loading bar
     return ColoredBox(
-      color: c.surface,
+      color: c.bgScreen,
       child: SafeArea(
         child: LayoutBuilder(
           builder: (context, box) {
-            final logoTop = (box.maxHeight - 96) * 0.32;
+            final logoTop = (box.maxHeight - 132) * 0.34;
             return Stack(
               children: [
                 Positioned(
@@ -128,17 +130,17 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _rise(0, const AppLogo(size: 96)),
-                      const SizedBox(height: 16),
+                      _rise(0, const _LogoDeck()),
+                      const SizedBox(height: 20),
                       _rise(
                         1,
                         Text(
                           'All Document Reader',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: c.textPrimary),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: c.textPrimary),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       _rise(2, const _Subtitle()),
                     ],
                   ),
@@ -146,8 +148,8 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
                 const Positioned(
                   left: 0,
                   right: 0,
-                  bottom: 110,
-                  child: Center(child: SlidingProgress()),
+                  bottom: 96,
+                  child: Center(child: SlidingProgress(width: 104, height: 6, thumb: 30)),
                 ),
               ],
             );
@@ -166,7 +168,44 @@ class _Subtitle extends StatelessWidget {
     return Text(
       S.of(context).t('splashSubtitleView'),
       textAlign: TextAlign.center,
-      style: TextStyle(fontSize: 15, color: NC.of(context).textSecondary),
+      style: TextStyle(fontSize: 14, color: NC.of(context).textSecondary),
+    );
+  }
+}
+
+/// logoDeck: deck_back (12°) and deck_middle (5°) cards with 28 dp corners behind the 104 dp
+/// bg_phone_frame card (surface, divider hairline) holding the 76 dp logo.
+class _LogoDeck extends StatelessWidget {
+  const _LogoDeck();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    Widget card(Color color, double degrees) => Transform.rotate(
+          angle: degrees * 3.141592653589793 / 180,
+          child: Container(width: 104, height: 104, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(28))),
+        );
+    return SizedBox(
+      width: 132,
+      height: 132,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          card(c.deckBack, 12),
+          card(c.deckMiddle, 5),
+          Container(
+            width: 104,
+            height: 104,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: c.surface,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: c.divider, width: 1.5),
+            ),
+            child: const AppLogo(size: 76),
+          ),
+        ],
+      ),
     );
   }
 }

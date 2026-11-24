@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/format.dart';
 import '../services/platform_bridge.dart';
 import 'doc_entry.dart';
+import 'reading_progress.dart';
 
 enum LoadPhase { loading, ready }
 
@@ -588,7 +589,10 @@ class FileLibrary extends ChangeNotifier {
     if (depth > maxDepth) return;
     try {
       if (!await dir.exists()) return;
+      var walked = 0;
       await for (final entity in dir.list(followLinks: false)) {
+        walked++;
+        if (walked % 24 == 0) await Future<void>.delayed(Duration.zero);
         final name = p.basename(entity.path);
         if (name.startsWith('.')) {
           // iCloud Drive: a file not downloaded yet (".Name.ext.icloud") is listed as Name.ext at
@@ -979,6 +983,7 @@ class FileLibrary extends ChangeNotifier {
     _known?.add(newRef);
     _gone.add(oldRef);
     _gone.remove(newRef);
+    unawaited(ReadingProgress.moved(oldRef, newRef));
   }
 
   /// A deleted file leaves Recent and Bookmarks (like LibraryStore.purge).
@@ -987,6 +992,7 @@ class FileLibrary extends ChangeNotifier {
     _bookmarks.remove(ref);
     _fresh.remove(ref);
     _gone.add(ref);
+    unawaited(ReadingProgress.forget(ref));
   }
 
   Future<void> moveToBin(DocEntry entry) async {

@@ -631,5 +631,22 @@
   "goToAppStore": "App Store پر جائیں",
   "addToAppIconMenu": "ایپ آئیکن مینو میں شامل کریں",
   "appIconMenuAdded": "ایپ آئیکن مینو میں شامل کر دیا گیا۔ کھولنے کے لیے ایپ آئیکن کو ٹچ کر کے دبائے رکھیں۔",
-  "onMyDevice": "میرے {device} پر"
+  "onMyDevice": "میرے {device} پر",
+  "dsContinueReading": "پڑھنا جاری رکھیں",
+  "dsPageOf": "ص {page}/{count}",
+  "dsPercentRead": "{percent}% پڑھا گیا",
+  "dsNewestFiles": "آپ کی تازہ ترین فائلیں ایک فہرست میں",
+  "dsSwipeDeck": "دوسرا کارڈ دکھائیں",
+  "dsNewFilesOne": "{count} نئی فائل",
+  "dsNewFilesMany": "{count} نئی فائلیں",
+  "dsCreateNew": "نیا بنائیں",
+  "dsScanHeroSub": "کیمرہ، کراپ اور فلٹرز",
+  "dsTellUs": "ہمیں بتائیں",
+  "dsSave": "محفوظ کریں",
+  "dsSaved": "محفوظ",
+  "iapPriceLoading": "قیمت لوڈ ہو رہی ہے…",
+  "iapVerificationPending": "ادائیگی موصول ہو گئی؛ تصدیق باقی ہے۔ اگر تھوڑی دیر میں Premium نہ کھلے تو «بحال کریں» پر ٹیپ کریں۔",
+  "iapPendingApproval": "آپ کی خریداری منظوری کی منتظر ہے۔ منظوری ملتے ہی Premium کھل جائے گا۔",
+  "iapStoreUnavailable": "اس وقت App Store تک رسائی نہیں ہو رہی۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
+  "iapAutoRenewInfo": "خریداری کی تصدیق پر ادائیگی آپ کے Apple اکاؤنٹ سے لی جاتی ہے۔ سبسکرپشن اسی قیمت پر خود بخود تجدید ہو جاتی ہے، جب تک موجودہ مدت ختم ہونے سے کم از کم 24 گھنٹے پہلے خودکار تجدید بند نہ کی جائے۔ اسے اپنے Apple اکاؤنٹ کی ترتیبات میں منظم یا منسوخ کریں۔"
 }

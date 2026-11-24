@@ -11,6 +11,8 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../services/app_analytics.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
@@ -51,6 +53,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
       return;
     }
     if (_index != 0) {
+      IosAnalytics.back(_index == 1 ? 'tools' : 'settings');
       setState(() => _index = 0);
       settings.setTab(0);
       return;
@@ -87,6 +90,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
     if (_ready) return;
     _ready = true;
     _index = AppScope.of(context).settings.lastTab.clamp(0, 2);
+    IosAnalytics.activate(_shellScreen(_index));
     PlatformBridge.widgetAction.addListener(_onWidgetAction);
     // a widget button that started the app
     WidgetsBinding.instance.addPostFrameCallback((_) => _onWidgetAction());
@@ -94,6 +98,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
 
   @override
   void dispose() {
+    IosAnalytics.left(_shellScreen(_index));
     shellRouteObserver.unsubscribe(this);
     PlatformBridge.widgetAction.removeListener(_onWidgetAction);
     super.dispose();
@@ -102,6 +107,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
   /// Back on the main screen from another page: sometimes "Do you think … is helpful?".
   @override
   void didPopNext() {
+    IosAnalytics.activate(_shellScreen(_index));
     final settings = AppScope.of(context).settings;
     if (!settings.coachSeen || !HelpfulPrompt.shouldShow(settings)) return;
     Future<void>.delayed(const Duration(milliseconds: 700), () {
@@ -120,11 +126,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
     handleWidgetAction(
       context,
       action,
-      selectTab: (tab) {
-        if (_index == tab) return;
-        setState(() => _index = tab);
-        AppScope.of(context).settings.setTab(tab);
-      },
+      selectTab: _selectTab,
       openBookmarks: () => homeShowBookmarks.value = true,
     );
   }
@@ -144,9 +146,17 @@ class _MainShellState extends State<MainShell> with RouteAware {
 
   void _selectTab(int value) {
     if (_index == value) return; // setOnItemReselectedListener: no-op
+    IosAnalytics.left(_shellScreen(_index));
     setState(() => _index = value);
     AppScope.of(context).settings.setTab(value);
+    IosAnalytics.activate(_shellScreen(value));
   }
+
+  String _shellScreen(int index) => switch (index) {
+        1 => 'tools',
+        2 => 'settings',
+        _ => 'all_files',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -161,82 +171,59 @@ class _MainShellState extends State<MainShell> with RouteAware {
       child: Stack(
         children: [
           Scaffold(
-            body: IndexedStack(
-              index: _index,
-              children: [HomeTab(onHintsReady: _onHintsReady, visible: _index == 0), const ToolsTab(), const SettingsTab()],
-            ),
-            // fragment_home.xml: the "Discover new feature" tip 10 dp above the + button, both
-            // 18 dp from the end / bottom
-            floatingActionButton: _index == 0
-                ? Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 2, bottom: 2),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (_hintsReady && !_showCoach && settings.coachSeen && !settings.discoverSeen) ...[
-                          _DiscoverTip(
-                            onOpen: () {
-                              settings.setFlag('discoverSeen', true);
-                              createBlankPdf(context);
-                            },
-                            onClose: () => settings.setFlag('discoverSeen', true),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                        FloatingActionButton(
-                          onPressed: () => showCreateSheet(context),
-                          backgroundColor: c.fabBlue,
-                          foregroundColor: c.white,
-                          elevation: 6,
-                          shape: const CircleBorder(),
-                          child: NativeIcon(ND.icAdd, size: 26, tint: c.white),
-                        ),
-                      ],
-                    ),
-                  )
-                : null,
-            // activity_main.xml: the ad bar (surface), a 1 dp divider, then the 60 dp
-            // BottomNavigationView (surface, 22 dp icons, 12 sp labels, primary / nav_off)
-            bottomNavigationBar: Column(
-              mainAxisSize: MainAxisSize.min,
+            backgroundColor: c.bgScreen,
+            // activity_main.xml (Android 1.0.75): the page, then the banner under it (AdBar), then
+            // the pill tab bar (Files / Tools / Settings + the + create button) under the banner,
+            // 16 dp from the sides and 12 dp from the bottom. The bar no longer covers the content.
+            // The Discover tip sits with its tail 6 dp above the + (MainActivity.placeDiscoverTip).
+            body: Stack(
               children: [
-                const BannerSlot(),
-                Container(height: 1, color: c.divider),
-                ColoredBox(
-                  color: c.surface,
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      height: 60,
-                      child: Row(
-                        children: [
-                          _NavItem(
-                            label: s.t('allFiles'),
-                            on: ND.icNavFilesOn,
-                            off: ND.icNavFilesOff,
-                            selected: _index == 0,
-                            onTap: () => _selectTab(0),
-                          ),
-                          _NavItem(
-                            label: s.t('tools'),
-                            on: ND.icNavToolsOn,
-                            off: ND.icNavToolsOff,
-                            selected: _index == 1,
-                            onTap: () => _selectTab(1),
-                          ),
-                          _NavItem(
-                            label: s.t('settings'),
-                            on: ND.icNavSettingsOn,
-                            off: ND.icNavSettingsOff,
-                            selected: _index == 2,
-                            onTap: () => _selectTab(2),
-                          ),
-                        ],
+                Column(
+                  children: [
+                    Expanded(
+                      child: IndexedStack(
+                        index: _index,
+                        children: [HomeTab(onHintsReady: _onHintsReady, visible: _index == 0), const ToolsTab(), const SettingsTab()],
+                      ),
+                    ),
+                    ColoredBox(color: c.bgScreen, child: const BannerSlot()),
+                    SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: _NavBar(
+                          index: _index,
+                          labels: [s.t('allFiles'), s.t('tools'), s.t('settings')],
+                          icons: const [(ND.icNavFilesOn, ND.icNavFilesOff), (ND.icNavToolsOn, ND.icNavToolsOff), (ND.icNavSettingsOn, ND.icNavSettingsOff)],
+                          onSelect: _selectTab,
+                          onCreate: () {
+                            logEvent('create_open', {'screen': const ['home', 'tools', 'settings'][_index]});
+                            showCreateSheet(context);
+                          },
+                          createLabel: s.t('dsCreateNew'),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_index == 0 && _hintsReady && !_showCoach && settings.coachSeen && !settings.discoverSeen)
+                  PositionedDirectional(
+                    start: 24,
+                    end: 8,
+                    // bar: 12 dp margin + 56 dp tall, + button 48 dp centred (4 dp in) → its top is
+                    // 64 dp above the safe area; the tail ends 6 dp above it
+                    bottom: MediaQuery.paddingOf(context).bottom + 12 + 52 + 6,
+                    child: Align(
+                      alignment: AlignmentDirectional.bottomEnd,
+                      child: _DiscoverTip(
+                        onOpen: () {
+                          settings.setFlag('discoverSeen', true);
+                          createBlankPdf(context);
+                        },
+                        onClose: () => settings.setFlag('discoverSeen', true),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -253,44 +240,205 @@ class _MainShellState extends State<MainShell> with RouteAware {
   }
 }
 
-/// One BottomNavigationView item (labelVisibilityMode="labeled"): the ic_nav_*_on / _off icon
-/// tinted by nav_item_color (primary when checked, nav_off otherwise), the 12 sp label below,
-/// a row_pressed ripple.
-class _NavItem extends StatelessWidget {
-  const _NavItem({required this.label, required this.on, required this.off, required this.selected, required this.onTap});
+/// The floating navigation bar (ds_a_navbar: navbar_bg, 56 dp, 28 dp corners, elevation 8):
+/// three tabs where the selected one is twice as wide and carries the navbar_pill with its
+/// label (the pill slides and the widths blend, 280 ms), then the 48 dp + (a 44 dp accent circle
+/// with ic_add in on_accent) that opens the Create files sheet.
+class _NavBar extends StatelessWidget {
+  const _NavBar({
+    required this.index,
+    required this.labels,
+    required this.icons,
+    required this.onSelect,
+    required this.onCreate,
+    required this.createLabel,
+  });
+
+  final int index;
+  final List<String> labels;
+  /// (selected, not selected) icon of each tab (ic_nav_*_on / _off).
+  final List<(NDrawable, NDrawable)> icons;
+  final ValueChanged<int> onSelect;
+  final VoidCallback onCreate;
+  final String createLabel;
+
+  static const _selectedWeight = 2.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return Material(
+      color: c.navbarBg,
+      elevation: 8,
+      shadowColor: const Color(0x55000000),
+      borderRadius: BorderRadius.circular(28),
+      child: SizedBox(
+        height: 56,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 4, end: 2),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(end: index.toDouble()),
+                    duration: still ? Duration.zero : const Duration(milliseconds: 280),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, at, _) {
+                      // weight of each tab while the selection moves from one tab to another
+                      final weights = [
+                        for (var i = 0; i < labels.length; i++) 1 + (_selectedWeight - 1) * (1 - (at - i).abs()).clamp(0.0, 1.0),
+                      ];
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          final total = weights.fold<double>(0, (a, b) => a + b);
+                          final unit = constraints.maxWidth / total;
+                          final rtl = Directionality.of(context) == TextDirection.rtl;
+                          // the pill: where the selected tab is at this blend of widths
+                          final lower = at.floor().clamp(0, labels.length - 1);
+                          final frac = at - lower;
+                          double startOf(int i) => weights.take(i).fold<double>(0, (a, b) => a + b) * unit;
+                          final upper = (lower + 1).clamp(0, labels.length - 1);
+                          final left = startOf(lower) + (startOf(upper) - startOf(lower)) * frac;
+                          final width = weights[lower] * unit + (weights[upper] * unit - weights[lower] * unit) * frac;
+                          return Stack(
+                            children: [
+                              Positioned(
+                                left: rtl ? null : left,
+                                right: rtl ? left : null,
+                                top: 2,
+                                bottom: 2,
+                                width: width,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(color: c.navbarPill, borderRadius: BorderRadius.circular(22)),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  for (var i = 0; i < labels.length; i++)
+                                    Expanded(
+                                      flex: (weights[i] * 1000).round(),
+                                      child: _NavTab(
+                                        label: labels[i],
+                                        icon: i == index ? icons[i].$1 : icons[i].$2,
+                                        selected: i == index,
+                                        showLabel: (at - i).abs() < 0.5,
+                                        onTap: () => onSelect(i),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              _CreateButton(onTap: onCreate, label: createLabel),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavTab extends StatelessWidget {
+  const _NavTab({required this.label, required this.icon, required this.selected, required this.showLabel, required this.onTap});
 
   final String label;
-  final NDrawable on;
-  final NDrawable off;
+  final NDrawable icon;
   final bool selected;
+  final bool showLabel;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
-    final color = selected ? c.primary : c.navOff;
-    return Expanded(
-      child: Semantics(
-        selected: selected,
-        button: true,
-        child: InkResponse(
-          onTap: onTap,
-          containedInkWell: false,
-          radius: 40,
-          splashColor: c.rowPressed,
-          highlightColor: Colors.transparent,
-          child: Column(
+    final color = selected ? c.navbarPillText : c.navbarOff;
+    return Semantics(
+      selected: selected,
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              NativeIcon(selected ? on : off, size: 22, tint: color),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: color, height: 1.2),
-              ),
+              NativeIcon(icon, size: 22, tint: color),
+              if (showLabel)
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 6),
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: c.navbarPillText),
+                    ),
+                  ),
+                ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// ds_a_nav_add: the 44 dp accent circle (in a 48 dp target) with ic_add; press = scale 0.96.
+class _CreateButton extends StatefulWidget {
+  const _CreateButton({required this.onTap, required this.label});
+
+  final VoidCallback onTap;
+  final String label;
+
+  @override
+  State<_CreateButton> createState() => _CreateButtonState();
+}
+
+class _CreateButtonState extends State<_CreateButton> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    return Semantics(
+      button: true,
+      label: widget.label,
+      excludeSemantics: true,
+      child: Listener(
+        onPointerDown: (_) => setState(() => _down = true),
+        onPointerCancel: (_) => setState(() => _down = false),
+        onPointerUp: (_) => setState(() => _down = false),
+        child: AnimatedScale(
+          scale: _down ? 0.96 : 1,
+          duration: const Duration(milliseconds: 90),
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Material(
+                color: c.accent,
+                shape: const CircleBorder(),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: widget.onTap,
+                  splashColor: const Color(0x33FFFFFF),
+                  child: Padding(padding: const EdgeInsets.all(11), child: NativeIcon(ND.icAdd, tint: c.onAccent)),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -310,7 +458,7 @@ class _DiscoverTip extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final c = NC.of(context);
-    final bubble = c.primaryLight; // bg_tooltip
+    final bubble = c.navbarBg; // bg_tooltip
     final body = Padding(
       padding: const EdgeInsetsDirectional.only(top: 9, end: 6),
       child: Column(
@@ -325,15 +473,21 @@ class _DiscoverTip extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  NativeIcon(ND.icCreatePdfBadge, size: 44),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: c.accentSoft, shape: BoxShape.circle),
+                    child: NativeIcon(ND.icCreatePdfBadge, tint: c.navbarPillText),
+                  ),
                   const SizedBox(width: 10),
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.t('homeDiscoverNew'), style: TextStyle(fontWeight: FontWeight.w700, color: c.textPrimary, fontSize: 14)),
-                      const SizedBox(height: 2),
-                      Text(s.t('createPdf'), style: TextStyle(fontWeight: FontWeight.w700, color: c.primary, fontSize: 14)),
+                      Text(s.t('homeDiscoverNew'), style: TextStyle(color: c.deckTextSoft, fontSize: 12)),
+                      const SizedBox(height: 1),
+                      Text(s.t('createPdf'), style: TextStyle(fontWeight: FontWeight.w500, color: c.navbarPill, fontSize: 15)),
                     ],
                   ),
                 ],
@@ -341,7 +495,7 @@ class _DiscoverTip extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsetsDirectional.only(end: 28),
+            padding: const EdgeInsetsDirectional.only(end: 20),
             child: CustomPaint(size: const Size(16, 10), painter: _TailPainter(bubble)),
           ),
         ],
@@ -367,9 +521,9 @@ class _DiscoverTip extends StatelessWidget {
               child: Container(
                 width: 24,
                 height: 24,
-                padding: const EdgeInsets.all(5),
+                padding: const EdgeInsets.all(6),
                 decoration: NS.bgCircleClose(context),
-                child: NativeIcon(ND.icClose, tint: c.white),
+                child: NativeIcon(ND.icClose, tint: c.onPrimary),
               ),
             ),
           ),
@@ -485,7 +639,7 @@ class _CoachMarkState extends State<_CoachMark> with SingleTickerProviderStateMi
                         child: Text(
                           s.t('coachClickFolders'),
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: c.white, fontSize: 16, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: c.white, fontSize: 16, fontWeight: FontWeight.w500),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -496,12 +650,12 @@ class _CoachMarkState extends State<_CoachMark> with SingleTickerProviderStateMi
                           onPressed: _dismiss,
                           style: FilledButton.styleFrom(
                             backgroundColor: c.primary,
-                            foregroundColor: c.white,
+                            foregroundColor: c.onPrimary,
                             elevation: 0,
                             padding: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
                           ),
-                          child: Text(s.t('ok'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                          child: Text(s.t('ok'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                         ),
                       ),
                     ],

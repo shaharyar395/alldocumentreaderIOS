@@ -225,7 +225,9 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
     if (box != null && overlay != null) {
       final topLeft = box.localToGlobal(Offset.zero, ancestor: overlay);
       const menuHeight = 44.0 * 2 + 8;
-      final top = topLeft.dy - menuHeight - 4;
+      final safeTop = MediaQuery.paddingOf(context).top;
+      final rawTop = topLeft.dy - menuHeight - 4;
+      final top = rawTop < safeTop ? safeTop : rawTop;
       position = RelativeRect.fromLTRB(topLeft.dx + 8, top, overlay.size.width - topLeft.dx - 8 - 170, overlay.size.height - top - menuHeight);
     }
     PopupMenuItem<String> option(String value, NDrawable icon, String label) => PopupMenuItem<String>(
@@ -380,7 +382,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(s.t('extractedSuccessfully'), style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                        child: Text(s.t('extractedSuccessfully'), style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500, color: nc.textPrimary)),
                       ),
                       NativeIconButton(ND.icClose, size: 40, padding: 10, tint: nc.textSecondary, tooltip: s.t('cancel'), onPressed: () => Navigator.pop(sheet)),
                     ],
@@ -408,7 +410,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
                                   openEntry(context, entry);
                                 },
                                 child: Center(
-                                  child: Text(s.t('view'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: nc.primary)),
+                                  child: Text(s.t('view'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: nc.primary)),
                                 ),
                               ),
                             ),
@@ -456,7 +458,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
       pill.dismiss();
       if (!mounted) return;
       showToast(context, s.t('savedSuccessfully'));
-      await scope.ads.showInterstitial(unit: 2);
+      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       final updated = scope.library.byPath(_path) ?? widget.entry;
       await Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ReaderPage(entry: updated)));
@@ -537,7 +539,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         // activity_page_organizer.xml: ← … undo redo … [Done]
         appBar: AppBar(
           toolbarHeight: 56,
@@ -577,7 +579,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
               ),
               const Spacer(),
               Material(
-                color: canDone ? const Color(0xFF111317) : const Color(0xFFD9DCE1),
+                color: canDone ? const Color(0xFF0E1414) : const Color(0xFFD9DCE1),
                 borderRadius: BorderRadius.circular(18),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(18),
@@ -586,7 +588,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
                     height: 36,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     alignment: Alignment.center,
-                    child: Text(s.t('done'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                    child: Text(s.t('done'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white)),
                   ),
                 ),
               ),
@@ -623,7 +625,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
                         Expanded(
                           child: Text(
                             s.t('selected', {'count': '$selectedCount'}),
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary),
                           ),
                         ),
                         NativeIconButton(ND.icSelectAll, size: 40, padding: 9, tint: nc.textPrimary, tooltip: s.t('selectAll'), onPressed: _toggleAll),
@@ -699,7 +701,7 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(color: const Color(0x99414754), borderRadius: BorderRadius.circular(3)),
-                  child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                  child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
                 ),
               ),
             ],
@@ -803,7 +805,7 @@ class _PagePreviewState extends State<_PagePreview> {
     final nc = NC.of(context);
     final current = widget.pages[_index];
     return Scaffold(
-      backgroundColor: nc.surface,
+      backgroundColor: nc.bgScreen,
       appBar: NativeTopBar(
         title: s.t('allPagesTitle', {'current': '${_index + 1}', 'total': '${widget.pages.length}'}),
         actions: [

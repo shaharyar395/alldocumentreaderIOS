@@ -148,7 +148,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final nc = NC.of(context);
     // activity_feedback.xml (Theme.DocReader.FaqBar: bg_faq status bar)
     return Scaffold(
-      backgroundColor: nc.surface,
+      backgroundColor: nc.bgScreen,
       body: Column(
         children: [
           // top block (bg_faq, paddingBottom 14dp): back, logo, app name / "Rate our app", stars
@@ -177,7 +177,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                 children: [
                                   Text(
                                     _appName,
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary),
                                   ),
                                   Text(s.t('rateOurApp'), style: TextStyle(fontSize: 12, color: nc.textSecondary)),
                                 ],
@@ -221,7 +221,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               children: [
                 Text(
                   s.t('whatProblems'),
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary),
                 ),
                 // ChipGroup (marginTop 10dp, chipSpacingHorizontal 10dp); Material chips are 32dp
                 // inside a 48dp touch target, so rows sit 24dp apart.

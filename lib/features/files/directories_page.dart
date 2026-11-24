@@ -8,6 +8,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
@@ -37,7 +38,14 @@ class _DirectoriesPageState extends State<DirectoriesPage> with SingleTickerProv
   late final TabController _tabs = TabController(length: 3, vsync: this, initialIndex: widget.initialTab.clamp(0, 2));
 
   @override
+  void initState() {
+    super.initState();
+    IosAnalytics.activate('directories_list');
+  }
+
+  @override
   void dispose() {
+    IosAnalytics.left('directories_list');
     _tabs.dispose();
     super.dispose();
   }
@@ -49,12 +57,16 @@ class _DirectoriesPageState extends State<DirectoriesPage> with SingleTickerProv
     final c = NC.of(context);
     // activity_directories.xml: ‹ Directories 🔍, then Storage / All documents / Recycle bin tabs
     return Scaffold(
-      backgroundColor: c.surface,
+      backgroundColor: c.bgScreen,
       body: SafeArea(
         child: Column(
           children: [
             NativeTopBar(
               title: s.t('directories'),
+              onBack: () {
+                IosAnalytics.back('directories_list');
+                Navigator.of(context).maybePop();
+              },
               actions: [
                 BarIconButton(drawable: ND.icSearch, tooltip: s.t('search'), onTap: () => openSearchPage(context)),
               ],
@@ -402,7 +414,7 @@ class _BinTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Center(
                       widthFactor: 1,
-                      child: Text(s.t('emptyBin'), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: c.danger)),
+                      child: Text(s.t('emptyBin'), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: c.danger)),
                     ),
                   ),
                 ),
@@ -510,7 +522,7 @@ class _RecycleBinScreenState extends State<_RecycleBinScreen> {
         if (!didPop) _stopSelecting();
       },
       child: Scaffold(
-        backgroundColor: c.surface,
+        backgroundColor: c.bgScreen,
         body: SafeArea(
           child: Column(
             children: [
@@ -671,7 +683,7 @@ class _AddFolderRow extends StatelessWidget {
                     S.of(context).t('addFolder'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: c.primary),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: c.primary),
                   ),
                 ),
               ],

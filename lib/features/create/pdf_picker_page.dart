@@ -8,6 +8,8 @@ import '../../data/doc_entry.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
+import '../../services/ios_analytics.dart';
+import '../../services/app_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
 import '../files/files_ui.dart';
@@ -46,6 +48,7 @@ class PdfPickerPage extends StatefulWidget {
     this.extensions = const ['pdf'],
     this.accept,
     this.rejectMessage,
+    this.analyticsScreen,
   });
 
   final String title;
@@ -61,6 +64,7 @@ class PdfPickerPage extends StatefulWidget {
   /// (e.g. old .doc / .ppt in Word / PPT to PDF).
   final bool Function(String name)? accept;
   final String? rejectMessage;
+  final String? analyticsScreen;
 
   @override
   State<PdfPickerPage> createState() => _PdfPickerPageState();
@@ -83,6 +87,8 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
   @override
   void initState() {
     super.initState();
+    final screen = widget.analyticsScreen;
+    if (screen != null) IosAnalytics.activate(screen);
     _checkAccess();
     for (final pick in widget.preselected) {
       _selected.add(pick.path);
@@ -198,7 +204,7 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
         if (!didPop) _closeSearch();
       },
       child: Scaffold(
-        backgroundColor: c.surface,
+        backgroundColor: c.bgScreen,
         body: SafeArea(
           child: Column(
             children: [
@@ -264,7 +270,7 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
                           child: Center(
                             child: Text(
                               count == 0 ? s.t('continueAction') : s.t('continueN', {'count': '$count'}),
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.white),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: c.white),
                             ),
                           ),
                         ),
@@ -319,7 +325,7 @@ class _PickRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: c.textPrimary)),
+                      Text(name, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: c.textPrimary)),
                       const SizedBox(height: 3),
                       Text(meta, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: c.textSecondary)),
                     ],
@@ -346,8 +352,10 @@ Future<PdfPick?> pickOnePdf(
   List<String> extensions = const ['pdf'],
   bool Function(String name)? accept,
   String? rejectMessage,
+  String? analyticsScreen,
 }) async {
   final s = S.of(context);
+  logEvent('pick_file_tapped');
   final result = await Navigator.of(context).push<List<PdfPick>>(
     MaterialPageRoute(
       builder: (_) => PdfPickerPage(
@@ -356,6 +364,7 @@ Future<PdfPick?> pickOnePdf(
         extensions: extensions,
         accept: accept,
         rejectMessage: rejectMessage,
+        analyticsScreen: analyticsScreen,
       ),
     ),
   );

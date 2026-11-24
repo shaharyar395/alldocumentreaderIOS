@@ -9,25 +9,26 @@ import 'native_colors.dart';
 abstract final class NS {
   /// res/drawable/bg_ad_badge.xml (shape)
   static BoxDecoration bgAdBadge(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFE3E7ED), borderRadius: BorderRadius.circular(3.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(4.0));
   }
 
   /// res/drawable/bg_add_pages.xml (ripple)
   static BoxDecoration bgAddPages(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, border: Border.all(color: const Color(0xFFE1E5EC), width: 1.0), borderRadius: BorderRadius.circular(4.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.accentSoft, width: 1.5), borderRadius: BorderRadius.circular(14.0));
   }
 
   /// res/drawable/bg_add_shot.xml (shape)
   static BoxDecoration bgAddShot(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: c.accentContainer, border: Border.all(color: c.accentSoft, width: 1.5), borderRadius: BorderRadius.circular(14.0));
   }
 
   /// res/drawable/bg_add_signature.xml (ripple)
   static BoxDecoration bgAddSignature(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(color: c.accentContainer, border: Border.all(color: c.accentSoft, width: 1.5), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_apply_btn.xml (selector)
@@ -38,7 +39,8 @@ abstract final class NS {
 
   /// res/drawable/bg_badge_red.xml (shape)
   static BoxDecoration bgBadgeRed(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFF03A3A), borderRadius: BorderRadius.circular(8.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.danger, borderRadius: BorderRadius.circular(8.0));
   }
 
   /// res/drawable/bg_banner.xml (shape)
@@ -49,7 +51,8 @@ abstract final class NS {
 
   /// res/drawable/bg_banner_arrow.xml (shape)
   static BoxDecoration bgBannerArrow(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_bm_pill.xml (shape)
@@ -60,7 +63,7 @@ abstract final class NS {
   /// res/drawable/bg_bottom_sheet_handle.xml (shape)
   static BoxDecoration bgBottomSheetHandle(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(2.0));
+    return BoxDecoration(color: c.divider, borderRadius: BorderRadius.circular(2.0));
   }
 
   /// res/drawable/bg_btn_gray.xml (ripple)
@@ -74,43 +77,43 @@ abstract final class NS {
     return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0x00FFFFFF), const Color(0x40FFFFFF), const Color(0x00FFFFFF)]));
   }
 
-  /// res/drawable/bg_camera_next.xml (shape)
+  /// res/drawable/bg_camera_next.xml (ripple)
   static BoxDecoration bgCameraNext(BuildContext context) {
-    return BoxDecoration(color: const Color(0x00000000), border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5), shape: BoxShape.circle);
+    return BoxDecoration(color: const Color(0xFF0D8A7F), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_camera_thumb.xml (shape)
   static BoxDecoration bgCameraThumb(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF333333), border: Border.all(color: const Color(0xFFFFFFFF), width: 1.0), borderRadius: BorderRadius.circular(6.0));
+    return BoxDecoration(color: const Color(0xFF1A2626), border: Border.all(color: const Color(0xFF8FD6CB), width: 1.5), borderRadius: BorderRadius.circular(12.0));
   }
 
   /// res/drawable/bg_card_ripple.xml (ripple)
   static BoxDecoration bgCardRipple(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_chip.xml (selector)
   static BoxDecoration bgChip(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(16.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_circle_action.xml (shape)
   static BoxDecoration bgCircleAction(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, shape: BoxShape.circle);
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_circle_close.xml (shape)
   static BoxDecoration bgCircleClose(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: const Color(0xFFA6AEBB), border: Border.all(color: c.white, width: 2.0), shape: BoxShape.circle);
+    return BoxDecoration(color: c.primary, border: Border.all(color: c.bgScreen, width: 2.0), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_clear_pill.xml (shape)
   static BoxDecoration bgClearPill(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF3A3D44), borderRadius: BorderRadius.circular(15.0));
+    return BoxDecoration(color: const Color(0xFF2E3B3B), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_continue.xml (shape)
@@ -121,23 +124,24 @@ abstract final class NS {
   /// res/drawable/bg_create_card.xml (ripple)
   static BoxDecoration bgCreateCard(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_crown_badge.xml (shape)
   static BoxDecoration bgCrownBadge(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, border: Border.all(color: const Color(0x33FFC21A), width: 1.0), shape: BoxShape.circle);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), shape: BoxShape.circle);
   }
 
-  /// res/drawable/bg_delete_bubble.xml (shape)
+  /// res/drawable/bg_delete_bubble.xml (ripple)
   static BoxDecoration bgDeleteBubble(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF6B7280), border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5), shape: BoxShape.circle);
+    return BoxDecoration(color: const Color(0xFF0F766E), border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_done_btn.xml (selector)
   static BoxDecoration bgDoneBtn(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF111317), borderRadius: BorderRadius.circular(18.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(20.0));
   }
 
   /// res/drawable/bg_dot_active.xml (shape)
@@ -152,9 +156,9 @@ abstract final class NS {
     return BoxDecoration(color: c.dotOff, shape: BoxShape.circle);
   }
 
-  /// res/drawable/bg_dot_paywall.xml (selector)
+  /// res/drawable/bg_dot_paywall.xml (shape)
   static BoxDecoration bgDotPaywall(BuildContext context) {
-    return BoxDecoration(color: const Color(0x66FFFFFF), borderRadius: BorderRadius.circular(3.0));
+    return BoxDecoration(color: const Color(0xFF8FD6CB), borderRadius: BorderRadius.circular(3.0));
   }
 
   /// res/drawable/bg_fab_blue.xml (shape)
@@ -163,33 +167,34 @@ abstract final class NS {
     return BoxDecoration(color: c.fabBlue, shape: BoxShape.circle);
   }
 
-  /// res/drawable/bg_fab_red.xml (shape)
+  /// res/drawable/bg_fab_red.xml (ripple)
   static BoxDecoration bgFabRed(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFE53935), shape: BoxShape.circle);
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accent, shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_faq_card.xml (shape)
   static BoxDecoration bgFaqCard(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_faq_card_variant.xml (shape)
   static BoxDecoration bgFaqCardVariant(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_faq_chip.xml (selector)
   static BoxDecoration bgFaqChip(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_faq_vote.xml (selector)
   static BoxDecoration bgFaqVote(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(18.0));
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(20.0));
   }
 
   /// res/drawable/bg_feedback_card.xml (ripple)
@@ -200,24 +205,25 @@ abstract final class NS {
 
   /// res/drawable/bg_filter_thumb.xml (selector)
   static BoxDecoration bgFilterThumb(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: const Color(0xFFE1E4EA), width: 1.0), borderRadius: BorderRadius.circular(6.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(14.0));
   }
 
   /// res/drawable/bg_highlight_word.xml (shape)
   static BoxDecoration bgHighlightWord(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: const Color(0xFFD6E6FF), border: Border.all(color: c.primary, width: 1.0), borderRadius: BorderRadius.circular(2.0));
+    return BoxDecoration(color: c.accentContainer, border: Border.all(color: c.accent, width: 1.0), borderRadius: BorderRadius.circular(3.0));
   }
 
   /// res/drawable/bg_home_header.xml (shape)
   static BoxDecoration bgHomeHeader(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [c.bgHeaderTop, c.surface]));
+    return BoxDecoration(color: c.bgScreen);
   }
 
   /// res/drawable/bg_hot.xml (shape)
   static BoxDecoration bgHot(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFFFF7A1A), const Color(0xFFFF4D1A)]), borderRadius: BorderRadius.circular(4.0));
+    return BoxDecoration(color: const Color(0xFF0D8A7F), borderRadius: BorderRadius.circular(8.0));
   }
 
   /// res/drawable/bg_icon_circle.xml (shape)
@@ -226,38 +232,40 @@ abstract final class NS {
     return BoxDecoration(color: c.surfaceVariant, shape: BoxShape.circle);
   }
 
-  /// res/drawable/bg_nav_square.xml (shape)
+  /// res/drawable/bg_nav_square.xml (ripple)
   static BoxDecoration bgNavSquare(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, border: Border.all(color: const Color(0xFFDCE0E8), width: 1.0), borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), shape: BoxShape.circle);
   }
 
-  /// res/drawable/bg_nav_square_filled.xml (shape)
+  /// res/drawable/bg_nav_square_filled.xml (ripple)
   static BoxDecoration bgNavSquareFilled(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_new_badge.xml (shape)
   static BoxDecoration bgNewBadge(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.primary, borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(8.0));
   }
 
   /// res/drawable/bg_notebook.xml (shape)
   static BoxDecoration bgNotebook(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: const Color(0xFFE4E7EC), width: 0.8), borderRadius: BorderRadius.circular(3.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(12.0));
   }
 
   /// res/drawable/bg_onboarding.xml (layer-list)
   static BoxDecoration bgOnboarding(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [c.onboardBgTop, const Color(0xFF232325), c.onboardBgBottom]));
+    return BoxDecoration(color: c.bgScreen);
   }
 
   /// res/drawable/bg_onboarding_fade.xml (shape)
   static BoxDecoration bgOnboardingFade(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0x000E0E10), const Color(0xCC0E0E10), const Color(0xFF0E0E10)]));
+    final c = NC.of(context);
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [c.dsAPageClear, c.bgScreen, c.bgScreen]));
   }
 
   /// res/drawable/bg_outline_btn.xml (shape)
@@ -269,69 +277,71 @@ abstract final class NS {
   /// res/drawable/bg_outline_pill.xml (shape)
   static BoxDecoration bgOutlinePill(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, border: Border.all(color: c.primary, width: 1.2), borderRadius: BorderRadius.circular(16.0));
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_outline_pill_large.xml (shape)
   static BoxDecoration bgOutlinePillLarge(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, border: Border.all(color: c.primary, width: 2.0), borderRadius: BorderRadius.circular(20.0));
+    return BoxDecoration(color: c.primary, borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_page_badge.xml (shape)
   static BoxDecoration bgPageBadge(BuildContext context) {
-    return BoxDecoration(color: const Color(0xB3333A45), borderRadius: BorderRadius.circular(3.0));
+    return BoxDecoration(color: const Color(0xE60F766E), borderRadius: BorderRadius.circular(10.0));
   }
 
   /// res/drawable/bg_page_chip.xml (shape)
   static BoxDecoration bgPageChip(BuildContext context) {
-    return BoxDecoration(color: const Color(0xCC2B303A), borderRadius: BorderRadius.circular(14.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsDFloat, border: Border.all(color: const Color(0x338FD6CB), width: 1.0), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_page_number.xml (shape)
   static BoxDecoration bgPageNumber(BuildContext context) {
-    return BoxDecoration(color: const Color(0x99414754), borderRadius: BorderRadius.circular(3.0));
+    return BoxDecoration(color: const Color(0xE60F766E), borderRadius: BorderRadius.circular(11.0));
   }
 
   /// res/drawable/bg_paywall.xml (shape)
   static BoxDecoration bgPaywall(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFF16171C), const Color(0xFF14152E), const Color(0xFF0E0F1E)]));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFF1F2933), const Color(0xFF0B1F1E)]));
   }
 
   /// res/drawable/bg_paywall_body.xml (shape)
   static BoxDecoration bgPaywallBody(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFF2B2F7A), const Color(0xFF1C1D4C), const Color(0xFF111229)]), borderRadius: const BorderRadius.only(topLeft: Radius.circular(22.0), topRight: Radius.circular(22.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
+    return BoxDecoration(color: const Color(0xFF103534), borderRadius: const BorderRadius.only(topLeft: Radius.circular(28.0), topRight: Radius.circular(28.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
   }
 
   /// res/drawable/bg_paywall_continue.xml (ripple)
   static BoxDecoration bgPaywallContinue(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFF3E5BFF), const Color(0xFF7C3FF2)]), borderRadius: BorderRadius.circular(28.0));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFF14A394), const Color(0xFF0D8A7F)]), borderRadius: BorderRadius.circular(26.0));
   }
 
   /// res/drawable/bg_paywall_fade.xml (shape)
   static BoxDecoration bgPaywallFade(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0x00111229), const Color(0xFF111229)]));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0x000F2A28), const Color(0xFF0F2A28)]));
   }
 
-  /// res/drawable/bg_paywall_hero.xml (shape)
+  /// res/drawable/bg_paywall_hero.xml (layer-list)
   static BoxDecoration bgPaywallHero(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFF1A1B20), const Color(0xFF2A2C33), const Color(0xFF15161A)]));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [const Color(0xFF14706A), const Color(0xFF1F2933)]));
   }
 
   /// res/drawable/bg_paywall_plan.xml (selector)
   static BoxDecoration bgPaywallPlan(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF232559), borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(color: const Color(0x14FFFFFF), border: Border.all(color: const Color(0x33FFFFFF), width: 1.0), borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_phone_frame.xml (shape)
   static BoxDecoration bgPhoneFrame(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF101114), border: Border.all(color: const Color(0xFF3A3C42), width: 1.5), borderRadius: BorderRadius.circular(30.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.5), borderRadius: BorderRadius.circular(28.0));
   }
 
   /// res/drawable/bg_phone_screen.xml (shape)
   static BoxDecoration bgPhoneScreen(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.white, borderRadius: BorderRadius.circular(24.0));
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_plan.xml (selector)
@@ -339,10 +349,20 @@ abstract final class NS {
     return BoxDecoration(color: const Color(0xFF1A1E36), border: Border.all(color: const Color(0xFF2E3456), width: 1.0), borderRadius: BorderRadius.circular(14.0));
   }
 
+  /// res/drawable/bg_play_add_card_btn.xml (ripple)
+  static BoxDecoration bgPlayAddCardBtn(BuildContext context) {
+    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: const Color(0xFF8FD6CB), width: 1.0), borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/bg_play_payment_sheet.xml (shape)
+  static BoxDecoration bgPlayPaymentSheet(BuildContext context) {
+    return BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: const BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
+  }
+
   /// res/drawable/bg_popup.xml (shape)
   static BoxDecoration bgPopup(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_premium.xml (shape)
@@ -358,7 +378,7 @@ abstract final class NS {
   /// res/drawable/bg_progress_bar.xml (shape)
   static BoxDecoration bgProgressBar(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.primary, borderRadius: BorderRadius.circular(3.0));
+    return BoxDecoration(color: c.accent, borderRadius: BorderRadius.circular(3.0));
   }
 
   /// res/drawable/bg_progress_track.xml (shape)
@@ -370,28 +390,28 @@ abstract final class NS {
   /// res/drawable/bg_rate_card.xml (shape)
   static BoxDecoration bgRateCard(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [c.surfaceVariant, c.surface, c.surface]), borderRadius: const BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
+    return BoxDecoration(color: c.surface, borderRadius: const BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
   }
 
   /// res/drawable/bg_ready_circle.xml (shape)
   static BoxDecoration bgReadyCircle(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [const Color(0xFFFF3D3D), const Color(0xFFFF6A3D), const Color(0xFFFFC56E)]), shape: BoxShape.circle);
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [const Color(0xFF8FD6CB), const Color(0xFF0D8A7F)]), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_ready_glow.xml (shape)
   static BoxDecoration bgReadyGlow(BuildContext context) {
-    return BoxDecoration(gradient: RadialGradient(colors: [const Color(0x66FF5A3C), const Color(0x33FF5A3C), const Color(0x00FF5A3C)]), shape: BoxShape.circle);
+    return BoxDecoration(gradient: RadialGradient(colors: [const Color(0x590D8A7F), const Color(0x268FD6CB), const Color(0x008FD6CB)]), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_recent_row.xml (ripple)
   static BoxDecoration bgRecentRow(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.recentRowBg, borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
   }
 
-  /// res/drawable/bg_remove_dark.xml (shape)
+  /// res/drawable/bg_remove_dark.xml (ripple)
   static BoxDecoration bgRemoveDark(BuildContext context) {
-    return BoxDecoration(color: const Color(0xB3000000), shape: BoxShape.circle);
+    return BoxDecoration(color: const Color(0xE61F2933), border: Border.all(color: const Color(0xFFFFFFFF), width: 1.5), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_rename_field.xml (shape)
@@ -402,40 +422,40 @@ abstract final class NS {
 
   /// res/drawable/bg_review_card.xml (shape)
   static BoxDecoration bgReviewCard(BuildContext context) {
-    return BoxDecoration(color: const Color(0x14FFFFFF), border: Border.all(color: const Color(0x1FFFFFFF), width: 1.0), borderRadius: BorderRadius.circular(14.0));
+    return BoxDecoration(color: const Color(0x14FFFFFF), border: Border.all(color: const Color(0x1F8FD6CB), width: 1.0), borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_satisfied_btn.xml (ripple)
   static BoxDecoration bgSatisfiedBtn(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_satisfied_card.xml (shape)
   static BoxDecoration bgSatisfiedCard(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.bgSoftCard, borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_save_badge.xml (shape)
   static BoxDecoration bgSaveBadge(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFFFF4D6D), const Color(0xFFFF7A45)]), borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFF0F766E), const Color(0xFF14A394)]), borderRadius: BorderRadius.circular(8.0));
   }
 
   /// res/drawable/bg_save_pink.xml (shape)
   static BoxDecoration bgSavePink(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFFFF3B6B), const Color(0xFFD03BFF)]), borderRadius: const BorderRadius.only(topLeft: Radius.circular(8.0), topRight: Radius.circular(8.0), bottomLeft: Radius.circular(2.0), bottomRight: Radius.circular(8.0)));
+    return BoxDecoration(color: const Color(0xFF0D8A7F), borderRadius: BorderRadius.circular(10.0));
   }
 
   /// res/drawable/bg_scan_band.xml (layer-list)
   static BoxDecoration bgScanBand(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0x004D8DFF), const Color(0x664D8DFF)]));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0x008FD6CB), const Color(0x668FD6CB)]));
   }
 
   /// res/drawable/bg_search_field.xml (shape)
   static BoxDecoration bgSearchField(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(22.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_selection_box.xml (shape)
@@ -444,38 +464,28 @@ abstract final class NS {
     return BoxDecoration(color: c.surface, border: Border.all(color: c.primary, width: 1.5), borderRadius: BorderRadius.circular(3.0));
   }
 
-  /// res/drawable/bg_setup_chip.xml (selector)
-  static BoxDecoration bgSetupChip(BuildContext context) {
-    return BoxDecoration(color: const Color(0x00000000), borderRadius: BorderRadius.circular(8.0));
-  }
-
-  /// res/drawable/bg_shutter.xml (selector)
-  static BoxDecoration bgShutter(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF2B2F37), border: Border.all(color: const Color(0xFF4D8DFF), width: 3.0), shape: BoxShape.circle);
-  }
-
   /// res/drawable/bg_signature_item.xml (shape)
   static BoxDecoration bgSignatureItem(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, border: Border.all(color: const Color(0xFFE1E5EC), width: 1.0), borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(12.0));
   }
 
   /// res/drawable/bg_size_card.xml (selector)
   static BoxDecoration bgSizeCard(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(14.0));
   }
 
   /// res/drawable/bg_size_page.xml (selector)
   static BoxDecoration bgSizePage(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.white, borderRadius: BorderRadius.circular(2.0));
+    return BoxDecoration(color: c.white, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(3.0));
   }
 
   /// res/drawable/bg_size_popup.xml (shape)
   static BoxDecoration bgSizePopup(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(14.0));
   }
 
   /// res/drawable/bg_skeleton.xml (shape)
@@ -486,61 +496,64 @@ abstract final class NS {
 
   /// res/drawable/bg_sparkle_dot.xml (shape)
   static BoxDecoration bgSparkleDot(BuildContext context) {
-    return BoxDecoration(color: const Color(0xCCB9C4FF), shape: BoxShape.circle);
+    return BoxDecoration(color: const Color(0xFFD5EFEB), shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_star_glow.xml (shape)
   static BoxDecoration bgStarGlow(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFF6D6), shape: BoxShape.circle);
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
   }
 
   /// res/drawable/bg_stepper.xml (shape)
   static BoxDecoration bgStepper(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(16.0));
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_strip.xml (shape)
   static BoxDecoration bgStrip(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.white, borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_strip_selected.xml (shape)
   static BoxDecoration bgStripSelected(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, border: Border.all(color: c.primary, width: 1.5), borderRadius: BorderRadius.circular(4.0));
+    return BoxDecoration(color: c.accentContainer, border: Border.all(color: c.accent, width: 1.5), borderRadius: BorderRadius.circular(10.0));
   }
 
   /// res/drawable/bg_success_pill.xml (shape)
   static BoxDecoration bgSuccessPill(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF2DC26B), borderRadius: BorderRadius.circular(18.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_test_badge.xml (shape)
   static BoxDecoration bgTestBadge(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFB300), borderRadius: BorderRadius.circular(4.0));
+    return BoxDecoration(color: const Color(0xFF8FD6CB), borderRadius: BorderRadius.circular(11.0));
   }
 
   /// res/drawable/bg_test_button.xml (ripple)
   static BoxDecoration bgTestButton(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF8AB4F8), borderRadius: BorderRadius.circular(26.0));
+    return BoxDecoration(color: const Color(0xFF0D8A7F), borderRadius: BorderRadius.circular(26.0));
   }
 
   /// res/drawable/bg_test_sheet.xml (shape)
   static BoxDecoration bgTestSheet(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF202124), borderRadius: const BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
+    return BoxDecoration(color: const Color(0xFF103534), borderRadius: const BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
   }
 
   /// res/drawable/bg_thumb.xml (selector)
   static BoxDecoration bgThumb(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFF3F5F9), border: Border.all(color: const Color(0xFFE3E6EC), width: 1.0), borderRadius: BorderRadius.circular(6.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(12.0));
   }
 
   /// res/drawable/bg_tip_bubble.xml (shape)
   static BoxDecoration bgTipBubble(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(10.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.accentSoft, width: 1.0), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_tool_tile.xml (shape)
@@ -568,114 +581,664 @@ abstract final class NS {
   /// res/drawable/bg_tooltip.xml (shape)
   static BoxDecoration bgTooltip(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.primaryLight, borderRadius: BorderRadius.circular(14.0));
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_top_pill.xml (shape)
   static BoxDecoration bgTopPill(BuildContext context) {
-    return BoxDecoration(color: const Color(0xE6283040), borderRadius: BorderRadius.circular(20.0));
+    return BoxDecoration(color: const Color(0xE61F2933), borderRadius: BorderRadius.circular(20.0));
   }
 
   /// res/drawable/bg_top_pill_warn.xml (shape)
   static BoxDecoration bgTopPillWarn(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFF59E0B), borderRadius: BorderRadius.circular(18.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accent, borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_tpl_banner.xml (shape)
   static BoxDecoration bgTplBanner(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_tpl_more.xml (ripple)
   static BoxDecoration bgTplMore(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(12.0));
-  }
-
-  /// res/drawable/bg_tpl_toggle.xml (selector)
-  static BoxDecoration bgTplToggle(BuildContext context) {
-    final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(8.0));
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_tpl_value_pill.xml (shape)
   static BoxDecoration bgTplValuePill(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(6.0));
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(15.0));
   }
 
   /// res/drawable/bg_trial.xml (shape)
   static BoxDecoration bgTrial(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFF1C3A4C), const Color(0xFF15212B), const Color(0xFF111317)]));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFF1F2933), const Color(0xFF0B1F1E)]));
   }
 
   /// res/drawable/bg_trial_card.xml (shape)
   static BoxDecoration bgTrialCard(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF1C1F25), borderRadius: const BorderRadius.only(topLeft: Radius.circular(18.0), topRight: Radius.circular(18.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
+    return BoxDecoration(color: const Color(0xFF0F2A28), border: Border.all(color: const Color(0x1F8FD6CB), width: 1.0), borderRadius: const BorderRadius.only(topLeft: Radius.circular(28.0), topRight: Radius.circular(28.0), bottomLeft: Radius.circular(0), bottomRight: Radius.circular(0)));
   }
 
   /// res/drawable/bg_trial_continue.xml (ripple)
   static BoxDecoration bgTrialContinue(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFF1E8BFF), const Color(0xFF1463E6)]), borderRadius: BorderRadius.circular(28.0));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [const Color(0xFF14A394), const Color(0xFF0D8A7F)]), borderRadius: BorderRadius.circular(26.0));
   }
 
   /// res/drawable/bg_trial_line.xml (shape)
   static BoxDecoration bgTrialLine(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFF2E343C), borderRadius: BorderRadius.circular(12.0));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0x4D8FD6CB), const Color(0x148FD6CB)]), borderRadius: BorderRadius.circular(12.0));
   }
 
   /// res/drawable/bg_tut_tab.xml (selector)
   static BoxDecoration bgTutTab(BuildContext context) {
-    return BoxDecoration(color: const Color(0x00000000), borderRadius: BorderRadius.circular(13.0));
+    return BoxDecoration(color: const Color(0x00000000), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_tut_tabs.xml (shape)
   static BoxDecoration bgTutTabs(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(16.0));
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(20.0));
   }
 
   /// res/drawable/bg_tutorial_card.xml (shape)
   static BoxDecoration bgTutorialCard(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(14.0));
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_tutorial_stage.xml (shape)
   static BoxDecoration bgTutorialStage(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFFEDE9E4), const Color(0xFFF4F1ED), const Color(0xFFFFFFFF)]));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFFD5EFEB), const Color(0xFFEAF4F3), const Color(0xFFF5F7F7)]), borderRadius: const BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0), bottomLeft: Radius.circular(0.0), bottomRight: Radius.circular(0.0)));
   }
 
-  /// res/drawable/bg_view_locally.xml (shape)
+  /// res/drawable/bg_view_locally.xml (ripple)
   static BoxDecoration bgViewLocally(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(6.0));
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/bg_white_round.xml (shape)
   static BoxDecoration bgWhiteRound(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(14.0));
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(24.0));
   }
 
   /// res/drawable/bg_widget.xml (shape)
   static BoxDecoration bgWidget(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFFF4F8FF), const Color(0xFFFFFFFF)]), borderRadius: BorderRadius.circular(18.0));
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [const Color(0xFFEAF4F3), const Color(0xFFFFFFFF)]), borderRadius: BorderRadius.circular(20.0));
   }
 
   /// res/drawable/bg_widget_pill.xml (shape)
   static BoxDecoration bgWidgetPill(BuildContext context) {
-    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: const Color(0xFFE1E7F2), width: 1.0), borderRadius: BorderRadius.circular(16.0));
+    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0), borderRadius: BorderRadius.circular(16.0));
   }
 
   /// res/drawable/bg_widget_stage.xml (shape)
   static BoxDecoration bgWidgetStage(BuildContext context) {
-    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [const Color(0xFFE3ECFB), const Color(0xFFF2F6FD)]), borderRadius: BorderRadius.circular(16.0));
+    final c = NC.of(context);
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [c.deckBack, c.accentContainer]), borderRadius: BorderRadius.circular(20.0));
   }
 
   /// res/drawable/bg_widget_tile.xml (shape)
   static BoxDecoration bgWidgetTile(BuildContext context) {
     return BoxDecoration(color: const Color(0xFFFFFFFF), borderRadius: BorderRadius.circular(12.0));
+  }
+
+  /// res/drawable/ds_a_badge_soft.xml (shape)
+  static BoxDecoration dsABadgeSoft(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(9.0));
+  }
+
+  /// res/drawable/ds_a_card.xml (shape)
+  static BoxDecoration dsACard(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_a_card_ripple.xml (ripple)
+  static BoxDecoration dsACardRipple(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_a_deck_back.xml (shape)
+  static BoxDecoration dsADeckBack(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckBack, borderRadius: BorderRadius.circular(22.0));
+  }
+
+  /// res/drawable/ds_a_deck_front.xml (ripple)
+  static BoxDecoration dsADeckFront(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckFront, borderRadius: BorderRadius.circular(22.0));
+  }
+
+  /// res/drawable/ds_a_deck_go.xml (shape)
+  static BoxDecoration dsADeckGo(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_a_deck_middle.xml (shape)
+  static BoxDecoration dsADeckMiddle(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckMiddle, borderRadius: BorderRadius.circular(22.0));
+  }
+
+  /// res/drawable/ds_a_deck_progress.xml (layer-list)
+  static BoxDecoration dsADeckProgress(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckTrack, borderRadius: BorderRadius.circular(3.0));
+  }
+
+  /// res/drawable/ds_a_mock_card.xml (shape)
+  static BoxDecoration dsAMockCard(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(8.0));
+  }
+
+  /// res/drawable/ds_a_mock_deck.xml (shape)
+  static BoxDecoration dsAMockDeck(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckFront, borderRadius: BorderRadius.circular(10.0));
+  }
+
+  /// res/drawable/ds_a_nav_add.xml (ripple)
+  static BoxDecoration dsANavAdd(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accent, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_a_nav_pill.xml (shape)
+  static BoxDecoration dsANavPill(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarPill, borderRadius: BorderRadius.circular(22.0));
+  }
+
+  /// res/drawable/ds_a_navbar.xml (shape)
+  static BoxDecoration dsANavbar(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_a_onb_screen.xml (shape)
+  static BoxDecoration dsAOnbScreen(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.bgScreen, border: Border.all(color: c.divider, width: 1.5), borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_a_onb_stage.xml (shape)
+  static BoxDecoration dsAOnbStage(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckFront, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_a_onb_stage_back.xml (shape)
+  static BoxDecoration dsAOnbStageBack(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckBack, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_a_onb_stage_mid.xml (shape)
+  static BoxDecoration dsAOnbStageMid(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckMiddle, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_a_progress_horizontal.xml (layer-list)
+  static BoxDecoration dsAProgressHorizontal(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.progressTrack, borderRadius: BorderRadius.circular(3.0));
+  }
+
+  /// res/drawable/ds_a_sheet_tile.xml (ripple)
+  static BoxDecoration dsASheetTile(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_a_top_action.xml (ripple)
+  static BoxDecoration dsATopAction(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_a_top_back.xml (ripple)
+  static BoxDecoration dsATopBack(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_files_bg_card.xml (ripple)
+  static BoxDecoration dsFilesBgCard(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_files_bg_field.xml (shape)
+  static BoxDecoration dsFilesBgField(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, border: Border.all(color: c.primary, width: 1.5), borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_files_bg_note.xml (shape)
+  static BoxDecoration dsFilesBgNote(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_files_bg_pill.xml (ripple)
+  static BoxDecoration dsFilesBgPill(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_files_bg_row.xml (ripple)
+  static BoxDecoration dsFilesBgRow(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_files_bg_row_new.xml (ripple)
+  static BoxDecoration dsFilesBgRowNew(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.newFileBg, border: Border.all(color: c.accentSoft, width: 1.0), borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_files_bg_row_selected.xml (ripple)
+  static BoxDecoration dsFilesBgRowSelected(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, border: Border.all(color: c.primary, width: 1.5), borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_files_bg_search.xml (shape)
+  static BoxDecoration dsFilesBgSearch(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_files_bg_selbar.xml (shape)
+  static BoxDecoration dsFilesBgSelbar(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_files_bg_swipe.xml (shape)
+  static BoxDecoration dsFilesBgSwipe(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.swipeBg, borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_prem_btn_round.xml (ripple)
+  static BoxDecoration dsPremBtnRound(BuildContext context) {
+    return BoxDecoration(color: const Color(0x26FFFFFF), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_prem_pill.xml (ripple)
+  static BoxDecoration dsPremPill(BuildContext context) {
+    return BoxDecoration(color: const Color(0x26FFFFFF), borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_prem_ring.xml (shape)
+  static BoxDecoration dsPremRing(BuildContext context) {
+    return BoxDecoration(color: const Color(0x1FFFFFFF), border: Border.all(color: const Color(0xFF8FD6CB), width: 1.5), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_set_banner_back.xml (shape)
+  static BoxDecoration dsSetBannerBack(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_set_banner_front.xml (shape)
+  static BoxDecoration dsSetBannerFront(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [c.deckFront, c.deckTrack]), borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_set_btn_accent.xml (ripple)
+  static BoxDecoration dsSetBtnAccent(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accent, borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_set_btn_circle.xml (ripple)
+  static BoxDecoration dsSetBtnCircle(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_set_btn_circle_surface.xml (ripple)
+  static BoxDecoration dsSetBtnCircleSurface(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_set_btn_secondary.xml (ripple)
+  static BoxDecoration dsSetBtnSecondary(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_set_card.xml (shape)
+  static BoxDecoration dsSetCard(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_set_chip.xml (selector)
+  static BoxDecoration dsSetChip(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_set_choice_row.xml (selector)
+  static BoxDecoration dsSetChoiceRow(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_set_field.xml (shape)
+  static BoxDecoration dsSetField(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_set_handle.xml (shape)
+  static BoxDecoration dsSetHandle(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.divider, borderRadius: BorderRadius.circular(2.0));
+  }
+
+  /// res/drawable/ds_set_icon_circle.xml (shape)
+  static BoxDecoration dsSetIconCircle(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_set_row_divider.xml (layer-list)
+  static BoxDecoration dsSetRowDivider(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.divider);
+  }
+
+  /// res/drawable/ds_tools_bg_badge.xml (shape)
+  static BoxDecoration dsToolsBgBadge(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.primary, borderRadius: BorderRadius.circular(10.0));
+  }
+
+  /// res/drawable/ds_tools_bg_badge_peach.xml (shape)
+  static BoxDecoration dsToolsBgBadgePeach(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(10.0));
+  }
+
+  /// res/drawable/ds_tools_bg_cam_rail.xml (shape)
+  static BoxDecoration dsToolsBgCamRail(BuildContext context) {
+    return BoxDecoration(color: const Color(0x590E1414), borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_tools_bg_canvas.xml (shape)
+  static BoxDecoration dsToolsBgCanvas(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsToolsCanvas, borderRadius: BorderRadius.circular(20.0));
+  }
+
+  /// res/drawable/ds_tools_bg_card.xml (shape)
+  static BoxDecoration dsToolsBgCard(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_tools_bg_card_peach.xml (ripple)
+  static BoxDecoration dsToolsBgCardPeach(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_tools_bg_card_ripple.xml (ripple)
+  static BoxDecoration dsToolsBgCardRipple(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_tools_bg_card_soft.xml (shape)
+  static BoxDecoration dsToolsBgCardSoft(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_tools_bg_check_off.xml (shape)
+  static BoxDecoration dsToolsBgCheckOff(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: const Color(0x66FFFFFF), border: Border.all(color: c.textSecondary, width: 1.5), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_check_on.xml (layer-list)
+  static BoxDecoration dsToolsBgCheckOn(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accent, border: Border.all(color: c.white, width: 1.5), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_circle_ok.xml (ripple)
+  static BoxDecoration dsToolsBgCircleOk(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accent, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_crown.xml (shape)
+  static BoxDecoration dsToolsBgCrown(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.accentSoft, width: 1.0), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_deck_back.xml (shape)
+  static BoxDecoration dsToolsBgDeckBack(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckBack, borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_tools_bg_deck_middle.xml (shape)
+  static BoxDecoration dsToolsBgDeckMiddle(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.deckMiddle, borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_tools_bg_dialog.xml (shape)
+  static BoxDecoration dsToolsBgDialog(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_tools_bg_divider.xml (shape)
+  static BoxDecoration dsToolsBgDivider(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.divider);
+  }
+
+  /// res/drawable/ds_tools_bg_divider_inset.xml (layer-list)
+  static BoxDecoration dsToolsBgDividerInset(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.divider);
+  }
+
+  /// res/drawable/ds_tools_bg_field.xml (shape)
+  static BoxDecoration dsToolsBgField(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(14.0));
+  }
+
+  /// res/drawable/ds_tools_bg_handle.xml (shape)
+  static BoxDecoration dsToolsBgHandle(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.divider, borderRadius: BorderRadius.circular(2.0));
+  }
+
+  /// res/drawable/ds_tools_bg_hero.xml (layer-list)
+  static BoxDecoration dsToolsBgHero(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsToolsHero, borderRadius: BorderRadius.circular(20.0));
+  }
+
+  /// res/drawable/ds_tools_bg_hero_icon.xml (shape)
+  static BoxDecoration dsToolsBgHeroIcon(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_hero_ripple.xml (ripple)
+  static BoxDecoration dsToolsBgHeroRipple(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsToolsHero, borderRadius: BorderRadius.circular(20.0));
+  }
+
+  /// res/drawable/ds_tools_bg_list_divider.xml (layer-list)
+  static BoxDecoration dsToolsBgListDivider(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.divider);
+  }
+
+  /// res/drawable/ds_tools_bg_page.xml (shape)
+  static BoxDecoration dsToolsBgPage(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.white, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(6.0));
+  }
+
+  /// res/drawable/ds_tools_bg_page_sel.xml (shape)
+  static BoxDecoration dsToolsBgPageSel(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.white, border: Border.all(color: c.accent, width: 2.5), borderRadius: BorderRadius.circular(6.0));
+  }
+
+  /// res/drawable/ds_tools_bg_paper.xml (shape)
+  static BoxDecoration dsToolsBgPaper(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: const Color(0xFFFFFFFF), border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(20.0));
+  }
+
+  /// res/drawable/ds_tools_bg_pill_cam.xml (ripple)
+  static BoxDecoration dsToolsBgPillCam(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsToolsCamBtn, borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_tools_bg_pill_cam_on.xml (ripple)
+  static BoxDecoration dsToolsBgPillCamOn(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_tools_bg_pill_outline.xml (ripple)
+  static BoxDecoration dsToolsBgPillOutline(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_tools_bg_pill_soft.xml (ripple)
+  static BoxDecoration dsToolsBgPillSoft(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(24.0));
+  }
+
+  /// res/drawable/ds_tools_bg_ring.xml (shape)
+  static BoxDecoration dsToolsBgRing(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.primary, width: 2.0), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_ring_white.xml (shape)
+  static BoxDecoration dsToolsBgRingWhite(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.primary, width: 2.0), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_row_icon.xml (shape)
+  static BoxDecoration dsToolsBgRowIcon(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_seg_track.xml (shape)
+  static BoxDecoration dsToolsBgSegTrack(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(22.0));
+  }
+
+  /// res/drawable/ds_tools_bg_sheet.xml (shape)
+  static BoxDecoration dsToolsBgSheet(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, borderRadius: const BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0), bottomLeft: Radius.circular(0.0), bottomRight: Radius.circular(0.0)));
+  }
+
+  /// res/drawable/ds_tools_bg_shutter.xml (layer-list)
+  static BoxDecoration dsToolsBgShutter(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: const Color(0x00000000), border: Border.all(color: c.white, width: 3.0), shape: BoxShape.circle);
+  }
+
+  /// res/drawable/ds_tools_bg_tab_sel.xml (shape)
+  static BoxDecoration dsToolsBgTabSel(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsToolsSel, borderRadius: BorderRadius.circular(18.0));
+  }
+
+  /// res/drawable/ds_tools_bg_thumb.xml (shape)
+  static BoxDecoration dsToolsBgThumb(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surfaceVariant, borderRadius: BorderRadius.circular(10.0));
+  }
+
+  /// res/drawable/ds_tools_bg_thumb_sel.xml (shape)
+  static BoxDecoration dsToolsBgThumbSel(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: const Color(0x00000000), border: Border.all(color: c.accent, width: 2.5), borderRadius: BorderRadius.circular(10.0));
+  }
+
+  /// res/drawable/ds_tools_bg_toast.xml (shape)
+  static BoxDecoration dsToolsBgToast(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(22.0));
+  }
+
+  /// res/drawable/ds_tools_bg_toast_lg.xml (shape)
+  static BoxDecoration dsToolsBgToastLg(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_view_banner.xml (shape)
+  static BoxDecoration dsViewBanner(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.accentContainer, borderRadius: BorderRadius.circular(16.0));
+  }
+
+  /// res/drawable/ds_view_bar.xml (shape)
+  static BoxDecoration dsViewBar(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.navbarBg, borderRadius: BorderRadius.circular(28.0));
+  }
+
+  /// res/drawable/ds_view_scroll_track.xml (shape)
+  static BoxDecoration dsViewScrollTrack(BuildContext context) {
+    return BoxDecoration(color: const Color(0x4094A3B8), borderRadius: BorderRadius.circular(2.0));
+  }
+
+  /// res/drawable/ds_view_search_field.xml (shape)
+  static BoxDecoration dsViewSearchField(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.surface, border: Border.all(color: c.divider, width: 1.0), borderRadius: BorderRadius.circular(20.0));
+  }
+
+  /// res/drawable/ds_view_top_pill.xml (shape)
+  static BoxDecoration dsViewTopPill(BuildContext context) {
+    final c = NC.of(context);
+    return BoxDecoration(color: c.dsDFloat, borderRadius: BorderRadius.circular(18.0));
   }
 
   /// res/drawable/fast_scroll_track.xml (shape)
@@ -686,7 +1249,7 @@ abstract final class NS {
   /// res/drawable/tab_indicator.xml (layer-list)
   static BoxDecoration tabIndicator(BuildContext context) {
     final c = NC.of(context);
-    return BoxDecoration(color: c.primary, borderRadius: BorderRadius.circular(2.0));
+    return BoxDecoration(color: c.accent, borderRadius: BorderRadius.circular(2.0));
   }
 
 }

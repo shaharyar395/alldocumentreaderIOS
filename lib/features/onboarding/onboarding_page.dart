@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../app_scope.dart';
 import '../../l10n/s.dart';
+import '../../native/native_colors.dart';
 import 'onboarding_art.dart';
 
 /// First-launch onboarding like the Android app (OnboardingActivity): three dark pages with a
@@ -18,7 +19,6 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProviderStateMixin {
   static const _pageCount = 3;
-  static const _primary = Color(0xFF0A5FD9);
 
   final _controller = PageController();
   int _index = 0;
@@ -51,10 +51,12 @@ class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProvid
     final s = S.of(context);
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final titles = [s.t('onbTitle1'), s.t('onbTitle2'), s.t('onbTitle3')];
+    final c = NC.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: OnboardingColors.bottom,
+        backgroundColor: c.bgScreen,
         body: Padding(
           padding: EdgeInsets.only(bottom: bottomInset),
           child: Stack(
@@ -86,7 +88,7 @@ class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProvid
                         height: 6,
                         margin: const EdgeInsetsDirectional.only(end: 8),
                         decoration: BoxDecoration(
-                          color: i == _index ? _primary : OnboardingColors.dotOff,
+                          color: i == _index ? c.primary : c.dotOff,
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -96,17 +98,18 @@ class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProvid
               PositionedDirectional(
                 end: 24,
                 bottom: 32,
+                // AccentPillButton: 52 dp, at least 112 dp wide, accent with on_accent text
                 child: SizedBox(
-                  height: 46,
+                  height: 52,
                   child: FilledButton(
                     onPressed: _next,
                     style: FilledButton.styleFrom(
-                      backgroundColor: _primary,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(96, 44),
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      backgroundColor: c.accent,
+                      foregroundColor: c.onAccent,
+                      minimumSize: const Size(112, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+                      textStyle: const TextStyle(fontFamily: 'Poppins', fontSize: 15, fontWeight: FontWeight.w500),
                     ),
                     child: Text(_index == _pageCount - 1 ? s.t('start') : s.t('next')),
                   ),

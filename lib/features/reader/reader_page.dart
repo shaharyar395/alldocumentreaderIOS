@@ -9,11 +9,14 @@ import 'package:printing/printing.dart';
 
 import '../../app_scope.dart';
 import '../../data/doc_entry.dart';
+import '../../data/reading_progress.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../services/ios_analytics.dart';
+import '../../services/app_analytics.dart';
 import '../../services/ocr_service.dart';
 import '../../services/office_layout.dart';
 import '../../services/office_pdf.dart';
@@ -92,17 +95,28 @@ const _invertFilter = ColorFilter.matrix(<double>[
 /// like the Android ViewerActivity: page chip + Go to page, Vertical / Horizontal, Rotate,
 /// Search, Invert, Share, ⋮ menu, convert, tap to hide the bars, page slider and zoom.
 class ReaderPage extends StatefulWidget {
-  const ReaderPage({super.key, required this.entry});
+  const ReaderPage({super.key, required this.entry, this.source = 'home', this.startPage = -1});
 
   final DocEntry entry;
+  final String source;
+
+  /// Page (0-based) to open at ("Continue reading"); -1 = the first page.
+  final int startPage;
 
   @override
   State<ReaderPage> createState() => _ReaderPageState();
 }
 
-class _ReaderPageState extends State<ReaderPage> {
+class _ReaderPageState extends State<ReaderPage> with WidgetsBindingObserver {
   late DocEntry _entry = widget.entry;
   bool _started = false;
+
+  /// "Continue reading" (Android ViewerActivity EXTRA_START_PAGE / saveProgress): the page to
+  /// open at until it is reached (-1 = none / done), and the last position written.
+  late int _pendingStart = widget.startPage;
+  int _savedPage = -1;
+  int _savedCount = -1;
+  Timer? _saveTimer;
 
   // content
   bool _loading = true;
@@ -173,12 +187,82 @@ class _ReaderPageState extends State<ReaderPage> {
     }
     if (_started) return;
     _started = true;
+    IosAnalytics.activate(_viewer, {'file_type': _entry.kind.name, 'source': widget.source});
     if (_entry.kind == DocKind.image) return;
+    WidgetsBinding.instance.addObserver(this);
+    _paged.addListener(_onPageChanged);
+    logEvent('viewer_open', {'type': _entry.kind.name});
     _load(scope.library.fileOf(_entry));
+  }
+
+  String get _viewer => switch (_entry.kind) {
+        DocKind.pdf => 'pdf_viewer',
+        DocKind.word => 'word_viewer',
+        DocKind.excel => 'excel_viewer',
+        DocKind.ppt => 'ppt_viewer',
+        DocKind.txt => 'txt_viewer',
+        DocKind.image => 'image_viewer',
+        DocKind.other => 'other_viewer',
+      };
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // leaving the app: always write, so this file becomes the one read last (onPause)
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _savedPage = -1;
+      _saveProgress();
+    }
+  }
+
+  void _onPageChanged() {
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(milliseconds: 600), _saveProgress);
+  }
+
+  /// Saves the page on screen for the home screen's "Continue reading" card (not before the
+  /// start page has been reached: that would save page 1). Spreadsheets have no pages.
+  void _saveProgress() {
+    _saveTimer?.cancel();
+    if (_pendingStart >= 0 || !_ready || _sheets.isNotEmpty) return;
+    final count = _pageCount;
+    if (count <= 0) return;
+    final page = _paged.page.clamp(0, count - 1);
+    if (page == _savedPage && count == _savedCount) return;
+    _savedPage = page;
+    _savedCount = count;
+    unawaited(ReadingProgress.save(_entry.relativePath, page, count));
+  }
+
+  /// Opens at [ReaderPage.startPage] once that page exists: long Word / TXT documents lay out
+  /// their pages in the background, so this is tried again whenever pages are added; when all are
+  /// laid out ([finished]) and the document turned out shorter, the last page is shown.
+  void _applyStartPage({required bool finished}) {
+    final target = _pendingStart;
+    if (target < 0 || !mounted) return;
+    final count = _pageCount;
+    if (count <= 0 || _sheets.isNotEmpty) {
+      if (finished) _pendingStart = -1;
+      return;
+    }
+    if (target < count || finished) {
+      _pendingStart = -1;
+      final page = target.clamp(0, count - 1);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _paged.jumpTo(page);
+      });
+    }
   }
 
   @override
   void dispose() {
+    IosAnalytics.left(_viewer);
+    if (_started && _entry.kind != DocKind.image) {
+      _savedPage = -1;
+      _saveProgress();
+      WidgetsBinding.instance.removeObserver(this);
+      _paged.removeListener(_onPageChanged);
+    }
+    _saveTimer?.cancel();
     _searchGen++;
     _debounce?.cancel();
     _pillTimer?.cancel();
@@ -323,8 +407,12 @@ class _ReaderPageState extends State<ReaderPage> {
       } else if (shown && ready != _pageCount && (!more || watch.elapsedMilliseconds > 400)) {
         watch.reset();
         setState(() => _pageCount = ready);
+        _applyStartPage(finished: !more);
       }
-      if (!more) break;
+      if (!more) {
+        _applyStartPage(finished: true);
+        break;
+      }
       await Future<void>.delayed(Duration.zero);
     }
   }
@@ -334,6 +422,7 @@ class _ReaderPageState extends State<ReaderPage> {
     final settings = AppScope.of(context).settings;
     final paginator = _paginator;
     final stillLaying = paginator != null && !paginator.complete;
+    _applyStartPage(finished: !stillLaying);
     final many = _pageCount > 1 || stillLaying;
     if (!settings.pageTipSeen && many && _sheets.isEmpty) setState(() => _jumpTip = true);
   }
@@ -807,6 +896,7 @@ class _ReaderPageState extends State<ReaderPage> {
   // ------------------------------------------------------------------ actions
 
   Future<void> _convert() async {
+    logEvent('viewer_convert_tapped');
     if (_isPdf) {
       await convertPdfToWord(context, entry: _entry);
       return;
@@ -951,7 +1041,7 @@ class _ReaderPageState extends State<ReaderPage> {
                       name,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                        fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
                         color: selected ? nc.typeExcel : nc.textPrimary,
                       ),
                     ),
@@ -1001,7 +1091,7 @@ class _ReaderPageState extends State<ReaderPage> {
                 child: CircularProgressIndicator(strokeWidth: 3.5, color: nc.primary),
               ),
               const SizedBox(height: 8),
-              Text(s.t('loading'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+              Text(s.t('loading'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: nc.textPrimary)),
             ],
           ),
         ),
@@ -1041,55 +1131,74 @@ class _ReaderPageState extends State<ReaderPage> {
       },
       horizontal: _horizontal,
       onTap: _toggleChrome,
-      bottomGap: _isPdf && _chrome && !_searching ? 16 + 52 + 8 : 6,
+      // the last page scrolls clear of the floating tool bar (rvPages paddingBottom 84 dp)
+      bottomGap: _chrome && !_searching ? 84 : 6,
       layoutVersion: _layoutVersion,
     );
   }
 
-  /// activity_viewer.xml #normalBar: back, the name (18sp bold, middle ellipsis), convert
-  /// (ic_convert_word for PDF, ic_convert_pdf otherwise), Pages (PDF), ⋮.
+  /// activity_viewer.xml #normalBar ("Plum deck"): the back circle (accent_container, primary
+  /// arrow), the name (17 sp medium, middle ellipsis), then round surface buttons: convert
+  /// (ic_convert_word for PDF, ic_convert_pdf otherwise), Pages (PDF), search, ⋮.
   Widget _topBar(S s, NC nc) {
     final converting = _convertProgress != null && _converted == null;
+    Widget action(NDrawable icon, String? tip, VoidCallback? onTap) => DsCircleButton(
+          fill: nc.surface,
+          icon: icon,
+          tint: onTap == null ? nc.textHint : nc.textPrimary,
+          tooltip: tip,
+          onTap: onTap,
+        );
     return Row(
       children: [
-        const NativeBackButton(),
+        DsCircleButton(
+          fill: nc.accentContainer,
+          icon: ND.icBack,
+          tint: nc.primary,
+          mirrorInRtl: true,
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onTap: () => Navigator.maybePop(context),
+        ),
+        const SizedBox(width: 8),
         Expanded(
           child: MiddleEllipsisText(
             _entry.name,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: nc.textPrimary),
           ),
         ),
-        if (_ready && _isPdf)
-          NativeIconButton(icon: ND.icConvertWord, tint: nc.textPrimary, tooltip: s.t('pdfToWord'), onTap: _convert),
-        if (_ready && !_isPdf)
-          NativeIconButton(
-            icon: ND.icConvertPdf,
-            tint: nc.textPrimary,
-            tooltip: s.t('convertToPdf'),
-            onTap: converting ? null : _convert,
-          ),
-        if (_ready && _isPdf)
-          NativeIconButton(
-            icon: ND.icPages,
-            tint: nc.textPrimary,
-            tooltip: s.t('pagesMenu'),
-            onTap: () => openManagePages(context, entry: _entry),
-          ),
-        NativeIconButton(icon: ND.icMoreVert, tint: nc.textPrimary, onTap: _menu),
+        const SizedBox(width: 4),
+        if (_ready && _isPdf) action(ND.icConvertWord, s.t('pdfToWord'), _convert),
+        if (_ready && !_isPdf) action(ND.icConvertPdf, s.t('convertToPdf'), converting ? null : _convert),
+        if (_ready && _isPdf) action(ND.icPages, s.t('pagesMenu'), () => openManagePages(context, entry: _entry)),
+        action(ND.icSearchText, s.t('search'), _ready ? _openSearch : null),
+        action(ND.icMoreVert, null, _menu),
       ],
     );
   }
 
-  /// activity_viewer.xml #searchBar: back, the 40dp field (bg_search_field), "3/12", ▲ ▼.
+  /// activity_viewer.xml #searchBar: the back circle, the 40 dp pill field (surface, divider
+  /// hairline, 20 dp corners), "3/12", ▲ ▼ in primary.
   Widget _searchBar(S s, NC nc) {
     return Row(
       children: [
-        NativeBackButton(onTap: _closeSearch),
+        DsCircleButton(
+          fill: nc.accentContainer,
+          icon: ND.icBack,
+          tint: nc.primary,
+          mirrorInRtl: true,
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onTap: _closeSearch,
+        ),
+        const SizedBox(width: 6),
         Expanded(
           child: Container(
             height: 40,
-            decoration: NS.bgSearchField(context),
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: nc.surface,
+              border: Border.all(color: nc.divider, width: 1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: const EdgeInsetsDirectional.only(start: 16, end: 12),
             alignment: AlignmentDirectional.centerStart,
             child: TextField(
               controller: _search,
@@ -1115,137 +1224,60 @@ class _ReaderPageState extends State<ReaderPage> {
         ),
         ConstrainedBox(
           constraints: const BoxConstraints(minWidth: 40),
-          child: Text(
-            _countLabel(),
-            textAlign: TextAlign.center,
-            style: TextStyle(color: nc.textSecondary, fontSize: 13),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 4, end: 2),
+            child: Text(
+              _countLabel(),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: nc.textSecondary, fontSize: 12),
+            ),
           ),
         ),
         NativeIconButton(
           icon: ND.icArrowUp,
-          size: 40,
-          tint: nc.textPrimary,
+          size: 44,
+          padding: 12,
+          tint: _hits.isEmpty ? nc.textHint : nc.primary,
           onTap: _hits.isEmpty ? null : () => _step(-1),
         ),
         NativeIconButton(
           icon: ND.icArrowDown,
-          size: 40,
-          tint: nc.textPrimary,
+          size: 44,
+          padding: 12,
+          tint: _hits.isEmpty ? nc.textHint : nc.primary,
           onTap: _hits.isEmpty ? null : () => _step(1),
         ),
       ],
     );
   }
 
-  /// item_bottom_tool.xml: 22dp icon + 12sp label (marginTop 3dp), tint @color/tool_tint
-  /// (selected = primary, disabled = #C3C8D0, else text_primary), borderless ripple.
+  /// item_bottom_tool.xml: 22 dp outline icon + 11 sp label (2 dp apart) in ds_view_tool_tint:
+  /// navbar_pill when on, navbar_off otherwise (half when disabled); a soft round press glow.
   Widget _tool(NC nc, NDrawable icon, String label, VoidCallback? onTap, {bool selected = false}) {
-    final color = onTap == null ? const Color(0xFFC3C8D0) : (selected ? nc.primary : nc.textPrimary);
+    final color = onTap == null ? nc.navbarOff.withValues(alpha: 0.5) : (selected ? nc.navbarPill : nc.navbarOff);
     return Expanded(
-      child: InkResponse(
-        onTap: onTap,
-        containedInkWell: false,
-        radius: 36,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            NativeIcon(icon, size: 22, tint: color),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 12, color: color),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _bottomBar(S s, NC nc) {
-    final landscape = MediaQuery.orientationOf(context) == Orientation.landscape;
-    final enabled = _ready;
-    return Material(
-      color: nc.surface,
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          children: [
-            _tool(
-              nc,
-              _horizontal ? ND.icHorizontal : ND.icVertical,
-              s.t(_horizontal ? 'horizontal' : 'vertical'),
-              enabled ? _toggleMode : null,
-            ),
-            _tool(nc, ND.icRotate, s.t('rotate'), _rotate, selected: landscape),
-            _tool(nc, ND.icSearchText, s.t('search'), enabled ? _openSearch : null),
-            _tool(nc, ND.icInvert, s.t('invert'), _toggleInvert, selected: _inverted),
-            _tool(nc, ND.icShare, s.t('share'), () => shareEntry(context, _entry)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// "Converting… N%" / "Saved successfully [Open] ✕" (activity_viewer.xml #banner, bg_banner).
-  Widget _banner(S s, NC nc) {
-    final done = _converted != null;
-    final percent = ((_convertProgress ?? 0) * 100).round();
-    return Material(
-      color: nc.surfaceVariant,
-      child: SizedBox(
-        height: 48,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
-          child: Row(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        excludeSemantics: true,
+        child: InkResponse(
+          onTap: onTap,
+          containedInkWell: false,
+          radius: 26,
+          splashColor: const Color(0x338FD6CB),
+          highlightColor: Colors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (done)
-                const NativeIcon(ND.icCheckCircle, size: 22)
-              else
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2.4, color: nc.primary),
-                ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  done ? s.t('savedSuccessfully') : s.t('convertingProgress', {'percent': '$percent'}),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: nc.textPrimary, fontSize: 15),
-                ),
+              NativeIcon(icon, size: 22, tint: color),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 11, color: color),
               ),
-              if (done)
-                Material(
-                  color: Colors.transparent,
-                  shape: StadiumBorder(side: BorderSide(color: nc.primary, width: 1.2)),
-                  clipBehavior: Clip.antiAlias,
-                  child: Ink(
-                    color: nc.surface,
-                    child: InkWell(
-                      onTap: _openConverted,
-                      child: Container(
-                        height: 30,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        alignment: Alignment.center,
-                        child: Text(
-                          s.t('open'),
-                          style: TextStyle(color: nc.primary, fontSize: 14, fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              if (done)
-                NativeIconButton(
-                  icon: ND.icClose,
-                  size: 36,
-                  tint: nc.textSecondary,
-                  tooltip: s.t('cancel'),
-                  onTap: _closeBanner,
-                ),
             ],
           ),
         ),
@@ -1253,8 +1285,129 @@ class _ReaderPageState extends State<ReaderPage> {
     );
   }
 
-  /// tvPageChip: 28dp, bg_page_chip (#CC2B303A, 14dp corners), 13sp bold white.
+  /// The floating rounded tool bar (ds_view_bar: navbar_bg, 28 dp corners, 60 dp, elevation 8,
+  /// 16 dp from the sides and 12 dp from the bottom): Mode / Rotate / Invert / Share / Save.
+  /// Save bookmarks the file (like ⋮ → Bookmark) and is lit while it is bookmarked.
+  Widget _bottomBar(S s, NC nc) {
+    final landscape = MediaQuery.orientationOf(context) == Orientation.landscape;
+    final enabled = _ready;
+    final library = AppScope.of(context).library;
+    var bookmarked = _entry.bookmarked;
+    for (final e in library.entries) {
+      if (e.id == _entry.id) {
+        bookmarked = e.bookmarked;
+        break;
+      }
+    }
+    return Material(
+      color: nc.navbarBg,
+      elevation: 8,
+      shadowColor: const Color(0x55000000),
+      borderRadius: BorderRadius.circular(28),
+      child: SizedBox(
+        height: 60,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Row(
+            children: [
+              _tool(
+                nc,
+                _horizontal ? ND.icHorizontal : ND.icVertical,
+                s.t(_horizontal ? 'horizontal' : 'vertical'),
+                enabled && _sheets.isEmpty ? _toggleMode : null,
+              ),
+              _tool(nc, ND.icRotate, s.t('rotate'), _rotate, selected: landscape),
+              _tool(nc, ND.icInvert, s.t('invert'), _toggleInvert, selected: _inverted),
+              _tool(nc, ND.icShare, s.t('share'), () => shareEntry(context, _entry)),
+              _tool(
+                nc,
+                bookmarked ? ND.icBookmark : ND.icBookmarkBorder,
+                s.t(bookmarked ? 'dsSaved' : 'dsSave'),
+                () async {
+                  await toggleBookmarkWithPill(context, _entry);
+                  if (mounted) setState(() {});
+                },
+                selected: bookmarked,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// "Converting… N%" / "Saved successfully [Open] ✕" (#banner: accent_container strip, 16 dp
+  /// corners, 12 dp from the sides): primary spinner / check, a primary "Open" pill.
+  Widget _banner(S s, NC nc) {
+    final done = _converted != null;
+    final percent = ((_convertProgress ?? 0) * 100).round();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
+      child: Material(
+        color: nc.accentContainer,
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 48,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 14, end: 4),
+            child: Row(
+              children: [
+                if (done)
+                  NativeIcon(ND.icCheckCircle, size: 22, tint: nc.primary)
+                else
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2.4, color: nc.primary),
+                  ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    done ? s.t('savedSuccessfully') : s.t('convertingProgress', {'percent': '$percent'}),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: nc.textPrimary, fontSize: 14),
+                  ),
+                ),
+                if (done)
+                  Material(
+                    color: nc.primary,
+                    shape: const StadiumBorder(),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: _openConverted,
+                      child: Container(
+                        height: 32,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.center,
+                        child: Text(
+                          s.t('open'),
+                          style: TextStyle(color: nc.onPrimary, fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (done)
+                  NativeIconButton(
+                    icon: ND.icClose,
+                    size: 44,
+                    padding: 13,
+                    tint: nc.textSecondary,
+                    tooltip: s.t('cancel'),
+                    onTap: _closeBanner,
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// tvPageChip "4 / 12": 32 dp, ds_d_float with a faint soft-teal hairline, 16 dp corners, at
+  /// least 64 dp wide, 13 sp medium ds_d_float_text; tap = Go to page.
   Widget _pageChip(S s) {
+    final nc = NC.of(context);
     return ListenableBuilder(
       listenable: _paged,
       builder: (context, _) {
@@ -1263,18 +1416,22 @@ class _ReaderPageState extends State<ReaderPage> {
         final hit = _current;
         final flagged = _searching && hit != null && hit.item < 0 && hit.page == _paged.page;
         return Material(
-          color: flagged ? const Color(0xFFE65100) : const Color(0xCC2B303A),
-          borderRadius: BorderRadius.circular(14),
+          color: flagged ? nc.accent : nc.dsDFloat,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0x338FD6CB), width: 1),
+          ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: _goToPage,
             child: Container(
-              height: 28,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              height: 32,
+              constraints: const BoxConstraints(minWidth: 64),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               alignment: Alignment.center,
               child: Text(
                 s.t('ofPages', {'current': '$current', 'total': '$total'}),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                style: TextStyle(color: flagged ? nc.onAccent : nc.dsDFloatText, fontWeight: FontWeight.w500, fontSize: 13),
               ),
             ),
           ),
@@ -1283,23 +1440,24 @@ class _ReaderPageState extends State<ReaderPage> {
     );
   }
 
-  /// jumpTip: 170dp bubble (bg_tip_bubble, elevation 6, padding 10dp) with OK (64×26dp).
+  /// jumpTip: a 190 dp bubble (bg_tip_bubble: surface, accent_soft hairline, 16 dp corners,
+  /// elevation 6, padding 12 dp) with a 72 x 32 dp OK pill.
   Widget _jumpTipCard(S s, NC nc) {
     return Material(
       color: nc.surface,
       elevation: 6,
-      borderRadius: BorderRadius.circular(10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: nc.accentSoft, width: 1)),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(s.t('jumpTip'), style: TextStyle(color: nc.textPrimary, fontSize: 13)),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: _OutlinePill(label: s.t('ok'), width: 64, height: 26, fontSize: 13, onTap: _dismissJumpTip),
+              child: _OutlinePill(label: s.t('ok'), width: 72, height: 32, fontSize: 13, onTap: _dismissJumpTip),
             ),
           ],
         ),
@@ -1307,27 +1465,28 @@ class _ReaderPageState extends State<ReaderPage> {
     );
   }
 
-  /// tvTopPill: 36dp, bg_top_pill (#E6283040, 20dp corners), elevation 4, 18dp white icon,
-  /// 14sp bold white text.
+  /// tvTopPill: 36 dp, ds_d_float with 18 dp corners, elevation 4, the icon and 13 sp medium
+  /// ds_d_float_text.
   Widget _pillView(String text) {
+    final nc = NC.of(context);
     return IgnorePointer(
       child: Center(
         child: AnimatedOpacity(
           opacity: _pillShown ? 1 : 0,
           duration: Duration(milliseconds: _pillShown ? 0 : 250),
           child: Material(
-            color: const Color(0xE6283040),
+            color: nc.dsDFloat,
             elevation: 4,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             child: Container(
               height: 36,
-              padding: const EdgeInsetsDirectional.only(start: 12, end: 14),
+              padding: const EdgeInsetsDirectional.only(start: 14, end: 16),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  NativeIcon(_pillIcon, size: 18, tint: Colors.white),
-                  const SizedBox(width: 6),
-                  Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
+                  NativeIcon(_pillIcon, size: 18, tint: nc.dsDFloatText),
+                  const SizedBox(width: 8),
+                  Text(text, style: TextStyle(color: nc.dsDFloatText, fontWeight: FontWeight.w500, fontSize: 13)),
                 ],
               ),
             ),
@@ -1363,7 +1522,7 @@ class _ReaderPageState extends State<ReaderPage> {
           children: [
             Text(
               s.t('pages', {'count': '${hit.page + 1}'}),
-              style: TextStyle(color: nc.textSecondary, fontSize: 11, fontWeight: FontWeight.w700),
+              style: TextStyle(color: nc.textSecondary, fontSize: 11, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 2),
             Text.rich(
@@ -1372,7 +1531,7 @@ class _ReaderPageState extends State<ReaderPage> {
                   TextSpan(text: before),
                   TextSpan(
                     text: match,
-                    style: TextStyle(backgroundColor: currentHitColor, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                    style: TextStyle(backgroundColor: currentHitColor, fontWeight: FontWeight.w500, color: nc.textPrimary),
                   ),
                   TextSpan(text: after),
                 ],
@@ -1406,15 +1565,15 @@ class _ReaderPageState extends State<ReaderPage> {
       child: Stack(
         children: [
           Scaffold(
-            backgroundColor: nc.surface,
+            backgroundColor: nc.bgScreen,
             body: SafeArea(
               top: !showTop,
               child: Column(
                 children: [
-                  // 56dp top bar on @color/surface (Theme.DocReader.WhiteBar status bar)
+                  // 56 dp top bar on the page colour
                   if (showTop)
                     Material(
-                      color: nc.surface,
+                      color: nc.bgScreen,
                       child: SafeArea(
                         bottom: false,
                         left: false,
@@ -1422,7 +1581,7 @@ class _ReaderPageState extends State<ReaderPage> {
                         child: SizedBox(
                           height: 56,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsetsDirectional.only(start: 6, end: _searching ? 4 : 6),
                             child: _searching ? _searchBar(s, nc) : _topBar(s, nc),
                           ),
                         ),
@@ -1430,48 +1589,50 @@ class _ReaderPageState extends State<ReaderPage> {
                     ),
                   if (_convertProgress != null) _banner(s, nc),
                   Expanded(
-                    // #content: @color/surface_variant (#1B1E24 while the colours are inverted)
+                    // #content: ds_d_canvas (ds_d_canvas_inverted while the colours are inverted)
                     child: ColoredBox(
-                      color: _inverted ? const Color(0xFF1B1E24) : nc.surfaceVariant,
+                      color: _inverted ? nc.dsDCanvasInverted : nc.dsDCanvas,
                       child: Stack(
                         children: [
                           Positioned.fill(
                             child: _inverted ? ColorFiltered(colorFilter: _invertFilter, child: content) : content,
                           ),
                           if (paged && _chrome && _pageCount > 0)
-                            PositionedDirectional(start: 12, bottom: 12, child: _pageChip(s)),
+                            PositionedDirectional(start: 16, bottom: _searching ? 12 : 84, child: _pageChip(s)),
                           if (paged && _chrome && _jumpTip && !_searching)
-                            PositionedDirectional(start: 10, bottom: 48, width: 170, child: _jumpTipCard(s, nc)),
+                            PositionedDirectional(start: 12, bottom: 124, width: 190, child: _jumpTipCard(s, nc)),
                           if (pill != null) Positioned(top: 12, left: 0, right: 0, child: _pillView(pill)),
                           if (snippet != null) PositionedDirectional(start: 12, end: 56, bottom: 50, child: snippet),
                           if (showFab)
                             PositionedDirectional(
                               end: 16,
-                              bottom: 16,
-                              // fabEdit: 52dp bg_fab_red, elevation 6, ic_pen white (padding 14dp)
+                              bottom: 84,
+                              // fabEdit: 56 dp accent circle (bg_fab_red), elevation 6, white ic_pen
                               child: Material(
-                                color: nc.danger,
+                                color: nc.accent,
                                 shape: const CircleBorder(),
                                 elevation: 6,
                                 child: InkWell(
                                   customBorder: const CircleBorder(),
+                                  splashColor: const Color(0x33FFFFFF),
                                   onTap: _pdfTools,
                                   child: Tooltip(
                                     message: s.t('editPdf'),
                                     child: const SizedBox(
-                                      width: 52,
-                                      height: 52,
-                                      child: Center(child: NativeIcon(ND.icPen, size: 24, tint: Colors.white)),
+                                      width: 56,
+                                      height: 56,
+                                      child: Padding(padding: EdgeInsets.all(16), child: NativeIcon(ND.icPen, tint: Colors.white)),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
+                          if (_chrome && !_searching)
+                            PositionedDirectional(start: 16, end: 16, bottom: 12, child: _bottomBar(s, nc)),
                         ],
                       ),
                     ),
                   ),
-                  if (_chrome) _bottomBar(s, nc),
                   const BannerSlot(unit: 2),
                 ],
               ),
@@ -1501,18 +1662,16 @@ class _OutlinePill extends StatelessWidget {
   final double fontSize;
   final VoidCallback onTap;
 
-  /// bg_outline_pill_large: 2dp stroke, 20dp corners.
+  /// bg_outline_pill_large ("Plum deck"): a primary pill (24 dp corners) with on_primary text;
+  /// otherwise bg_outline_pill: an accent_container pill (16 dp corners) with primary text.
   final bool large;
 
   @override
   Widget build(BuildContext context) {
     final nc = NC.of(context);
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(large ? 20 : 16),
-      side: BorderSide(color: nc.primary, width: large ? 2 : 1.2),
-    );
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(large ? 24 : 16));
     return Material(
-      color: nc.surface,
+      color: large ? nc.primary : nc.accentContainer,
       shape: shape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -1522,7 +1681,7 @@ class _OutlinePill extends StatelessWidget {
           width: width,
           height: height,
           child: Center(
-            child: Text(label, style: TextStyle(color: nc.primary, fontSize: fontSize, fontWeight: FontWeight.w700)),
+            child: Text(label, style: TextStyle(color: large ? nc.onPrimary : nc.primary, fontSize: fontSize, fontWeight: FontWeight.w500)),
           ),
         ),
       ),
@@ -1575,7 +1734,7 @@ class _NumberSheetState extends State<_NumberSheet> {
         child: SizedBox(
           height: 48,
           child: Center(
-            child: Text(label, style: TextStyle(color: foreground, fontSize: 16, fontWeight: FontWeight.w700)),
+            child: Text(label, style: TextStyle(color: foreground, fontSize: 16, fontWeight: FontWeight.w500)),
           ),
         ),
       ),
@@ -1594,7 +1753,7 @@ class _NumberSheetState extends State<_NumberSheet> {
           Center(
             child: Text(
               widget.title,
-              style: TextStyle(color: nc.textPrimary, fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(color: nc.textPrimary, fontSize: 18, fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(height: 16),
@@ -1732,7 +1891,7 @@ class _SwipeTutorialState extends State<_SwipeTutorial> with TickerProviderState
                       children: [
                         Text(
                           s.t('swipePagesTip'),
-                          style: TextStyle(color: nc.textPrimary, fontSize: 19, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: nc.textPrimary, fontSize: 19, fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 14),
                         Align(

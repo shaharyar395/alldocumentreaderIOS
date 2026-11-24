@@ -89,7 +89,7 @@ Future<bool> showStorageAccessDialog(BuildContext context, {void Function(BuildC
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
           width: double.infinity,
           decoration: NS.bgWhiteRound(dialogContext),
@@ -102,7 +102,7 @@ Future<bool> showStorageAccessDialog(BuildContext context, {void Function(BuildC
               Text(
                 s.t('permissionTitle'),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.textPrimary),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: c.textPrimary),
               ),
               const SizedBox(height: 8),
               Text(
@@ -118,12 +118,12 @@ Future<bool> showStorageAccessDialog(BuildContext context, {void Function(BuildC
                   onPressed: () => Navigator.pop(dialogContext, true),
                   style: FilledButton.styleFrom(
                     backgroundColor: c.primary,
-                    foregroundColor: c.white,
+                    foregroundColor: c.onPrimary,
                     elevation: 0,
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   ),
-                  child: Text(s.t('allow'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: Text(s.t('allow'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 ),
               ),
               const SizedBox(height: 4),

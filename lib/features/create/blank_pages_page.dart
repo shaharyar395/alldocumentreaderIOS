@@ -11,6 +11,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/image_ops.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/pdf_tools.dart';
 import '../../widgets/chrome.dart';
 import 'success_page.dart';
@@ -90,6 +91,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       _landscape = (_prevW ?? 0) > (_prevH ?? 0);
     }
     if (widget.createMode) {
+      IosAnalytics.activate('create_pdf');
       SharedPreferences.getInstance().then((prefs) {
         final w = prefs.getDouble('create_prev_w');
         final h = prefs.getDouble('create_prev_h');
@@ -144,7 +146,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
             final pageText = Text(
               _sizeLabel(s, option),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: on ? nc.primary : nc.textPrimary),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: on ? nc.primary : nc.textPrimary),
             );
             return Expanded(
               child: GestureDetector(
@@ -207,7 +209,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text(s.t('pageSize'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                          child: Text(s.t('pageSize'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary)),
                         ),
                         NativeIconButton(
                           ND.icClose,
@@ -248,6 +250,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       return;
     }
     setState(() => _busy = true);
+    IosAnalytics.log('convert_button_tapped', {'screen': 'create_pdf'});
     final s = S.of(context);
     final scope = AppScope.of(context);
     final pill = ProgressPill(context)..show(s.t('saving'));
@@ -260,7 +263,9 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       pill.dismiss();
       if (!mounted) return;
       if (entry == null) throw StateError('save');
-      await scope.ads.showInterstitial(unit: 2);
+      IosAnalytics.converted('create', 'pdf');
+      IosAnalytics.left('create_pdf');
+      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => SuccessPage(entry: entry, kind: ResultKind.created, feature: s.t('createPdf'), featureKey: 'create_pdf')),
@@ -548,7 +553,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
                 children: [
                   Text(
                     blankStyleLabel(s, style),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF1B1F2A)),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF1B1F2A)),
                   ),
                   const SizedBox(height: 2),
                   Text('${_mm(w)}x${_mm(h)}mm', style: const TextStyle(fontSize: 11, color: Color(0xFF8E949E))),

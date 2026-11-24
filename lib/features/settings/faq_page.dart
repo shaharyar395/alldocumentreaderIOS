@@ -131,7 +131,7 @@ class _FaqPageState extends State<FaqPage> {
                         s.t('faq'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: nc.textPrimary, fontSize: 18, fontWeight: FontWeight.w700),
+                        style: TextStyle(color: nc.textPrimary, fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -170,7 +170,7 @@ class _FaqPageState extends State<FaqPage> {
                         padding: const EdgeInsetsDirectional.fromSTEB(6, 12, 0, 8),
                         child: Text(
                           s.t(_sections[i].$1),
-                          style: TextStyle(fontWeight: FontWeight.w700, color: nc.toolsSection, fontSize: 14),
+                          style: TextStyle(fontWeight: FontWeight.w500, color: nc.toolsSection, fontSize: 14),
                         ),
                       ),
                       for (final q in _sections[i].$2) _card(context, q),
@@ -211,7 +211,7 @@ class _FaqPageState extends State<FaqPage> {
             label,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: selected ? Colors.white : nc.textPrimary,
             ),
           ),

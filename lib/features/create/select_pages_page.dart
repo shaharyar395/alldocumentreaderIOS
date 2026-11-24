@@ -41,13 +41,13 @@ class _SelectPagesPageState extends State<SelectPagesPage> {
     final nc = NC.of(context);
     final n = _selected.length;
     return Scaffold(
-      backgroundColor: nc.surface,
+      backgroundColor: nc.bgScreen,
       appBar: NativeTopBar(
         titleWidget: Text(
           n == 0 ? s.t('selectPages') : s.t('selected', {'count': '$n'}),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: nc.textPrimary),
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: nc.textPrimary),
         ),
         actions: [
           NativeIconButton(ND.icSelectAll, tint: nc.textPrimary, tooltip: s.t('selectAll'), onPressed: _toggleAll),
@@ -108,7 +108,7 @@ class _SelectPagesPageState extends State<SelectPagesPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(color: const Color(0x99414754), borderRadius: BorderRadius.circular(3)),
-                  child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                  child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
                 ),
               ),
             ],

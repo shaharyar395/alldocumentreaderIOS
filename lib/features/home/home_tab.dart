@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../app_scope.dart';
@@ -11,6 +12,7 @@ import '../../features/files/directories_page.dart';
 import '../../features/files/file_actions.dart';
 import '../../features/files/file_list_page.dart';
 import '../../features/files/storage_access.dart';
+import '../../features/home/home_deck.dart';
 import '../../features/premium/premium_page.dart';
 import '../../features/search/search_page.dart';
 import '../../features/shell/main_shell.dart';
@@ -19,7 +21,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
-import '../../native/native_shapes.dart';
+import '../../services/app_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
 import '../../widgets/home_art.dart';
@@ -71,12 +73,28 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   int _loadStatus = 0;
   PageRoute<dynamic>? _route;
   FileLibrary? _library;
+  /// The collapsing home header + list (HomeScroll.kt): used to stop a leftover fling on touch.
+  final GlobalKey<NestedScrollViewState> _nested = GlobalKey<NestedScrollViewState>();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     homeShowBookmarks.addListener(_onSegment);
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_stopFling);
+  }
+
+  /// A leftover fling must not eat the next tap. Stopping the ballistic scroll on the finger
+  /// down happens before the list sees that pointer.
+  void _stopFling(PointerEvent event) {
+    if (event is! PointerDownEvent) return;
+    final nested = _nested.currentState;
+    if (nested == null) return;
+    for (final controller in [nested.outerController, nested.innerController]) {
+      for (final position in controller.positions) {
+        if (position.isScrollingNotifier.value) position.hold(() {}).cancel();
+      }
+    }
   }
 
   @override
@@ -111,6 +129,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
 
   @override
   void dispose() {
+    GestureBinding.instance.pointerRouter.removeGlobalRoute(_stopFling);
     WidgetsBinding.instance.removeObserver(this);
     homeShowBookmarks.removeListener(_onSegment);
     shellRouteObserver.unsubscribe(this);
@@ -255,6 +274,9 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
 
   /// A tile without access (Android): the dialog, and the category opens once access is given.
   Future<void> _onTileTap(_Tile tile) async {
+    final type = tile.directories ? 'directories' : (tile.kind?.name ?? 'all');
+    logEvent('file_type_tap', {'file_type': type});
+    logEvent(type == 'all' ? 'all_files_format_tapped' : '${type}_type_format_tapped');
     if (await needsAccessGate()) {
       if (!mounted) return;
       _pendingTile = tile;
@@ -269,7 +291,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   Future<void> _openCategory(_Tile tile) async {
     final scope = AppScope.of(context);
     final title = tile.kind == null && !tile.directories ? S.of(context).t('homeAllFilesTitle') : tile.label;
-    final shown = await scope.ads.showInterstitial(untilClosed: true);
+    final shown = await scope.ads.showInterstitial(untilClosed: true, honorCooldown: true);
     if (!mounted) return;
     final Widget page = tile.directories ? const DirectoriesPage() : FileListPage(title: title, kind: tile.kind);
     final done = Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
@@ -363,189 +385,173 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
         children: [_EmptyList(label: s.t('homeEmpty'))],
       );
     } else {
-      listArea = ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(bottom: 88),
-        itemCount: files.length,
-        itemBuilder: (context, index) {
-          final entry = files[index];
-          return FileRow(
-            entry: entry,
-            openedAt: entry.openedAt,
-            onTap: () => openEntry(context, entry),
-            onBookmark: () => toggleBookmarkWithPill(context, entry),
-            onMore: () => showFileMenu(context, entry),
-          );
+      listArea = NotificationListener<ScrollStartNotification>(
+        // scrolling closes an open swipe layer (FileSwipeHelper.onScrollStateChanged)
+        onNotification: (_) {
+          FileRow.openRow.value = null;
+          return false;
         },
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(top: 2, bottom: kNavBarClearance),
+          itemCount: files.length,
+          itemBuilder: (context, index) {
+            final entry = files[index];
+            return FileRow(
+              key: ValueKey(entry.id),
+              entry: entry,
+              openedAt: entry.openedAt,
+              onTap: () => openEntry(context, entry, source: 'home'),
+              onBookmark: () => toggleBookmarkWithPill(context, entry),
+              onMore: () => showFileMenu(context, entry),
+              onDelete: () => confirmDelete(context, entry),
+            );
+          },
+        ),
       );
     }
 
-    // fragment_home.xml: a fixed header (status bar in bg_header_top, then the bg_home_header
-    // gradient with the title row, Recently added and the category grid), a 6 dp divider band,
-    // the Recent / Bookmarks tabs and the pull-to-refresh list below them.
-    return ColoredBox(
-      color: c.surface,
-      child: Column(
-        children: [
-          ColoredBox(
-            color: c.bgHeaderTop,
-            child: SafeArea(
-              bottom: false,
-              child: DecoratedBox(
-                decoration: NS.bgHomeHeader(context),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+    // fragment_home.xml ("Plum deck" 1.0.35+): on the page colour, a header that scrolls away
+    // (title bar, the card deck, its dots, the load-status pill and the type circles), the
+    // Recent / Bookmarks text tabs that stay, and the pull-to-refresh list of file cards.
+    final header = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 56,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('All Document Reader', maxLines: 1, overflow: TextOverflow.ellipsis, style: dsScreenTitle(context)),
+                ),
+                // the crown is for buying Premium: hidden once Premium is on
+                if (!settings.premium)
+                  DsTopAction(
+                    icon: ND.icCrown,
+                    keepColors: true,
+                    iconPadding: 13,
+                    tooltip: s.t('getPremium'),
+                    onTap: () {
+                      logEvent('all_files_premium_tapped');
+                      Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const PremiumPage()));
+                    },
+                  ),
+                const SizedBox(width: 2),
+                DsTopAction(
+                  icon: ND.icSearch,
+                  tooltip: s.t('search'),
+                  onTap: () {
+                    logEvent('all_files_search_tapped');
+                    Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const SearchPage()));
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        HomeDeck(fresh: fresh, onRecentlyAdded: _openRecentlyAdded),
+        if (_loadStatus != 0)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: _LoadStatusRow(
+                done: _loadStatus == 2,
+                label: _loadStatus == 2 ? s.t('homeLoadedOk') : s.t('homeLoadingFiles'),
+              ),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
+          child: Column(
+            key: homeCategoryKey,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var row = 0; row < 2; row++)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 56,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'All Document Reader',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: c.textPrimary),
-                              ),
-                            ),
-                            // the crown is for buying Premium: hidden once Premium is on
-                            if (!settings.premium)
-                              _HeaderButton(
-                                onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const PremiumPage())),
-                                child: NativeIcon(ND.icCrown, size: 24),
-                              ),
-                            _HeaderButton(
-                              onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const SearchPage())),
-                              child: NativeIcon(ND.icSearch, size: 24, tint: c.textPrimary),
-                            ),
-                          ],
+                    for (var col = 0; col < 4; col++)
+                      Expanded(
+                        child: _CategoryCard(
+                          tile: tiles[row * 4 + col],
+                          index: row * 4 + col,
+                          loading: firstLoad,
+                          onTap: () => _onTileTap(tiles[row * 4 + col]),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 4),
-                      child: _loadStatus == 0
-                          ? _RecentlyAddedRow(label: s.t('recentlyAddedTitle'), fresh: fresh, onTap: _openRecentlyAdded)
-                          : _LoadStatusRow(
-                              done: _loadStatus == 2,
-                              label: _loadStatus == 2 ? s.t('homeLoadedOk') : s.t('homeLoadingFiles'),
-                            ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 6),
-                      child: Column(
-                        key: homeCategoryKey,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (var row = 0; row < 2; row++)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (var col = 0; col < 4; col++)
-                                  Expanded(
-                                    child: _CategoryCard(
-                                      tile: tiles[row * 4 + col],
-                                      loading: firstLoad,
-                                      onTap: () => _onTileTap(tiles[row * 4 + col]),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
-              ),
-            ),
+            ],
           ),
-          Container(height: 6, color: c.divider),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 4),
-              child: SizedBox(
-                height: 48,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _tab(s.t('recent'), !bookmarks, () => homeShowBookmarks.value = false),
-                    _tab(s.t('bookmarks'), bookmarks, () => homeShowBookmarks.value = true),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: _refresh,
-              color: c.primary,
-              backgroundColor: c.surface,
-              child: listArea,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
-  }
-
-  /// A tab of the TabLayout in fragment_home.xml: 15 sp bold text (primary when selected,
-  /// text_secondary otherwise), 10 dp side padding, a centred 24 x 3 dp tab_indicator, no ripple.
-  Widget _tab(String label, bool selected, VoidCallback onTap) {
-    final c = NC.of(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: selected ? c.primary : c.textSecondary),
-            ),
-            Positioned(
-              bottom: 0,
-              child: AnimatedOpacity(
-                opacity: selected ? 1 : 0,
-                duration: const Duration(milliseconds: 180),
-                child: Container(width: 24, height: 3, decoration: NS.tabIndicator(context)),
+    return ColoredBox(
+      color: c.bgScreen,
+      child: SafeArea(
+        bottom: false,
+        child: NestedScrollView(
+          key: _nested,
+          // fragment_home.xml (1.0.75): the header scrolls away, comes back as soon as the list is
+          // pulled the other way and snaps open / closed (scroll|enterAlways|snap)
+          floatHeaderSlivers: true,
+          headerSliverBuilder: (context, inner) => [
+            SliverFloatingHeader(child: header),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TabsHeader(
+                color: c.bgScreen,
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 6),
+                    child: DsTextTabs(
+                      labels: [s.t('recent'), s.t('bookmarks')],
+                      index: bookmarks ? 1 : 0,
+                      onSelect: (i) {
+                        if ((i == 1) == homeShowBookmarks.value) return;
+                        logEvent(i == 0 ? 'recent_btn_clicked' : 'bookmarks_btn_clicked');
+                        homeShowBookmarks.value = i == 1;
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
+          body: RefreshIndicator(
+            onRefresh: _refresh,
+            color: c.primary,
+            backgroundColor: c.surface,
+            child: listArea,
+          ),
         ),
       ),
     );
   }
 }
 
-/// A 44 x 44 dp borderless-ripple icon button of the header (btnPremium / btnSearch, 10 dp padding).
-class _HeaderButton extends StatelessWidget {
-  const _HeaderButton({required this.onTap, required this.child});
+/// The pinned Recent / Bookmarks row (48 dp) on the page colour.
+class _TabsHeader extends SliverPersistentHeaderDelegate {
+  _TabsHeader({required this.color, required this.child});
 
-  final VoidCallback onTap;
+  final Color color;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkResponse(
-          onTap: onTap,
-          radius: 22,
-          child: Padding(padding: const EdgeInsets.all(10), child: child),
-        ),
-      ),
-    );
-  }
+  double get minExtent => 48;
+
+  @override
+  double get maxExtent => 48;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => ColoredBox(color: color, child: child);
+
+  @override
+  bool shouldRebuild(covariant _TabsHeader oldDelegate) => oldDelegate.color != color || oldDelegate.child != child;
 }
 
 class _Tile {
@@ -561,66 +567,6 @@ class _Tile {
   final bool directories;
 }
 
-/// "Recently added" with the red "+N" of new files, above the category grid (rowRecentlyAdded:
-/// 36 dp, bg_recent_row, ic_clock_badge, 14 sp bold, bg_badge_red, ic_chevron_right).
-class _RecentlyAddedRow extends StatelessWidget {
-  const _RecentlyAddedRow({required this.label, required this.fresh, required this.onTap});
-
-  final String label;
-  final int fresh;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = NC.of(context);
-    return Material(
-      color: c.recentRowBg,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        splashColor: c.rowPressed,
-        onTap: onTap,
-        child: SizedBox(
-          height: 36,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
-            child: Row(
-              children: [
-                NativeIcon(ND.icClockBadge, size: 18),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c.textPrimary),
-                  ),
-                ),
-                if (fresh > 0) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    height: 16,
-                    constraints: const BoxConstraints(minWidth: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    alignment: Alignment.center,
-                    decoration: NS.bgBadgeRed(context),
-                    child: Text(
-                      fresh > 99 ? '+99' : '+$fresh',
-                      style: TextStyle(color: c.white, fontSize: 10, fontWeight: FontWeight.w700, height: 1.1),
-                    ),
-                  ),
-                ],
-                const Spacer(),
-                NativeIcon(ND.icChevronRight, size: 18, tint: c.textSecondary),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// "Loading files…" (spinner) / "Loaded successfully" (ic_loaded_ok) after a file was saved
 /// (rowLoadStatus).
 class _LoadStatusRow extends StatelessWidget {
@@ -632,19 +578,21 @@ class _LoadStatusRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
+    // rowLoadStatus: a 34 dp surface pill (16 dp corners), accent spinner / ic_loaded_ok, 13 sp
     return Container(
-      height: 36,
-      padding: const EdgeInsetsDirectional.only(start: 10, end: 8),
-      decoration: NS.bgRecentRow(context),
+      height: 34,
+      padding: const EdgeInsetsDirectional.only(start: 12, end: 16),
+      decoration: BoxDecoration(color: c.surface, borderRadius: BorderRadius.circular(16)),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (done)
             NativeIcon(ND.icLoadedOk, size: 18)
           else
-            SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: c.primary)),
+            SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: c.accent)),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14, color: c.textPrimary)),
+          Flexible(
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: c.textPrimary)),
           ),
         ],
       ),
@@ -668,19 +616,19 @@ class _AccessMissing extends StatelessWidget {
         children: [
           const EmptyArt(),
           Text(s.t('permissionNeededHint'), textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: c.textSecondary)),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           SizedBox(
-            height: 44,
+            height: 48,
             child: FilledButton(
               onPressed: onGrant,
               style: FilledButton.styleFrom(
-                backgroundColor: c.primary,
-                foregroundColor: c.white,
+                backgroundColor: c.accent,
+                foregroundColor: c.onAccent,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 padding: const EdgeInsets.symmetric(horizontal: 28),
               ),
-              child: Text(s.t('grantAccess'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              child: Text(s.t('grantAccess'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
             ),
           ),
         ],
@@ -704,7 +652,7 @@ class _FirstLoad extends StatelessWidget {
         children: [
           const PaperPlaneLoader(),
           const SizedBox(height: 10),
-          Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: c.textPrimary)),
+          Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.textPrimary)),
         ],
       ),
     );
@@ -732,57 +680,96 @@ class _EmptyList extends StatelessWidget {
   }
 }
 
-/// One category of the grid (item_category.xml): no card, a borderless ripple, the 38 dp
-/// ic_cat_* icon, the 15 sp bold label 6 dp below and a 16 dp line with the count (11.5 sp
-/// text_secondary) or a 10 dp text_hint spinner while loading; 8 dp padding top and bottom.
-class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.tile, required this.loading, required this.onTap});
+/// One type circle (item_category.xml, "Plum deck"): the 44 dp outlined ic_cat_* circle (it pops
+/// in once, staggered), the 13 sp medium label 6 dp below and a 16 dp line with the count
+/// (11 sp text_secondary) or a 10 dp accent_soft spinner while loading; 8 dp padding top / bottom.
+class _CategoryCard extends StatefulWidget {
+  const _CategoryCard({required this.tile, required this.index, required this.loading, required this.onTap});
   final _Tile tile;
+  final int index;
 
   /// First scan running: a small spinner where the count goes.
   final bool loading;
   final VoidCallback onTap;
 
   @override
+  State<_CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<_CategoryCard> with SingleTickerProviderStateMixin {
+  late final AnimationController _pop = AnimationController(vsync: this, duration: const Duration(milliseconds: 360));
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(Duration(milliseconds: 40 * widget.index), () {
+      if (mounted) _pop.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pop.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
+    final tile = widget.tile;
     final count = tile.count;
-    return Material(
-      type: MaterialType.transparency,
-      child: InkResponse(
-        onTap: onTap,
-        containedInkWell: false,
-        highlightShape: BoxShape.circle,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              NativeIcon(tile.icon, size: 38),
-              const SizedBox(height: 6),
-              Text(
-                tile.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: c.textPrimary),
-              ),
-              SizedBox(
-                height: 16,
-                child: Center(
-                  child: count != null
-                      ? Text(
-                          count,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 11.5, color: c.textSecondary),
-                        )
-                      : loading
-                          ? SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 1.5, color: c.textHint))
-                          : const SizedBox.shrink(),
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    return Semantics(
+      button: true,
+      label: count == null ? tile.label : '${tile.label}, $count',
+      excludeSemantics: true,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkResponse(
+          onTap: widget.onTap,
+          containedInkWell: false,
+          highlightShape: BoxShape.circle,
+          splashColor: c.rowPressed,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (still)
+                  NativeIcon(tile.icon, size: 44)
+                else
+                  ScaleTransition(
+                    scale: CurvedAnimation(parent: _pop, curve: Curves.easeOutBack),
+                    child: NativeIcon(tile.icon, size: 44),
+                  ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: Text(
+                    tile.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: c.textPrimary, height: 1.3),
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(
+                  height: 16,
+                  child: Center(
+                    child: count != null
+                        ? Text(
+                            count,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 11, color: c.textSecondary),
+                          )
+                        : widget.loading
+                            ? SizedBox(width: 10, height: 10, child: CircularProgressIndicator(strokeWidth: 1.5, color: c.accentSoft))
+                            : const SizedBox.shrink(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../settings/native_bars.dart';
 import 'paywall_ui.dart';
@@ -26,7 +29,7 @@ class _StartTrialPageState extends State<StartTrialPage> {
   Future<void> _buy() async {
     final s = S.of(context);
     setState(() => _busy = true);
-    final ok = await buyPremium(context, yearly: true);
+    final ok = await buyPremium(context, yearly: true, screen: 'start_trial');
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) {
@@ -39,8 +42,10 @@ class _StartTrialPageState extends State<StartTrialPage> {
 
   Future<void> _restore() async {
     final s = S.of(context);
+    IosAnalytics.log('restore_tap', {'screen': 'start_trial'});
     setState(() => _busy = true);
     final ok = await AppScope.of(context).billing.restore();
+    IosAnalytics.log(ok ? 'restore_succeeded' : 'restore_failed', {'screen': 'start_trial', 'result': ok ? 'success' : 'failed'});
     if (!mounted) return;
     setState(() => _busy = false);
     if (ok) {
@@ -56,10 +61,10 @@ class _StartTrialPageState extends State<StartTrialPage> {
     final s = S.of(context);
     final prices = PlanPrices.of(s, AppScope.of(context).billing);
     final top = MediaQuery.paddingOf(context).top;
-    // activity_start_trial.xml on bg_trial (#1C3A4C → #15212B → #111317)
+    // activity_start_trial.xml on bg_trial ("Plum deck": #1F2933 → #0B1F1E)
     return NativeLightStatusBar(
       child: Scaffold(
-        backgroundColor: const Color(0xFF111317),
+        backgroundColor: const Color(0xFF1F2933),
         body: Stack(
           children: [
             const Positioned.fill(
@@ -68,7 +73,7 @@ class _StartTrialPageState extends State<StartTrialPage> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xFF1C3A4C), Color(0xFF15212B), Color(0xFF111317)],
+                    colors: [Color(0xFF1F2933), Color(0xFF0B1F1E)],
                   ),
                 ),
               ),
@@ -85,15 +90,10 @@ class _StartTrialPageState extends State<StartTrialPage> {
                         Text(
                           s.t('startFreeTrial'),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.italic,
-                          ),
+                          style: const TextStyle(color: Color(0xFF8FD6CB), fontSize: 30, fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 40),
-                        // timeline: the grey line (24dp, #2E343C, 12dp corners) is as tall as the steps
+                        // timeline: bg_trial_line (24 dp, #4D8FD6CB → #148FD6CB, 12 dp corners) as tall as the steps
                         Padding(
                           padding: const EdgeInsetsDirectional.fromSTEB(20, 6, 24, 6),
                           child: Stack(
@@ -106,7 +106,11 @@ class _StartTrialPageState extends State<StartTrialPage> {
                                 width: 24,
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
-                                    color: Color(0xFF2E343C),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [Color(0x4D8FD6CB), Color(0x148FD6CB)],
+                                    ),
                                     borderRadius: BorderRadius.all(Radius.circular(12)),
                                   ),
                                 ),
@@ -130,11 +134,12 @@ class _StartTrialPageState extends State<StartTrialPage> {
                     ),
                   ),
                 ),
-                // bg_trial_card: #1C1F25 with 18dp top corners
+                // bg_trial_card: #0F2A28 with a faint soft-teal hairline and 28 dp top corners
                 Container(
                   decoration: const BoxDecoration(
-                    color: Color(0xFF1C1F25),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                    color: Color(0xFF0F2A28),
+                    border: Border.fromBorderSide(BorderSide(color: Color(0x1F8FD6CB))),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
                   ),
                   child: SafeArea(
                     top: false,
@@ -154,23 +159,18 @@ class _StartTrialPageState extends State<StartTrialPage> {
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              // bg_hot: orange gradient, 4dp corners, 16dp tall
+                              // bg_hot ("Plum deck"): the action teal, 8 dp corners, 16 dp tall
                               Container(
                                 height: 16,
                                 padding: const EdgeInsets.symmetric(horizontal: 5),
                                 alignment: Alignment.center,
                                 decoration: const BoxDecoration(
-                                  gradient: LinearGradient(colors: [Color(0xFFFF7A1A), Color(0xFFFF4D1A)]),
-                                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                                  color: Color(0xFF0D8A7F),
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
                                 ),
                                 child: Text(
                                   s.t('hot'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    fontStyle: FontStyle.italic,
-                                  ),
+                                  style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ],
@@ -179,12 +179,20 @@ class _StartTrialPageState extends State<StartTrialPage> {
                           Text(
                             s.t('tryThen', {'price': prices.yearly, 'perDay': prices.yearlyPerDay}),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 12),
+                            style: const TextStyle(color: Color(0xFFCCE7E3), fontSize: 12),
                           ),
+                          if (Platform.isIOS) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              s.t('iapAutoRenewInfo'),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5, height: 1.35),
+                            ),
+                          ],
                           const SizedBox(height: 22),
                           PaywallContinueButton(
                             label: s.t('continueAction'),
-                            colors: const [Color(0xFF1E8BFF), Color(0xFF1463E6)],
+                            colors: const [Color(0xFF14A394), Color(0xFF0D8A7F)],
                             busy: _busy,
                             onTap: _busy ? null : _buy,
                           ),
@@ -241,7 +249,7 @@ class _StartTrialPageState extends State<StartTrialPage> {
             children: [
               Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
               const SizedBox(height: 6),
-              Text(body, style: const TextStyle(color: Color(0x80FFFFFF), fontSize: 11)),
+              Text(body, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
             ],
           ),
         ),

@@ -8,6 +8,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
 import '../files/file_actions.dart';
 import '../files/files_ui.dart';
@@ -74,42 +75,38 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       body = ListView.builder(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(top: 4, bottom: 16),
         itemCount: results.length,
         itemBuilder: (context, index) {
           final entry = results[index];
           return FileRow(
+            key: ValueKey(entry.id),
             entry: entry,
             onTap: () => openEntry(context, entry),
             onBookmark: () => toggleBookmarkWithPill(context, entry),
             onMore: () => showFileMenu(context, entry),
+            onDelete: () => confirmDelete(context, entry),
           );
         },
       );
     }
     // activity_search.xml: 60dp bar — ‹ (48dp) and a 42dp rounded field with 🔍, hint and ✕
     return Scaffold(
-      backgroundColor: c.surface,
+      backgroundColor: c.bgScreen,
       body: SafeArea(
         child: Column(
           children: [
             SizedBox(
               height: 60,
               child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 4, end: 12),
+                padding: const EdgeInsetsDirectional.only(start: 8, end: 16),
                 child: Row(
                   children: [
-                    RowIconButton(
-                      drawable: ND.icBack,
-                      size: 48,
-                      padding: 12,
-                      tint: c.textPrimary,
-                      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                      onTap: () => Navigator.of(context).maybePop(),
-                    ),
+                    const DsTopBack(),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Container(
-                        height: 42,
+                        height: 44,
                         decoration: NS.bgSearchField(context),
                         padding: const EdgeInsetsDirectional.only(start: 14, end: 6),
                         child: Row(

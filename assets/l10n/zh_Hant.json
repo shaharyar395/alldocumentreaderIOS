@@ -631,5 +631,22 @@
   "goToAppStore": "前往 App Store",
   "addToAppIconMenu": "加入 App 圖像選單",
   "appIconMenuAdded": "已加入 App 圖像選單。按住 App 圖像即可開啟。",
-  "onMyDevice": "我的 {device}"
+  "onMyDevice": "我的 {device}",
+  "dsContinueReading": "繼續閱讀",
+  "dsPageOf": "第 {page}/{count} 頁",
+  "dsPercentRead": "已讀 {percent}%",
+  "dsNewestFiles": "最新檔案，集中在一個清單",
+  "dsSwipeDeck": "顯示另一張卡片",
+  "dsNewFilesOne": "{count} 個新檔案",
+  "dsNewFilesMany": "{count} 個新檔案",
+  "dsCreateNew": "新增",
+  "dsScanHeroSub": "相機、裁切與濾鏡",
+  "dsTellUs": "告訴我們",
+  "dsSave": "儲存",
+  "dsSaved": "已儲存",
+  "iapPriceLoading": "正在載入價格…",
+  "iapVerificationPending": "已收到付款，正在驗證。如果進階版稍後仍未解鎖，請輕點「恢復」。",
+  "iapPendingApproval": "你的購買正在等待核准，核准後即可解鎖進階版。",
+  "iapStoreUnavailable": "目前無法連線至 App Store，請稍後再試。",
+  "iapAutoRenewInfo": "確認購買時將從你的 Apple 帳號扣款。除非在目前週期結束前至少 24 小時關閉自動續訂，否則訂閱將以相同價格自動續訂。你可以在 Apple 帳號設定中管理或取消訂閱。"
 }

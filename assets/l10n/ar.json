@@ -631,5 +631,22 @@
   "goToAppStore": "الانتقال إلى App Store",
   "addToAppIconMenu": "إضافة إلى قائمة أيقونة التطبيق",
   "appIconMenuAdded": "تمت الإضافة إلى قائمة أيقونة التطبيق. المس أيقونة التطبيق مع الاستمرار لفتحه.",
-  "onMyDevice": "على الـ {device}"
+  "onMyDevice": "على الـ {device}",
+  "dsContinueReading": "متابعة القراءة",
+  "dsPageOf": "ص {page}/{count}",
+  "dsPercentRead": "تمت قراءة {percent}%",
+  "dsNewestFiles": "أحدث ملفاتك في قائمة واحدة",
+  "dsSwipeDeck": "عرض البطاقة الأخرى",
+  "dsNewFilesOne": "ملف جديد واحد",
+  "dsNewFilesMany": "{count} ملف جديد",
+  "dsCreateNew": "إنشاء جديد",
+  "dsScanHeroSub": "الكاميرا والقص والفلاتر",
+  "dsTellUs": "أخبرنا",
+  "dsSave": "حفظ",
+  "dsSaved": "محفوظ",
+  "iapPriceLoading": "جارٍ تحميل السعر…",
+  "iapVerificationPending": "تم استلام الدفعة؛ التحقق قيد الانتظار. إذا لم يُفتح Premium بعد لحظات، فاضغط على «استعادة».",
+  "iapPendingApproval": "عملية الشراء بانتظار الموافقة. سيُفتح Premium بمجرد الموافقة عليها.",
+  "iapStoreUnavailable": "يتعذر الوصول إلى App Store الآن. يُرجى المحاولة لاحقًا.",
+  "iapAutoRenewInfo": "يُخصم المبلغ من حساب Apple عند تأكيد الشراء. يتجدد الاشتراك تلقائيًا بالسعر نفسه ما لم يتم إيقاف التجديد التلقائي قبل 24 ساعة على الأقل من نهاية الفترة الحالية. يمكنك إدارته أو إلغاؤه من إعدادات حساب Apple."
 }

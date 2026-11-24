@@ -20,6 +20,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/image_ops.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../files/file_actions.dart';
 import 'blank_pages_page.dart';
@@ -116,6 +117,14 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
   bool _centred = false;
 
   bool get _dirty => _index != _savedIndex;
+
+  Map<String, Object> get _tpl => {'template': widget.template.id, 'category': widget.template.category.name};
+
+  @override
+  void initState() {
+    super.initState();
+    IosAnalytics.activate('${widget.template.id}_editor', _tpl);
+  }
 
   // ------------------------------------------------------------------ coordinates
 
@@ -516,7 +525,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                 children: [
                   Padding(
                     padding: const EdgeInsetsDirectional.only(start: 20, bottom: 8),
-                    child: Text(s.t('tplSelectFormat'), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: nc.textPrimary)),
+                    child: Text(s.t('tplSelectFormat'), style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18, color: nc.textPrimary)),
                   ),
                   row(_Format.png, 'PNG', s.t('tplPngDesc')),
                   row(_Format.jpg, 'JPG', s.t('tplJpgDesc')),
@@ -578,6 +587,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
 
   /// Download: format → "Saving…" → saved to the app's files; returns true when saved.
   Future<bool> _download({bool leaving = false}) async {
+    IosAnalytics.log('${widget.template.id}_download_tapped', _tpl);
     final format = await _askFormat();
     if (format == null || !mounted) return false;
     final s = S.of(context);
@@ -599,8 +609,9 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       if (!mounted) return false;
       setState(() => _busy = false);
       if (entry == null) throw StateError('save');
+      IosAnalytics.log('${widget.template.id}_${ext}_saved', _tpl);
       _savedIndex = _index;
-      await scope.ads.showInterstitial(unit: 2);
+      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return true;
       if (!leaving) _showBanner(entry);
       return true;
@@ -623,6 +634,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
   }
 
   Future<void> _share() async {
+    IosAnalytics.log('${widget.template.id}_share_tapped', _tpl);
     final s = S.of(context);
     final scope = AppScope.of(context);
     final origin = _shareOrigin();
@@ -672,7 +684,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(s.t('tplQuitTitle'), textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                Text(s.t('tplQuitTitle'), textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary)),
                 const SizedBox(height: 10),
                 Text(s.t('tplQuitMessage'), textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: nc.textPrimary)),
                 const SizedBox(height: 20),
@@ -719,6 +731,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
 
   @override
   void dispose() {
+    IosAnalytics.left('${widget.template.id}_editor');
     _bannerTimer?.cancel();
     _fontScroll.dispose();
     super.dispose();
@@ -737,7 +750,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         // ← … undo redo · download share (44dp, 11dp padding)
         appBar: NativeTopBar(
           onBack: _back,
@@ -860,7 +873,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                                     s.t('savedSuccessfully'),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary),
                                   ),
                                 ),
                                 InkWell(
@@ -872,7 +885,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
                                     height: 40,
                                     padding: const EdgeInsets.symmetric(horizontal: 12),
                                     alignment: Alignment.center,
-                                    child: Text(s.t('open'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.primary)),
+                                    child: Text(s.t('open'), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.primary)),
                                   ),
                                 ),
                                 NativeIconButton(ND.icClose, size: 40, padding: 11, tint: nc.textSecondary, tooltip: s.t('tplClose'), onPressed: _hideBanner),
@@ -980,7 +993,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       padding: const EdgeInsetsDirectional.only(start: 20, end: 6),
       child: Row(
         children: [
-          Expanded(child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: nc.textPrimary))),
+          Expanded(child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: nc.textPrimary))),
           NativeIconButton(
             ND.icClose,
             padding: 13,
@@ -1253,7 +1266,7 @@ class _EditorPainter extends CustomPainter {
   final bool centred;
 
   /// TemplateCanvasView: selection box #1E6FE6 1.4dp with 4dp padding, red #FF2D2D centre guide.
-  static const _blue = Color(0xFF1E6FE6);
+  static const _blue = Color(0xFF0F766E);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1338,7 +1351,7 @@ class _CropPageState extends State<_CropPage> {
               child: Text(
                 s.t('crop'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white),
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: Colors.white),
               ),
             ),
             NativeIconButton(ND.icCheck, size: 48, padding: 12, tint: Colors.white, tooltip: s.t('ok'), onPressed: () => Navigator.pop(context, _crop)),
@@ -1362,7 +1375,7 @@ class _CropPageState extends State<_CropPage> {
                   height: 36,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   alignment: Alignment.center,
-                  child: Text(s.t('tplReset'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white)),
+                  child: Text(s.t('tplReset'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white)),
                 ),
               ),
             ),

@@ -7,8 +7,8 @@ import '../native/native_colors.dart';
 import '../native/native_drawables.dart';
 import '../native/native_icon.dart';
 
-/// Yellow of a bookmarked file's icon (Android color bookmark_yellow).
-const Color bookmarkYellow = Color(0xFFFFC107);
+/// Kept name: colour of a bookmarked file's icon (Android color bookmark_yellow).
+const Color bookmarkYellow = Color(0xFFF59E0B);
 
 /// "Just now", "12 minutes ago", "3 hours ago", otherwise a short date — like the Android app's
 /// util/Ext.kt formatWhen (DateUtils relative time under a day, DateFormat.SHORT after that).
@@ -33,10 +33,13 @@ String daysLeftText(BuildContext context, int days) {
   return days == 1 ? s.t('daysLeftOne', {'days': '$days'}) : s.t('daysLeft', {'days': '$days'});
 }
 
-/// One file in a list, exactly like the Android item_file row (68dp high): 36dp type icon, name
-/// (15sp bold, middle ellipsis) + "New" tag, "when · size" (12sp), bookmark (yellow when on) and
-/// ⋮ (40dp borderless buttons). In select mode the buttons turn into a checkbox.
-class FileRow extends StatelessWidget {
+/// One file in a list, like the Android item_file row ("Plum deck" 1.0.35+): a 72 dp rounded
+/// card (surface, 14 dp corners) 16 dp in from the sides with 4 dp between rows, the 42 dp
+/// outlined type circle, name (15 sp medium, middle ellipsis) + "New" tag, "when · size" (12 sp),
+/// bookmark (accent when on) and ⋮. A new file's card is tinted with a soft outline; a ticked one
+/// in select mode is accent_container with a primary outline. With [onDelete], dragging the card
+/// toward the start reveals the swipe layer (Bookmark + Delete), like FileSwipeHelper.
+class FileRow extends StatefulWidget {
   const FileRow({
     super.key,
     required this.entry,
@@ -44,6 +47,7 @@ class FileRow extends StatelessWidget {
     required this.onBookmark,
     required this.onMore,
     this.onLongPress,
+    this.onDelete,
     this.selecting = false,
     this.selected = false,
     this.daysLeft,
@@ -59,6 +63,9 @@ class FileRow extends StatelessWidget {
   final VoidCallback onMore;
   final bool selecting;
   final bool selected;
+
+  /// Swipe-left Delete (asks first, like the ⋮ menu). Null = no swipe on this row.
+  final VoidCallback? onDelete;
 
   /// Recycle bin: "N days left · size" instead of the date.
   final int? daysLeft;
@@ -78,31 +85,124 @@ class FileRow extends StatelessWidget {
   /// Replaces the "when · size" line (e.g. the storage browser's "MM/dd/yyyy · size").
   final String? subtitle;
 
+  /// The one row whose swipe layer is open (opening another one, or scrolling, closes it).
+  static final ValueNotifier<Object?> openRow = ValueNotifier<Object?>(null);
+
+  @override
+  State<FileRow> createState() => _FileRowState();
+}
+
+class _FileRowState extends State<FileRow> with SingleTickerProviderStateMixin {
+  /// Width of the revealed actions: two 52 dp buttons + 8 dp padding + 8 dp gap (REVEAL_DP).
+  static const double _reveal = 120;
+
+  late final AnimationController _offset = AnimationController(
+    vsync: this,
+    lowerBound: 0,
+    upperBound: 1,
+    duration: const Duration(milliseconds: 200),
+  );
+  final Object _token = Object();
+
+  bool get _canSwipe => widget.onDelete != null && widget.showActions && !widget.selecting;
+
+  @override
+  void initState() {
+    super.initState();
+    FileRow.openRow.addListener(_onOtherOpened);
+  }
+
+  @override
+  void didUpdateWidget(covariant FileRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_canSwipe && _offset.value != 0) _offset.value = 0;
+  }
+
+  @override
+  void dispose() {
+    FileRow.openRow.removeListener(_onOtherOpened);
+    if (FileRow.openRow.value == _token) FileRow.openRow.value = null;
+    _offset.dispose();
+    super.dispose();
+  }
+
+  void _onOtherOpened() {
+    if (FileRow.openRow.value != _token && _offset.value != 0) _settle(false);
+  }
+
+  void _settle(bool open) {
+    _offset.animateTo(open ? 1 : 0, curve: Curves.easeOutCubic);
+    if (open) {
+      FileRow.openRow.value = _token;
+    } else if (FileRow.openRow.value == _token) {
+      FileRow.openRow.value = null;
+    }
+  }
+
+  /// Toward the start = left in LTR, right in RTL.
+  double _sign(BuildContext context) => Directionality.of(context) == TextDirection.rtl ? 1 : -1;
+
+  void _onDragUpdate(DragUpdateDetails d) {
+    final toStart = d.primaryDelta! * _sign(context);
+    _offset.value = (_offset.value + toStart / _reveal).clamp(0.0, 1.0);
+  }
+
+  void _onDragEnd(DragEndDetails d) {
+    final v = d.primaryVelocity! * _sign(context);
+    if (v.abs() > 300) {
+      _settle(v > 0);
+    } else {
+      _settle(_offset.value > 0.5);
+    }
+  }
+
+  void _close() => _settle(false);
+
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
     final s = S.of(context);
+    final entry = widget.entry;
     final size = formatBytes(entry.bytes);
-    final days = daysLeft;
-    final meta = subtitle ??
-        (days != null ? '${daysLeftText(context, days)} · $size' : '${formatWhen(context, openedAt ?? entry.modified)} · $size');
-    // newly found file: "New" tag + light-grey row (new_file_bg) until it is opened
+    final days = widget.daysLeft;
+    final meta = widget.subtitle ??
+        (days != null ? '${daysLeftText(context, days)} · $size' : '${formatWhen(context, widget.openedAt ?? entry.modified)} · $size');
+    // newly found file: "New" tag + tinted card until it is opened
     final fresh = entry.isNew && days == null;
-    final actions = showActions && !selecting;
+    final actions = widget.showActions && !widget.selecting;
     final on = entry.bookmarked;
-    return Material(
-      color: fresh ? c.newFileBg : Colors.transparent,
+    final isSelected = widget.selecting && widget.selected;
+    final radius = BorderRadius.circular(14);
+    final card = Material(
+      color: isSelected ? c.accentContainer : (fresh ? c.newFileBg : c.surface),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: isSelected
+            ? BorderSide(color: c.primary, width: 1.5)
+            : fresh
+                ? BorderSide(color: c.accentSoft, width: 1)
+                : BorderSide.none,
+      ),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress ?? onMore,
+        onTap: () {
+          if (_offset.value != 0) {
+            _close();
+            return;
+          }
+          widget.onTap();
+        },
+        onLongPress: widget.onLongPress ?? widget.onMore,
+        splashColor: c.rowPressed,
+        highlightColor: c.rowPressed.withValues(alpha: 0.5),
         child: SizedBox(
-          height: 68,
+          height: 72,
           child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16, end: 4),
+            padding: const EdgeInsetsDirectional.only(start: 12, end: 4),
             child: Row(
               children: [
-                FileKindIcon(kind: entry.kind, size: 36),
-                const SizedBox(width: 14),
+                FileKindIcon(kind: entry.kind, size: 42),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -113,7 +213,7 @@ class FileRow extends StatelessWidget {
                           Flexible(
                             child: MiddleEllipsisText(
                               entry.name,
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: c.textPrimary),
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: c.textPrimary, height: 1.2),
                             ),
                           ),
                           if (fresh) ...[
@@ -122,31 +222,124 @@ class FileRow extends StatelessWidget {
                           ],
                         ],
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       Text(
                         meta,
                         maxLines: 1,
                         softWrap: false,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 12, color: c.textSecondary),
+                        style: TextStyle(fontSize: 12, color: c.textSecondary, height: 1.2),
                       ),
                     ],
                   ),
                 ),
-                if (actions && showBookmark)
+                if (actions && widget.showBookmark)
                   RowIconButton(
                     drawable: on ? ND.icBookmark : ND.icBookmarkBorder,
-                    tint: on ? c.bookmarkYellow : c.textHint,
+                    tint: on ? c.accent : c.textHint,
                     tooltip: on ? s.t('removeBookmark') : s.t('bookmark'),
-                    onTap: onBookmark,
+                    onTap: widget.onBookmark,
+                    size: 44,
+                    padding: 12,
                   ),
-                if (actions) RowIconButton(drawable: ND.icMoreVert, tint: c.textSecondary, onTap: onMore),
-                if (selecting)
+                if (actions) RowIconButton(drawable: ND.icMoreVert, tint: c.textSecondary, onTap: widget.onMore, size: 44, padding: 12),
+                if (widget.selecting)
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 6),
-                    child: NativeCheckBox(checked: selected),
+                    child: NativeCheckBox(checked: widget.selected),
                   ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+    Widget row = card;
+    if (_canSwipe) {
+      final sign = _sign(context);
+      row = Stack(
+        children: [
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _offset,
+              builder: (context, child) => Visibility(
+                visible: _offset.value > 0,
+                maintainState: true,
+                child: child!,
+              ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: c.swipeBg, borderRadius: radius),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _SwipeButton(
+                        drawable: on ? ND.icBookmark : ND.icBookmarkBorder,
+                        label: on ? s.t('removeBookmark') : s.t('bookmark'),
+                        onTap: () {
+                          _close();
+                          widget.onBookmark();
+                        },
+                      ),
+                      _SwipeButton(
+                        drawable: ND.dsFilesIcDelete,
+                        label: s.t('delete'),
+                        onTap: () {
+                          _close();
+                          widget.onDelete?.call();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          AnimatedBuilder(
+            animation: _offset,
+            builder: (context, child) => Transform.translate(offset: Offset(sign * _reveal * _offset.value, 0), child: child),
+            child: GestureDetector(
+              onHorizontalDragUpdate: _onDragUpdate,
+              onHorizontalDragEnd: _onDragEnd,
+              child: card,
+            ),
+          ),
+        ],
+      );
+    }
+    return Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 4), child: row);
+  }
+}
+
+/// A 52 dp round action on the swipe layer (ds_files_bg_swipe_btn: faint white fill, 1.5 dp
+/// swipe_icon outline, 6 dp inset), its icon tinted swipe_icon.
+class _SwipeButton extends StatelessWidget {
+  const _SwipeButton({required this.drawable, required this.label, required this.onTap});
+
+  final NDrawable drawable;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = NC.of(context);
+    return Semantics(
+      button: true,
+      label: label,
+      child: SizedBox(
+        width: 52,
+        height: 52,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Material(
+            color: const Color(0x1FFFFFFF),
+            shape: CircleBorder(side: BorderSide(color: c.swipeIcon, width: 1.5)),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              splashColor: const Color(0x33FFFFFF),
+              child: Padding(padding: const EdgeInsets.all(9), child: NativeIcon(drawable, tint: c.swipeIcon)),
             ),
           ),
         ),
@@ -155,7 +348,7 @@ class FileRow extends StatelessWidget {
   }
 }
 
-/// The blue "New" tag after a fresh file's name (bg_new_badge: primary, 8dp corners, 10sp bold).
+/// The "New" tag after a fresh file's name (bg_new_badge: accent_soft, 8 dp corners, 10 sp medium).
 class NewBadge extends StatelessWidget {
   const NewBadge({super.key, required this.text});
 
@@ -163,10 +356,11 @@ class NewBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = NC.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(color: NC.of(context).primary, borderRadius: BorderRadius.circular(8)),
-      child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700, height: 1.3)),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(color: c.accentSoft, borderRadius: BorderRadius.circular(8)),
+      child: Text(text, style: TextStyle(color: c.textPrimary, fontSize: 10, fontWeight: FontWeight.w500, height: 1.3)),
     );
   }
 }
@@ -211,7 +405,7 @@ class NativeCheckBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = NC.of(context);
-    final color = checked ? c.primary : const Color(0xFFB8BEC8);
+    final color = checked ? c.primary : c.radioOff;
     return SizedBox(
       width: 32,
       height: 32,
@@ -223,9 +417,9 @@ class NativeCheckBox extends StatelessWidget {
           decoration: BoxDecoration(
             color: checked ? color : Colors.transparent,
             border: Border.all(color: color, width: 2),
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(4),
           ),
-          child: checked ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
+          child: checked ? Icon(Icons.check, size: 14, color: c.onPrimary) : null,
         ),
       ),
     );

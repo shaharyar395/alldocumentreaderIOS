@@ -8,6 +8,8 @@ import 'package:flutter/material.dart' show AppLifecycleListener, Brightness, Co
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../core/settings/app_settings.dart';
+import 'ad_remote_config.dart';
+import 'ios_analytics.dart';
 import 'ios_growth.dart';
 
 class AdUnits {
@@ -31,35 +33,52 @@ class AdUnits {
   static const _testRewarded = 'ca-app-pub-3940256099942544/5224354917';
   static const _testRewardedInterstitial = 'ca-app-pub-3940256099942544/5354046379';
 
+  /// Google's demo units: not on iOS, or Remote Config `enable_test_ads` (Android 1.0.75).
+  static bool get _test => !Platform.isIOS || AdRemoteConfig.testAds;
+
   static String bannerFor(int unit) {
-    if (!Platform.isIOS) return _testBanner;
+    if (_test) return _testBanner;
     return unit == 2 ? _banner2Ios : _bannerIos;
   }
 
   static String get banner => bannerFor(1);
 
-  static String get appOpen => Platform.isIOS ? _appOpenIos : _testAppOpen;
+  static String get appOpen => _test ? _testAppOpen : _appOpenIos;
 
   static String interstitialFor(int unit) {
-    if (!Platform.isIOS) return _testInterstitial;
+    if (_test) return _testInterstitial;
     return unit == 2 ? _interstitial2Ios : _interstitialIos;
   }
 
   static String get interstitial => interstitialFor(1);
 
-  static String get native => Platform.isIOS ? _nativeIos : _testNative;
+  static String get native => _test ? _testNative : _nativeIos;
 
-  static String get rewarded => Platform.isIOS ? _rewardedIos : _testRewarded;
+  static String get rewarded => _test ? _testRewarded : _rewardedIos;
 
-  static String get rewardedInterstitial => Platform.isIOS ? _rewardedInterstitialIos : _testRewardedInterstitial;
+  static String get rewardedInterstitial => _test ? _testRewardedInterstitial : _rewardedInterstitialIos;
 }
 
 class AdService {
-  AdService(this.settings);
+  AdService(this.settings) {
+    AdRemoteConfig.changes.addListener(_onRemoteConfig);
+  }
 
   final AppSettings settings;
   bool ready = false;
   DateTime? _lastInterstitial;
+
+  /// Shared with the file-type interstitial. Tools wait for this even when the ad is forced.
+  /// Stamped only after an ad is actually on screen. Remote Config `file_type_ad_cooldown_sec`
+  /// (default 30 seconds), like Android 1.0.75.
+  DateTime? _fileTypeShownAt;
+  Duration get _fileTypeCooldown => Duration(seconds: AdRemoteConfig.fileTypeCooldownSec);
+
+  bool get _fileTypeCooldownElapsed {
+    final at = _fileTypeShownAt;
+    if (at == null) return true;
+    return DateTime.now().difference(at) >= _fileTypeCooldown;
+  }
   AppOpenAd? _appOpen;
   DateTime? _appOpenAt;
   Future<AppOpenAd?>? _appOpenLoading;
@@ -80,7 +99,8 @@ class AdService {
   /// Completes once the ads SDK has started (or could not start).
   Future<void> get started => _startup.future;
 
-  bool get canShow => ready && !settings.premium && !kIsWeb;
+  /// Ads may be shown: SDK started, not Premium, and Remote Config `enable_ads` is on.
+  bool get canShow => ready && !settings.premium && !kIsWeb && AdRemoteConfig.adsEnabled;
 
   /// A full-screen ad (App Open / interstitial) is on screen, or was closed a moment ago. The app
   /// counts as "in the background" while an ad shows, so "Welcome back" must not react to it
@@ -225,8 +245,10 @@ class AdService {
       }
       final done = Completer<void>();
       ad.fullScreenContentCallback = FullScreenContentCallback(
-        onAdImpression: (_) => IosGrowth.adImpression(),
+        onAdShowedFullScreenContent: (_) => IosAnalytics.log('app_open_ad_displayed'),
+        onAdImpression: (_) => IosGrowth.adImpression(format: 'app_open'),
         onAdDismissedFullScreenContent: (ad) {
+          IosAnalytics.log('app_open_ad_closed');
           _closed();
           ad.dispose();
           if (!done.isCompleted) done.complete();
@@ -250,14 +272,16 @@ class AdService {
 
   /// Shows the ready full-screen ad (at most one a minute unless [force]). Returns whether an ad
   /// was shown. With [untilClosed] it returns only once the ad has been closed.
-  Future<bool> showInterstitial({bool force = false, bool untilClosed = false, int unit = 1}) async {
-    if (!canShow) return false;
+  Future<bool> showInterstitial({bool force = false, bool untilClosed = false, int unit = 1, bool honorCooldown = false}) async {
+    if (!canShow || !AdRemoteConfig.interstitialAds) return false;
     final paused = _interstitialPausedUntil;
     if (!force && paused != null && DateTime.now().isBefore(paused)) return false;
     final last = _lastInterstitial;
     if (!force && last != null && DateTime.now().difference(last) < const Duration(seconds: 60)) {
       return false;
     }
+    // A forced tool ad still waits out the file-type cooldown.
+    if (honorCooldown && !_fileTypeCooldownElapsed) return false;
     final slot = unit == 2 ? 2 : 1;
     final ad = _interstitials[slot];
     _interstitials[slot] = null;
@@ -266,10 +290,14 @@ class AdService {
       _preloadInterstitial(slot);
       return false;
     }
-    _lastInterstitial = DateTime.now();
     final closed = Completer<bool>();
     ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdImpression: (_) => IosGrowth.adImpression(),
+      onAdShowedFullScreenContent: (_) {
+        final now = DateTime.now();
+        _lastInterstitial = now;
+        if (honorCooldown) _fileTypeShownAt = now;
+      },
+      onAdImpression: (_) => IosGrowth.adImpression(format: 'interstitial'),
       onAdDismissedFullScreenContent: (ad) {
         _closed();
         ad.dispose();
@@ -295,6 +323,52 @@ class AdService {
     return closed.future.timeout(const Duration(minutes: 2), onTimeout: () => true);
   }
 
+  /// A Remote Config value changed (Ads.applyRemoteConfig): drop what is now switched off or
+  /// was loaded with the other kind of unit (real / demo), then load what is switched on.
+  bool _usedTestUnits = AdRemoteConfig.testAds;
+
+  void _onRemoteConfig() {
+    final unitsChanged = _usedTestUnits != AdRemoteConfig.testAds;
+    _usedTestUnits = AdRemoteConfig.testAds;
+    if (!AdRemoteConfig.adsEnabled || unitsChanged) {
+      _appOpen?.dispose();
+      _appOpen = null;
+      _appOpenAt = null;
+      for (var i = 0; i < _interstitials.length; i++) {
+        _interstitials[i]?.dispose();
+        _interstitials[i] = null;
+      }
+      _rewarded?.dispose();
+      _rewarded = null;
+      _rewardedInterstitial?.dispose();
+      _rewardedInterstitial = null;
+      _dropNatives();
+    }
+    if (!AdRemoteConfig.interstitialAds) {
+      for (var i = 0; i < _interstitials.length; i++) {
+        _interstitials[i]?.dispose();
+        _interstitials[i] = null;
+      }
+    }
+    if (!AdRemoteConfig.nativeAds) _dropNatives();
+    if (!canShow) return;
+    _preloadAppOpen();
+    _preloadInterstitial(1);
+    _preloadInterstitial(2);
+    _preloadRewarded();
+    _preloadRewardedInterstitial();
+    loadNativeAds();
+  }
+
+  void _dropNatives() {
+    if (_nativeLoading) return; // the running load replaces the list when it finishes
+    for (final ad in _natives) {
+      ad.dispose();
+    }
+    _natives.clear();
+    _nativeAt = null;
+  }
+
   // ------------------------------------------------------------------ native ads
   // Rows of the "Thank you for your support!" / Explore more apps sheet. Never for Premium.
 
@@ -307,11 +381,11 @@ class AdService {
   /// Loaded native ads (may be empty).
   List<NativeAd> get nativeAds => List.unmodifiable(_natives);
 
-  bool get hasNativeAds => canShow && _natives.isNotEmpty;
+  bool get hasNativeAds => canShow && AdRemoteConfig.nativeAds && _natives.isNotEmpty;
 
   /// Loads up to [_nativeCount] native ads in the background (styled for the current theme).
   void loadNativeAds() {
-    if (!canShow || _nativeLoading) return;
+    if (!canShow || !AdRemoteConfig.nativeAds || _nativeLoading) return;
     final at = _nativeAt;
     if (_natives.isNotEmpty && at != null && DateTime.now().difference(at) < const Duration(minutes: 50)) return;
     _nativeLoading = true;
@@ -346,7 +420,7 @@ class AdService {
         request: const AdRequest(),
         nativeTemplateStyle: _nativeStyle(dark),
         listener: NativeAdListener(
-          onAdImpression: (_) => IosGrowth.adImpression(),
+          onAdImpression: (_) => IosGrowth.adImpression(format: 'native'),
           onPaidEvent: (ad, micros, precision, currency) {
             IosGrowth.adRevenue(micros / 1000000.0, currency);
           },
@@ -370,13 +444,42 @@ class AdService {
 
   /// Waits (at most [wait]) for the native ads that are loading, then returns what is there.
   Future<List<NativeAd>> waitNativeAds({Duration wait = const Duration(seconds: 8)}) async {
-    if (!canShow) return const [];
+    if (!canShow || !AdRemoteConfig.nativeAds) return const [];
     if (_natives.isEmpty) loadNativeAds();
     final pending = _nativeDone;
     if (_nativeLoading && pending != null) {
       await pending.future.timeout(wait, onTimeout: () {});
     }
     return nativeAds;
+  }
+
+  /// One native ad for a conversion result. The caller destroys it when that screen closes.
+  Future<NativeAd?> loadResultNative() async {
+    if (!canShow || !AdRemoteConfig.nativeAds) return null;
+    final done = Completer<NativeAd?>();
+    late final NativeAd ad;
+    ad = NativeAd(
+      adUnitId: AdUnits.native,
+      request: const AdRequest(),
+      nativeTemplateStyle: NativeTemplateStyle(templateType: TemplateType.medium, cornerRadius: 12),
+      listener: NativeAdListener(
+        onAdLoaded: (loaded) {
+          if (!done.isCompleted) done.complete(loaded as NativeAd);
+        },
+        onAdFailedToLoad: (failed, error) {
+          debugPrint('result native: ${error.message}');
+          failed.dispose();
+          if (!done.isCompleted) done.complete(null);
+        },
+        onAdImpression: (_) => IosGrowth.adImpression(format: 'native'),
+        onPaidEvent: (ad, micros, precision, currency) => IosGrowth.adRevenue(micros / 1000000.0, currency),
+      ),
+    );
+    ad.load();
+    return done.future.timeout(const Duration(seconds: 8), onTimeout: () {
+      ad.dispose();
+      return null;
+    });
   }
 
   /// After the sheet that showed them closed: native ads are used once, then fresh ones load.
@@ -390,15 +493,15 @@ class AdService {
   }
 
   static NativeTemplateStyle _nativeStyle(bool dark) {
-    final ink = dark ? const Color(0xFFF3F6FB) : const Color(0xFF1B2333);
-    final muted = dark ? const Color(0xFF9AA6BA) : const Color(0xFF8B95A8);
+    final ink = dark ? const Color(0xFFE2E8F0) : const Color(0xFF1F2933);
+    final muted = dark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
     return NativeTemplateStyle(
       templateType: TemplateType.small,
-      mainBackgroundColor: dark ? const Color(0xFF1B2230) : Colors.white,
+      mainBackgroundColor: dark ? const Color(0xFF162020) : Colors.white,
       cornerRadius: 12,
       callToActionTextStyle: NativeTemplateTextStyle(
-        textColor: Colors.white,
-        backgroundColor: const Color(0xFF0A5FD9),
+        textColor: dark ? const Color(0xFF042F2E) : Colors.white,
+        backgroundColor: dark ? const Color(0xFF45C4B4) : const Color(0xFF0F766E),
         style: NativeTemplateFontStyle.bold,
         size: 14,
       ),
@@ -445,7 +548,7 @@ class AdService {
 
   void _preloadInterstitial(int unit) {
     final slot = unit == 2 ? 2 : 1;
-    if (_interstitials[slot] != null) return;
+    if (!canShow || !AdRemoteConfig.interstitialAds || _interstitials[slot] != null) return;
     InterstitialAd.load(
       adUnitId: AdUnits.interstitialFor(slot),
       request: const AdRequest(),
@@ -493,7 +596,7 @@ class AdService {
     final earned = Completer<bool>();
     var got = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdImpression: (_) => IosGrowth.adImpression(),
+      onAdImpression: (_) => IosGrowth.adImpression(format: 'rewarded'),
       onAdDismissedFullScreenContent: (ad) {
         _closed();
         ad.dispose();
@@ -552,7 +655,7 @@ class AdService {
     final earned = Completer<bool>();
     var got = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdImpression: (_) => IosGrowth.adImpression(),
+      onAdImpression: (_) => IosGrowth.adImpression(format: 'rewarded'),
       onAdDismissedFullScreenContent: (ad) {
         _closed();
         ad.dispose();

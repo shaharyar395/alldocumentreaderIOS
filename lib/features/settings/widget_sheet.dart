@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
+import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/chrome.dart';
-import '../../widgets/native_art.dart';
-import '../../widgets/vector_art.dart';
 import 'native_bars.dart';
 
 /// Settings → Add widget, like the Android WidgetSheet: swipe through the four home-screen
@@ -109,7 +108,7 @@ class _WidgetSheetState extends State<_WidgetSheet> {
                     Text(
                       s.t(current.$2),
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                      style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500, color: nc.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -209,8 +208,8 @@ class WidgetPreview extends StatelessWidget {
   final String kind;
   final Size size;
 
-  static const _ink = Color(0xFF1B1F2A);
-  static const _grey = Color(0xFF8E949E);
+  static const _ink = Color(0xFF1F2933);
+  static const _grey = Color(0xFF64748B);
 
   @override
   Widget build(BuildContext context) {
@@ -224,10 +223,10 @@ class WidgetPreview extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  _button(NativeArt.wHome, NativeArt.wHomeViewport, s.t('wHome')),
-                  _button(NativeArt.wRecent, NativeArt.wRecentViewport, s.t('recent')),
-                  _button(NativeArt.wBookmark, NativeArt.wBookmarkViewport, s.t('bookmarks')),
-                  _button(NativeArt.wEditTile, NativeArt.wEditTileViewport, s.t('editPdf')),
+                  _button(ND.icWHome, s.t('wHome')),
+                  _button(ND.icWRecent, s.t('recent')),
+                  _button(ND.icWBookmark, s.t('bookmarks')),
+                  _button(ND.icWEditTile, s.t('editPdf')),
                 ],
               ),
             ),
@@ -240,10 +239,10 @@ class WidgetPreview extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  _button(NativeArt.catPdf, NativeArt.catPdfViewport, 'PDF'),
-                  _button(NativeArt.catWord, NativeArt.catWordViewport, 'Word'),
-                  _button(NativeArt.catExcel, NativeArt.catExcelViewport, 'Excel'),
-                  _button(NativeArt.catPpt, NativeArt.catPptViewport, 'PPT'),
+                  _button(ND.icCatPdf, 'PDF'),
+                  _button(ND.icCatWord, 'Word'),
+                  _button(ND.icCatExcel, 'Excel'),
+                  _button(ND.icCatPpt, 'PPT'),
                 ],
               ),
             ),
@@ -253,7 +252,7 @@ class WidgetPreview extends StatelessWidget {
           children: [
             const Positioned.fill(
               bottom: 22,
-              child: VectorArt(NativeArt.wEditorArt, viewport: NativeArt.wEditorArtViewport, width: 104, height: 82),
+              child: NativeIcon(ND.icWEditorArt, width: 104, height: 82),
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -264,10 +263,10 @@ class WidgetPreview extends StatelessWidget {
                       s.t('editPdf'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: _ink, fontSize: 14, fontWeight: FontWeight.w700),
+                      style: const TextStyle(color: _ink, fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ),
-                  const VectorArt(NativeArt.wArrow, viewport: NativeArt.wArrowViewport, width: 20, height: 20),
+                  const NativeIcon(ND.icWArrow, width: 20, height: 20),
                 ],
               ),
             ),
@@ -276,7 +275,7 @@ class WidgetPreview extends StatelessWidget {
       _ => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const VectorArt(NativeArt.wEditRed, viewport: NativeArt.wEditRedViewport, width: 36, height: 36),
+            const NativeIcon(ND.icWEditRed, width: 36, height: 36),
             const SizedBox(height: 3),
             Text(
               s.t('editPdf'),
@@ -301,7 +300,7 @@ class WidgetPreview extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFF4F8FF), Color(0xFFFFFFFF)],
+              colors: [Color(0xFFEAF4F3), Color(0xFFFFFFFF)],
             ),
           ),
           child: Padding(
@@ -325,7 +324,7 @@ class WidgetPreview extends StatelessWidget {
             child: _pill(
               Row(
                 children: [
-                  const VectorArt(NativeArt.wSearch, viewport: NativeArt.wSearchViewport, width: 16, height: 16),
+                  const NativeIcon(ND.icWSearch, width: 16, height: 16),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(s.t('search'), maxLines: 1, overflow: TextOverflow.clip, style: const TextStyle(color: _grey, fontSize: 13)),
@@ -341,7 +340,7 @@ class WidgetPreview extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const VectorArt(NativeArt.wEdit, viewport: NativeArt.wEditViewport, width: 16, height: 16),
+                  const NativeIcon(ND.icWEdit, width: 16, height: 16),
                   const SizedBox(width: 6),
                   Text(s.t('editPdf'), maxLines: 1, style: const TextStyle(color: _ink, fontSize: 13)),
                 ],
@@ -362,18 +361,18 @@ class WidgetPreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE1E7F2)),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: child,
     );
   }
 
-  Widget _button(List<VPath> icon, Size viewport, String label) {
+  Widget _button(NDrawable icon, String label) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          VectorArt(icon, viewport: viewport, width: 28, height: 28),
+          NativeIcon(icon, width: 28, height: 28),
           const SizedBox(height: 3),
           Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: _ink, fontSize: 11)),
         ],
@@ -390,10 +389,10 @@ class IosWidgetPreview extends StatelessWidget {
   final String kind;
   final Size size;
 
-  static const _ink = Color(0xFF1B1F2A);
-  static const _grey = Color(0xFF8E949E);
-  static const _border = Color(0xFFE1E7F2);
-  static const _edit = Color(0xFFE53935);
+  static const _ink = Color(0xFF1F2933);
+  static const _grey = Color(0xFF64748B);
+  static const _border = Color(0xFFE2E8F0);
+  static const _edit = Color(0xFF0D8A7F);
 
   @override
   Widget build(BuildContext context) {
@@ -406,9 +405,9 @@ class IosWidgetPreview extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  _button(Icons.home_rounded, const Color(0xFF1E6FE6), s.t('wHome')),
-                  _button(Icons.access_time_filled_rounded, const Color(0xFF1FB35A), s.t('recent')),
-                  _button(Icons.bookmark_rounded, const Color(0xFFFFA000), s.t('bookmarks')),
+                  _button(Icons.home_rounded, const Color(0xFF0F766E), s.t('wHome')),
+                  _button(Icons.access_time_filled_rounded, const Color(0xFF0F766E), s.t('recent')),
+                  _button(Icons.bookmark_rounded, const Color(0xFF0F766E), s.t('bookmarks')),
                   _button(Icons.edit_square, _edit, s.t('editPdf'), tile: true),
                 ],
               ),
@@ -437,10 +436,10 @@ class IosWidgetPreview extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  _button(Icons.picture_as_pdf_rounded, const Color(0xFFD10000), 'PDF', tile: true),
-                  _button(Icons.description_rounded, const Color(0xFF1560D6), 'Word', tile: true),
-                  _button(Icons.table_chart_rounded, const Color(0xFF008A3B), 'Excel', tile: true),
-                  _button(Icons.slideshow_rounded, const Color(0xFFF26201), 'PPT', tile: true),
+                  _button(Icons.picture_as_pdf_rounded, const Color(0xFFD14343), 'PDF', tile: true),
+                  _button(Icons.description_rounded, const Color(0xFF2F5FC8), 'Word', tile: true),
+                  _button(Icons.table_chart_rounded, const Color(0xFF1E8A55), 'Excel', tile: true),
+                  _button(Icons.slideshow_rounded, const Color(0xFFC9620E), 'PPT', tile: true),
                 ],
               ),
             ),
@@ -458,7 +457,7 @@ class IosWidgetPreview extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    const Center(child: Icon(Icons.picture_as_pdf_outlined, size: 38, color: Color(0xFFD10000))),
+                    const Center(child: Icon(Icons.picture_as_pdf_outlined, size: 38, color: Color(0xFFD14343))),
                     PositionedDirectional(
                       end: 6,
                       bottom: 6,
@@ -479,10 +478,10 @@ class IosWidgetPreview extends StatelessWidget {
                     s.t('editPdf'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: _ink, fontSize: 14, fontWeight: FontWeight.w700),
+                    style: const TextStyle(color: _ink, fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 ),
-                const Icon(Icons.arrow_circle_right_rounded, size: 20, color: Color(0xFF1E6FE6)),
+                const Icon(Icons.arrow_circle_right_rounded, size: 20, color: Color(0xFF0F766E)),
               ],
             ),
           ],
@@ -502,7 +501,7 @@ class IosWidgetPreview extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFF4F8FF), Color(0xFFFFFFFF)],
+            colors: [Color(0xFFEAF4F3), Color(0xFFFFFFFF)],
           ),
         ),
         // the home screen is not part of the app's theme or text direction

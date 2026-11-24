@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 @immutable
 class NC {
   const NC._({
+    required this.accent,
+    required this.accentContainer,
+    required this.accentSoft,
     required this.bgFaq,
     required this.bgHeaderTop,
     required this.bgScreen,
@@ -16,12 +19,67 @@ class NC {
     required this.choiceSelectedBg,
     required this.crown,
     required this.danger,
+    required this.deckBack,
+    required this.deckFront,
+    required this.deckMiddle,
+    required this.deckTextSoft,
+    required this.deckTrack,
     required this.divider,
     required this.dotOff,
+    required this.dsADeckText,
+    required this.dsAGlow,
+    required this.dsAPageClear,
+    required this.dsAScrim,
+    required this.dsDCanvas,
+    required this.dsDCanvasInverted,
+    required this.dsDFloat,
+    required this.dsDFloatText,
+    required this.dsDOnSel,
+    required this.dsDSel,
+    required this.dsFilesGlyph,
+    required this.dsFilesIllBack,
+    required this.dsFilesIllFront,
+    required this.dsFilesIllLine,
+    required this.dsFilesIllMid,
+    required this.dsFilesOnSel,
+    required this.dsFilesSecondaryText,
+    required this.dsFilesSel,
+    required this.dsFilesSelbarFg,
+    required this.dsPremBg,
+    required this.dsPremBgDeep,
+    required this.dsPremPanel,
+    required this.dsPremStatus,
+    required this.dsPremText,
+    required this.dsPremTextMuted,
+    required this.dsPremTextSoft,
+    required this.dsPremTrialStatus,
+    required this.dsToolsCamBar,
+    required this.dsToolsCamBg,
+    required this.dsToolsCamBtn,
+    required this.dsToolsCamMuted,
+    required this.dsToolsCamText,
+    required this.dsToolsCanvas,
+    required this.dsToolsHero,
+    required this.dsToolsHeroRing,
+    required this.dsToolsHeroSub,
+    required this.dsToolsHeroText,
+    required this.dsToolsOnSel,
+    required this.dsToolsPillOff,
+    required this.dsToolsPillOffText,
+    required this.dsToolsRowIcon,
+    required this.dsToolsScrim,
+    required this.dsToolsSel,
+    required this.dsToolsVeil,
     required this.fabBlue,
     required this.iconMain,
     required this.navOff,
+    required this.navbarBg,
+    required this.navbarOff,
+    required this.navbarPill,
+    required this.navbarPillText,
     required this.newFileBg,
+    required this.onAccent,
+    required this.onPrimary,
     required this.onboardBgBottom,
     required this.onboardBgTop,
     required this.paperText,
@@ -36,6 +94,8 @@ class NC {
     required this.skeleton,
     required this.surface,
     required this.surfaceVariant,
+    required this.swipeBg,
+    required this.swipeIcon,
     required this.textHint,
     required this.textPrimary,
     required this.textSecondary,
@@ -51,6 +111,12 @@ class NC {
     required this.white,
   });
 
+  /// @color/accent
+  final Color accent;
+  /// @color/accent_container
+  final Color accentContainer;
+  /// @color/accent_soft
+  final Color accentSoft;
   /// @color/bg_faq
   final Color bgFaq;
   /// @color/bg_header_top
@@ -71,18 +137,128 @@ class NC {
   final Color crown;
   /// @color/danger
   final Color danger;
+  /// @color/deck_back
+  final Color deckBack;
+  /// @color/deck_front
+  final Color deckFront;
+  /// @color/deck_middle
+  final Color deckMiddle;
+  /// @color/deck_text_soft
+  final Color deckTextSoft;
+  /// @color/deck_track
+  final Color deckTrack;
   /// @color/divider
   final Color divider;
   /// @color/dot_off
   final Color dotOff;
+  /// @color/ds_a_deck_text
+  final Color dsADeckText;
+  /// @color/ds_a_glow
+  final Color dsAGlow;
+  /// @color/ds_a_page_clear
+  final Color dsAPageClear;
+  /// @color/ds_a_scrim
+  final Color dsAScrim;
+  /// @color/ds_d_canvas
+  final Color dsDCanvas;
+  /// @color/ds_d_canvas_inverted
+  final Color dsDCanvasInverted;
+  /// @color/ds_d_float
+  final Color dsDFloat;
+  /// @color/ds_d_float_text
+  final Color dsDFloatText;
+  /// @color/ds_d_on_sel
+  final Color dsDOnSel;
+  /// @color/ds_d_sel
+  final Color dsDSel;
+  /// @color/ds_files_glyph
+  final Color dsFilesGlyph;
+  /// @color/ds_files_ill_back
+  final Color dsFilesIllBack;
+  /// @color/ds_files_ill_front
+  final Color dsFilesIllFront;
+  /// @color/ds_files_ill_line
+  final Color dsFilesIllLine;
+  /// @color/ds_files_ill_mid
+  final Color dsFilesIllMid;
+  /// @color/ds_files_on_sel
+  final Color dsFilesOnSel;
+  /// @color/ds_files_secondary_text
+  final Color dsFilesSecondaryText;
+  /// @color/ds_files_sel
+  final Color dsFilesSel;
+  /// @color/ds_files_selbar_fg
+  final Color dsFilesSelbarFg;
+  /// @color/ds_prem_bg
+  final Color dsPremBg;
+  /// @color/ds_prem_bg_deep
+  final Color dsPremBgDeep;
+  /// @color/ds_prem_panel
+  final Color dsPremPanel;
+  /// @color/ds_prem_status
+  final Color dsPremStatus;
+  /// @color/ds_prem_text
+  final Color dsPremText;
+  /// @color/ds_prem_text_muted
+  final Color dsPremTextMuted;
+  /// @color/ds_prem_text_soft
+  final Color dsPremTextSoft;
+  /// @color/ds_prem_trial_status
+  final Color dsPremTrialStatus;
+  /// @color/ds_tools_cam_bar
+  final Color dsToolsCamBar;
+  /// @color/ds_tools_cam_bg
+  final Color dsToolsCamBg;
+  /// @color/ds_tools_cam_btn
+  final Color dsToolsCamBtn;
+  /// @color/ds_tools_cam_muted
+  final Color dsToolsCamMuted;
+  /// @color/ds_tools_cam_text
+  final Color dsToolsCamText;
+  /// @color/ds_tools_canvas
+  final Color dsToolsCanvas;
+  /// @color/ds_tools_hero
+  final Color dsToolsHero;
+  /// @color/ds_tools_hero_ring
+  final Color dsToolsHeroRing;
+  /// @color/ds_tools_hero_sub
+  final Color dsToolsHeroSub;
+  /// @color/ds_tools_hero_text
+  final Color dsToolsHeroText;
+  /// @color/ds_tools_on_sel
+  final Color dsToolsOnSel;
+  /// @color/ds_tools_pill_off
+  final Color dsToolsPillOff;
+  /// @color/ds_tools_pill_off_text
+  final Color dsToolsPillOffText;
+  /// @color/ds_tools_row_icon
+  final Color dsToolsRowIcon;
+  /// @color/ds_tools_scrim
+  final Color dsToolsScrim;
+  /// @color/ds_tools_sel
+  final Color dsToolsSel;
+  /// @color/ds_tools_veil
+  final Color dsToolsVeil;
   /// @color/fab_blue
   final Color fabBlue;
   /// @color/icon_main
   final Color iconMain;
   /// @color/nav_off
   final Color navOff;
+  /// @color/navbar_bg
+  final Color navbarBg;
+  /// @color/navbar_off
+  final Color navbarOff;
+  /// @color/navbar_pill
+  final Color navbarPill;
+  /// @color/navbar_pill_text
+  final Color navbarPillText;
   /// @color/new_file_bg
   final Color newFileBg;
+  /// @color/on_accent
+  final Color onAccent;
+  /// @color/on_primary
+  final Color onPrimary;
   /// @color/onboard_bg_bottom
   final Color onboardBgBottom;
   /// @color/onboard_bg_top
@@ -111,6 +287,10 @@ class NC {
   final Color surface;
   /// @color/surface_variant
   final Color surfaceVariant;
+  /// @color/swipe_bg
+  final Color swipeBg;
+  /// @color/swipe_icon
+  final Color swipeIcon;
   /// @color/text_hint
   final Color textHint;
   /// @color/text_primary
@@ -139,94 +319,214 @@ class NC {
   final Color white;
 
   static const light = NC._(
-    bgFaq: Color(0xFFF3F4F8),
-    bgHeaderTop: Color(0xFFE8F2FC),
-    bgScreen: Color(0xFFF6F7FD),
-    bgSoftCard: Color(0xFFF2F4F7),
+    accent: Color(0xFF0D8A7F),
+    accentContainer: Color(0xFFD5EFEB),
+    accentSoft: Color(0xFF8FD6CB),
+    bgFaq: Color(0xFFF5F7F7),
+    bgHeaderTop: Color(0xFFEAF4F3),
+    bgScreen: Color(0xFFF5F7F7),
+    bgSoftCard: Color(0xFFF1F5F5),
     black: Color(0xFF000000),
-    bookmarkYellow: Color(0xFFFFC107),
-    btnGray: Color(0xFFEEF0F4),
-    choiceSelectedBg: Color(0xFFEEF4FF),
-    crown: Color(0xFFFFB300),
-    danger: Color(0xFFE53935),
-    divider: Color(0xFFF0F2F8),
-    dotOff: Color(0xFF4A4F58),
-    fabBlue: Color(0xFF1873F2),
-    iconMain: Color(0xFF000000),
-    navOff: Color(0xFF3A3F4A),
-    newFileBg: Color(0xFFEEF0F4),
-    onboardBgBottom: Color(0xFF0E0E10),
-    onboardBgTop: Color(0xFF3A3A3C),
+    bookmarkYellow: Color(0xFFF59E0B),
+    btnGray: Color(0xFFEEF2F3),
+    choiceSelectedBg: Color(0xFFD5EFEB),
+    crown: Color(0xFFF59E0B),
+    danger: Color(0xFFE2483D),
+    deckBack: Color(0xFFCCE9E4),
+    deckFront: Color(0xFF0F766E),
+    deckMiddle: Color(0xFF7CC4BA),
+    deckTextSoft: Color(0xFFCCE7E3),
+    deckTrack: Color(0xFF3A9C92),
+    divider: Color(0xFFE2E8F0),
+    dotOff: Color(0xFFCFE3E0),
+    dsADeckText: Color(0xFFFFFFFF),
+    dsAGlow: Color(0x66B8E6DF),
+    dsAPageClear: Color(0x00F5F7F7),
+    dsAScrim: Color(0xB31F2933),
+    dsDCanvas: Color(0xFFEEF2F3),
+    dsDCanvasInverted: Color(0xFF0E1414),
+    dsDFloat: Color(0xFF1F2933),
+    dsDFloatText: Color(0xFFFFFFFF),
+    dsDOnSel: Color(0xFFFFFFFF),
+    dsDSel: Color(0xFF0F766E),
+    dsFilesGlyph: Color(0xFF0F766E),
+    dsFilesIllBack: Color(0xFFCCE9E4),
+    dsFilesIllFront: Color(0xFFFFFFFF),
+    dsFilesIllLine: Color(0xFFCFE3E0),
+    dsFilesIllMid: Color(0xFF8FD6CB),
+    dsFilesOnSel: Color(0xFFFFFFFF),
+    dsFilesSecondaryText: Color(0xFF0F766E),
+    dsFilesSel: Color(0xFF0F766E),
+    dsFilesSelbarFg: Color(0xFFD5EFEB),
+    dsPremBg: Color(0xFF103534),
+    dsPremBgDeep: Color(0xFF0B1F1E),
+    dsPremPanel: Color(0xFF0F2A28),
+    dsPremStatus: Color(0xFF115E59),
+    dsPremText: Color(0xFFFFFFFF),
+    dsPremTextMuted: Color(0xFF94A3B8),
+    dsPremTextSoft: Color(0xFFCCE7E3),
+    dsPremTrialStatus: Color(0xFF1F2933),
+    dsToolsCamBar: Color(0xE60E1414),
+    dsToolsCamBg: Color(0xFF0E1414),
+    dsToolsCamBtn: Color(0x33FFFFFF),
+    dsToolsCamMuted: Color(0xFF9AA7B4),
+    dsToolsCamText: Color(0xFFFFFFFF),
+    dsToolsCanvas: Color(0xFFEEF2F3),
+    dsToolsHero: Color(0xFF0F766E),
+    dsToolsHeroRing: Color(0x1FFFFFFF),
+    dsToolsHeroSub: Color(0xFFCCE7E3),
+    dsToolsHeroText: Color(0xFFFFFFFF),
+    dsToolsOnSel: Color(0xFFFFFFFF),
+    dsToolsPillOff: Color(0xFFE2ECEB),
+    dsToolsPillOffText: Color(0xFF94A3B8),
+    dsToolsRowIcon: Color(0xFF0F766E),
+    dsToolsScrim: Color(0xCC0E1414),
+    dsToolsSel: Color(0xFF0F766E),
+    dsToolsVeil: Color(0xB3F5F7F7),
+    fabBlue: Color(0xFF0D8A7F),
+    iconMain: Color(0xFF1F2933),
+    navOff: Color(0xFF64748B),
+    navbarBg: Color(0xFF1F2933),
+    navbarOff: Color(0xFF9AA7B4),
+    navbarPill: Color(0xFF8FD6CB),
+    navbarPillText: Color(0xFF1F2933),
+    newFileBg: Color(0xFFEAF4F3),
+    onAccent: Color(0xFFFFFFFF),
+    onPrimary: Color(0xFFFFFFFF),
+    onboardBgBottom: Color(0xFF0F2A28),
+    onboardBgTop: Color(0xFF134E4A),
     paperText: Color(0xFF1B1F2A),
-    primary: Color(0xFF0A5FD9),
-    primaryDark: Color(0xFF0850B8),
-    primaryLight: Color(0xFFCCE4FF),
-    progressTrack: Color(0xFFE8EDF6),
-    radioOff: Color(0xFF888D97),
-    recentRowBg: Color(0xB3FFFFFF),
-    rowPressed: Color(0xFFEEF0F5),
-    scrim: Color(0x99000000),
-    skeleton: Color(0xFFEDF1F6),
+    primary: Color(0xFF0F766E),
+    primaryDark: Color(0xFF1F2933),
+    primaryLight: Color(0xFFE6F4F2),
+    progressTrack: Color(0xFFCCE9E4),
+    radioOff: Color(0xFF94A3B8),
+    recentRowBg: Color(0xFFFFFFFF),
+    rowPressed: Color(0xFFEEF3F3),
+    scrim: Color(0x991F2933),
+    skeleton: Color(0xFFEDF1F3),
     surface: Color(0xFFFFFFFF),
-    surfaceVariant: Color(0xFFF3F5F9),
-    textHint: Color(0xFFB3B8C2),
-    textPrimary: Color(0xFF1B1F2A),
-    textSecondary: Color(0xFF8E949E),
-    toolsSection: Color(0xFF4F5562),
-    typeAll: Color(0xFF1A6FE0),
-    typeDir: Color(0xFF1A6FE0),
-    typeExcel: Color(0xFF008A3B),
-    typeImage: Color(0xFFFDA800),
-    typePdf: Color(0xFFD10000),
-    typePpt: Color(0xFFF26201),
-    typeTxt: Color(0xFF5F6B90),
-    typeWord: Color(0xFF1560D6),
+    surfaceVariant: Color(0xFFF1F5F5),
+    swipeBg: Color(0xFF0F766E),
+    swipeIcon: Color(0xFF8FD6CB),
+    textHint: Color(0xFFA8B3C2),
+    textPrimary: Color(0xFF1F2933),
+    textSecondary: Color(0xFF64748B),
+    toolsSection: Color(0xFF475569),
+    typeAll: Color(0xFF0F766E),
+    typeDir: Color(0xFF0F766E),
+    typeExcel: Color(0xFF1E8A55),
+    typeImage: Color(0xFFB8457A),
+    typePdf: Color(0xFFD14343),
+    typePpt: Color(0xFFC9620E),
+    typeTxt: Color(0xFF6B52C4),
+    typeWord: Color(0xFF2F5FC8),
     white: Color(0xFFFFFFFF),
   );
 
   static const dark = NC._(
-    bgFaq: Color(0xFF101216),
-    bgHeaderTop: Color(0xFF1A2233),
-    bgScreen: Color(0xFF101216),
-    bgSoftCard: Color(0xFF23262C),
+    accent: Color(0xFF45C4B4),
+    accentContainer: Color(0xFF1D3B38),
+    accentSoft: Color(0xFF8FD6CB),
+    bgFaq: Color(0xFF0E1414),
+    bgHeaderTop: Color(0xFF1A2626),
+    bgScreen: Color(0xFF0E1414),
+    bgSoftCard: Color(0xFF1E2A2A),
     black: Color(0xFF000000),
-    bookmarkYellow: Color(0xFFFFC107),
-    btnGray: Color(0xFF2A2E35),
-    choiceSelectedBg: Color(0xFF1B2A42),
-    crown: Color(0xFFFFB300),
-    danger: Color(0xFFE53935),
-    divider: Color(0xFF2A2E36),
-    dotOff: Color(0xFF4A4F58),
-    fabBlue: Color(0xFF1873F2),
-    iconMain: Color(0xFFE6E8EC),
-    navOff: Color(0xFFC4C8CF),
-    newFileBg: Color(0xFF2B2F36),
-    onboardBgBottom: Color(0xFF0E0E10),
-    onboardBgTop: Color(0xFF3A3A3C),
+    bookmarkYellow: Color(0xFFF59E0B),
+    btnGray: Color(0xFF233030),
+    choiceSelectedBg: Color(0xFF1D3B38),
+    crown: Color(0xFFF59E0B),
+    danger: Color(0xFFE2483D),
+    deckBack: Color(0xFF173B38),
+    deckFront: Color(0xFF14706A),
+    deckMiddle: Color(0xFF1F4D49),
+    deckTextSoft: Color(0xFFCCE7E3),
+    deckTrack: Color(0xFF5EB3A9),
+    divider: Color(0xFF2A3636),
+    dotOff: Color(0xFF334242),
+    dsADeckText: Color(0xFFFFFFFF),
+    dsAGlow: Color(0x331F4D49),
+    dsAPageClear: Color(0x000E1414),
+    dsAScrim: Color(0xCC0A0F0F),
+    dsDCanvas: Color(0xFF0C1212),
+    dsDCanvasInverted: Color(0xFF000000),
+    dsDFloat: Color(0xFF1E2A2A),
+    dsDFloatText: Color(0xFFE2E8F0),
+    dsDOnSel: Color(0xFF042F2E),
+    dsDSel: Color(0xFF8FD6CB),
+    dsFilesGlyph: Color(0xFFA7E3DA),
+    dsFilesIllBack: Color(0xFF173B38),
+    dsFilesIllFront: Color(0xFF1E2A2A),
+    dsFilesIllLine: Color(0xFF1F4D49),
+    dsFilesIllMid: Color(0xFF14706A),
+    dsFilesOnSel: Color(0xFF042F2E),
+    dsFilesSecondaryText: Color(0xFFA7E3DA),
+    dsFilesSel: Color(0xFF8FD6CB),
+    dsFilesSelbarFg: Color(0xFFA7E3DA),
+    dsPremBg: Color(0xFF103534),
+    dsPremBgDeep: Color(0xFF0B1F1E),
+    dsPremPanel: Color(0xFF0F2A28),
+    dsPremStatus: Color(0xFF115E59),
+    dsPremText: Color(0xFFFFFFFF),
+    dsPremTextMuted: Color(0xFF94A3B8),
+    dsPremTextSoft: Color(0xFFCCE7E3),
+    dsPremTrialStatus: Color(0xFF1F2933),
+    dsToolsCamBar: Color(0xE60E1414),
+    dsToolsCamBg: Color(0xFF0E1414),
+    dsToolsCamBtn: Color(0x33FFFFFF),
+    dsToolsCamMuted: Color(0xFF9AA7B4),
+    dsToolsCamText: Color(0xFFFFFFFF),
+    dsToolsCanvas: Color(0xFF0F1515),
+    dsToolsHero: Color(0xFF115E59),
+    dsToolsHeroRing: Color(0x1FFFFFFF),
+    dsToolsHeroSub: Color(0xFFCCE7E3),
+    dsToolsHeroText: Color(0xFFFFFFFF),
+    dsToolsOnSel: Color(0xFF042F2E),
+    dsToolsPillOff: Color(0xFF2A3636),
+    dsToolsPillOffText: Color(0xFF64748B),
+    dsToolsRowIcon: Color(0xFF99E0D5),
+    dsToolsScrim: Color(0xE60E1414),
+    dsToolsSel: Color(0xFF8FD6CB),
+    dsToolsVeil: Color(0xB30E1414),
+    fabBlue: Color(0xFF0D8A7F),
+    iconMain: Color(0xFFE2E8F0),
+    navOff: Color(0xFF94A3B8),
+    navbarBg: Color(0xFF1A2424),
+    navbarOff: Color(0xFF94A3B8),
+    navbarPill: Color(0xFF8FD6CB),
+    navbarPillText: Color(0xFF042F2E),
+    newFileBg: Color(0xFF173B38),
+    onAccent: Color(0xFF042F2E),
+    onPrimary: Color(0xFF042F2E),
+    onboardBgBottom: Color(0xFF0F2A28),
+    onboardBgTop: Color(0xFF134E4A),
     paperText: Color(0xFF1B1F2A),
-    primary: Color(0xFF0A5FD9),
-    primaryDark: Color(0xFF0850B8),
-    primaryLight: Color(0xFF1D3354),
-    progressTrack: Color(0xFF2A2F38),
-    radioOff: Color(0xFF8A909A),
-    recentRowBg: Color(0xFF23262D),
-    rowPressed: Color(0xFF262A31),
-    scrim: Color(0x99000000),
-    skeleton: Color(0xFF262A31),
-    surface: Color(0xFF17191E),
-    surfaceVariant: Color(0xFF23262D),
-    textHint: Color(0xFF6E747E),
-    textPrimary: Color(0xFFE6E8EC),
-    textSecondary: Color(0xFF9AA0AA),
-    toolsSection: Color(0xFFBCC1CA),
-    typeAll: Color(0xFF1A6FE0),
-    typeDir: Color(0xFF1A6FE0),
-    typeExcel: Color(0xFF008A3B),
-    typeImage: Color(0xFFFDA800),
-    typePdf: Color(0xFFD10000),
-    typePpt: Color(0xFFF26201),
-    typeTxt: Color(0xFF5F6B90),
-    typeWord: Color(0xFF1560D6),
+    primary: Color(0xFF45C4B4),
+    primaryDark: Color(0xFFE2E8F0),
+    primaryLight: Color(0xFF173B38),
+    progressTrack: Color(0xFF2A3636),
+    radioOff: Color(0xFF7C8A99),
+    recentRowBg: Color(0xFF1E2A2A),
+    rowPressed: Color(0xFF233030),
+    scrim: Color(0x991F2933),
+    skeleton: Color(0xFF1E2A2A),
+    surface: Color(0xFF162020),
+    surfaceVariant: Color(0xFF1E2A2A),
+    swipeBg: Color(0xFF14706A),
+    swipeIcon: Color(0xFF8FD6CB),
+    textHint: Color(0xFF64748B),
+    textPrimary: Color(0xFFE2E8F0),
+    textSecondary: Color(0xFF94A3B8),
+    toolsSection: Color(0xFFCBD5E1),
+    typeAll: Color(0xFF45C4B4),
+    typeDir: Color(0xFF45C4B4),
+    typeExcel: Color(0xFF1E8A55),
+    typeImage: Color(0xFFB8457A),
+    typePdf: Color(0xFFD14343),
+    typePpt: Color(0xFFC9620E),
+    typeTxt: Color(0xFF6B52C4),
+    typeWord: Color(0xFF2F5FC8),
     white: Color(0xFFFFFFFF),
   );
 
@@ -235,6 +535,12 @@ class NC {
   /// Resolves a colour name as written in the Android XML ("text_primary").
   Color byName(String name) {
     switch (name) {
+      case 'accent':
+        return accent;
+      case 'accent_container':
+        return accentContainer;
+      case 'accent_soft':
+        return accentSoft;
       case 'bg_faq':
         return bgFaq;
       case 'bg_header_top':
@@ -255,18 +561,128 @@ class NC {
         return crown;
       case 'danger':
         return danger;
+      case 'deck_back':
+        return deckBack;
+      case 'deck_front':
+        return deckFront;
+      case 'deck_middle':
+        return deckMiddle;
+      case 'deck_text_soft':
+        return deckTextSoft;
+      case 'deck_track':
+        return deckTrack;
       case 'divider':
         return divider;
       case 'dot_off':
         return dotOff;
+      case 'ds_a_deck_text':
+        return dsADeckText;
+      case 'ds_a_glow':
+        return dsAGlow;
+      case 'ds_a_page_clear':
+        return dsAPageClear;
+      case 'ds_a_scrim':
+        return dsAScrim;
+      case 'ds_d_canvas':
+        return dsDCanvas;
+      case 'ds_d_canvas_inverted':
+        return dsDCanvasInverted;
+      case 'ds_d_float':
+        return dsDFloat;
+      case 'ds_d_float_text':
+        return dsDFloatText;
+      case 'ds_d_on_sel':
+        return dsDOnSel;
+      case 'ds_d_sel':
+        return dsDSel;
+      case 'ds_files_glyph':
+        return dsFilesGlyph;
+      case 'ds_files_ill_back':
+        return dsFilesIllBack;
+      case 'ds_files_ill_front':
+        return dsFilesIllFront;
+      case 'ds_files_ill_line':
+        return dsFilesIllLine;
+      case 'ds_files_ill_mid':
+        return dsFilesIllMid;
+      case 'ds_files_on_sel':
+        return dsFilesOnSel;
+      case 'ds_files_secondary_text':
+        return dsFilesSecondaryText;
+      case 'ds_files_sel':
+        return dsFilesSel;
+      case 'ds_files_selbar_fg':
+        return dsFilesSelbarFg;
+      case 'ds_prem_bg':
+        return dsPremBg;
+      case 'ds_prem_bg_deep':
+        return dsPremBgDeep;
+      case 'ds_prem_panel':
+        return dsPremPanel;
+      case 'ds_prem_status':
+        return dsPremStatus;
+      case 'ds_prem_text':
+        return dsPremText;
+      case 'ds_prem_text_muted':
+        return dsPremTextMuted;
+      case 'ds_prem_text_soft':
+        return dsPremTextSoft;
+      case 'ds_prem_trial_status':
+        return dsPremTrialStatus;
+      case 'ds_tools_cam_bar':
+        return dsToolsCamBar;
+      case 'ds_tools_cam_bg':
+        return dsToolsCamBg;
+      case 'ds_tools_cam_btn':
+        return dsToolsCamBtn;
+      case 'ds_tools_cam_muted':
+        return dsToolsCamMuted;
+      case 'ds_tools_cam_text':
+        return dsToolsCamText;
+      case 'ds_tools_canvas':
+        return dsToolsCanvas;
+      case 'ds_tools_hero':
+        return dsToolsHero;
+      case 'ds_tools_hero_ring':
+        return dsToolsHeroRing;
+      case 'ds_tools_hero_sub':
+        return dsToolsHeroSub;
+      case 'ds_tools_hero_text':
+        return dsToolsHeroText;
+      case 'ds_tools_on_sel':
+        return dsToolsOnSel;
+      case 'ds_tools_pill_off':
+        return dsToolsPillOff;
+      case 'ds_tools_pill_off_text':
+        return dsToolsPillOffText;
+      case 'ds_tools_row_icon':
+        return dsToolsRowIcon;
+      case 'ds_tools_scrim':
+        return dsToolsScrim;
+      case 'ds_tools_sel':
+        return dsToolsSel;
+      case 'ds_tools_veil':
+        return dsToolsVeil;
       case 'fab_blue':
         return fabBlue;
       case 'icon_main':
         return iconMain;
       case 'nav_off':
         return navOff;
+      case 'navbar_bg':
+        return navbarBg;
+      case 'navbar_off':
+        return navbarOff;
+      case 'navbar_pill':
+        return navbarPill;
+      case 'navbar_pill_text':
+        return navbarPillText;
       case 'new_file_bg':
         return newFileBg;
+      case 'on_accent':
+        return onAccent;
+      case 'on_primary':
+        return onPrimary;
       case 'onboard_bg_bottom':
         return onboardBgBottom;
       case 'onboard_bg_top':
@@ -295,6 +711,10 @@ class NC {
         return surface;
       case 'surface_variant':
         return surfaceVariant;
+      case 'swipe_bg':
+        return swipeBg;
+      case 'swipe_icon':
+        return swipeIcon;
       case 'text_hint':
         return textHint;
       case 'text_primary':

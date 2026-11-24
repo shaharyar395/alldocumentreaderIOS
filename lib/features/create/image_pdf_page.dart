@@ -9,6 +9,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/pdf_tools.dart';
 import '../../widgets/chrome.dart';
 import 'scan_edit_page.dart';
@@ -71,7 +72,7 @@ class _ImagePdfPageState extends State<ImagePdfPage> {
         if (!didPop) _confirmDiscard();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         appBar: NativeTopBar(
           title: s.t('imageToPdf'),
           onBack: _confirmDiscard,
@@ -189,7 +190,7 @@ class _ImagePdfPageState extends State<ImagePdfPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(color: const Color(0x99414754), borderRadius: BorderRadius.circular(3)),
-                  child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                  child: Text('${index + 1}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12)),
                 ),
               ),
             ],
@@ -259,10 +260,21 @@ class _ImagePdfPageState extends State<ImagePdfPage> {
         setState(() => _busy = false);
         return;
       }
-      await scope.ads.showInterstitial(unit: 2);
+      final job = widget.job;
+      if (job.imageToPdf && job.fromCamera) IosAnalytics.log('scanned_image_converted_to_pdf');
+      if (job.imageToPdf && job.fromGallery) IosAnalytics.log('galary_image_converted_to_pdf');
+      IosAnalytics.converted(job.imageToPdf ? 'image' : 'scan', 'pdf');
+      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => SuccessPage(entry: entry, kind: ResultKind.converted, feature: s.t('imageToPdf'), featureKey: 'image_to_pdf')),
+        MaterialPageRoute(
+          builder: (_) => SuccessPage(
+            entry: entry,
+            kind: ResultKind.converted,
+            feature: s.t(job.imageToPdf ? 'imageToPdf' : 'scanToPdf'),
+            featureKey: job.imageToPdf ? 'image_to_pdf' : 'scan_to_pdf',
+          ),
+        ),
       );
     } catch (_) {
       pill.dismiss();

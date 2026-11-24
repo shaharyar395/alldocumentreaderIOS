@@ -160,7 +160,7 @@ class _SplitPageState extends State<SplitPage> {
       pill.dismiss();
       if (!mounted) return;
       if (saved.isEmpty) throw StateError('save');
-      await scope.ads.showInterstitial(unit: 2);
+      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -219,14 +219,14 @@ class _SplitPageState extends State<SplitPage> {
         if (!didPop) _back();
       },
       child: Scaffold(
-        backgroundColor: nc.surface,
+        backgroundColor: nc.bgScreen,
         appBar: NativeTopBar(
           onBack: _back,
           titleWidget: Text(
             s.t('splitPdf'),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: nc.textPrimary),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: nc.textPrimary),
           ),
           actions: [
             if (listing) NativeIconButton(ND.icFileAdd, tint: nc.textPrimary, tooltip: s.t('addPages'), onPressed: _busy ? null : _addPart),
@@ -259,7 +259,7 @@ class _SplitPageState extends State<SplitPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+                    Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary)),
                     const SizedBox(height: 2),
                     Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: nc.textSecondary)),
                   ],
@@ -321,7 +321,7 @@ class _SplitPageState extends State<SplitPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(color: const Color(0xB3333A45), borderRadius: BorderRadius.circular(3)),
-                        child: Text('$_count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                        child: Text('$_count', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500)),
                       ),
                     ),
                   ],
@@ -334,7 +334,7 @@ class _SplitPageState extends State<SplitPage> {
                   widget.file.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary),
                 ),
               ),
             ],
@@ -342,7 +342,7 @@ class _SplitPageState extends State<SplitPage> {
         ),
         Padding(
           padding: const EdgeInsetsDirectional.only(start: 16, top: 18, bottom: 6),
-          child: Text(s.t('splitMethod'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: nc.textPrimary)),
+          child: Text(s.t('splitMethod'), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: nc.textPrimary)),
         ),
         methodRow(_SplitMode.custom, s.t('splitCustomRange'), s.t('splitCustomRangeSub')),
         methodRow(_SplitMode.fixed, s.t('splitFixedRange'), s.t('splitFixedRangeSub')),
@@ -415,7 +415,7 @@ class _SplitPageState extends State<SplitPage> {
                                   part.name,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: nc.textPrimary),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: nc.textPrimary),
                                 ),
                               ),
                             ),

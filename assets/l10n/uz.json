@@ -631,5 +631,22 @@
   "goToAppStore": "App Store'ga o'tish",
   "addToAppIconMenu": "Ilova belgisi menyusiga qo‘shish",
   "appIconMenuAdded": "Ilova belgisi menyusiga qo‘shildi. Ochish uchun ilova belgisini bosib turing.",
-  "onMyDevice": "{device} qurilmamda"
+  "onMyDevice": "{device} qurilmamda",
+  "dsContinueReading": "O‘qishni davom ettirish",
+  "dsPageOf": "{page}/{count}-bet",
+  "dsPercentRead": "{percent}% o‘qildi",
+  "dsNewestFiles": "Eng yangi fayllaringiz bitta ro‘yxatda",
+  "dsSwipeDeck": "Boshqa kartani ko‘rsatish",
+  "dsNewFilesOne": "{count} ta yangi fayl",
+  "dsNewFilesMany": "{count} ta yangi fayl",
+  "dsCreateNew": "Yangi yaratish",
+  "dsScanHeroSub": "Kamera, kesish va filtrlar",
+  "dsTellUs": "Bizga ayting",
+  "dsSave": "Saqlash",
+  "dsSaved": "Saqlandi",
+  "iapPriceLoading": "Narx yuklanmoqda…",
+  "iapVerificationPending": "To‘lov qabul qilindi; tasdiqlash kutilmoqda. Premium birozdan keyin ochilmasa, «Tiklash»ni bosing.",
+  "iapPendingApproval": "Xaridingiz tasdiqlanishini kutmoqda. Tasdiqlanishi bilan Premium ochiladi.",
+  "iapStoreUnavailable": "Hozir App Store bilan bog‘lanib bo‘lmayapti. Keyinroq qayta urinib ko‘ring.",
+  "iapAutoRenewInfo": "To‘lov xaridni tasdiqlaganingizda Apple Accountingizdan yechiladi. Joriy davr tugashidan kamida 24 soat oldin avtomatik yangilanish o‘chirilmasa, obuna xuddi shu narxda avtomatik yangilanadi. Uni Apple Account sozlamalarida boshqarishingiz yoki bekor qilishingiz mumkin."
 }

@@ -91,6 +91,22 @@ class AppleBilling {
   Future<void> _tail = Future<void>.value();
 
   /// iOS only. Initializes Firebase for the rest of the app. Purchase does not read the result.
+  static String? lastError;
+
+  static String _planOf(String productId) {
+    final id = productId.toLowerCase();
+    if (id.contains('year')) return 'yearly';
+    if (id.contains('month')) return 'monthly';
+    return 'pro';
+  }
+
+  String _planFromFacts() {
+    final yearly = this.yearly?.id ?? '';
+    if (settings.subscriptionPlan == 'yearly' || settings.subscriptionPlan == 'monthly') return settings.subscriptionPlan;
+    if (yearly.isNotEmpty) return _planOf(yearly);
+    return 'pro';
+  }
+
   static Future<void> initBackend() async {
     if (!Platform.isIOS || kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) return;
     try {
@@ -169,6 +185,7 @@ class AppleBilling {
           }) ??
           const {};
     } catch (error) {
+      lastError = '$error';
       debugPrint('apple buy: $error');
       return PurchaseOutcome.failed;
     }
@@ -194,14 +211,20 @@ class AppleBilling {
         try {
           await _applyFact(fact);
         } catch (error) {
+          lastError = '$error';
           debugPrint('apple buy apply: $error');
           return PurchaseOutcome.failed;
         }
       }
-      if (!effect.grant || !settings.premium) return PurchaseOutcome.failed;
-      if (effect.expiryMs > 0 && settings.premiumExpiryMs != effect.expiryMs && settings.premiumExpiryMs <= effect.expiryMs) {
+      if (!effect.grant || !settings.premium) {
+        lastError = result['reason'] as String? ?? status ?? 'purchase_failed';
         return PurchaseOutcome.failed;
       }
+      if (effect.expiryMs > 0 && settings.premiumExpiryMs != effect.expiryMs && settings.premiumExpiryMs <= effect.expiryMs) {
+        lastError = 'expiry_not_saved';
+        return PurchaseOutcome.failed;
+      }
+      lastError = null;
       return PurchaseOutcome.success;
     });
   }
@@ -244,7 +267,7 @@ class AppleBilling {
           cachedExpiryMs: settings.premiumExpiryMs,
           now: now,
         );
-        await settings.setStorePremium(entitled: true, expiryMs: expiry);
+        await settings.setStorePremium(entitled: true, expiryMs: expiry, plan: _planOf(fact.productId));
       } else {
         final snap = await _loadSnapshot(sync: false);
         if (snap != null && (snap.storeAnswered || snap.facts.isNotEmpty)) {
@@ -279,7 +302,7 @@ class AppleBilling {
         cachedExpiryMs: settings.premiumExpiryMs,
         now: DateTime.now().millisecondsSinceEpoch,
       );
-      await settings.setStorePremium(entitled: true, expiryMs: expiry);
+      await settings.setStorePremium(entitled: true, expiryMs: expiry, plan: _planFromFacts());
       return;
     }
     if (settings.testPremiumActive) return;

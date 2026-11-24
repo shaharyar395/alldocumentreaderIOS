@@ -631,5 +631,22 @@
   "goToAppStore": "Vai all'App Store",
   "addToAppIconMenu": "Aggiungi al menu dell'icona dell'app",
   "appIconMenuAdded": "Aggiunto al menu dell'icona dell'app. Tocca e tieni premuta l'icona dell'app per aprirlo.",
-  "onMyDevice": "Su {device}"
+  "onMyDevice": "Su {device}",
+  "dsContinueReading": "Continua a leggere",
+  "dsPageOf": "p. {page}/{count}",
+  "dsPercentRead": "{percent}% letto",
+  "dsNewestFiles": "I tuoi file più recenti, in un elenco",
+  "dsSwipeDeck": "Mostra l'altra scheda",
+  "dsNewFilesOne": "{count} nuovo file",
+  "dsNewFilesMany": "{count} nuovi file",
+  "dsCreateNew": "Crea nuovo",
+  "dsScanHeroSub": "Fotocamera, ritaglio e filtri",
+  "dsTellUs": "Diccelo",
+  "dsSave": "Salva",
+  "dsSaved": "Salvato",
+  "iapPriceLoading": "Caricamento del prezzo…",
+  "iapVerificationPending": "Pagamento ricevuto; verifica in corso. Se Premium non si sblocca a breve, tocca Ripristina.",
+  "iapPendingApproval": "Il tuo acquisto è in attesa di approvazione. Premium si sbloccherà appena verrà approvato.",
+  "iapStoreUnavailable": "Al momento l'App Store non è raggiungibile. Riprova più tardi.",
+  "iapAutoRenewInfo": "Il pagamento viene addebitato sul tuo Account Apple alla conferma dell'acquisto. L'abbonamento si rinnova automaticamente allo stesso prezzo, a meno che il rinnovo automatico non venga disattivato almeno 24 ore prima della fine del periodo in corso. Puoi gestirlo o annullarlo nelle impostazioni del tuo Account Apple."
 }
