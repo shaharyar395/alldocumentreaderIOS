@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/html_text.dart';
 import 'app_links.dart';
@@ -11,8 +12,25 @@ import 'native_bars.dart';
 
 /// Terms of use (the Android app's terms_html, in the app language), like activity_policy.xml:
 /// a blue 56dp bar (white back + 18sp title, blue status bar) over selectable 14sp text.
-class TermsPage extends StatelessWidget {
+class TermsPage extends StatefulWidget {
   const TermsPage({super.key});
+
+  @override
+  State<TermsPage> createState() => _TermsPageState();
+}
+
+class _TermsPageState extends State<TermsPage> {
+  @override
+  void initState() {
+    super.initState();
+    IosAnalytics.activate('terms');
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left('terms');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +49,10 @@ class TermsPage extends StatelessWidget {
                   padding: const EdgeInsetsDirectional.only(start: 8),
                   child: Row(
                     children: [
-                      const NativeBackButton(),
+                      NativeBackButton(onTap: () {
+                        IosAnalytics.back('terms');
+                        Navigator.of(context).maybePop();
+                      }),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(s.t('termsOfUse'), maxLines: 1, overflow: TextOverflow.ellipsis, style: dsTopBarTitle(context)),

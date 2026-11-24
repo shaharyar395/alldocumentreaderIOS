@@ -95,6 +95,8 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly, String scre
   }
   // the store's payment sheet is not "leaving the app": no Welcome back after it
   scope.guard.arm(scope.settings);
+  final planNameForStart = yearly ? 'yearly' : 'monthly';
+  IosAnalytics.purchaseStart(plan: planNameForStart, screen: screen);
   final outcome = await billing.buy(plan);
   final planName = yearly ? 'yearly' : 'monthly';
   final logged = switch (outcome) {
@@ -105,6 +107,7 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly, String scre
   };
   IosAnalytics.purchaseFinished(plan: planName, screen: screen, outcome: logged, reason: AppleBilling.lastError);
   if (outcome == PurchaseOutcome.success) {
+    IosAnalytics.recommendedPurchase(itemId: plan.id, value: plan.rawPrice, currency: plan.currencyCode);
     await scope.settings.setStorePremium(
       entitled: true,
       expiryMs: scope.settings.premiumExpiryMs,

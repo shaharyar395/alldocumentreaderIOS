@@ -11,6 +11,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/pdf_tools.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import 'pdf_picker_page.dart';
 import 'pdf_thumbs.dart';
@@ -59,6 +60,7 @@ class _SplitPageState extends State<SplitPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('split_pdf');
     _thumbs.pageCount().then((count) {
       if (!mounted) return;
       setState(() {
@@ -71,6 +73,7 @@ class _SplitPageState extends State<SplitPage> {
 
   @override
   void dispose() {
+    IosAnalytics.left('split_pdf');
     _thumbs.close();
     super.dispose();
   }
@@ -140,6 +143,7 @@ class _SplitPageState extends State<SplitPage> {
   Future<void> _split() async {
     final parts = _result;
     if (_busy || parts.isEmpty) return;
+    IosAnalytics.log('split_pdf_split_tapped', {'screen': 'split_pdf', 'count': '${parts.length}'});
     if (_count < 2) {
       showToast(context, S.of(context).t('splitOnePage'));
       return;
@@ -160,6 +164,7 @@ class _SplitPageState extends State<SplitPage> {
       pill.dismiss();
       if (!mounted) return;
       if (saved.isEmpty) throw StateError('save');
+      IosAnalytics.log('split_pdf_saved', {'screen': 'split_pdf', 'count': '${saved.length}'});
       await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
@@ -171,6 +176,7 @@ class _SplitPageState extends State<SplitPage> {
       pill.dismiss();
       if (!mounted) return;
       setState(() => _busy = false);
+      IosAnalytics.appError('split_pdf', 'split_failed');
       showToast(context, s.t('splitFailed'), warning: true);
     }
   }

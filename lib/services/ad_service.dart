@@ -165,7 +165,9 @@ class AdService {
       if (!await _whenActive(const Duration(seconds: 30))) return;
       await Future<void>.delayed(const Duration(milliseconds: 400));
       if (!await _whenActive(const Duration(seconds: 30))) return;
-      await AppTrackingTransparency.requestTrackingAuthorization();
+      IosAnalytics.log('att_permission_prompted', {'screen': 'home'});
+      final decision = await AppTrackingTransparency.requestTrackingAuthorization();
+      IosAnalytics.log('att_permission_result', {'result': decision.name, 'screen': 'home'});
     } catch (error) {
       debugPrint('tracking: $error');
     }
@@ -296,9 +298,11 @@ class AdService {
         final now = DateTime.now();
         _lastInterstitial = now;
         if (honorCooldown) _fileTypeShownAt = now;
+        IosAnalytics.adShown('interstitial');
       },
       onAdImpression: (_) => IosGrowth.adImpression(format: 'interstitial'),
       onAdDismissedFullScreenContent: (ad) {
+        IosAnalytics.adClosed('interstitial');
         _closed();
         ad.dispose();
         if (!closed.isCompleted) closed.complete(true);
@@ -420,7 +424,10 @@ class AdService {
         request: const AdRequest(),
         nativeTemplateStyle: _nativeStyle(dark),
         listener: NativeAdListener(
-          onAdImpression: (_) => IosGrowth.adImpression(format: 'native'),
+          onAdImpression: (_) {
+            IosGrowth.adImpression(format: 'native');
+            IosAnalytics.adShown('native');
+          },
           onPaidEvent: (ad, micros, precision, currency) {
             IosGrowth.adRevenue(micros / 1000000.0, currency);
           },
@@ -471,7 +478,10 @@ class AdService {
           failed.dispose();
           if (!done.isCompleted) done.complete(null);
         },
-        onAdImpression: (_) => IosGrowth.adImpression(format: 'native'),
+        onAdImpression: (_) {
+          IosGrowth.adImpression(format: 'native');
+          IosAnalytics.adShown('native');
+        },
         onPaidEvent: (ad, micros, precision, currency) => IosGrowth.adRevenue(micros / 1000000.0, currency),
       ),
     );
@@ -596,8 +606,10 @@ class AdService {
     final earned = Completer<bool>();
     var got = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => IosAnalytics.adShown('rewarded'),
       onAdImpression: (_) => IosGrowth.adImpression(format: 'rewarded'),
       onAdDismissedFullScreenContent: (ad) {
+        IosAnalytics.adClosed('rewarded');
         _closed();
         ad.dispose();
         if (!earned.isCompleted) earned.complete(got);
@@ -655,8 +667,10 @@ class AdService {
     final earned = Completer<bool>();
     var got = false;
     ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) => IosAnalytics.adShown('rewarded_interstitial'),
       onAdImpression: (_) => IosGrowth.adImpression(format: 'rewarded'),
       onAdDismissedFullScreenContent: (ad) {
+        IosAnalytics.adClosed('rewarded_interstitial');
         _closed();
         ad.dispose();
         if (!earned.isCompleted) earned.complete(got);

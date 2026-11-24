@@ -330,6 +330,7 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
     );
   } catch (_) {
     pill.dismiss();
+    IosAnalytics.appError(slides ? 'ppt_to_pdf' : 'word_to_pdf', 'convert_failed');
     if (context.mounted) showToast(context, s.t('convertFailed'), warning: true);
   }
 }
@@ -381,6 +382,7 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
     );
   } catch (_) {
     pill.dismiss();
+    IosAnalytics.appError('pdf_to_word', 'convert_failed');
     if (context.mounted) showToast(context, s.t('convertFailed'), warning: true);
   }
 }

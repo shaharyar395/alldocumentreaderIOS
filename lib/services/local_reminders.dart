@@ -228,7 +228,9 @@ class LocalReminders {
   static Future<void> requestPermission() async {
     await ensureReady();
     if (!_ready) return;
-    await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: false, sound: true);
+    IosAnalytics.log('notification_permission_prompted', {'screen': 'home'});
+    final granted = await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: false, sound: true);
+    IosAnalytics.log('notification_permission_result', {'result': granted == true ? 'granted' : 'denied', 'screen': 'home'});
   }
 
   /// A person brought the app forward. Not used for a notification delivery or a background launch.

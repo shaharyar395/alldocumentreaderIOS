@@ -4,6 +4,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 
 /// "Welcome back…" with the sliding blue bar, like the Android WelcomeBackActivity: shown when
@@ -19,9 +20,16 @@ class _WelcomeBackPageState extends State<WelcomeBackPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('welcome_back');
     Future<void>.delayed(const Duration(milliseconds: 1800), () {
       if (mounted) Navigator.of(context).pop();
     });
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left('welcome_back');
+    super.dispose();
   }
 
   @override

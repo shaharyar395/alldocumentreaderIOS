@@ -6,6 +6,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/html_text.dart';
 import 'app_links.dart';
@@ -68,11 +69,13 @@ class _FaqPageState extends State<FaqPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('faq');
     _scroll.addListener(_follow);
   }
 
   @override
   void dispose() {
+    IosAnalytics.left('faq');
     _scroll.dispose();
     super.dispose();
   }
@@ -125,7 +128,10 @@ class _FaqPageState extends State<FaqPage> {
                 padding: const EdgeInsetsDirectional.only(start: 4),
                 child: Row(
                   children: [
-                    const NativeBackButton(),
+                    NativeBackButton(onTap: () {
+                      IosAnalytics.back('faq');
+                      Navigator.of(context).maybePop();
+                    }),
                     Flexible(
                       child: Text(
                         s.t('faq'),

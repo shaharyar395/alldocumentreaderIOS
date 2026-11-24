@@ -8,6 +8,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
 import '../files/file_actions.dart';
@@ -26,10 +27,12 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _query = TextEditingController();
   final FocusNode _focus = FocusNode();
+  bool _emptyLogged = false;
 
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('search');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _focus.requestFocus();
     });
@@ -37,6 +40,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
+    IosAnalytics.left('search');
     _query.dispose();
     _focus.dispose();
     super.dispose();
@@ -82,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
           return FileRow(
             key: ValueKey(entry.id),
             entry: entry,
-            onTap: () => openEntry(context, entry),
+            onTap: () => openEntry(context, entry, source: 'search'),
             onBookmark: () => toggleBookmarkWithPill(context, entry),
             onMore: () => showFileMenu(context, entry),
             onDelete: () => confirmDelete(context, entry),
@@ -102,7 +106,10 @@ class _SearchPageState extends State<SearchPage> {
                 padding: const EdgeInsetsDirectional.only(start: 8, end: 16),
                 child: Row(
                   children: [
-                    const DsTopBack(),
+                    DsTopBack(onTap: () {
+                      IosAnalytics.back('search');
+                      Navigator.of(context).maybePop();
+                    }),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Container(
@@ -119,7 +126,21 @@ class _SearchPageState extends State<SearchPage> {
                                 focusNode: _focus,
                                 hint: s.t('searchHint'),
                                 textInputAction: TextInputAction.search,
-                                onChanged: (_) => setState(() {}),
+                                onChanged: (_) {
+                                  setState(() {});
+                                  final query = _query.text.trim();
+                                  if (query.isEmpty) return;
+                                  final found = _results(AppScope.of(context).library);
+                                  IosAnalytics.searched(query, found.length);
+                                  if (found.isEmpty) {
+                                    if (!_emptyLogged) {
+                                      _emptyLogged = true;
+                                      IosAnalytics.log('search_empty_shown', {'screen': 'search'});
+                                    }
+                                  } else {
+                                    _emptyLogged = false;
+                                  }
+                                },
                               ),
                             ),
                             if (_query.text.isNotEmpty)

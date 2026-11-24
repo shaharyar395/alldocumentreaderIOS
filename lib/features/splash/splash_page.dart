@@ -5,6 +5,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 
 class SplashPage extends StatefulWidget {
@@ -20,7 +21,14 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('splash');
     _run();
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left('splash');
+    super.dispose();
   }
 
   Future<void> _run() async {

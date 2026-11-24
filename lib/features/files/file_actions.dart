@@ -15,6 +15,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/bookmark_pill.dart';
 import '../../widgets/chrome.dart';
@@ -39,6 +40,7 @@ Future<void> openEntry(BuildContext context, DocEntry entry, {String source = 'h
     showToast(context, S.of(context).t('fileGone'));
     return;
   }
+  IosAnalytics.log('${entry.kind.name}_file_selected', {'item': entry.kind.name, 'file_type': entry.kind.name, 'source': source});
   if (opensInApp(entry.name)) {
     await library.markOpened(entry);
     if (!context.mounted) return;
@@ -186,6 +188,8 @@ Future<void> shareEntries(BuildContext context, List<DocEntry> entries, {Rect? o
   }
   scope.guard.arm(scope.settings);
   await Share.shareXFiles(files, sharePositionOrigin: anchor);
+  final type = entries.length == 1 ? entries.first.kind.name : 'files';
+  IosAnalytics.shared(contentType: type, count: files.length);
 }
 
 /// The path shown in the file sheets. iOS: files in the app's Documents folder the way the Files

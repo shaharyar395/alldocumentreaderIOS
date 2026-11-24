@@ -12,6 +12,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/doc_scanner.dart';
 import '../../services/image_ops.dart';
 import '../../services/pdf_tools.dart';
@@ -72,11 +73,13 @@ class _ManagePagesPageState extends State<ManagePagesPage> {
     super.didChangeDependencies();
     if (_path.isNotEmpty) return;
     _path = AppScope.of(context).library.fileOf(widget.entry).path;
+    IosAnalytics.activate('manage_pages');
     _load();
   }
 
   @override
   void dispose() {
+    IosAnalytics.left('manage_pages');
     for (final thumbs in _thumbs.values) {
       thumbs.close();
     }

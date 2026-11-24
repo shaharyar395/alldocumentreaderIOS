@@ -43,6 +43,10 @@ class IosAnalytics {
       await FirebaseAnalytics.instance.setUserProperty(name: 'user_type', value: status);
       await FirebaseAnalytics.instance.setUserProperty(name: 'subscription_status', value: status);
       await FirebaseAnalytics.instance.setUserProperty(name: 'subscription_plan', value: plan);
+      await FirebaseAnalytics.instance.setUserProperty(name: 'login_method', value: 'none');
+      await FirebaseAnalytics.instance.setUserProperty(name: 'account_status', value: 'none');
+      final language = settings.languageSystem ? 'system' : settings.languageTag;
+      await FirebaseAnalytics.instance.setUserProperty(name: 'app_language', value: language.length > 36 ? language.substring(0, 36) : language);
       if (_reportedStatus != status) {
         _reportedStatus = status;
         log('subscription_status', {'status': status, 'plan': plan});
@@ -72,6 +76,69 @@ class IosAnalytics {
 
   static void planSelected(String plan, String screen) {
     log('${plan}_plan_selected', {'plan': plan, 'screen': screen});
+  }
+
+  static void purchaseStart({required String plan, required String screen}) {
+    log('purchase_start', {'plan': plan, 'screen': screen});
+  }
+
+  /// GA4 recommended `purchase`. The item id is the store product id. No purchase token.
+  static void recommendedPurchase({required String itemId, required double value, required String currency}) {
+    if (!_on) return;
+    final id = itemId.length > 100 ? itemId.substring(0, 100) : itemId;
+    final code = currency.trim().isEmpty ? 'USD' : currency.trim();
+    FirebaseAnalytics.instance.logPurchase(
+      currency: code.length > 100 ? code.substring(0, 100) : code,
+      value: value,
+      items: [AnalyticsEventItem(itemId: id)],
+    ).catchError((Object error) {
+      debugPrint('analytics purchase: $error');
+    });
+  }
+
+  static void appError(String area, String reason) {
+    log('app_error', {'area': area, 'reason': reason});
+  }
+
+  /// GA4 recommended `search`. The query is sent only on this event.
+  static void searched(String term, int count) {
+    if (!_on) return;
+    final query = term.trim();
+    if (query.isEmpty) return;
+    final safe = query.length > 100 ? query.substring(0, 100) : query;
+    FirebaseAnalytics.instance.logSearch(searchTerm: safe, parameters: {'result_count': '$count'}).catchError((Object error) {
+      debugPrint('analytics search: $error');
+    });
+  }
+
+  /// GA4 recommended `share`. Content type and count only.
+  static void shared({required String contentType, required int count}) {
+    if (!_on) return;
+    final type = sanitize(contentType);
+    FirebaseAnalytics.instance.logShare(
+      contentType: type,
+      itemId: type,
+      method: 'system',
+      parameters: {'count': '$count'},
+    ).catchError((Object error) {
+      debugPrint('analytics share: $error');
+    });
+  }
+
+  static void adShown(String format) {
+    if (format == 'app_open') {
+      log('app_open_ad_displayed');
+      return;
+    }
+    log('${format}_ad_displayed', {'ad_format': format});
+  }
+
+  static void adClosed(String format) {
+    if (format == 'app_open') {
+      log('app_open_ad_closed');
+      return;
+    }
+    log('${format}_ad_closed', {'ad_format': format});
   }
 
   static void purchaseFinished({

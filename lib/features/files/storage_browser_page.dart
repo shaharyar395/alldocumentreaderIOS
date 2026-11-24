@@ -5,6 +5,7 @@ import '../../core/format.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/file_row.dart';
 import 'device_files.dart';
@@ -38,6 +39,7 @@ class _StorageBrowserPageState extends State<StorageBrowserPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('storage_browser');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _load(_current);
     });
@@ -45,6 +47,7 @@ class _StorageBrowserPageState extends State<StorageBrowserPage> {
 
   @override
   void dispose() {
+    IosAnalytics.left('storage_browser');
     _query.dispose();
     _scroll.dispose();
     super.dispose();
@@ -126,7 +129,10 @@ class _StorageBrowserPageState extends State<StorageBrowserPage> {
                 NativeTopBar(
                   title: s.t('storage'),
                   // back goes up one folder, like the system back
-                  onBack: () => Navigator.of(context).maybePop(),
+                  onBack: () {
+                    IosAnalytics.back('storage_browser');
+                    Navigator.of(context).maybePop();
+                  },
                   actions: [
                     BarIconButton(
                       drawable: ND.icSearch,

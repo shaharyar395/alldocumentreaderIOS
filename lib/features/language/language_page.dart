@@ -9,6 +9,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../widgets/banner_slot.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 
 /// Language: "Default" (the phone's language) and the 23 app languages; a banner ad at the bottom
@@ -28,6 +29,7 @@ class _LanguagePageState extends State<LanguagePage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('language');
     if (widget.firstLaunch) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _askNotifications());
     }
@@ -57,7 +59,14 @@ class _LanguagePageState extends State<LanguagePage> {
     _selected = settings.languageSystem ? '' : settings.languageTag;
   }
 
+  @override
+  void dispose() {
+    IosAnalytics.left('language');
+    super.dispose();
+  }
+
   Future<void> _apply() async {
+    IosAnalytics.log('language_done_tapped', {'screen': 'language', 'language': _selected ?? 'system'});
     final settings = AppScope.of(context).settings;
     final tag = _selected ?? '';
     await settings.setLanguage(tag.isEmpty ? settings.languageTag : tag, system: tag.isEmpty);
@@ -91,7 +100,10 @@ class _LanguagePageState extends State<LanguagePage> {
                   children: [
                     if (!widget.firstLaunch) ...[
                       const SizedBox(width: 6),
-                      DsTopBack(onTap: () => Navigator.pop(context)),
+                      DsTopBack(onTap: () {
+                        IosAnalytics.back('language');
+                        Navigator.pop(context);
+                      }),
                       const SizedBox(width: 6),
                     ] else
                       const SizedBox(width: 16),
@@ -122,14 +134,20 @@ class _LanguagePageState extends State<LanguagePage> {
                     return _LanguageRow(
                       name: s.t('languageDefault'),
                       selected: selected.isEmpty,
-                      onTap: () => setState(() => _selected = ''),
+                      onTap: () {
+                        IosAnalytics.log('language_selected', {'item': 'system', 'screen': 'language'});
+                        setState(() => _selected = '');
+                      },
                     );
                   }
                   final lang = languages[index - 1];
                   return _LanguageRow(
                     name: lang.nativeName,
                     selected: selected == lang.tag,
-                    onTap: () => setState(() => _selected = lang.tag),
+                    onTap: () {
+                      IosAnalytics.log('language_selected', {'item': lang.tag, 'screen': 'language'});
+                      setState(() => _selected = lang.tag);
+                    },
                   );
                 },
               ),

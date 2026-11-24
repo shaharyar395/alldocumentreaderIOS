@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../app_scope.dart';
 import '../../l10n/s.dart';
+import '../../services/ios_analytics.dart';
 import '../../native/native_colors.dart';
 import 'onboarding_art.dart';
 
@@ -29,13 +30,21 @@ class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProvid
   late final AnimationController _enter = AnimationController(vsync: this, duration: const Duration(milliseconds: 520), value: 1);
 
   @override
+  void initState() {
+    super.initState();
+    IosAnalytics.activate('onboarding');
+  }
+
+  @override
   void dispose() {
+    IosAnalytics.left('onboarding');
     _enter.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   Future<void> _next() async {
+    IosAnalytics.log(_index < _pageCount - 1 ? 'onboarding_next_tapped' : 'onboarding_start_tapped', {'screen': 'onboarding', 'page': '${_index + 1}'});
     if (_index < _pageCount - 1) {
       await _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
       return;
@@ -66,6 +75,7 @@ class _OnboardingPageState extends State<OnboardingPage> with SingleTickerProvid
                 controller: _controller,
                 itemCount: _pageCount,
                 onPageChanged: (value) {
+                  IosAnalytics.log('onboarding_page_selected', {'item': 'page_${value + 1}', 'screen': 'onboarding'});
                   setState(() => _index = value);
                   _enter.forward(from: 0);
                 },

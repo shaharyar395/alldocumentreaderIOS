@@ -228,6 +228,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
             tooltip: s.t('search'),
             onTap: () {
               logEvent('file_list_search_tapped');
+              logEvent('${_screen}_search_tapped');
               setState(() => _searching = true);
             },
           ),
@@ -237,6 +238,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
                 ? null
                 : () {
                     logEvent('file_list_refresh_tapped');
+                    logEvent('${_screen}_refresh_tapped');
                     _refreshButton();
                   },
           ),
@@ -244,6 +246,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
             drawable: ND.icSelect,
             onTap: () {
               logEvent('file_list_select_tapped');
+              logEvent('${_screen}_select_tapped');
               if (files.isEmpty) {
                 showToast(context, s.t('noFilesFound'));
               } else {
@@ -256,6 +259,7 @@ class _FileListPageState extends State<FileListPage> with SingleTickerProviderSt
             tooltip: s.t('filterBy'),
             onTap: () {
               logEvent('file_list_filter_tapped');
+              logEvent('${_screen}_filter_tapped');
               _showFilter(context);
             },
           ),

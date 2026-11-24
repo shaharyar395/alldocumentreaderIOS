@@ -42,10 +42,17 @@ class _ImagePdfPageState extends State<ImagePdfPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate(widget.job.imageToPdf ? 'image_to_pdf' : 'scan_to_pdf_pages');
     SharedPreferences.getInstance().then((prefs) {
       if (mounted) setState(() => _hintClosed = prefs.getBool(_hintKey) ?? false);
     });
     _ensureOutputs();
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left(widget.job.imageToPdf ? 'image_to_pdf' : 'scan_to_pdf_pages');
+    super.dispose();
   }
 
   /// Pages that have no finished picture yet (e.g. added and then backed out of the editor).

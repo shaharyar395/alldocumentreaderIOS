@@ -658,6 +658,7 @@ class _ResultNativeAdState extends State<_ResultNativeAd> {
 
   @override
   void dispose() {
+    if (_ad != null) IosAnalytics.adClosed('native');
     _ad?.dispose();
     super.dispose();
   }

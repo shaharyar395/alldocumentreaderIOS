@@ -58,6 +58,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   void initState() {
     super.initState();
     _slideAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
+    IosAnalytics.activate('premium');
   }
 
   @override
@@ -83,6 +84,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
 
   @override
   void dispose() {
+    IosAnalytics.left('premium');
     _auto?.cancel();
     _readyTimer?.cancel();
     _slideAnim.dispose();
@@ -731,6 +733,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
       await openManageSubscriptions(context);
       return;
     }
+    IosAnalytics.log('premium_continue_tapped', {'screen': 'premium', 'plan': _yearly ? 'yearly' : 'monthly'});
     setState(() => _busy = true);
     final ok = await buyPremium(context, yearly: _yearly, screen: 'premium');
     if (!mounted) return;

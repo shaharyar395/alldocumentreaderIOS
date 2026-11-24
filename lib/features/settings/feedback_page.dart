@@ -11,6 +11,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/chrome.dart';
 import 'app_links.dart';
@@ -44,7 +45,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
   final _submitKey = GlobalKey();
 
   @override
+  void initState() {
+    super.initState();
+    IosAnalytics.activate('feedback');
+  }
+
+  @override
   void dispose() {
+    IosAnalytics.left('feedback');
     _text.dispose();
     super.dispose();
   }
@@ -166,7 +174,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         padding: const EdgeInsetsDirectional.only(start: 4),
                         child: Row(
                           children: [
-                            const NativeBackButton(),
+                            NativeBackButton(onTap: () {
+                              IosAnalytics.back('feedback');
+                              Navigator.of(context).maybePop();
+                            }),
                             const SizedBox(width: 4),
                             const NativeIcon(ND.icLogo, size: 30),
                             const SizedBox(width: 10),

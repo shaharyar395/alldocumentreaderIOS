@@ -26,7 +26,20 @@ class StartTrialPage extends StatefulWidget {
 class _StartTrialPageState extends State<StartTrialPage> {
   bool _busy = false;
 
+  @override
+  void initState() {
+    super.initState();
+    IosAnalytics.activate('start_trial');
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left('start_trial');
+    super.dispose();
+  }
+
   Future<void> _buy() async {
+    IosAnalytics.log('start_trial_continue_tapped', {'screen': 'start_trial', 'plan': 'yearly'});
     final s = S.of(context);
     setState(() => _busy = true);
     final ok = await buyPremium(context, yearly: true, screen: 'start_trial');

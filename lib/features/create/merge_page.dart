@@ -7,6 +7,7 @@ import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/pdf_tools.dart';
+import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import 'pdf_picker_page.dart';
 import 'success_page.dart';
@@ -40,7 +41,14 @@ class _MergePageState extends State<MergePage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('merge_pdf');
     _countPages();
+  }
+
+  @override
+  void dispose() {
+    IosAnalytics.left('merge_pdf');
+    super.dispose();
   }
 
   Future<void> _countPages() async {
@@ -70,6 +78,7 @@ class _MergePageState extends State<MergePage> {
   }
 
   Future<void> _back() async {
+    IosAnalytics.back('merge_pdf');
     if (_busy) return;
     final s = S.of(context);
     final quit = await confirmSheet(context, title: s.t('quitMergingTitle'), message: s.t('quitChangesMessage'), ok: s.t('quit'));
@@ -78,6 +87,7 @@ class _MergePageState extends State<MergePage> {
 
   Future<void> _merge() async {
     if (_busy || _files.length < 2) return;
+    IosAnalytics.log('merge_pdf_merge_tapped', {'screen': 'merge_pdf', 'count': '${_files.length}'});
     setState(() => _busy = true);
     final s = S.of(context);
     final scope = AppScope.of(context);
@@ -91,6 +101,8 @@ class _MergePageState extends State<MergePage> {
       pill.dismiss();
       if (!mounted) return;
       if (entry == null) throw StateError('save');
+      IosAnalytics.log('pdfs_merged', {'screen': 'merge_pdf', 'count': '${_files.length}'});
+      IosAnalytics.log('pdf_saved', {'screen': 'merge_pdf'});
       await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
@@ -102,6 +114,7 @@ class _MergePageState extends State<MergePage> {
       pill.dismiss();
       if (!mounted) return;
       setState(() => _busy = false);
+      IosAnalytics.appError('merge_pdf', 'merge_failed');
       showToast(context, s.t('mergeFailed'), warning: true);
     }
   }

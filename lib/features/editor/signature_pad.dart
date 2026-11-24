@@ -7,6 +7,7 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/signature_store.dart';
 import '../create/tool_widgets.dart';
 
@@ -48,11 +49,13 @@ class _SignaturePadPageState extends State<SignaturePadPage> {
   @override
   void initState() {
     super.initState();
+    IosAnalytics.activate('signature_pad');
     SystemChrome.setPreferredOrientations(const [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
   }
 
   @override
   void dispose() {
+    IosAnalytics.left('signature_pad');
     SystemChrome.setPreferredOrientations(const [DeviceOrientation.portraitUp]);
     super.dispose();
   }

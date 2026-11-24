@@ -18,6 +18,7 @@ import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
 import '../../services/image_ops.dart';
+import '../../services/ios_analytics.dart';
 import '../../services/pdf_rewrite.dart';
 import '../../services/pdf_tools.dart';
 import '../../services/signature_store.dart';
@@ -538,11 +539,13 @@ class _MarkupPageState extends State<MarkupPage> {
       MarkTool.eraser => _Tool.eraser,
       _ => _Tool.pen,
     };
+    IosAnalytics.activate('pdf_edit');
     _start();
   }
 
   @override
   void dispose() {
+    IosAnalytics.left('pdf_edit');
     _detachDoc()?.close();
     _scroll.dispose();
     _repaint.dispose();
@@ -2065,6 +2068,7 @@ class _MarkupPageState extends State<MarkupPage> {
       return Expanded(
         child: Center(
           child: NativeIconButton(icon, padding: 11, tint: on ? nc.primary : nc.textPrimary, tooltip: tip, onPressed: () {
+            IosAnalytics.log('pdf_edit_${value.name}_tapped', {'screen': 'pdf_edit', 'item': value.name});
             setState(() => _annTool = value);
             _bump();
           }),
