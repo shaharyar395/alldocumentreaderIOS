@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
@@ -303,6 +304,11 @@ Future<List<ScanPage>> addScanPages(
     final picked = await chooseScanSource(context, imageToPdf: imageToPdf);
     if (picked == null || !context.mounted) return const [];
     from = picked;
+    // The sheet's future completes when it starts closing. Image to PDF → Take a photo and
+    // Scan to PDF both present Apple's scanner after this, and iOS drops that present while
+    // the sheet is still moving.
+    await _waitForSheet(context);
+    if (!context.mounted) return const [];
   } else if (imageToPdf == false && source == ScanSource.camera) {
     IosAnalytics.activate('scan_to_pdf');
   }
@@ -311,7 +317,9 @@ Future<List<ScanPage>> addScanPages(
   List<String> paths;
   var cropped = false;
   if (from == ScanSource.camera) {
-    final shots = await takeDocumentPhotos(maxPages: maxPages, preferInAppCamera: true);
+    // iOS opens Apple's document scanner (VisionKit). Android keeps the plain camera: the
+    // system scanner's close control was not leaving that screen.
+    final shots = await takeDocumentPhotos(maxPages: maxPages, preferInAppCamera: !Platform.isIOS);
     if (shots == null) return const [];
     paths = shots.paths;
     cropped = shots.fromScanner;
@@ -352,6 +360,30 @@ Future<List<ScanPage>> addScanPages(
   pill.dismiss();
   if (missed && context.mounted) showToast(context, s.t('cropNotFound'));
   return pages;
+}
+
+/// Waits until a sheet that was just closed has finished its dismiss animation.
+Future<void> _waitForSheet(BuildContext context) async {
+  final secondary = ModalRoute.of(context)?.secondaryAnimation;
+  if (secondary != null && secondary.status != AnimationStatus.dismissed && secondary.value > 0) {
+    final done = Completer<void>();
+    void listen(AnimationStatus status) {
+      if (status == AnimationStatus.dismissed && !done.isCompleted) {
+        secondary.removeStatusListener(listen);
+        done.complete();
+      }
+    }
+
+    secondary.addStatusListener(listen);
+    if (secondary.status == AnimationStatus.dismissed) {
+      secondary.removeStatusListener(listen);
+    } else {
+      await done.future.timeout(const Duration(milliseconds: 800), onTimeout: () {
+        secondary.removeStatusListener(listen);
+      });
+    }
+  }
+  await WidgetsBinding.instance.endOfFrame;
 }
 
 /// "Choose cropping method" (sheet_crop_method.xml): title 20sp bold, hint 14sp, the

@@ -236,6 +236,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       ),
     );
     if (picked == null || !mounted) return;
+    if (widget.createMode) IosAnalytics.log('create_pdf_size_picked');
     setState(() {
       _size = picked.$2;
       if (_size == null && _prevW != null) _landscape = (_prevW ?? 0) > (_prevH ?? 0);
@@ -265,7 +266,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       if (entry == null) throw StateError('save');
       IosAnalytics.converted('create', 'pdf');
       IosAnalytics.left('create_pdf');
-      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => SuccessPage(entry: entry, kind: ResultKind.created, feature: s.t('createPdf'), featureKey: 'create_pdf')),
@@ -290,6 +291,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
   }
 
   void _pickStyle(BlankStyle style) {
+    if (widget.createMode) IosAnalytics.log('create_pdf_pick_tapped');
     setState(() => _style = style);
     final page = BlankStyle.values.indexOf(style);
     if (_pager.hasClients && (_pager.page ?? 0).round() != page) {

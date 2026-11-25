@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,9 +16,13 @@ import 'services/billing_service.dart';
 import 'services/in_app_messages.dart';
 import 'services/ios_analytics.dart';
 import 'services/ios_growth.dart';
+import 'services/push_notifications.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isIOS && !Platform.environment.containsKey('FLUTTER_TEST')) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  }
   await IosGrowth.start();
   // ad switches from Firebase Remote Config (Android 1.0.75); fetches in the background
   await AdRemoteConfig.start();

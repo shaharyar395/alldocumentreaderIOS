@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
@@ -21,8 +22,15 @@ class _WelcomeBackPageState extends State<WelcomeBackPage> {
   void initState() {
     super.initState();
     IosAnalytics.activate('welcome_back');
-    Future<void>.delayed(const Duration(milliseconds: 1800), () {
-      if (mounted) Navigator.of(context).pop();
+    Future<void>.delayed(const Duration(milliseconds: 1800), () async {
+      if (!mounted) return;
+      // The ad covers this screen. After it closes, paint this screen, then leave with no fade
+      // so the phone's home screen does not show through.
+      await AppScope.of(context).ads.showAppOpen(wait: const Duration(seconds: 8));
+      if (!mounted) return;
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+      Navigator.of(context).pop();
     });
   }
 

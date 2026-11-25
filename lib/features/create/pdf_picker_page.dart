@@ -9,7 +9,6 @@ import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
 import '../../services/ios_analytics.dart';
-import '../../services/app_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../../widgets/file_row.dart';
 import '../files/files_ui.dart';
@@ -49,6 +48,7 @@ class PdfPickerPage extends StatefulWidget {
     this.accept,
     this.rejectMessage,
     this.analyticsScreen,
+    this.pickEvent,
   });
 
   final String title;
@@ -65,6 +65,9 @@ class PdfPickerPage extends StatefulWidget {
   final bool Function(String name)? accept;
   final String? rejectMessage;
   final String? analyticsScreen;
+
+  /// The tool the user opened, logged when a file row is tapped. Not logged on cancel.
+  final String? pickEvent;
 
   @override
   State<PdfPickerPage> createState() => _PdfPickerPageState();
@@ -121,14 +124,16 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
   }
 
   void _toggle(PdfPick pick) {
+    final adding = !_selected.contains(pick.path);
     setState(() {
       _picks[pick.path] = pick;
-      if (_selected.contains(pick.path)) {
-        _selected.remove(pick.path);
-      } else {
+      if (adding) {
         _selected.add(pick.path);
+      } else {
+        _selected.remove(pick.path);
       }
     });
+    if (adding) _picked();
   }
 
   Future<void> _checkAccess() async {
@@ -155,7 +160,13 @@ class _PdfPickerPageState extends State<PdfPickerPage> {
       if (message != null) showToast(context, message);
       return;
     }
+    _picked();
     Navigator.of(context).pop(<PdfPick>[pick]);
+  }
+
+  void _picked() {
+    final event = widget.pickEvent;
+    if (event != null) IosAnalytics.log(event);
   }
 
   void _continue() {
@@ -353,9 +364,9 @@ Future<PdfPick?> pickOnePdf(
   bool Function(String name)? accept,
   String? rejectMessage,
   String? analyticsScreen,
+  String? pickEvent,
 }) async {
   final s = S.of(context);
-  logEvent('pick_file_tapped');
   final result = await Navigator.of(context).push<List<PdfPick>>(
     MaterialPageRoute(
       builder: (_) => PdfPickerPage(
@@ -365,6 +376,7 @@ Future<PdfPick?> pickOnePdf(
         accept: accept,
         rejectMessage: rejectMessage,
         analyticsScreen: analyticsScreen,
+        pickEvent: pickEvent,
       ),
     ),
   );

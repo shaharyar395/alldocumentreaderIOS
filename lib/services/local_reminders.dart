@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'ios_analytics.dart';
+import 'platform_bridge.dart';
 
 /// One local reminder. [at] is local time in milliseconds.
 class ReminderPlan {
@@ -209,8 +211,17 @@ class LocalReminders {
   LocalReminders._();
 
   static final _plugin = FlutterLocalNotificationsPlugin();
+  static final openRequest = ValueNotifier<String?>(null);
   static var _ready = false;
   static var _zones = false;
+  static var _launchHandled = false;
+  static String _version = '';
+
+  static String screenFor(String kind) => switch (kind) {
+        'pdf' || 'tools' => 'tools',
+        'settings' => 'settings',
+        _ => 'home',
+      };
 
   static Future<void> ensureReady() async {
     if (_ready || kIsWeb || !Platform.isIOS || Platform.environment.containsKey('FLUTTER_TEST')) return;
@@ -219,18 +230,61 @@ class LocalReminders {
       tz.setLocalLocation(tz.UTC);
       _zones = true;
     }
-    const ios = DarwinInitializationSettings(requestAlertPermission: false, requestBadgePermission: false, requestSoundPermission: false);
-    await _plugin.initialize(const InitializationSettings(iOS: ios));
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+    await _plugin.initialize(
+      const InitializationSettings(iOS: ios),
+      onDidReceiveNotificationResponse: _onTapped,
+    );
     _ready = true;
+    final version = await PlatformBridge.appVersion();
+    if (version != null) _version = version;
+    if (_launchHandled) return;
+    _launchHandled = true;
+    final launch = await _plugin.getNotificationAppLaunchDetails();
+    final response = launch?.notificationResponse;
+    if (launch?.didNotificationLaunchApp == true && response != null) _onTapped(response);
+  }
+
+  static void _onTapped(NotificationResponse response) {
+    final kind = response.payload ?? '';
+    if (kind.isEmpty) return;
+    unawaited(_opened(kind, response.id ?? 0));
   }
 
   /// Ask only once a screen that stays open is up. Does not post a notification.
-  static Future<void> requestPermission() async {
+  /// [track] is false when Firebase push logs the same permission prompt.
+  static Future<bool> requestPermission({bool track = true}) async {
     await ensureReady();
-    if (!_ready) return;
-    IosAnalytics.log('notification_permission_prompted', {'screen': 'home'});
-    final granted = await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.requestPermissions(alert: true, badge: false, sound: true);
-    IosAnalytics.log('notification_permission_result', {'result': granted == true ? 'granted' : 'denied', 'screen': 'home'});
+    if (!_ready) return false;
+    final ios = _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final before = await ios?.checkPermissions();
+    final asked = before?.isEnabled == true;
+    if (track && !asked) {
+      await _log(event: 'notification_permission_requested', kind: 'permission', id: 0, status: 'requested', action: 'requested');
+    }
+    final granted = await ios?.requestPermissions(alert: true, badge: false, sound: true) == true;
+    final prefs = await SharedPreferences.getInstance();
+    final previous = prefs.getString('local_perm');
+    final status = granted ? 'granted' : 'denied';
+    if (previous != null && previous != status) {
+      await _log(event: 'notification_settings_changed', kind: 'permission', id: 0, status: status, action: status);
+    }
+    await prefs.setString('local_perm', status);
+    if (track && !asked) {
+      await _log(
+        event: granted ? 'notification_permission_granted' : 'notification_permission_denied',
+        kind: 'permission',
+        id: 0,
+        status: status,
+        action: status,
+      );
+    }
+    if (!granted) await _cancelStored(prefs);
+    return granted;
   }
 
   /// A person brought the app forward. Not used for a notification delivery or a background launch.
@@ -238,11 +292,114 @@ class LocalReminders {
     await ensureReady();
     if (!_ready) return;
     final prefs = await SharedPreferences.getInstance();
+    final enabled = await _alertsEnabled();
+    final previous = prefs.getString('local_perm');
+    if (!enabled) {
+      // Never asked yet: don't mark it denied, and don't schedule.
+      if (previous == 'granted') {
+        await _log(event: 'notification_settings_changed', kind: 'permission', id: 0, status: 'denied', action: 'denied');
+        await prefs.setString('local_perm', 'denied');
+        await _cancelStored(prefs);
+      }
+      return;
+    }
+    if (previous != null && previous != 'granted') {
+      await _log(event: 'notification_settings_changed', kind: 'permission', id: 0, status: 'granted', action: 'granted');
+    }
+    if (previous != 'granted') await prefs.setString('local_perm', 'granted');
     final now = DateTime.now().millisecondsSinceEpoch;
     await prefs.setInt('local_last_open_at', now);
     if (prefs.getInt('local_install_at') == null) await prefs.setInt('local_install_at', now);
+    final before = prefs.getStringList('local_plan') ?? const <String>[];
     await _absorbDue(prefs, now);
     await _scheduleAhead(prefs, now);
+    await _logPlanDiff(before, prefs.getStringList('local_plan') ?? const <String>[]);
+  }
+
+  static Future<bool> _alertsEnabled() async {
+    final options = await _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()?.checkPermissions();
+    return options?.isEnabled == true;
+  }
+
+  static Future<void> _cancelStored(SharedPreferences prefs) async {
+    final stored = prefs.getStringList('local_plan') ?? const <String>[];
+    if (stored.isEmpty) return;
+    for (final row in stored) {
+      final parsed = _parse(row);
+      if (parsed == null) continue;
+      await _plugin.cancel(parsed.$1);
+    }
+    await prefs.setStringList('local_plan', const <String>[]);
+    await _logPlanDiff(stored, const <String>[]);
+  }
+
+  static (int, String, int)? _parse(String row) {
+    final parts = row.split('|');
+    if (parts.length != 3) return null;
+    final id = int.tryParse(parts[0]);
+    final at = int.tryParse(parts[2]);
+    if (id == null || at == null) return null;
+    return (id, parts[1], at);
+  }
+
+  static String _keyOf(String row) {
+    final parsed = _parse(row);
+    if (parsed == null) return row;
+    return '${parsed.$2}|${parsed.$3}';
+  }
+
+  static Future<void> _logPlanDiff(List<String> before, List<String> after) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final oldKeys = {for (final row in before) _keyOf(row)};
+    final newKeys = {for (final row in after) _keyOf(row)};
+    for (final row in before) {
+      final parsed = _parse(row);
+      // A reminder that is already due was shown, not cancelled.
+      if (parsed == null || parsed.$3 <= now || newKeys.contains(_keyOf(row))) continue;
+      await _log(event: 'notification_cancelled', kind: parsed.$2, id: parsed.$1, status: 'cancelled', action: 'cancelled', at: parsed.$3);
+    }
+    for (final row in after) {
+      final parsed = _parse(row);
+      if (parsed == null || oldKeys.contains(_keyOf(row))) continue;
+      await _log(event: 'notification_scheduled', kind: parsed.$2, id: parsed.$1, status: 'scheduled', action: 'none', at: parsed.$3);
+    }
+  }
+
+  static Future<void> _opened(String kind, int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = '$id|$kind';
+    if (prefs.getString('local_last_open_token') == token) {
+      openRequest.value = screenFor(kind);
+      return;
+    }
+    await prefs.setString('local_last_open_token', token);
+    await _log(event: 'notification_opened', kind: kind, id: id, status: 'opened', action: 'open');
+    openRequest.value = screenFor(kind);
+  }
+
+  static Future<void> _log({
+    required String event,
+    required String kind,
+    required int id,
+    required String status,
+    required String action,
+    int? at,
+  }) async {
+    final title = ReminderPlanner.titles[kind] ?? 'Document Reader';
+    IosAnalytics.log(event, {
+      'notification_id': id == 0 ? kind : '$id',
+      'notification_type': 'local',
+      'notification_category': kind,
+      'notification_title': title,
+      'notification_campaign': 'local',
+      'app_name': 'All Document Reader',
+      'notification_timestamp': '${at ?? DateTime.now().millisecondsSinceEpoch}',
+      'delivery_status': status,
+      'user_action': action,
+      'target_screen': screenFor(kind),
+      'device_os': 'ios',
+      'app_version': _version,
+    });
   }
 
   /// A reminder that is already due stays on the notification list. Only future ones are rebuilt.
@@ -333,19 +490,33 @@ class LocalReminders {
           sentTools = true;
       }
       if (plan.at <= now + 120000) continue;
-      final id = 41001 + rows.length;
+      if (rows.any((row) => _keyOf(row) == '${plan.kind}|${plan.at}')) continue;
+      final used = <int>{
+        for (final row in rows)
+          if (_parse(row) != null) _parse(row)!.$1,
+      };
+      var id = 41001;
+      while (used.contains(id)) {
+        id++;
+      }
       final when = tz.TZDateTime.from(DateTime.fromMillisecondsSinceEpoch(plan.at).toUtc(), tz.UTC);
-      await _plugin.zonedSchedule(
-        id,
-        ReminderPlanner.titles[plan.kind] ?? 'Document Reader',
-        ReminderPlanner.bodies[plan.kind] ?? '',
-        when,
-        const NotificationDetails(iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true)),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      );
+      try {
+        await _plugin.zonedSchedule(
+          id,
+          ReminderPlanner.titles[plan.kind] ?? 'Document Reader',
+          ReminderPlanner.bodies[plan.kind] ?? '',
+          when,
+          const NotificationDetails(iOS: DarwinNotificationDetails(presentAlert: true, presentSound: true, presentBanner: true, presentList: true)),
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          payload: plan.kind,
+        );
+      } catch (error) {
+        debugPrint('local reminder: $error');
+        await _log(event: 'notification_delivery_failed', kind: plan.kind, id: id, status: 'failed', action: 'none', at: plan.at);
+        continue;
+      }
       rows.add('$id|${plan.kind}|${plan.at}');
-      IosAnalytics.log('notification_scheduled', {'notification_category': plan.kind, 'notification_type': 'local'});
     }
     await prefs.setStringList('local_plan', rows);
   }

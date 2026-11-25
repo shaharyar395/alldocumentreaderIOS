@@ -44,7 +44,7 @@ class IosAnalytics {
       await FirebaseAnalytics.instance.setUserProperty(name: 'subscription_status', value: status);
       await FirebaseAnalytics.instance.setUserProperty(name: 'subscription_plan', value: plan);
       await FirebaseAnalytics.instance.setUserProperty(name: 'login_method', value: 'none');
-      await FirebaseAnalytics.instance.setUserProperty(name: 'account_status', value: 'none');
+      await FirebaseAnalytics.instance.setUserProperty(name: 'account_status', value: 'accountless');
       final language = settings.languageSystem ? 'system' : settings.languageTag;
       await FirebaseAnalytics.instance.setUserProperty(name: 'app_language', value: language.length > 36 ? language.substring(0, 36) : language);
       if (_reportedStatus != status) {
@@ -74,8 +74,8 @@ class IosAnalytics {
     log('${name}_back_tapped');
   }
 
-  static void planSelected(String plan, String screen) {
-    log('${plan}_plan_selected', {'plan': plan, 'screen': screen});
+  static void planSelected(String plan, String screen, {required String status}) {
+    log('${plan}_plan_selected', {'plan': plan, 'screen': screen, 'status': status});
   }
 
   static void purchaseStart({required String plan, required String screen}) {
@@ -159,8 +159,17 @@ class IosAnalytics {
   }
 
   static void converted(String from, String to) {
-    log('${from}_converted_to_$to');
-    log(to == 'word' ? 'word_file_saved' : '${to}_saved');
+    final conversion = '${from}_to_$to';
+    log('${from}_converted_to_$to', {'file_type': to, 'conversion': conversion});
+    log(to == 'word' ? 'word_file_saved' : '${to}_saved', {'file_type': to, 'conversion': conversion});
+  }
+
+  static void restoreResult(String screen, {required bool restored, required String reason}) {
+    log('restore_result', {
+      'screen': screen,
+      'result': restored ? 'restored' : 'none',
+      'reason': restored ? 'restored' : reason,
+    });
   }
 
   static void log(String event, [Map<String, Object> params = const {}]) {

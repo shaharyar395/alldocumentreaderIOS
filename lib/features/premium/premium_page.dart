@@ -8,6 +8,7 @@ import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/apple_billing.dart';
 import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../settings/app_links.dart';
@@ -134,12 +135,10 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     final s = S.of(context);
     final scope = AppScope.of(context);
     final premium = scope.settings.premium;
+    final upgrading = premium && _yearly && scope.settings.subscriptionPlan != 'yearly';
+    final manage = premium && !upgrading;
     final prices = PlanPrices.of(s, scope.billing);
-    final continueLabel = premium
-        ? s.t('manageSubscriptions')
-        : _yearly && prices.trialDays > 0
-            ? s.t('startFreeTrial')
-            : s.t('continueAction');
+    final continueLabel = manage ? s.t('manageSubscriptions') : s.t('continueAction');
     final top = MediaQuery.paddingOf(context).top;
     return NativeLightStatusBar(
       child: Scaffold(
@@ -552,7 +551,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                       price: s.t('planPriceYear', {'price': prices.yearly}),
                       selected: _yearly,
                       onTap: () {
-                        IosAnalytics.planSelected('yearly', 'premium');
+                        IosAnalytics.planSelected('yearly', 'premium', status: premium ? 'pro' : 'free');
                         setState(() => _yearly = true);
                       },
                     ),
@@ -589,7 +588,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                 price: s.t('planPriceMonth', {'price': prices.monthly}),
                 selected: !_yearly,
                 onTap: () {
-                  IosAnalytics.planSelected('monthly', 'premium');
+                  IosAnalytics.planSelected('monthly', 'premium', status: premium ? 'pro' : 'free');
                   setState(() => _yearly = false);
                 },
               ),
@@ -729,7 +728,8 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   Future<void> _continue() async {
     final s = S.of(context);
     final settings = AppScope.of(context).settings;
-    if (settings.premium) {
+    final upgrading = settings.premium && _yearly && settings.subscriptionPlan != 'yearly';
+    if (settings.premium && !upgrading) {
       await openManageSubscriptions(context);
       return;
     }
@@ -743,6 +743,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
       Navigator.pop(context);
       return;
     }
+    if (settings.premium) return;
     // like the Android app: when the store sheet closes without a purchase (or can't open),
     // "Start Free Trial" comes up (fade); its X brings the user back here
     await Navigator.of(context).push(
@@ -765,11 +766,11 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     final s = S.of(context);
     IosAnalytics.log('restore_tap', {'screen': 'premium'});
     setState(() => _busy = true);
-    final ok = await AppScope.of(context).billing.restore();
-    IosAnalytics.log(ok ? 'restore_succeeded' : 'restore_failed', {'screen': 'premium', 'result': ok ? 'success' : 'failed'});
+    final outcome = await AppScope.of(context).billing.restoreOutcome();
+    IosAnalytics.restoreResult('premium', restored: outcome == RestoreOutcome.restored, reason: outcome.name);
     if (!mounted) return;
     setState(() => _busy = false);
-    if (ok) {
+    if (outcome == RestoreOutcome.restored) {
       showToast(context, s.t('premiumRestored'));
     } else {
       showTopPill(context, s.t('noSubscription'));

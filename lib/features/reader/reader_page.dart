@@ -191,7 +191,7 @@ class _ReaderPageState extends State<ReaderPage> with WidgetsBindingObserver {
     if (_entry.kind == DocKind.image) return;
     WidgetsBinding.instance.addObserver(this);
     _paged.addListener(_onPageChanged);
-    logEvent('viewer_open', {'type': _entry.kind.name});
+    logEvent('viewer_open', {'type': _entry.kind.name, 'file_type': _entry.kind.name, 'source': widget.source});
     _load(scope.library.fileOf(_entry));
   }
 
@@ -898,7 +898,7 @@ class _ReaderPageState extends State<ReaderPage> with WidgetsBindingObserver {
   Future<void> _convert() async {
     logEvent('viewer_convert_tapped');
     if (_isPdf) {
-      await convertPdfToWord(context, entry: _entry);
+      await convertPdfToWord(context, entry: _entry, honorCooldown: false);
       return;
     }
     if (_convertProgress != null && _converted == null) return;
@@ -934,6 +934,7 @@ class _ReaderPageState extends State<ReaderPage> with WidgetsBindingObserver {
       _convertProgress = 1;
       _converted = saved;
     });
+    await AppScope.of(context).ads.showInterstitial(force: true);
   }
 
   void _closeBanner() {

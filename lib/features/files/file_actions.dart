@@ -40,7 +40,8 @@ Future<void> openEntry(BuildContext context, DocEntry entry, {String source = 'h
     showToast(context, S.of(context).t('fileGone'));
     return;
   }
-  IosAnalytics.log('${entry.kind.name}_file_selected', {'item': entry.kind.name, 'file_type': entry.kind.name, 'source': source});
+    IosAnalytics.log('${entry.kind.name}_file_opened', {'file_type': entry.kind.name, 'source': source, 'result': opensInApp(entry.name) ? 'in_app' : 'external'});
+    IosAnalytics.log('${entry.kind.name}_file_selected', {'item': entry.kind.name, 'file_type': entry.kind.name, 'source': source});
   if (opensInApp(entry.name)) {
     await library.markOpened(entry);
     if (!context.mounted) return;

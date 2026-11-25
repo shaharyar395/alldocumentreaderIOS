@@ -271,7 +271,7 @@ class _ImagePdfPageState extends State<ImagePdfPage> {
       if (job.imageToPdf && job.fromCamera) IosAnalytics.log('scanned_image_converted_to_pdf');
       if (job.imageToPdf && job.fromGallery) IosAnalytics.log('galary_image_converted_to_pdf');
       IosAnalytics.converted(job.imageToPdf ? 'image' : 'scan', 'pdf');
-      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(

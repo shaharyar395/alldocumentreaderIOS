@@ -272,6 +272,7 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: () async {
+                IosAnalytics.log('templates_pick_tapped', {'template': template.id, 'category': template.category.name});
                 IosAnalytics.log('${template.id}_selected', {'template': template.id, 'category': template.category.name});
                 await openTemplateEditor(context, template.id);
                 if (mounted) setState(() {});

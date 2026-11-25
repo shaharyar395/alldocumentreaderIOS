@@ -233,9 +233,9 @@ class AppSettings extends ChangeNotifier {
     await _prefs?.setBool('onboardingDone', true);
   }
 
-  Future<void> setTab(int index) async {
+  Future<void> setTab(int index, {bool notify = true}) async {
     lastTab = index;
-    notifyListeners();
+    if (notify) notifyListeners();
     await _prefs?.setInt('lastTab', index);
   }
 

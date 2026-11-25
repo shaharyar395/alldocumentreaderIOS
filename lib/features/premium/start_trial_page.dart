@@ -6,6 +6,7 @@ import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
+import '../../services/apple_billing.dart';
 import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
 import '../settings/native_bars.dart';
@@ -57,11 +58,11 @@ class _StartTrialPageState extends State<StartTrialPage> {
     final s = S.of(context);
     IosAnalytics.log('restore_tap', {'screen': 'start_trial'});
     setState(() => _busy = true);
-    final ok = await AppScope.of(context).billing.restore();
-    IosAnalytics.log(ok ? 'restore_succeeded' : 'restore_failed', {'screen': 'start_trial', 'result': ok ? 'success' : 'failed'});
+    final outcome = await AppScope.of(context).billing.restoreOutcome();
+    IosAnalytics.restoreResult('start_trial', restored: outcome == RestoreOutcome.restored, reason: outcome.name);
     if (!mounted) return;
     setState(() => _busy = false);
-    if (ok) {
+    if (outcome == RestoreOutcome.restored) {
       showToast(context, s.t('premiumRestored'));
       Navigator.pop(context);
     } else {

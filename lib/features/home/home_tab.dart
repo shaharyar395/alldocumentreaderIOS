@@ -84,15 +84,21 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     GestureBinding.instance.pointerRouter.addGlobalRoute(_stopFling);
   }
 
-  /// A leftover fling must not eat the next tap. Stopping the ballistic scroll on the finger
-  /// down happens before the list sees that pointer.
+  /// A leftover fling must not eat the next tap. Stopping it here happens before the list sees
+  /// that pointer. hold()+cancel was stealing the same pointer on iOS, so tabs and the next
+  /// screen never received the tap. jumpTo only runs for a real ballistic fling, and only while
+  /// this tab is the one on screen.
   void _stopFling(PointerEvent event) {
-    if (event is! PointerDownEvent) return;
+    if (event is! PointerDownEvent || !widget.visible) return;
     final nested = _nested.currentState;
     if (nested == null) return;
     for (final controller in [nested.outerController, nested.innerController]) {
       for (final position in controller.positions) {
-        if (position.isScrollingNotifier.value) position.hold(() {}).cancel();
+        // A new finger down while the list is still moving is a leftover fling, not a drag.
+        if (!position.isScrollingNotifier.value) continue;
+        try {
+          position.jumpTo(position.pixels);
+        } catch (_) {}
       }
     }
   }
@@ -291,7 +297,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   Future<void> _openCategory(_Tile tile) async {
     final scope = AppScope.of(context);
     final title = tile.kind == null && !tile.directories ? S.of(context).t('homeAllFilesTitle') : tile.label;
-    final shown = await scope.ads.showInterstitial(untilClosed: true, honorCooldown: true);
+    final shown = await scope.ads.showInterstitial(force: true, untilClosed: true, honorCooldown: true);
     if (!mounted) return;
     final Widget page = tile.directories ? const DirectoriesPage() : FileListPage(title: title, kind: tile.kind);
     final done = Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));

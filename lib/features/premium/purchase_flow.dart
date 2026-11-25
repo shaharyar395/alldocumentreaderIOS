@@ -115,7 +115,7 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly, String scre
     );
     await IosAnalytics.bindUser(scope.settings);
   }
-  return outcome == PurchaseOutcome.success || scope.settings.premium;
+  return outcome == PurchaseOutcome.success;
 }
 
 /// Debug builds only: stand-in for the store's payment sheet (sheet_test_purchase.xml):

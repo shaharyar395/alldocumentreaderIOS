@@ -19,6 +19,13 @@ import 'markup_page.dart';
 /// the others are Annotate tools.
 enum MarkTool { pen, highlight, underline, strike, eraser, text, image, sign, editText, none }
 
+String _pickEvent(MarkTool tool) => switch (tool) {
+  MarkTool.editText => 'edit_text_pick_file_tapped',
+  MarkTool.text => 'add_text_pick_file_tapped',
+  MarkTool.sign => 'sign_pick_file_tapped',
+  _ => 'annotate_pick_file_tapped',
+};
+
 /// The PDF editor with [tool], showing [page] (0-based) first. With an [entry] (the reader's
 /// pen, a result page) it opens on top of the current screen; from Tools / the widget it first
 /// asks "Select a file" (PDFs and pictures — a picture becomes a PDF first) and then opens the
@@ -34,7 +41,7 @@ Future<bool> openMarkup(BuildContext context, {DocEntry? entry, MarkTool tool = 
     final saved = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => MarkupPage(entry: entry, tool: tool, page: page)));
     return saved ?? false;
   }
-  final target = await pickPdfOrImage(context);
+  final target = await pickPdfOrImage(context, pickEvent: _pickEvent(tool));
   if (!context.mounted || target == null) return false;
   final navigator = Navigator.of(context);
   await AppScope.of(context).library.markOpened(target);
@@ -51,7 +58,7 @@ Future<bool> openMarkup(BuildContext context, {DocEntry? entry, MarkTool tool = 
 
 /// Manage pages: [entry], or "Select a file" with PDFs and pictures.
 Future<void> openManagePages(BuildContext context, {DocEntry? entry}) async {
-  final target = entry ?? await pickPdfOrImage(context);
+  final target = entry ?? await pickPdfOrImage(context, pickEvent: 'manage_pages_pick_file_tapped');
   if (!context.mounted || target == null) return;
   if (target.kind != DocKind.pdf) {
     showToast(context, S.of(context).t('noTextLayer'));
@@ -63,12 +70,13 @@ Future<void> openManagePages(BuildContext context, {DocEntry? entry}) async {
 /// "Select a file" for the edit / pages / print tools: the PDFs and pictures on the phone
 /// (Browse for others). A picture is turned into a PDF first ("Converting… (x%)"), like the
 /// Android PickFileActivity.
-Future<DocEntry?> pickPdfOrImage(BuildContext context) async {
+Future<DocEntry?> pickPdfOrImage(BuildContext context, {String? pickEvent}) async {
   final scope = AppScope.of(context);
   final pick = await pickOnePdf(
     context,
     kinds: const {DocKind.pdf, DocKind.image},
     extensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif', 'heic', 'heif'],
+    pickEvent: pickEvent,
   );
   if (pick == null || !context.mounted) return null;
   final kind = kindForName(pick.name);

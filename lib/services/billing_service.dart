@@ -177,6 +177,13 @@ class BillingService {
     }
   }
 
+  /// Restore Purchases. AppStore.sync() runs only here on iOS, because it can ask for the Apple ID.
+  Future<RestoreOutcome> restoreOutcome() async {
+    if (Platform.isIOS) return apple.restore();
+    final ok = await restore();
+    return ok ? RestoreOutcome.restored : RestoreOutcome.none;
+  }
+
   Future<bool> restore() async {
     if (Platform.isIOS) {
       final outcome = await apple.restore();

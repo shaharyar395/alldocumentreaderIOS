@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -61,9 +62,13 @@ Future<void> showCreateSheet(BuildContext context) {
       void run(String item, Future<void> Function() action) {
         logEvent('create_tap', {'item': item});
         logEvent('create_${item}_tapped');
+        final animation = ModalRoute.of(sheet)?.animation;
         Navigator.pop(sheet);
-        ensureAccess(context).then((ok) {
-          if (ok && context.mounted) action();
+        // iOS rejects a camera or file picker that is presented while this sheet is still
+        // closing, and the call then fails with nothing on screen. Wait until it is gone.
+        _whenDismissed(animation).then((_) async {
+          if (!context.mounted || !await ensureAccess(context) || !context.mounted) return;
+          await action();
         });
       }
 
@@ -191,6 +196,32 @@ Future<void> showCreateSheet(BuildContext context) {
   );
 }
 
+/// Completes when [animation] has finished dismissing. A missing animation waits the length of
+/// a sheet close so a native screen is not presented on top of it.
+Future<void> _whenDismissed(Animation<double>? animation) async {
+  if (animation == null) {
+    await Future<void>.delayed(const Duration(milliseconds: 280));
+    return;
+  }
+  if (animation.status == AnimationStatus.dismissed) return;
+  final done = Completer<void>();
+  void listen(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed && !done.isCompleted) {
+      animation.removeStatusListener(listen);
+      done.complete();
+    }
+  }
+
+  animation.addStatusListener(listen);
+  if (animation.status == AnimationStatus.dismissed && !done.isCompleted) {
+    animation.removeStatusListener(listen);
+    return;
+  }
+  await done.future.timeout(const Duration(milliseconds: 600), onTimeout: () {
+    animation.removeStatusListener(listen);
+  });
+}
+
 /// SheetTitle: 18 sp medium text_primary.
 TextStyle sheetTitle(BuildContext context) =>
     TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: NC.of(context).textPrimary);
@@ -208,6 +239,7 @@ Future<void> importFiles(BuildContext context) async {
     result = null;
   }
   if (result == null || result.files.isEmpty || !context.mounted) return;
+  IosAnalytics.log('import_file_pick_file_tapped');
   final file = result.files.first;
   if (kindForName(file.name) == DocKind.other) {
     showToast(context, s.t('unsupportedTitle'));
@@ -246,6 +278,7 @@ Future<void> imageToPdfFromList(BuildContext context) async {
     context,
     kinds: const {DocKind.image},
     extensions: const ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif', 'heic', 'heif'],
+    pickEvent: 'image_to_pdf_pick_file_tapped',
   );
   if (pick == null || !context.mounted) return;
   final job = ScanJob();
@@ -293,6 +326,7 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
       accept: (name) => canConvertOffice(name, slides: slides),
       rejectMessage: s.t('convertOldFormat'),
       analyticsScreen: slides ? 'ppt_to_pdf' : 'word_to_pdf',
+      pickEvent: slides ? 'ppt_to_pdf_pick_file_tapped' : 'word_to_pdf_pick_file_tapped',
     );
     if (pick == null) return;
     path = pick.path;
@@ -316,7 +350,7 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
     if (saved == null) throw StateError('save');
     IosAnalytics.converted(slides ? 'ppt' : 'word', 'pdf');
     IosAnalytics.left(screen);
-    await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
+    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -335,13 +369,13 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
   }
 }
 
-Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
+Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry, bool honorCooldown = true}) async {
   final s = S.of(context);
   final scope = AppScope.of(context);
   String? path = entry?.fullPath;
   var name = entry?.name ?? 'Document.pdf';
   if (path == null) {
-    final pick = await pickOnePdf(context, analyticsScreen: 'pdf_to_word');
+    final pick = await pickOnePdf(context, analyticsScreen: 'pdf_to_word', pickEvent: 'pdf_to_word_pick_file_tapped');
     if (pick == null) return;
     path = pick.path;
     name = pick.name;
@@ -375,7 +409,7 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
     if (saved == null || !context.mounted) return;
     IosAnalytics.converted('pdf', 'word');
     IosAnalytics.left('pdf_to_word');
-    await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
+    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: honorCooldown);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word')),
@@ -391,7 +425,7 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry}) async {
 /// PDFs and pictures (a picture becomes a PDF first, like the Android app).
 Future<void> printPdf(BuildContext context, {DocEntry? entry}) async {
   final scope = AppScope.of(context);
-  final target = entry ?? await pickPdfOrImage(context);
+  final target = entry ?? await pickPdfOrImage(context, pickEvent: 'print_pdf_pick_file_tapped');
   if (target == null || !context.mounted) return;
   scope.guard.arm(scope.settings);
   try {

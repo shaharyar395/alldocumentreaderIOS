@@ -208,6 +208,10 @@ class AppleBilling {
       );
       if (effect.unavailable) return PurchaseOutcome.unavailable;
       if (fact.verified && fact.transactionId.isNotEmpty && (effect.grant || effect.finish)) {
+        if (fact.productId.isNotEmpty && fact.productId != plan.id) {
+          lastError = 'plan_not_changed';
+          return PurchaseOutcome.failed;
+        }
         try {
           await _applyFact(fact);
         } catch (error) {

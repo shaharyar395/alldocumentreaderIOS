@@ -17,7 +17,15 @@ import 'tool_widgets.dart';
 Future<void> startMerge(BuildContext context, {List<PdfPick> preselected = const []}) async {
   final s = S.of(context);
   final picks = await Navigator.of(context).push<List<PdfPick>>(
-    MaterialPageRoute(builder: (_) => PdfPickerPage(title: s.t('selectPdfsToMerge'), multiple: true, minimum: 2, preselected: preselected)),
+    MaterialPageRoute(
+      builder: (_) => PdfPickerPage(
+        title: s.t('selectPdfsToMerge'),
+        multiple: true,
+        minimum: 2,
+        preselected: preselected,
+        pickEvent: 'merge_pdf_pick_file_tapped',
+      ),
+    ),
   );
   if (picks == null || picks.length < 2 || !context.mounted) return;
   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => MergePage(initial: picks)));
@@ -63,7 +71,15 @@ class _MergePageState extends State<MergePage> {
   Future<void> _add() async {
     final s = S.of(context);
     final picks = await Navigator.of(context).push<List<PdfPick>>(
-      MaterialPageRoute(builder: (_) => PdfPickerPage(title: s.t('selectPdfsToMerge'), multiple: true, minimum: 1, preselected: _files)),
+      MaterialPageRoute(
+        builder: (_) => PdfPickerPage(
+          title: s.t('selectPdfsToMerge'),
+          multiple: true,
+          minimum: 1,
+          preselected: _files,
+          pickEvent: 'merge_pdf_pick_file_tapped',
+        ),
+      ),
     );
     if (picks == null || !mounted) return;
     setState(() {
@@ -103,7 +119,7 @@ class _MergePageState extends State<MergePage> {
       if (entry == null) throw StateError('save');
       IosAnalytics.log('pdfs_merged', {'screen': 'merge_pdf', 'count': '${_files.length}'});
       IosAnalytics.log('pdf_saved', {'screen': 'merge_pdf'});
-      await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(

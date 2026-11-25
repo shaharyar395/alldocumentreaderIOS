@@ -148,10 +148,12 @@ FactDecision evaluateFact(StoreKitFact fact, {required int now, required bool al
     // end we can store: entitled for this answer only, with no offline window.
     return FactDecision(entitled: true, finish: finish, expiryMs: fact.expiresMs > now ? fact.expiresMs : 0);
   }
-  if (fact.expiresMs > 0 && fact.expiresMs <= now) {
-    return FactDecision(entitled: false, finish: finish, expiryMs: 0);
+  if (fact.expiresMs > now) {
+    return FactDecision(entitled: true, finish: finish, expiryMs: fact.expiresMs);
   }
-  return FactDecision(entitled: true, finish: finish, expiryMs: fact.expiresMs > now ? fact.expiresMs : 0);
+  // A verified record that is not a current entitlement and has no time left is not Premium.
+  // First launch and a cleared install stay free until Restore or a real purchase.
+  return FactDecision(entitled: false, finish: finish, expiryMs: 0);
 }
 
 /// Subscription status wins for a product when StoreKit returned it. Current entitlements fill

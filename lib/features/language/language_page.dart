@@ -155,7 +155,7 @@ class _LanguagePageState extends State<LanguagePage> {
             // AdBar on the page colour (the nav bar area too)
             ColoredBox(
               color: c.bgScreen,
-              child: const SafeArea(top: false, child: BannerSlot(reserveSpace: true, unit: 2)),
+              child: const SafeArea(top: false, child: BannerSlot(unit: 2)),
             ),
           ],
         ),

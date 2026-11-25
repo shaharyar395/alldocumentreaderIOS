@@ -55,6 +55,8 @@ class AllDocApp extends StatelessWidget {
   }
 }
 
+SystemUiOverlayStyle? _overlayStyle;
+
 class _ThemedApp extends StatelessWidget {
   const _ThemedApp();
 
@@ -80,15 +82,18 @@ class _ThemedApp extends StatelessWidget {
       builder: (context, child) {
         final dark = Theme.of(context).brightness == Brightness.dark;
         final bg = Theme.of(context).scaffoldBackgroundColor;
-        SystemChrome.setSystemUIOverlayStyle(
-          SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
-            statusBarBrightness: dark ? Brightness.dark : Brightness.light,
-            systemNavigationBarColor: bg,
-            systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
-          ),
+        final overlay = SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: dark ? Brightness.dark : Brightness.light,
+          systemNavigationBarColor: bg,
+          systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
         );
+        // Applying this on every rebuild fights the presented camera and hitches the next frame.
+        if (_overlayStyle != overlay) {
+          _overlayStyle = overlay;
+          SystemChrome.setSystemUIOverlayStyle(overlay);
+        }
         return ColoredBox(
           color: bg,
           child: _HoldTopInset(ads: AppScope.of(context).ads, child: child ?? const SizedBox.shrink()),
@@ -153,6 +158,7 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
   /// "boot" only until it is known whether a file started the app (no splash / ad flash then).
   _Stage _stage = Platform.environment.containsKey('FLUTTER_TEST') ? _Stage.splash : _Stage.boot;
   bool _welcome = false;
+  bool _instantStage = false;
 
   @override
   void initState() {
@@ -222,7 +228,6 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
   Future<void> _showWelcome() async {
     _welcome = true;
     final navigator = Navigator.of(context);
-    final ads = AppScope.of(context).ads;
     await InAppMessages.hold();
     await navigator.push(
       PageRouteBuilder(
@@ -235,14 +240,13 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
     _welcome = false;
     if (!mounted) return;
     await WidgetsBinding.instance.endOfFrame;
-    await ads.showAppOpen(wait: const Duration(seconds: 4));
-    await WidgetsBinding.instance.endOfFrame;
     if (mounted) await InAppMessages.release();
   }
 
   void _afterSplash() {
     final settings = AppScope.of(context).settings;
     setState(() {
+      _instantStage = true;
       if (!settings.languageChosen) {
         _stage = _Stage.language;
       } else if (!settings.onboardingDone) {
@@ -251,10 +255,12 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
         _stage = _Stage.shell;
       }
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _instantStage = false;
+    });
     unawaited(InAppMessages.release());
-    // one notification prompt (reminders + Firebase push), then the all_users topic
+    // one notification prompt, then the reminders. Permission is checked before anything is scheduled.
     unawaited(PushNotifications.requestPermissionAndStart());
-    unawaited(LocalReminders.onRealOpen());
   }
 
   /// Cold start: a file from another app or a home-screen shortcut skips the normal splash,
@@ -372,7 +378,7 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     if (_stage == _Stage.boot) return const _SplashLook(showProgress: false);
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 280),
+      duration: _instantStage ? Duration.zero : const Duration(milliseconds: 280),
       child: switch (_stage) {
         _Stage.boot || _Stage.launchFile => const _SplashLook(key: ValueKey('launchFile')),
         _Stage.splash => SplashPage(key: const ValueKey('splash'), onFinished: _afterSplash),

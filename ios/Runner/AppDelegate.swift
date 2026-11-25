@@ -1,4 +1,5 @@
 import Flutter
+import FirebaseInAppMessaging
 import MessageUI
 import PDFKit
 import QuickLook
@@ -15,6 +16,7 @@ import WidgetKit
   ) -> Bool {
     // StoreKit 2: listen for transactions from launch (renewals, Ask to Buy, refunds).
     Task { @MainActor in IAPStore.shared.start() }
+    FiamGate.shared.install()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -38,6 +40,16 @@ import WidgetKit
         PlatformBridge.pendingAction = nil
       case "appVersion":
         result(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+      case "installedFromAppStore":
+        // App Store receipts are named "receipt". TestFlight uses "sandboxReceipt".
+        // Xcode and sideload builds ship an embedded.mobileprovision.
+        let receipt = Bundle.main.appStoreReceiptURL?.lastPathComponent
+        let sideloaded = Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") != nil
+        result(!sideloaded && receipt == "receipt")
+      case "fiamBlocked":
+        let blocked = (call.arguments as? [String: Any])?["blocked"] as? Bool ?? true
+        FiamGate.shared.setBlocked(blocked)
+        result(nil)
       case "deviceInfo":
         // for the Feedback e-mail: "iOS 17.5 · iPhone15,2" (like Android's version + model line)
         var info = utsname()
@@ -1149,5 +1161,111 @@ extension PlatformBridge {
       return false
     }
     return true
+  }
+}
+
+/// Keeps the in-app message listener across pauses and holds a message that arrives on the
+/// splash screen, Welcome back, or a full-screen ad until a stable screen is in front.
+/// A button with no action URL dismisses the message.
+final class FiamGate: NSObject, InAppMessagingDisplay {
+  static let shared = FiamGate()
+
+  private var stock: InAppMessagingDisplay?
+  private var blocked = true
+  private var waitingMessage: InAppMessagingDisplayMessage?
+  private var waitingDelegate: InAppMessagingDisplayDelegate?
+  private var liveGate: FiamActionGate?
+
+  func install() {
+    claim()
+    let center = NotificationCenter.default
+    center.addObserver(self, selector: #selector(claimFromNotification), name: UIApplication.willResignActiveNotification, object: nil)
+    center.addObserver(self, selector: #selector(claimFromNotification), name: UIApplication.didBecomeActiveNotification, object: nil)
+  }
+
+  @objc private func claimFromNotification() {
+    claim()
+  }
+
+  func setBlocked(_ value: Bool) {
+    blocked = value
+    claim()
+  }
+
+  private func claim() {
+    let fiam = InAppMessaging.inAppMessaging()
+    if stock == nil, let current = fiam.messageDisplayComponent as AnyObject?, current !== self {
+      stock = fiam.messageDisplayComponent
+    }
+    fiam.messageDisplayComponent = self
+    if !blocked {
+      flush()
+    }
+  }
+
+  func displayMessage(_ messageForDisplay: InAppMessagingDisplayMessage, displayDelegate: InAppMessagingDisplayDelegate) {
+    if blocked {
+      if waitingMessage == nil {
+        waitingMessage = messageForDisplay
+        waitingDelegate = displayDelegate
+      } else {
+        displayDelegate.messageDismissed(messageForDisplay, dismissType: .unspecified)
+      }
+      return
+    }
+    present(messageForDisplay, displayDelegate)
+  }
+
+  private func flush() {
+    guard let message = waitingMessage, let delegate = waitingDelegate else { return }
+    waitingMessage = nil
+    waitingDelegate = nil
+    present(message, delegate)
+  }
+
+  private func present(_ message: InAppMessagingDisplayMessage, _ delegate: InAppMessagingDisplayDelegate) {
+    let gate = FiamActionGate(inner: delegate) { [weak self] in
+      self?.liveGate = nil
+    }
+    liveGate = gate
+    if let stock {
+      stock.displayMessage(message, displayDelegate: gate)
+    } else {
+      delegate.messageDismissed(message, dismissType: .unspecified)
+    }
+  }
+}
+
+/// A message button with no action URL closes the message instead of opening a link.
+final class FiamActionGate: NSObject, InAppMessagingDisplayDelegate {
+  private let inner: InAppMessagingDisplayDelegate
+  private let finished: () -> Void
+
+  init(inner: InAppMessagingDisplayDelegate, finished: @escaping () -> Void) {
+    self.inner = inner
+    self.finished = finished
+  }
+
+  func impressionDetected(for inAppMessage: InAppMessagingDisplayMessage) {
+    inner.impressionDetected(for: inAppMessage)
+  }
+
+  func messageClicked(_ inAppMessage: InAppMessagingDisplayMessage, with action: InAppMessagingAction) {
+    if action.actionURL == nil {
+      inner.messageDismissed(inAppMessage, dismissType: .userTapClose)
+      finished()
+      return
+    }
+    inner.messageClicked(inAppMessage, with: action)
+  }
+
+  func messageDismissed(_ inAppMessage: InAppMessagingDisplayMessage, dismissType: InAppMessagingDismissType) {
+    inner.messageDismissed(inAppMessage, dismissType: dismissType)
+    finished()
+  }
+
+  func displayError(for inAppMessage: InAppMessagingDisplayMessage, error: Error) {
+    inner.displayError?(for: inAppMessage, error: error)
+    finished()
   }
 }

@@ -30,6 +30,7 @@ class _BannerSlotState extends State<BannerSlot> {
   bool _ready = false;
   bool _failed = false;
   int? _width;
+  int _ticket = 0;
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _BannerSlotState extends State<BannerSlot> {
   }
 
   Future<void> _load(int width) async {
+    final ticket = ++_ticket;
     _drop();
     final ads = AppScope.of(context).ads;
     var waited = false;
@@ -72,16 +74,16 @@ class _BannerSlotState extends State<BannerSlot> {
       // instead of staying empty until something else changes
       await ads.started;
       waited = true;
-      if (!mounted || _ad != null) return;
+      if (!mounted || ticket != _ticket || _ad != null) return;
     }
     if (!ads.canShow || !AdRemoteConfig.bannerAds) {
       // (no setState while still inside didChangeDependencies: the coming build sees it)
       _failed = true;
-      if (waited && mounted) setState(() {});
+      if (waited && mounted && ticket == _ticket) setState(() {});
       return;
     }
     final size = await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(width);
-    if (!mounted) return;
+    if (!mounted || ticket != _ticket) return;
     if (size == null) {
       setState(() => _failed = true);
       return;
@@ -99,23 +101,23 @@ class _BannerSlotState extends State<BannerSlot> {
           IosGrowth.adRevenue(micros / 1000000.0, currency);
         },
         onAdLoaded: (ad) {
-          if (mounted) {
-            setState(() {
-              _ready = true;
-              _failed = false;
-            });
-          }
+          if (!mounted || ticket != _ticket) return;
+          setState(() {
+            _ready = true;
+            _failed = false;
+          });
         },
-        onAdFailedToLoad: (ad, error) {
+        onAdFailedToLoad: (failed, error) {
           debugPrint('banner: ${error.message}');
-          ad.dispose();
-          if (mounted) {
-            setState(() {
-              _ad = null;
-              _ready = false;
-              _failed = true;
-            });
-          }
+          final current = identical(_ad, failed);
+          if (current) _ad = null;
+          final switched = mounted && AppScope.of(context).ads.noteLoadError(error);
+          if (current) failed.dispose();
+          if (!mounted || !current || ticket != _ticket || switched) return;
+          setState(() {
+            _ready = false;
+            _failed = true;
+          });
         },
       ),
     );

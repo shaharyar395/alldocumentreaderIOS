@@ -39,8 +39,11 @@ class _SplashPageState extends State<SplashPage> {
     // like the Android app: loading screen → App Open ad on every start (the first one too);
     // it waits only while the ad is still loading (see AdService.showAppOpen)
     if (!scope.settings.premium) {
-      await scope.ads.showAppOpen();
+      await scope.ads.showAppOpen(wait: const Duration(seconds: 12));
     }
+    if (!mounted) return;
+    // The splash is in front again. Paint it, then open the next screen with no fade.
+    await WidgetsBinding.instance.endOfFrame;
     if (!mounted) return;
     widget.onFinished();
   }

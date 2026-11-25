@@ -13,6 +13,7 @@ import '../../native/native_icon.dart';
 import '../../native/native_shapes.dart';
 import '../../services/app_analytics.dart';
 import '../../services/ios_analytics.dart';
+import '../../services/local_reminders.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/banner_slot.dart';
 import '../../widgets/chrome.dart';
@@ -39,6 +40,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
   bool _hintsReady = false;
   bool _ready = false;
   bool _exiting = false;
+  bool _notifHooked = false;
   DateTime? _lastBack;
   PageRoute<dynamic>? _route;
 
@@ -55,7 +57,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
     if (_index != 0) {
       IosAnalytics.back(_index == 1 ? 'tools' : 'settings');
       setState(() => _index = 0);
-      settings.setTab(0);
+      settings.setTab(0, notify: false);
       return;
     }
     if (_exiting) return;
@@ -89,11 +91,29 @@ class _MainShellState extends State<MainShell> with RouteAware {
     }
     if (_ready) return;
     _ready = true;
-    _index = AppScope.of(context).settings.lastTab.clamp(0, 2);
+    _index = 0;
     IosAnalytics.activate(_shellScreen(_index));
     PlatformBridge.widgetAction.addListener(_onWidgetAction);
-    // a widget button that started the app
-    WidgetsBinding.instance.addPostFrameCallback((_) => _onWidgetAction());
+    if (!_notifHooked) {
+      _notifHooked = true;
+      LocalReminders.openRequest.addListener(_onNotificationOpen);
+    }
+    // a widget button or a notification tap that started the app
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onWidgetAction();
+      _onNotificationOpen();
+    });
+  }
+
+  void _onNotificationOpen() {
+    final screen = LocalReminders.openRequest.value;
+    if (screen == null || !mounted) return;
+    LocalReminders.openRequest.value = null;
+    _selectTab(switch (screen) {
+      'tools' => 1,
+      'settings' => 2,
+      _ => 0,
+    });
   }
 
   @override
@@ -101,6 +121,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
     IosAnalytics.left(_shellScreen(_index));
     shellRouteObserver.unsubscribe(this);
     PlatformBridge.widgetAction.removeListener(_onWidgetAction);
+    if (_notifHooked) LocalReminders.openRequest.removeListener(_onNotificationOpen);
     super.dispose();
   }
 
@@ -148,7 +169,9 @@ class _MainShellState extends State<MainShell> with RouteAware {
     if (_index == value) return; // setOnItemReselectedListener: no-op
     IosAnalytics.left(_shellScreen(_index));
     setState(() => _index = value);
-    AppScope.of(context).settings.setTab(value);
+    // The bar already rebuilt above. setTab used to notify the whole app, which rebuilt every
+    // screen on the tab tap and made the switch feel stuck.
+    AppScope.of(context).settings.setTab(value, notify: false);
     IosAnalytics.activate(_shellScreen(value));
   }
 
@@ -270,8 +293,8 @@ class _NavBar extends StatelessWidget {
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     return Material(
       color: c.navbarBg,
-      elevation: 8,
-      shadowColor: const Color(0x55000000),
+      elevation: 2,
+      shadowColor: const Color(0x24000000),
       borderRadius: BorderRadius.circular(28),
       child: SizedBox(
         height: 56,
@@ -315,20 +338,25 @@ class _NavBar extends StatelessWidget {
                                   decoration: BoxDecoration(color: c.navbarPill, borderRadius: BorderRadius.circular(22)),
                                 ),
                               ),
-                              Row(
-                                children: [
-                                  for (var i = 0; i < labels.length; i++)
-                                    Expanded(
-                                      flex: (weights[i] * 1000).round(),
-                                      child: _NavTab(
-                                        label: labels[i],
-                                        icon: i == index ? icons[i].$1 : icons[i].$2,
-                                        selected: i == index,
-                                        showLabel: (at - i).abs() < 0.5,
-                                        onTap: () => onSelect(i),
+                              // The pill is stretched; the icons must be stretched with it and then
+                              // centred, or the three tabs sit on the top edge of the bar.
+                              Positioned.fill(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    for (var i = 0; i < labels.length; i++)
+                                      Expanded(
+                                        flex: (weights[i] * 1000).round(),
+                                        child: _NavTab(
+                                          label: labels[i],
+                                          icon: i == index ? icons[i].$1 : icons[i].$2,
+                                          selected: i == index,
+                                          showLabel: (at - i).abs() < 0.5,
+                                          onTap: () => onSelect(i),
+                                        ),
                                       ),
-                                    ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           );
@@ -383,7 +411,7 @@ class _NavTab extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: c.navbarPillText),
+                      style: TextStyle(fontSize: 13, height: 1, fontWeight: FontWeight.w500, color: c.navbarPillText),
                     ),
                   ),
                 ),

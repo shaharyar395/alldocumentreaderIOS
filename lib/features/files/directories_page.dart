@@ -432,7 +432,10 @@ class _BinTab extends StatelessWidget {
                 entry: entry,
                 daysLeft: entry.daysLeft(),
                 showBookmark: false,
-                onTap: () => _actions(context, entry),
+                onTap: () {
+                  IosAnalytics.log('recycle_bin_pick_file_tapped');
+                  _actions(context, entry);
+                },
                 onLongPress: () => _actions(context, entry),
                 onBookmark: () {},
                 onMore: () => _actions(context, entry),
@@ -600,6 +603,7 @@ class _RecycleBinScreenState extends State<_RecycleBinScreen> {
                             selecting: _selecting,
                             selected: selected,
                             onTap: () {
+                              IosAnalytics.log('recycle_bin_pick_file_tapped');
                               if (_selecting) {
                                 setState(() => selected ? _selected.remove(entry.id) : _selected.add(entry.id));
                               } else {

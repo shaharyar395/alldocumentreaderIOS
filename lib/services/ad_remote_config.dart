@@ -8,8 +8,11 @@ import 'package:flutter/foundation.dart';
 /// (ads/Ads.kt, 1.0.75). Until a published value arrives every switch keeps its default, so ads
 /// stay on until the console turns them off. iOS reads its own Firebase project.
 ///
-/// - `enable_ads` (true): every ad (banner, native, interstitial, app open, rewarded).
-/// - `enable_test_ads` (false): true uses Google's demo units on every install.
+/// - `enable_ads` (true): every format. False turns every ad off and overrides the type switches.
+///   App open follows this switch only. Rewarded units are not requested.
+/// - `enable_test_ads` (false): kept for the console. It does not change iOS ad units.
+///   Debug builds may use Google's official iOS sample units. Release, TestFlight, and the
+///   App Store always request this app's production units.
 /// - `banner_ads` / `native_ads` / `interstitial_ads` (true): that format.
 /// - `file_type_ad_cooldown_sec` (30): seconds between the All files file-type ads (0 … 86 400).
 class AdRemoteConfig {

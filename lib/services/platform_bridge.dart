@@ -67,6 +67,26 @@ class PlatformBridge {
   }
 
   /// The app's version name (Android versionName, iOS CFBundleShortVersionString).
+  /// True only for an App Store install. TestFlight, Xcode, and sideload are false.
+  static Future<bool> installedFromAppStore() async {
+    if (!Platform.isIOS) return false;
+    try {
+      return await _channel.invokeMethod<bool>('installedFromAppStore') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Splash, Welcome back, and full-screen ads queue an in-app message instead of showing it.
+  static Future<void> fiamBlocked(bool blocked) async {
+    if (!Platform.isIOS) return;
+    try {
+      await _channel.invokeMethod<void>('fiamBlocked', {'blocked': blocked});
+    } catch (error) {
+      debugPrint('in-app messages: $error');
+    }
+  }
+
   static Future<String?> appVersion() async {
     try {
       return await _channel.invokeMethod<String>('appVersion');

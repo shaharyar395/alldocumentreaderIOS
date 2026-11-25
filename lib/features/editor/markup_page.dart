@@ -1469,7 +1469,7 @@ class _MarkupPageState extends State<MarkupPage> {
     _openPanel(_Panel.none);
     _loadLines();
     showTopPill(context, s.t('savedSuccessfully'), icon: ND.icCheckCircleOutline, topMargin: 60, decoration: NS.bgTopPill(context));
-    await scope.ads.showInterstitial(unit: 2, honorCooldown: true);
+    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
   }
 
   /// Everything on the pages as PDF marks (page fractions; covers first on each page, like
