@@ -934,7 +934,7 @@ class _ReaderPageState extends State<ReaderPage> with WidgetsBindingObserver {
       _convertProgress = 1;
       _converted = saved;
     });
-    await AppScope.of(context).ads.showInterstitial(force: true);
+    await AppScope.of(context).ads.showInterstitial(force: true, wait: true);
   }
 
   void _closeBanner() {

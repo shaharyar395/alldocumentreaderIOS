@@ -10,8 +10,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:xml/xml.dart';
 
-/// Converts a Word (.docx, also .doc / .rtf as text), PowerPoint (.pptx), Excel (.xlsx / .csv)
-/// or text (.txt) file to a PDF, keeping the layout as well as possible:
+/// Converts a Word (.docx), PowerPoint (.pptx), Excel (.xlsx / .csv) or text (.txt) file to a
+/// PDF, keeping the layout as well as possible. Binary .doc, .xls, and .ppt are not converted.
 /// * Word: page size and margins, paragraph styles, headings, lists, tables, pictures in place,
 ///   headers and footers, page breaks.
 /// * PowerPoint: one page per slide, text boxes, shapes, pictures and tables where they are.
@@ -94,8 +94,7 @@ Future<Uint8List> _convertFile(String path, SendPort port, _BundledFonts? bundle
   } else if (lower.endsWith('.txt') || lower.endsWith('.text') || lower.endsWith('.log') || lower.endsWith('.md')) {
     job = _TextJob(_decodeText(bytes));
   } else {
-    // older binary formats (.doc / .ppt / .xls): the readable text, paged
-    job = _TextJob(_binaryText(bytes));
+    throw const FormatException('binary office');
   }
   job.parse((value) => progress(0.05 + value * 0.35));
   progress(0.4);
@@ -148,43 +147,6 @@ String _decodeText(Uint8List bytes) {
   } catch (_) {
     return latin1.decode(bytes, allowInvalid: true);
   }
-}
-
-/// Readable text of an old binary Office file: runs of UTF-16 and 8-bit printable characters.
-String _binaryText(Uint8List bytes) {
-  final out = StringBuffer();
-  final run = StringBuffer();
-  void flush(int minimum) {
-    if (run.length >= minimum) out.writeln(run.toString().trim());
-    run.clear();
-  }
-
-  // UTF-16LE text (Word 97+ stores most text this way)
-  for (var i = 0; i + 1 < bytes.length; i += 2) {
-    final code = bytes[i] | (bytes[i + 1] << 8);
-    if ((code >= 0x20 && code < 0xD800 && code != 0x7F) || code == 0x09) {
-      run.writeCharCode(code);
-    } else if (code == 0x0D || code == 0x0A || code == 0x0B) {
-      flush(1);
-    } else {
-      flush(6);
-    }
-  }
-  flush(6);
-  if (out.length < 40) {
-    out.clear();
-    for (final byte in bytes) {
-      if ((byte >= 0x20 && byte < 0x7F) || byte == 0x09) {
-        run.writeCharCode(byte);
-      } else if (byte == 0x0D || byte == 0x0A) {
-        flush(1);
-      } else {
-        flush(6);
-      }
-    }
-    flush(6);
-  }
-  return out.toString();
 }
 
 String _rtfToText(String rtf) {

@@ -106,7 +106,7 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
       showToast(context, s.t('convertFailed'));
       return;
     }
-    await scope.ads.showInterstitial(force: true);
+    await scope.ads.showInterstitial(force: true, wait: true);
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(

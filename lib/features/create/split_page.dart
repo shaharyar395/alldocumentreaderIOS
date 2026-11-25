@@ -12,6 +12,7 @@ import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/pdf_tools.dart';
 import '../../services/ios_analytics.dart';
+import '../premium/tool_unlock.dart';
 import '../../widgets/chrome.dart';
 import 'pdf_picker_page.dart';
 import 'pdf_thumbs.dart';
@@ -20,11 +21,13 @@ import 'success_page.dart';
 import 'tool_widgets.dart';
 
 /// Tools → Split PDF: pick a PDF → [SplitPage].
-Future<void> startSplit(BuildContext context, {PdfPick? file}) async {
+Future<void> startSplit(BuildContext context, {PdfPick? file}) {
+  return runUnlocked(context, UnlockTool.split, () async {
   final s = S.of(context);
   final pick = file ?? await pickOnePdf(context, title: s.t('selectPdfToSplit'), pickEvent: 'split_pdf_pick_file_tapped');
   if (pick == null || !context.mounted) return;
   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SplitPage(file: pick)));
+  });
 }
 
 class _Part {
@@ -165,7 +168,7 @@ class _SplitPageState extends State<SplitPage> {
       if (!mounted) return;
       if (saved.isEmpty) throw StateError('save');
       IosAnalytics.log('split_pdf_saved', {'screen': 'split_pdf', 'count': '${saved.length}'});
-      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true, wait: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(

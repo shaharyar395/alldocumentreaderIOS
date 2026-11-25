@@ -356,13 +356,14 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   // ------------------------------------------------------------------ body
 
   Widget _body(S s, bool premium) {
-    // PremiumActivity.setupFeatures ("Plum deck"): the same five benefits and glyphs
+    // Benefit lines only. Prices, plans, and Continue stay as they are.
     const features = [
       (ND.icStSubscriptions, 'featAdFree'),
-      (ND.icStFeedback, 'featEditSign'),
-      (ND.icStTerms, 'featConvert'),
+      (ND.dsToolsIcScan, 'scanToPdf'),
+      (ND.dsToolsIcCreatePdf, 'createPdf'),
+      (ND.dsToolsIcMerge, 'mergePdf'),
+      (ND.dsToolsIcSplit, 'splitPdf'),
       (ND.icStWidget, 'featTemplates'),
-      (ND.icPages, 'featPages'),
     ];
     const reviews = [
       ('review1Title', 'review1Name', 'review1Text'),

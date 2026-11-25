@@ -266,7 +266,7 @@ class _BlankPagesPageState extends State<BlankPagesPage> {
       if (entry == null) throw StateError('save');
       IosAnalytics.converted('create', 'pdf');
       IosAnalytics.left('create_pdf');
-      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true, wait: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => SuccessPage(entry: entry, kind: ResultKind.created, feature: s.t('createPdf'), featureKey: 'create_pdf')),

@@ -1,8 +1,6 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
@@ -10,14 +8,12 @@ import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/ios_analytics.dart';
 import '../../widgets/chrome.dart';
-import '../premium/premium_page.dart';
+import '../premium/tool_unlock.dart';
 import '../settings/feedback_page.dart';
 import 'template_editor_page.dart';
 import 'template_model.dart';
 import 'template_painter.dart';
 import 'tool_widgets.dart';
-
-const _freeTriesPerDay = 2;
 
 String tplCategoryLabel(S s, TplCategory category) {
   return switch (category) {
@@ -28,44 +24,22 @@ String tplCategoryLabel(S s, TplCategory category) {
   };
 }
 
-int _today() {
-  final now = DateTime.now();
-  final start = DateTime(now.year);
-  return now.year * 1000 + now.difference(start).inDays + 1;
-}
-
-/// Crowned templates: Premium, or one of today's free tries. Says how many tries are left;
-/// opens Get Premium when none are.
-Future<bool> useTemplateTry(BuildContext context, Template template) async {
-  final scope = AppScope.of(context);
-  if (!template.premium || scope.settings.premium) return true;
-  final s = S.of(context);
-  final prefs = await SharedPreferences.getInstance();
-  final day = prefs.getInt('gate_templates_day') ?? 0;
-  final used = day == _today() ? (prefs.getInt('gate_templates_used') ?? 0) : 0;
-  final left = _freeTriesPerDay - used;
-  if (!context.mounted) return false;
-  if (left <= 0) {
-    final rewarded = await scope.ads.showRewarded();
-    if (!context.mounted) return false;
-    if (rewarded) return true;
-    showToast(context, s.t('premiumLimitReached', {'feature': s.t('templates')}));
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PremiumPage()));
-    return false;
-  }
-  await prefs.setInt('gate_templates_day', _today());
-  await prefs.setInt('gate_templates_used', used + 1);
-  if (!context.mounted) return false;
-  final now = left - 1;
-  showToast(context, now > 0 ? s.t('premiumFreeUsesLeft', {'count': '$now'}) : s.t('premiumLastFreeUse'));
-  return true;
-}
-
 /// Opens [id] in the template editor (Create → resume: 'resume_classic').
+/// Free templates open immediately. A crowned template asks for the unlock sheet first.
 Future<void> openTemplateEditor(BuildContext context, String id) async {
   final template = templateById(id);
   if (template == null) return;
-  if (!await useTemplateTry(context, template) || !context.mounted) return;
+  if (isCrownedTemplate(template.id)) {
+    final premium = AppScope.of(context).settings.premium;
+    if (!await toolUnlocked(UnlockTool.templates, premium: premium)) {
+      if (!context.mounted) return;
+      final opened = await showToolUnlockSheet(context, UnlockTool.templates);
+      if (!opened || !context.mounted) return;
+    }
+  }
+  if (!context.mounted) return;
+  IosAnalytics.log('templates_pick_tapped', {'template': template.id, 'category': template.category.name});
+  IosAnalytics.log('${template.id}_selected', {'template': template.id, 'category': template.category.name});
   final saved = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => TemplateEditorPage(template: template)));
   if (saved == true && context.mounted) showToast(context, S.of(context).t('savedSuccessfully'));
 }
@@ -272,8 +246,6 @@ class _TemplatesPageState extends State<TemplatesPage> with SingleTickerProvider
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: () async {
-                IosAnalytics.log('templates_pick_tapped', {'template': template.id, 'category': template.category.name});
-                IosAnalytics.log('${template.id}_selected', {'template': template.id, 'category': template.category.name});
                 await openTemplateEditor(context, template.id);
                 if (mounted) setState(() {});
               },

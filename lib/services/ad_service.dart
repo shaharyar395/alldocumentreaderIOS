@@ -22,29 +22,22 @@ class AdUnits {
   static const _interstitialIos = 'ca-app-pub-9297250663056879/3837415956';
   static const _nativeIos = 'ca-app-pub-9297250663056879/4958925933';
 
-  /// Google's official iOS sample units. Not the Android sample units.
-  static const iosSampleBanner = 'ca-app-pub-3940256099942544/2934735716';
-  static const iosSampleInterstitial = 'ca-app-pub-3940256099942544/4411468910';
-  static const iosSampleAppOpen = 'ca-app-pub-3940256099942544/5575463023';
-  static const iosSampleNative = 'ca-app-pub-3940256099942544/3986624511';
+  /// This app's rewarded unit. Requested only from the tool-unlock sheet.
+  static const _rewardedIos = 'ca-app-pub-9297250663056879/3746575754';
 
-  /// Debug builds may use Google's official iOS sample units.
-  /// Release, TestFlight, and App Store builds always use this app's production units.
-  static bool get useSample => kDebugMode;
-
-  static String bannerFor(int unit) {
-    if (useSample) return iosSampleBanner;
-    return unit == 2 ? _banner2Ios : _bannerIos;
-  }
+  /// Every build requests these production units. A failed load stays on them.
+  static String bannerFor(int unit) => unit == 2 ? _banner2Ios : _bannerIos;
 
   static String get banner => bannerFor(1);
 
-  static String get appOpen => useSample ? iosSampleAppOpen : _appOpenIos;
+  static String get appOpen => _appOpenIos;
 
-  /// One production interstitial. Debug builds use the official iOS sample interstitial.
-  static String get interstitial => useSample ? iosSampleInterstitial : _interstitialIos;
+  /// One production interstitial. A second interstitial is not requested.
+  static String get interstitial => _interstitialIos;
 
-  static String get native => useSample ? iosSampleNative : _nativeIos;
+  static String get native => _nativeIos;
+
+  static String get rewarded => _rewardedIos;
 }
 
 class AdService {
@@ -74,6 +67,10 @@ class AdService {
   InterstitialAd? _interstitial;
   bool _interstitialLoading = false;
   int _interstitialEpoch = 0;
+  RewardedAd? _rewarded;
+  bool _rewardedLoading = false;
+  int _rewardedEpoch = 0;
+  final List<Completer<RewardedAd?>> _rewardedWaiters = [];
   bool _started = false;
 
   /// "Get Premium" after the category ad was already offered in this app run.
@@ -265,14 +262,24 @@ class AdService {
 
   /// Shows the ready interstitial. At most once every 45 seconds unless [force].
   /// [honorCooldown] still applies when the call is forced. The file-type timer starts when
-  /// the ad is dismissed. [unit] is unused; one production interstitial is requested.
-  Future<bool> showInterstitial({bool force = false, bool untilClosed = false, int unit = 1, bool honorCooldown = false}) async {
+  /// the ad is dismissed. [wait] gives a convert or save up to 8 seconds for an ad to load.
+  /// [unit] is unused; one production interstitial is requested.
+  Future<bool> showInterstitial({bool force = false, bool untilClosed = false, int unit = 1, bool honorCooldown = false, bool wait = false}) async {
     if (!canShow || !AdRemoteConfig.interstitialAds || _fullScreen) return false;
     final last = _lastInterstitial;
     if (!force && last != null && DateTime.now().difference(last) < const Duration(seconds: 45)) {
       return false;
     }
     if (honorCooldown && !_fileTypeCooldownElapsed) return false;
+    if (_interstitial == null && wait) {
+      final deadline = DateTime.now().add(const Duration(seconds: 8));
+      while (_interstitial == null && DateTime.now().isBefore(deadline)) {
+        if (!canShow || !AdRemoteConfig.interstitialAds || _fullScreen) return false;
+        if (honorCooldown && !_fileTypeCooldownElapsed) return false;
+        _preloadInterstitial();
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
+    }
     final ad = _interstitial;
     _interstitial = null;
     if (ad == null) {
@@ -349,6 +356,7 @@ class AdService {
     _interstitial = null;
     _interstitialLoading = false;
     _dropNatives();
+    _dropRewarded();
   }
 
   void _dropNatives() {
@@ -396,13 +404,12 @@ class AdService {
     final settled = <Ad>{};
     var pending = _nativeCount;
     final epoch = _nativeEpoch;
-    final sample = AdUnits.useSample;
     void finishOne(Ad ad) {
       if (epoch != _nativeEpoch) return;
       if (!settled.add(ad)) return;
       pending--;
       if (pending > 0) return;
-      if (sample != AdUnits.useSample || !canShow || !AdRemoteConfig.nativeAds) {
+      if (!canShow || !AdRemoteConfig.nativeAds) {
         for (final loaded in fresh) {
           loaded.dispose();
         }
@@ -433,7 +440,7 @@ class AdService {
             IosGrowth.adRevenue(micros / 1000000.0, currency);
           },
           onAdLoaded: (loaded) {
-            if (epoch != _nativeEpoch || sample != AdUnits.useSample || !canShow || !AdRemoteConfig.nativeAds) {
+            if (epoch != _nativeEpoch || !canShow || !AdRemoteConfig.nativeAds) {
               loaded.dispose();
               finishOne(loaded);
               return;
@@ -471,7 +478,6 @@ class AdService {
   Future<NativeAd?> loadResultNative() async {
     if (!canShow || !AdRemoteConfig.nativeAds) return null;
     final done = Completer<NativeAd?>();
-    final sample = AdUnits.useSample;
     late final NativeAd ad;
     ad = NativeAd(
       adUnitId: AdUnits.native,
@@ -479,7 +485,7 @@ class AdService {
       nativeTemplateStyle: NativeTemplateStyle(templateType: TemplateType.medium, cornerRadius: 12),
       listener: NativeAdListener(
         onAdLoaded: (loaded) {
-          if (sample != AdUnits.useSample || !canShow || !AdRemoteConfig.nativeAds) {
+          if (!canShow || !AdRemoteConfig.nativeAds) {
             loaded.dispose();
             if (!done.isCompleted) done.complete(null);
             return;
@@ -557,14 +563,13 @@ class AdService {
   }
 
   Future<AppOpenAd?> _loadAppOpen() {
-    final sample = AdUnits.useSample;
     final done = Completer<AppOpenAd?>();
     AppOpenAd.load(
       adUnitId: AdUnits.appOpen,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
-          if (sample != AdUnits.useSample || !canShow) {
+          if (!canShow) {
             ad.dispose();
             if (!done.isCompleted) done.complete(null);
             return;
@@ -582,19 +587,18 @@ class AdService {
     return done.future;
   }
 
-  /// One production interstitial. Debug builds use the official iOS sample interstitial.
+  /// One production interstitial.
   void _preloadInterstitial() {
     if (!canShow || !AdRemoteConfig.interstitialAds || _interstitial != null || _interstitialLoading) return;
     _interstitialLoading = true;
     final epoch = _interstitialEpoch;
-    final sample = AdUnits.useSample;
     final unit = AdUnits.interstitial;
     InterstitialAd.load(
       adUnitId: unit,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          if (epoch != _interstitialEpoch || sample != AdUnits.useSample || !canShow || !AdRemoteConfig.interstitialAds) {
+          if (epoch != _interstitialEpoch || !canShow || !AdRemoteConfig.interstitialAds) {
             ad.dispose();
             return;
           }
@@ -613,8 +617,105 @@ class AdService {
     );
   }
 
-  /// Rewarded and rewarded-interstitial units are not requested.
-  Future<bool> showRewarded() async => false;
+  /// Loads a rewarded ad while the unlock sheet is open. Not used anywhere else.
+  void preloadRewarded() {
+    if (!canShow || _rewarded != null || _rewardedLoading) return;
+    unawaited(_loadRewarded());
+  }
+
+  /// Shows the rewarded ad. True only after the reward is earned and the ad closes.
+  /// A premium user and a master ads-off flag never reach a request.
+  Future<bool> showRewarded() async {
+    if (!canShow) return false;
+    var ad = _rewarded;
+    if (ad != null) {
+      _rewarded = null;
+    } else {
+      ad = await _loadRewarded();
+      if (identical(_rewarded, ad)) _rewarded = null;
+    }
+    if (ad == null || !canShow) {
+      ad?.dispose();
+      return false;
+    }
+    final closed = Completer<bool>();
+    var earned = false;
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdImpression: (_) => IosGrowth.adImpression(format: 'rewarded'),
+      onAdDismissedFullScreenContent: (ad) {
+        _closed();
+        ad.dispose();
+        if (!closed.isCompleted) closed.complete(earned);
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        debugPrint('rewarded show: $error');
+        _closed();
+        ad.dispose();
+        if (!closed.isCompleted) closed.complete(false);
+      },
+    );
+    _opened();
+    try {
+      await ad.show(onUserEarnedReward: (_, _) { earned = true; });
+    } catch (error) {
+      debugPrint('rewarded: $error');
+      if (_fullScreen) _closed();
+      if (!closed.isCompleted) closed.complete(false);
+    }
+    return closed.future.timeout(const Duration(minutes: 2), onTimeout: () => false);
+  }
+
+  Future<RewardedAd?> _loadRewarded() {
+    if (_rewarded != null) return Future<RewardedAd?>.value(_rewarded);
+    final waiter = Completer<RewardedAd?>();
+    _rewardedWaiters.add(waiter);
+    if (_rewardedLoading) return waiter.future;
+    _rewardedLoading = true;
+    final epoch = _rewardedEpoch;
+    RewardedAd.load(
+      adUnitId: AdUnits.rewarded,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          if (epoch != _rewardedEpoch || !canShow) {
+            ad.dispose();
+            _rewardedLoading = false;
+            _finishRewarded(null);
+            return;
+          }
+          _rewardedLoading = false;
+          _notePaid(ad);
+          _rewarded?.dispose();
+          _rewarded = ad;
+          _finishRewarded(ad);
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('rewarded load: ${error.message}');
+          if (epoch != _rewardedEpoch) return;
+          _rewardedLoading = false;
+          noteLoadError(error);
+          _finishRewarded(null);
+        },
+      ),
+    );
+    return waiter.future;
+  }
+
+  void _dropRewarded() {
+    _rewardedEpoch++;
+    _rewarded?.dispose();
+    _rewarded = null;
+    _rewardedLoading = false;
+    _finishRewarded(null);
+  }
+
+  void _finishRewarded(RewardedAd? ad) {
+    final waiters = List<Completer<RewardedAd?>>.of(_rewardedWaiters);
+    _rewardedWaiters.clear();
+    for (final waiter in waiters) {
+      if (!waiter.isCompleted) waiter.complete(ad);
+    }
+  }
 
   void _notePaid(AdWithoutView ad) {
     ad.onPaidEvent = (ad, micros, precision, currency) {

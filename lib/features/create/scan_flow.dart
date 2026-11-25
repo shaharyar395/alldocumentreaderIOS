@@ -16,6 +16,7 @@ import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/doc_scanner.dart';
 import '../../services/ios_analytics.dart';
+import '../premium/tool_unlock.dart';
 import '../../services/image_ops.dart';
 import '../../widgets/chrome.dart';
 import 'scan_edit_page.dart';
@@ -218,12 +219,14 @@ Future<void> startImageToPdf(BuildContext context) async {
 }
 
 /// Scan to PDF: the document scanner opens straight away → page editor.
-Future<void> startScanToPdf(BuildContext context) async {
+Future<void> startScanToPdf(BuildContext context) {
+  return runUnlocked(context, UnlockTool.scan, () async {
   final job = ScanJob();
   final added = await addScanPages(context, job, source: ScanSource.camera, imageToPdf: false);
   if (!context.mounted || added.isEmpty) return;
   job.pages.addAll(added);
   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ScanEditPage(job: job, imageToPdf: false)));
+  });
 }
 
 enum ScanSource { ask, camera, gallery }

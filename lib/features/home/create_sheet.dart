@@ -15,6 +15,7 @@ import '../../native/native_icon.dart';
 import '../../services/app_analytics.dart';
 import '../../services/ocr_service.dart';
 import '../../services/ios_analytics.dart';
+import '../premium/tool_unlock.dart';
 import '../../services/office_pdf.dart';
 import '../../services/office_text.dart';
 import '../../services/pdf_text.dart';
@@ -291,7 +292,9 @@ Future<void> imageToPdfFromList(BuildContext context) async {
 
 /// Create PDF: file name, template, page size, colour, orientation and count.
 Future<void> createBlankPdf(BuildContext context) {
-  return Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BlankPagesPage(createMode: true)));
+  return runUnlocked(context, UnlockTool.createPdf, () async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BlankPagesPage(createMode: true)));
+  });
 }
 
 /// Formats the converters can read (Android ConvertKind.canConvert): old binary .doc / .ppt
@@ -350,7 +353,7 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
     if (saved == null) throw StateError('save');
     IosAnalytics.converted(slides ? 'ppt' : 'word', 'pdf');
     IosAnalytics.left(screen);
-    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
+    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true, wait: true);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -409,7 +412,7 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry, bool honor
     if (saved == null || !context.mounted) return;
     IosAnalytics.converted('pdf', 'word');
     IosAnalytics.left('pdf_to_word');
-    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: honorCooldown);
+    await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: honorCooldown, wait: true);
     if (!context.mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word')),

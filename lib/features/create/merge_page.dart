@@ -8,13 +8,15 @@ import '../../native/native_drawables.dart';
 import '../../native/native_icon.dart';
 import '../../services/pdf_tools.dart';
 import '../../services/ios_analytics.dart';
+import '../premium/tool_unlock.dart';
 import '../../widgets/chrome.dart';
 import 'pdf_picker_page.dart';
 import 'success_page.dart';
 import 'tool_widgets.dart';
 
 /// Tools → Merge PDF: "Select PDFs to merge" (checkboxes, Continue (n), Browse) → [MergePage].
-Future<void> startMerge(BuildContext context, {List<PdfPick> preselected = const []}) async {
+Future<void> startMerge(BuildContext context, {List<PdfPick> preselected = const []}) {
+  return runUnlocked(context, UnlockTool.merge, () async {
   final s = S.of(context);
   final picks = await Navigator.of(context).push<List<PdfPick>>(
     MaterialPageRoute(
@@ -29,6 +31,7 @@ Future<void> startMerge(BuildContext context, {List<PdfPick> preselected = const
   );
   if (picks == null || picks.length < 2 || !context.mounted) return;
   await Navigator.of(context).push(MaterialPageRoute(builder: (_) => MergePage(initial: picks)));
+  });
 }
 
 /// The files to merge: ⋮⋮ drag to reorder, "2 pages · 8.7 KB", ⊖ remove, add more; back →
@@ -119,7 +122,7 @@ class _MergePageState extends State<MergePage> {
       if (entry == null) throw StateError('save');
       IosAnalytics.log('pdfs_merged', {'screen': 'merge_pdf', 'count': '${_files.length}'});
       IosAnalytics.log('pdf_saved', {'screen': 'merge_pdf'});
-      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true, wait: true);
       if (!mounted) return;
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute(

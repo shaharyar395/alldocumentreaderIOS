@@ -611,7 +611,7 @@ class _TemplateEditorPageState extends State<TemplateEditorPage> {
       if (entry == null) throw StateError('save');
       IosAnalytics.log('${widget.template.id}_${ext}_saved', _tpl);
       _savedIndex = _index;
-      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true);
+      await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true, wait: true);
       if (!mounted) return true;
       if (!leaving) _showBanner(entry);
       return true;

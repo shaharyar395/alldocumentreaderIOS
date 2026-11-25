@@ -198,14 +198,16 @@ class _RootGateState extends State<RootGate> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
       // Android App.kt (1.0.39): one "app_left" event (+ "<screen>_screen_left") per exit, not
       // when a full-screen ad or the system pickers / share sheet take over
-      if (guard.pausedAt == null && !ads.fullScreenActive && !settings.suppressNextResume) {
-        IosAnalytics.log('app_left', {
-          'screen': IosAnalytics.currentScreen,
-          'last_action': IosAnalytics.lastAction,
-          'reason': 'home',
-        });
+      if (!ads.fullScreenActive && !settings.suppressNextResume) {
+        if (guard.pausedAt == null) {
+          IosAnalytics.log('app_left', {
+            'screen': IosAnalytics.currentScreen,
+            'last_action': IosAnalytics.lastAction,
+            'reason': 'home',
+          });
+        }
+        guard.pausedAt ??= DateTime.now();
       }
-      guard.pausedAt ??= DateTime.now();
       if (!ads.fullScreenActive) IosAnalytics.left();
       return;
     }
