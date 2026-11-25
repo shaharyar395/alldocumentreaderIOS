@@ -241,10 +241,10 @@ iOS publish — Documents Reader: Your DocsEra (do not copy these onto Android)
 - Display name: Documents Reader: Your DocsEra (ios/Runner/Info.plist and the Reader widget).
 - AdMob app id in Info.plist GADApplicationIdentifier: ca-app-pub-9297250663056879~5342069314
 - Ad units live in lib/services/ad_service.dart and are returned only when Platform.isIOS:
-  App open 7104286702, Banner 1 4972027516 (home), Banner 2 4893890487 (reader, lists, tools),
-  Interstitial 1 3837415956 (open a category), Interstitial 2 5059657426 (after tools),
-  Native 4958925933 (Explore more apps), Rewarded 3746575754 (one crowned template after free tries),
-  Rewarded interstitial 2433494082 (after Image to PDF; reward skips interstitials for 15 minutes).
+  App open 3331558032, Banner 8392313024 (home and the other screens),
+  Interstitial 4851562800 (the only interstitial requested),
+  Native 8471756966, Rewarded 9521561865 (tool-unlock sheet only).
+  Rewarded interstitial 2433494082 is not requested.
 - App Group group.com.ol.documents.reader.docera.offline must be registered in the Apple Developer account
   with the bundle id before archiving. An IPA still needs a Mac.
 

@@ -16,16 +16,17 @@ import 'ios_growth.dart';
 class AdUnits {
   /// Documents Reader: Your DocsEra. These units are the iOS AdMob app only.
   static const appIdIos = 'ca-app-pub-9297250663056879~5342069314';
-  static const _bannerIos = 'ca-app-pub-9297250663056879/4972027516';
-  static const _banner2Ios = 'ca-app-pub-9297250663056879/4893890487';
-  static const _appOpenIos = 'ca-app-pub-9297250663056879/7104286702';
-  static const _interstitialIos = 'ca-app-pub-9297250663056879/3837415956';
-  static const _nativeIos = 'ca-app-pub-9297250663056879/4958925933';
+  static const _bannerIos = 'ca-app-pub-9297250663056879/8392313024';
+  static const _banner2Ios = _bannerIos;
+  static const _appOpenIos = 'ca-app-pub-9297250663056879/3331558032';
+  static const _interstitialIos = 'ca-app-pub-9297250663056879/4851562800';
+  static const _nativeIos = 'ca-app-pub-9297250663056879/8471756966';
 
   /// This app's rewarded unit. Requested only from the tool-unlock sheet.
-  static const _rewardedIos = 'ca-app-pub-9297250663056879/3746575754';
+  static const _rewardedIos = 'ca-app-pub-9297250663056879/9521561865';
 
   /// Every build requests these production units. A failed load stays on them.
+  /// One banner unit is configured, so home and the other screens request that same unit.
   static String bannerFor(int unit) => unit == 2 ? _banner2Ios : _bannerIos;
 
   static String get banner => bannerFor(1);
