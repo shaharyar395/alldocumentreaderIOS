@@ -10,9 +10,17 @@ class AppLogo extends StatelessWidget {
 
   final double size;
 
-  /// The app logo: the Android app's ic_logo vector (same art as the launcher icon).
+  /// The document icon, shown whole. Splash, launch, and the app icon use this artwork.
   @override
-  Widget build(BuildContext context) => NativeIcon(ND.icLogo, size: size);
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/images/app_logo.png',
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      filterQuality: FilterQuality.high,
+    );
+  }
 }
 
 /// The Android app's ic_crown (gold crown with a red check). With [color] it is tinted

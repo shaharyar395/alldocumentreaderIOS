@@ -179,7 +179,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
                               Navigator.of(context).maybePop();
                             }),
                             const SizedBox(width: 4),
-                            const NativeIcon(ND.icLogo, size: 30),
+                            const AppLogo(size: 30),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
