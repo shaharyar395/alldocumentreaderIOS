@@ -17,13 +17,12 @@ import '../settings/settings_tab.dart';
 import '../settings/terms_page.dart';
 import 'paywall_ui.dart';
 import 'purchase_flow.dart';
-import 'start_trial_page.dart';
 
 /// Get Premium like the Android PremiumActivity (activity_premium.xml): "Get Ready for Your
 /// 7-Day Free Trial" for a moment, then the dark paywall: feature pictures that slide in from
 /// the right every 3 s (swipe works too), "Get Premium", benefits, user reviews, and — fixed at
 /// the bottom — the 7-day-trial Yearly plan ("Save N%", price per day) and Monthly, Continue
-/// (→ "Start Free Trial" page when the store sheet closes without a purchase), Terms | Privacy.
+/// (opens the store payment sheet; a cancelled or failed purchase stays on this page), Terms | Privacy.
 /// Restore at the top end; the X shows up after 3 s. With Premium on, Continue becomes
 /// "Manage subscriptions".
 class PremiumPage extends StatefulWidget {
@@ -117,17 +116,6 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
       _incoming = null;
     });
     _slideAnim.value = 0;
-  }
-
-  /// Back from "Start Free Trial": the pictures start again from "Remove ads".
-  void _restartSlides() {
-    _slideAnim.stop();
-    _slideAnim.value = 0;
-    setState(() {
-      _slide = 0;
-      _incoming = null;
-    });
-    _restartAuto();
   }
 
   @override
@@ -742,25 +730,9 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     if (ok) {
       showToast(context, s.t('premiumWelcome'));
       Navigator.pop(context);
-      return;
     }
-    if (settings.premium) return;
-    // like the Android app: when the store sheet closes without a purchase (or can't open),
-    // "Start Free Trial" comes up (fade); its X brings the user back here
-    await Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 220),
-        pageBuilder: (_, _, _) => const StartTrialPage(),
-        transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
-      ),
-    );
-    if (!mounted) return;
-    if (settings.premium) {
-      Navigator.pop(context);
-      return;
-    }
-    // back from "Start Free Trial": the pictures start again from "Remove ads"
-    _restartSlides();
+    // Stay on Get Premium. A cancelled or failed StoreKit sheet does not open the old
+    // "Start Free Trial" screen (same as the Android app).
   }
 
   Future<void> _restore() async {

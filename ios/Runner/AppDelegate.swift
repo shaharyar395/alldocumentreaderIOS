@@ -664,6 +664,12 @@ enum PlatformBridge {
     }
     let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.folder])
     picker.allowsMultipleSelection = false
+    // Recents is a list of recent images and screenshots. A starting directory opens the
+    // Browse tab: On My iPhone, Downloads, iCloud Drive. Allowing a folder there is the
+    // iOS file-access grant (Settings lists it under Privacy → Files and Folders).
+    if let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+      picker.directoryURL = documents
+    }
     let delegate = FolderPickerDelegate { url in
       PlatformBridge.folderPicker = nil
       guard let url else {

@@ -64,11 +64,12 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly, String scre
   final s = S.of(context);
   final scope = AppScope.of(context);
   final billing = scope.billing;
-  final plan = yearly ? billing.yearly : billing.monthly;
+  var plan = yearly ? billing.yearly : billing.monthly;
   if (plan == null) {
     final available = await billing.storeAvailable;
     if (!context.mounted) return false;
-    if (!available && kDebugMode) {
+    plan = yearly ? billing.yearly : billing.monthly;
+    if (plan == null && !available && kDebugMode) {
       // like the Android debug TEST MODE sheet (sheet_test_purchase.xml): back / outside cancels
       final prices = PlanPrices.of(s, billing);
       final unlock = await showModalBottomSheet<bool>(
@@ -91,7 +92,7 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly, String scre
       await scope.settings.setTestPremium(yearly: yearly);
       return true;
     }
-    return false;
+    if (plan == null) return false;
   }
   // the store's payment sheet is not "leaving the app": no Welcome back after it
   scope.guard.arm(scope.settings);
