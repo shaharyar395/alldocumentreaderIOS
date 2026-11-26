@@ -194,6 +194,10 @@ import WidgetKit
         PlatformBridge.pickFolder { path in result(path) }
       case "iosFolders":
         result(PlatformBridge.folders())
+      case "scanIosFolders":
+        // Dart cannot list a security-scoped folder. FileManager can, while the grant is open.
+        let names = (call.arguments as? [String: Any])?["extensions"] as? [String] ?? []
+        result(PlatformBridge.scanPickedFolders(extensions: Set(names.map { $0.lowercased() })))
       case "removeIosFolder":
         let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
         PlatformBridge.removeFolder(path)
@@ -677,17 +681,19 @@ enum PlatformBridge {
         return
       }
       let accessing = url.startAccessingSecurityScopedResource()
-      guard let data = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) else {
-        if accessing { url.stopAccessingSecurityScopedResource() }
+      if let data = PlatformBridge.bookmarkData(for: url) {
+        var saved = (UserDefaults.standard.array(forKey: PlatformBridge.foldersKey) as? [Data]) ?? []
+        // the same folder picked again replaces its old bookmark
+        saved.removeAll { PlatformBridge.resolve($0)?.standardizedFileURL.path == url.standardizedFileURL.path }
+        saved.append(data)
+        UserDefaults.standard.set(saved, forKey: PlatformBridge.foldersKey)
+      } else if !accessing {
         done(nil)
         return
       }
-      var saved = (UserDefaults.standard.array(forKey: PlatformBridge.foldersKey) as? [Data]) ?? []
-      // the same folder picked again replaces its old bookmark
-      saved.removeAll { PlatformBridge.resolve($0)?.standardizedFileURL.path == url.standardizedFileURL.path }
-      saved.append(data)
-      UserDefaults.standard.set(saved, forKey: PlatformBridge.foldersKey)
-      if accessing { PlatformBridge.openFolders[url.standardizedFileURL.path] = url }
+      // Keep the picker URL itself. A path rebuilt later is not security-scoped, so listing it
+      // from Dart sees nothing even though the user tapped Open.
+      PlatformBridge.openFolders[url.standardizedFileURL.path] = url
       done(url.standardizedFileURL.path)
     }
     folderPicker = delegate
@@ -707,11 +713,10 @@ enum PlatformBridge {
       }
       let path = url.standardizedFileURL.path
       if openFolders[path] == nil {
-        if url.startAccessingSecurityScopedResource() {
-          openFolders[path] = url
-        } else {
-          continue
-        }
+        // false means this URL is already scoped, or the picker URL is held under another path.
+        // Dropping it here hid every file in the folder the user had just allowed.
+        _ = url.startAccessingSecurityScopedResource()
+        openFolders[path] = url
       }
       if stale, let fresh = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
         saved[i] = fresh
@@ -735,6 +740,101 @@ enum PlatformBridge {
   private static func resolve(_ data: Data) -> URL? {
     var stale = false
     return try? URL(resolvingBookmarkData: data, options: [.withoutUI], relativeTo: nil, bookmarkDataIsStale: &stale)
+  }
+
+  /// A bookmark the app can resolve after the next launch. Some folders only accept the smaller one.
+  private static func bookmarkData(for url: URL) -> Data? {
+    if let data = try? url.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil) {
+      return data
+    }
+    return try? url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
+  }
+
+  /// Files inside the folders the user allowed, read with the security-scoped URL (not a plain path).
+  /// Open grants that folder only — iOS has no all-files switch — and every supported file under it
+  /// (8 levels, same as the Android storage walk) is returned for the lists.
+  static func scanPickedFolders(extensions: Set<String>) -> [[String: Any]] {
+    _ = folders()
+    let roots = Array(openFolders.values)
+    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.standardizedFileURL.path
+    var files: [[String: Any]] = []
+    let skip = Set(["library", "signatures", "tpl_images", "tessdata", "Inbox"])
+    for root in roots {
+      collect(url: root, extensions: extensions, depth: 0, maxDepth: 8, docs: docs, skip: skip, into: &files)
+      if files.count >= 8000 { break }
+    }
+    return files
+  }
+
+  private static func collect(
+    url: URL,
+    extensions: Set<String>,
+    depth: Int,
+    maxDepth: Int,
+    docs: String?,
+    skip: Set<String>,
+    into files: inout [[String: Any]]
+  ) {
+    if depth > maxDepth || files.count >= 8000 { return }
+    let keys: Set<URLResourceKey> = [.isDirectoryKey, .fileSizeKey, .contentModificationDateKey]
+    let children = childURLs(at: url, keys: Array(keys))
+    if children.isEmpty { return }
+    let parent = url.standardizedFileURL.path
+    for item in children {
+      if files.count >= 8000 { return }
+      let name = item.lastPathComponent
+      let values = try? item.resourceValues(forKeys: keys)
+      var isDir = values?.isDirectory ?? false
+      if values?.isDirectory == nil {
+        var flag = ObjCBool(false)
+        if FileManager.default.fileExists(atPath: item.path, isDirectory: &flag) { isDir = flag.boolValue }
+      }
+      if isDir {
+        if name.hasPrefix(".") { continue }
+        if docs != nil && parent == docs && skip.contains(name) { continue }
+        collect(url: item, extensions: extensions, depth: depth + 1, maxDepth: maxDepth, docs: docs, skip: skip, into: &files)
+        continue
+      }
+      var shown = name
+      var path = item.path
+      if name.hasPrefix(".") {
+        guard let real = icloudRealName(name) else { continue }
+        shown = real
+        path = item.deletingLastPathComponent().appendingPathComponent(real).path
+      }
+      let ext = (shown as NSString).pathExtension.lowercased()
+      if !extensions.contains(ext) { continue }
+      var size = values?.fileSize ?? 0
+      if size <= 0, let attrs = try? FileManager.default.attributesOfItem(atPath: item.path),
+         let number = attrs[.size] as? NSNumber {
+        size = number.intValue
+      }
+      let modified = Int((values?.contentModificationDate ?? Date()).timeIntervalSince1970 * 1000)
+      files.append(["path": path, "size": max(size, 0), "modified": modified])
+    }
+  }
+
+  /// Lists a security-scoped folder. A plain listing throws for some iPhone folders; the
+  /// coordinated read is the one the system allows after the user taps Open.
+  private static func childURLs(at url: URL, keys: [URLResourceKey]) -> [URL] {
+    if let listed = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: keys, options: []),
+       !listed.isEmpty {
+      return listed
+    }
+    var listed: [URL] = []
+    var error: NSError?
+    NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &error) { readURL in
+      listed = (try? FileManager.default.contentsOfDirectory(at: readURL, includingPropertiesForKeys: keys, options: [])) ?? []
+    }
+    return listed
+  }
+
+  /// ".Name.ext.icloud" → "Name.ext" (a file iCloud has not downloaded yet).
+  private static func icloudRealName(_ name: String) -> String? {
+    let suffix = ".icloud"
+    guard name.count > suffix.count + 1, name.hasPrefix("."), name.lowercased().hasSuffix(suffix) else { return nil }
+    let real = String(name.dropFirst().dropLast(suffix.count))
+    return real.isEmpty || real.hasPrefix(".") ? nil : real
   }
 
   static func storage() -> [String: Int64] {

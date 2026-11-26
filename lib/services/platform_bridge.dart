@@ -302,6 +302,29 @@ class PlatformBridge {
     }
   }
 
+  /// iOS: supported files inside the folders the user allowed. A plain directory listing cannot
+  /// see those security-scoped folders, so this is read by the system file manager.
+  static Future<List<DeviceFile>> scanIosFolders(List<String> extensions) async {
+    if (!Platform.isIOS) return const [];
+    try {
+      final raw = await _channel.invokeMethod<List<dynamic>>('scanIosFolders', {'extensions': extensions});
+      if (raw == null) return const [];
+      final items = <DeviceFile>[];
+      for (final row in raw) {
+        if (row is! Map) continue;
+        final path = row['path']?.toString() ?? '';
+        final size = row['size'];
+        final modified = row['modified'];
+        if (path.isEmpty || size is! num || modified is! num) continue;
+        items.add((path: path, size: size.toInt(), modified: modified.toInt()));
+      }
+      return items;
+    } catch (error) {
+      debugPrint('ios folder scan: $error');
+      return const [];
+    }
+  }
+
   /// iOS: the folders the user picked (access opened for this run). Empty on Android.
   static Future<List<String>> iosFolders() async {
     if (!Platform.isIOS) return const [];

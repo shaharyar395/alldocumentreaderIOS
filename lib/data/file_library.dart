@@ -569,10 +569,19 @@ class FileLibrary extends ChangeNotifier {
         for (final name in const ['library', 'signatures', 'tpl_images', 'tessdata', 'Inbox']) p.normalize(p.join(_docsDir, name)),
       };
       await _walk(Directory(_docsDir), found, maxDepth: 6, skip: skip);
-      // iOS "access": the folders the user picked in Files, listed in place like Android's storage
+      // iOS "access": Open grants the folder on screen, not the whole phone. That folder is
+      // security-scoped, so it is listed by the system file manager (a Dart listing sees nothing).
       final folders = await PlatformBridge.iosFolders();
-      for (final folder in folders) {
-        await _walk(Directory(folder), found, maxDepth: 8);
+      final picked = await PlatformBridge.scanIosFolders(supportedExtensions);
+      if (picked.isNotEmpty) {
+        for (final file in picked) {
+          if (kindForName(file.path) == DocKind.other) continue;
+          found[_ref(file.path)] = file;
+        }
+      } else {
+        for (final folder in folders) {
+          await _walk(Directory(folder), found, maxDepth: 8);
+        }
       }
       fullScan = true;
       withAccess = folders.isNotEmpty;

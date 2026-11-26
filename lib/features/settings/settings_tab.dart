@@ -167,18 +167,16 @@ class _SettingsTabState extends State<SettingsTab> {
                 child: Row(
                   children: [
                     Expanded(child: Text(s.t('settings'), maxLines: 1, overflow: TextOverflow.ellipsis, style: dsScreenTitle(context))),
-                    // the crown is for buying Premium: hidden once Premium is on
-                    if (!settings.premium)
-                      DsCircleButton(
-                        fill: nc.accentContainer,
-                        icon: ND.icCrown,
-                        iconPadding: 13,
-                        tooltip: s.t('getPremium'),
-                        onTap: () {
-                          logEvent('settings_premium_tapped');
-                          _push(const PremiumPage());
-                        },
-                      ),
+                    DsCircleButton(
+                      fill: nc.accentContainer,
+                      icon: ND.icCrown,
+                      iconPadding: 13,
+                      tooltip: s.t('getPremium'),
+                      onTap: () {
+                        logEvent('settings_premium_tapped');
+                        _push(const PremiumPage());
+                      },
+                    ),
                     DsTopAction(
                       icon: ND.icSearch,
                       tooltip: s.t('searchHint'),

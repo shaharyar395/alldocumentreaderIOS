@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../app_scope.dart';
 import '../../l10n/s.dart';
 import '../../native/native_colors.dart';
 import '../../native/native_drawables.dart';
@@ -50,7 +49,6 @@ class _ToolsTabState extends State<ToolsTab> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     final s = S.of(context);
     final nc = NC.of(context);
-    final settings = AppScope.of(context).settings;
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     // native ToolsFragment.sections(): same order, ds_tools_ic_* glyphs, analytics names
@@ -286,18 +284,16 @@ class _ToolsTabState extends State<ToolsTab> with SingleTickerProviderStateMixin
                 child: Row(
                   children: [
                     Expanded(child: Text(s.t('tools'), maxLines: 1, overflow: TextOverflow.ellipsis, style: dsScreenTitle(context))),
-                    // the crown is for buying Premium: hidden once Premium is on
-                    if (!settings.premium)
-                      DsTopAction(
-                        icon: ND.icCrown,
-                        keepColors: true,
-                        iconPadding: 13,
-                        tooltip: s.t('getPremium'),
-                        onTap: () {
-                          logEvent('tools_premium_tapped');
-                          Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const PremiumPage()));
-                        },
-                      ),
+                    DsTopAction(
+                      icon: ND.icCrown,
+                      keepColors: true,
+                      iconPadding: 13,
+                      tooltip: s.t('getPremium'),
+                      onTap: () {
+                        logEvent('tools_premium_tapped');
+                        Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const PremiumPage()));
+                      },
+                    ),
                     DsTopAction(
                       icon: ND.icSearch,
                       tint: nc.iconMain,

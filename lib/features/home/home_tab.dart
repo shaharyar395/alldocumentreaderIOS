@@ -433,18 +433,16 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
                 Expanded(
                   child: Text('All Document Reader', maxLines: 1, overflow: TextOverflow.ellipsis, style: dsScreenTitle(context)),
                 ),
-                // the crown is for buying Premium: hidden once Premium is on
-                if (!settings.premium)
-                  DsTopAction(
-                    icon: ND.icCrown,
-                    keepColors: true,
-                    iconPadding: 13,
-                    tooltip: s.t('getPremium'),
-                    onTap: () {
-                      logEvent('all_files_premium_tapped');
-                      Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const PremiumPage()));
-                    },
-                  ),
+                DsTopAction(
+                  icon: ND.icCrown,
+                  keepColors: true,
+                  iconPadding: 13,
+                  tooltip: s.t('getPremium'),
+                  onTap: () {
+                    logEvent('all_files_premium_tapped');
+                    Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const PremiumPage()));
+                  },
+                ),
                 const SizedBox(width: 2),
                 DsTopAction(
                   icon: ND.icSearch,

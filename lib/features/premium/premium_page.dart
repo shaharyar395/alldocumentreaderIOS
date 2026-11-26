@@ -18,10 +18,10 @@ import '../settings/terms_page.dart';
 import 'paywall_ui.dart';
 import 'purchase_flow.dart';
 
-/// Get Premium like the Android PremiumActivity (activity_premium.xml): "Get Ready for Your
-/// 7-Day Free Trial" for a moment, then the dark paywall: feature pictures that slide in from
+/// Get Premium like the Android PremiumActivity (activity_premium.xml): "Get Ready for
+/// Premium" for a moment, then the dark paywall: feature pictures that slide in from
 /// the right every 3 s (swipe works too), "Get Premium", benefits, user reviews, and — fixed at
-/// the bottom — the 7-day-trial Yearly plan ("Save N%", price per day) and Monthly, Continue
+/// the bottom — Yearly and Monthly ("Then billed on the App Store"), Continue
 /// (opens the store payment sheet; a cancelled or failed purchase stays on this page), Terms | Privacy.
 /// Restore at the top end; the X shows up after 3 s. With Premium on, Continue becomes
 /// "Manage subscriptions".
@@ -67,9 +67,8 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
     if (_started) return;
     _started = true;
     _premiumAtStart = AppScope.of(context).settings.premium;
-    // "Get Ready for Your 7-Day Free Trial": on iOS only when App Store Connect really offers this
-    // Apple Account a 7-day free trial (never promise a trial that is not there)
-    _ready = !_premiumAtStart && (!Platform.isIOS || AppScope.of(context).billing.yearlyTrialDays == 7);
+    // "Get Ready for Premium" for anyone who is not already Premium (same as the Android app).
+    _ready = !_premiumAtStart;
     if (_ready) {
       _readyTimer = Timer(const Duration(milliseconds: _readyMs), () {
         if (!mounted) return;
@@ -344,14 +343,12 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   // ------------------------------------------------------------------ body
 
   Widget _body(S s, bool premium) {
-    // Benefit lines only. Prices, plans, and Continue stay as they are.
     const features = [
       (ND.icStSubscriptions, 'featAdFree'),
-      (ND.dsToolsIcScan, 'scanToPdf'),
-      (ND.dsToolsIcCreatePdf, 'createPdf'),
-      (ND.dsToolsIcMerge, 'mergePdf'),
-      (ND.dsToolsIcSplit, 'splitPdf'),
+      (ND.dsToolsIcSign, 'featEditSign'),
+      (ND.dsToolsIcWord2pdf, 'featConvert'),
       (ND.icStWidget, 'featTemplates'),
+      (ND.dsToolsIcManagePages, 'featPages'),
     ];
     const reviews = [
       ('review1Title', 'review1Name', 'review1Text'),
@@ -514,7 +511,7 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   // ------------------------------------------------------------------ plans
 
   Widget _bottomPanel(BuildContext context, S s, PlanPrices prices, bool premium, String continueLabel) {
-    final save = prices.savePercent;
+    final billed = Platform.isIOS ? s.t('planThenStore') : s.t('planThenPlay');
     return ColoredBox(
       color: const Color(0xFF0F2A28),
       child: SafeArea(
@@ -525,55 +522,20 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Yearly with free trial + "Save N%" tag on its top end corner
-              Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: _plan(
-                      title: prices.trialDays > 0
-                          ? s.t('planTrialDays', {'days': '${prices.trialDays}'})
-                          : s.t('yearly'),
-                      subtitle: prices.trialDays > 0
-                          ? s.t('planThenOnlyPerDay', {'price': prices.yearlyPerDay})
-                          : s.t('planPerDay', {'price': prices.yearlyPerDay}),
-                      price: s.t('planPriceYear', {'price': prices.yearly}),
-                      selected: _yearly,
-                      onTap: () {
-                        IosAnalytics.planSelected('yearly', 'premium', status: premium ? 'pro' : 'free');
-                        setState(() => _yearly = true);
-                      },
-                    ),
-                  ),
-                  if (save != null)
-                    PositionedDirectional(
-                      top: 0,
-                      end: 0,
-                      child: Container(
-                        height: 20,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        alignment: Alignment.center,
-                        // bg_save_pink ("Plum deck"): the action teal, 10 dp corners
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF0D8A7F),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        child: Text(
-                          s.t('planSavePercent', {'percent': '$save'}),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+              _plan(
+                title: s.t('yearly'),
+                subtitle: billed,
+                price: s.t('planPriceYear', {'price': prices.yearly}),
+                selected: _yearly,
+                onTap: () {
+                  IosAnalytics.planSelected('yearly', 'premium', status: premium ? 'pro' : 'free');
+                  setState(() => _yearly = true);
+                },
               ),
               const SizedBox(height: 12),
               _plan(
                 title: s.t('monthly'),
-                subtitle: s.t('planPerDay', {'price': prices.monthlyPerDay}),
+                subtitle: billed,
                 price: s.t('planPriceMonth', {'price': prices.monthly}),
                 selected: !_yearly,
                 onTap: () {
@@ -589,23 +551,6 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
                 arrow: !premium,
                 onTap: _busy ? null : _continue,
               ),
-              if (!premium) ...[
-                const SizedBox(height: 12),
-                Text(
-                  s.t('cancelAnytime'),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                ),
-                // App Store auto-renewable subscription information (App Review 3.1.2)
-                if (Platform.isIOS) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    s.t('iapAutoRenewInfo'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5, height: 1.35),
-                  ),
-                ],
-              ],
               const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -797,7 +742,7 @@ class _HeroSlide extends StatelessWidget {
   }
 }
 
-/// "Get Ready for Your 7-Day Free Trial": the red → orange ball with the check pops in
+/// "Get Ready for Premium": the ball with the check pops in
 /// (overshoot), its glow pulses, three dots twinkle and the two lines rise in.
 class _ReadyView extends StatefulWidget {
   const _ReadyView();
