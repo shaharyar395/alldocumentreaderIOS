@@ -348,6 +348,23 @@ class PlatformBridge {
     }
   }
 
+  /// iOS PDFKit: how many pages [path] has. Throws when the PDF is locked.
+  static Future<int> pdfPageCount(String path) async {
+    final count = await _channel.invokeMethod<int>('pdfPageCount', {'path': path});
+    return count ?? 0;
+  }
+
+  /// iOS PDFKit: one page drawn as a JPEG, plus its size in points. Null when it cannot be drawn.
+  static Future<({Uint8List jpeg, double width, double height})?> renderPdfPage(String path, int index) async {
+    final raw = await _channel.invokeMethod<Map<Object?, Object?>>('renderPdfPage', {'path': path, 'index': index});
+    if (raw == null) return null;
+    final jpeg = raw['jpeg'];
+    final width = raw['width'];
+    final height = raw['height'];
+    if (jpeg is! Uint8List || width is! num || height is! num || jpeg.isEmpty) return null;
+    return (jpeg: jpeg, width: width.toDouble(), height: height.toDouble());
+  }
+
   /// Builds a new PDF at [output] from real pages of other PDFs (Android: pdfbox, iOS: PDFKit).
   /// Each page is {'src': path, 'index': 0-based page, 'rotate': degrees}. Returns false on failure.
   static Future<bool> assemblePdf(String output, List<Map<String, Object>> pages) async {

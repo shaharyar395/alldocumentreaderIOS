@@ -216,6 +216,34 @@ import WidgetKit
           WidgetCenter.shared.reloadAllTimelines()
         }
         result(nil)
+      case "pdfPageCount":
+        let path = (call.arguments as? [String: Any])?["path"] as? String ?? ""
+        DispatchQueue.global(qos: .userInitiated).async {
+          let count = PlatformBridge.pdfPageCount(path)
+          DispatchQueue.main.async {
+            if count < 0 {
+              result(FlutterError(code: "pdf_locked", message: "PDF is locked", details: nil))
+            } else {
+              result(count)
+            }
+          }
+        }
+      case "renderPdfPage":
+        let args = call.arguments as? [String: Any]
+        let path = args?["path"] as? String ?? ""
+        let index = (args?["index"] as? NSNumber)?.intValue ?? 0
+        DispatchQueue.global(qos: .userInitiated).async {
+          let rendered = PlatformBridge.renderPdfPage(path: path, index: index)
+          DispatchQueue.main.async {
+            if let rendered {
+              result(rendered)
+            } else if PlatformBridge.pdfPageCount(path) < 0 {
+              result(FlutterError(code: "pdf_locked", message: "PDF is locked", details: nil))
+            } else {
+              result(FlutterError(code: "pdf_failed", message: "could not draw the page", details: nil))
+            }
+          }
+        }
       case "assemblePdf":
         // Merge / Split / Extract / Manage pages: copies the real PDF pages (text stays text)
         guard let args = call.arguments as? [String: Any],
@@ -246,6 +274,35 @@ enum PlatformBridge {
 
   /// App Group shared with the ReaderWidget extension (Runner and ReaderWidget entitlements).
   static let appGroup = "group.com.ol.documents.reader.docera.offline"
+
+  /// Page count, or -1 when the PDF is locked. 0 when it cannot be opened.
+  static func pdfPageCount(_ path: String) -> Int {
+    guard let document = PDFDocument(url: URL(fileURLWithPath: path)) else { return 0 }
+    if document.isLocked { return -1 }
+    return document.pageCount
+  }
+
+  /// One PDF page as a JPEG, the same way Android's PdfRenderer draws it for PDF → Word:
+  /// the page the user sees, scaled up to 1.25 and at most 1200 px on the long side.
+  static func renderPdfPage(path: String, index: Int) -> [String: Any]? {
+    guard let document = PDFDocument(url: URL(fileURLWithPath: path)), !document.isLocked,
+          index >= 0, index < document.pageCount, let page = document.page(at: index) else { return nil }
+    let box: PDFDisplayBox = page.bounds(for: .cropBox).isEmpty ? .mediaBox : .cropBox
+    let bounds = page.bounds(for: box)
+    let turned = page.rotation == 90 || page.rotation == 270
+    let pageW = Double(turned ? bounds.height : bounds.width)
+    let pageH = Double(turned ? bounds.width : bounds.height)
+    guard pageW > 1, pageH > 1 else { return nil }
+    let scale = min(1.25, 1200 / max(pageW, pageH))
+    let pixels = CGSize(width: max(1, pageW * scale), height: max(1, pageH * scale))
+    let image = page.thumbnail(of: pixels, for: box)
+    guard let jpeg = image.jpegData(compressionQuality: 0.72) else { return nil }
+    return [
+      "jpeg": FlutterStandardTypedData(bytes: jpeg),
+      "width": pageW,
+      "height": pageH,
+    ]
+  }
 
   /// Builds a new PDF at `output` from `pages` ({"src": path, "index": 0-based, "rotate": degrees}).
   /// Pages are copied with PDFKit, so text, fonts and pictures stay as they are.
@@ -1064,7 +1121,7 @@ final class IAPStore {
       if let token = accountToken, let uuid = UUID(uuidString: token) {
         options.insert(.appAccountToken(uuid))
       }
-      let result = try await product.purchase(options: options)
+      let result = try await confirmPurchase(of: product, options: options)
       switch result {
       case .success(let verification):
         switch verification {
@@ -1096,6 +1153,38 @@ final class IAPStore {
     } catch {
       return ["status": "failed", "reason": String(describing: type(of: error))]
     }
+  }
+
+  /// Shows the App Store payment sheet on the screen that is open.
+  /// `purchase(options:)` leaves StoreKit to find a window itself. On current iOS that lookup
+  /// fails and the sandbox sheet never appears, so the sheet is anchored to the Flutter view.
+  private func confirmPurchase(
+    of product: Product,
+    options: Set<Product.PurchaseOption>
+  ) async throws -> Product.PurchaseResult {
+    if let anchor = Self.purchaseAnchor() {
+      if #available(iOS 18.2, *) {
+        return try await product.purchase(confirmIn: anchor.controller, options: options)
+      }
+      if #available(iOS 17.0, *) {
+        return try await product.purchase(confirmIn: anchor.scene, options: options)
+      }
+    }
+    return try await product.purchase(options: options)
+  }
+
+  /// The view controller StoreKit can present on: the one whose view is still in the window.
+  private static func purchaseAnchor() -> (controller: UIViewController, scene: UIWindowScene)? {
+    guard let scene = PlatformBridge.activeScene() else { return nil }
+    let window = scene.windows.first { $0.isKeyWindow } ?? scene.windows.first { !$0.isHidden } ?? scene.windows.first
+    guard let root = window?.rootViewController else { return nil }
+    var controller = root
+    while let presented = controller.presentedViewController {
+      if presented.view.window == nil { break }
+      controller = presented
+    }
+    if controller.view.window == nil { controller = root }
+    return (controller, scene)
   }
 
   /// Called after Dart has applied the StoreKit entitlement for this transaction.

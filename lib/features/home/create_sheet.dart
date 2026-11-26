@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:printing/printing.dart';
 
@@ -18,7 +19,9 @@ import '../../services/ios_analytics.dart';
 import '../premium/tool_unlock.dart';
 import '../../services/office_pdf.dart';
 import '../../services/office_text.dart';
+import '../../services/page_pdf.dart';
 import '../../services/pdf_text.dart';
+import '../../services/platform_bridge.dart';
 import '../../widgets/chrome.dart';
 import '../create/blank_pages_page.dart';
 import '../create/image_pdf_page.dart';
@@ -342,10 +345,20 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
   IosAnalytics.log('convert_button_tapped', {'screen': screen});
   final pill = ProgressPill(context)..show(s.t('convertingProgress', {'percent': '0'}));
   try {
-    final bytes = await officeFileToPdf(
-      path,
-      onProgress: (value) => pill.show(s.t('convertingProgress', {'percent': '${(value * 100).clamp(0, 99).round()}'})),
-    );
+    Uint8List bytes;
+    try {
+      bytes = await viewOfficeToPdf(
+        path,
+        slides: slides,
+        onProgress: (value) => pill.show(s.t('convertingProgress', {'percent': '${(value * 100).clamp(0, 99).round()}'})),
+      );
+    } catch (_) {
+      // the viewer layout could not be drawn: the older converter still produces a PDF
+      bytes = await officeFileToPdf(
+        path,
+        onProgress: (value) => pill.show(s.t('convertingProgress', {'percent': '${(value * 100).clamp(0, 99).round()}'})),
+      );
+    }
     final stem = p.basenameWithoutExtension(name);
     final saved = await scope.library.importBytes(bytes, name: '${stem.isEmpty ? 'Document' : stem}.pdf', folder: 'convert');
     pill.dismiss();
@@ -390,23 +403,32 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry, bool honor
   final source = path;
   final pill = ProgressPill(context)..show(s.t('convertingProgress', {'percent': '0'}));
   try {
-    final bytes = await File(source).readAsBytes();
-    pill.show(s.t('convertingProgress', {'percent': '20'}));
-    var text = extractPdfText(bytes);
-    if (text.trim().isEmpty) {
-      text = await ocrPdf(
+    final Uint8List docx;
+    if (Platform.isIOS) {
+      // each PDF page becomes a picture on its own Word page, like the Android app
+      docx = await _pdfPagesToWord(
         source,
-        languageTag: scope.settings.languageTag,
-        onPage: (done, total) => pill.show(s.t('convertingProgress', {'percent': '${(20 + done / total * 70).round()}'})),
+        onProgress: (value) => pill.show(s.t('convertingProgress', {'percent': '${(value * 100).clamp(0, 99).round()}'})),
       );
-    }
-    if (text.trim().isEmpty) {
-      pill.dismiss();
-      if (context.mounted) showToast(context, s.t('noTextLayer'));
-      return;
+    } else {
+      final bytes = await File(source).readAsBytes();
+      pill.show(s.t('convertingProgress', {'percent': '20'}));
+      var text = extractPdfText(bytes);
+      if (text.trim().isEmpty) {
+        text = await ocrPdf(
+          source,
+          languageTag: scope.settings.languageTag,
+          onPage: (done, total) => pill.show(s.t('convertingProgress', {'percent': '${(20 + done / total * 70).round()}'})),
+        );
+      }
+      if (text.trim().isEmpty) {
+        pill.dismiss();
+        if (context.mounted) showToast(context, s.t('noTextLayer'));
+        return;
+      }
+      docx = buildDocx(text);
     }
     final stem = p.basenameWithoutExtension(name);
-    final docx = buildDocx(text);
     final saved = await scope.library.importBytes(docx, name: '${stem.isEmpty ? 'Document' : stem}.docx', folder: 'convert');
     pill.dismiss();
     if (saved == null || !context.mounted) return;
@@ -417,11 +439,29 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry, bool honor
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word')),
     );
+  } on PlatformException catch (error) {
+    pill.dismiss();
+    IosAnalytics.appError('pdf_to_word', error.code == 'pdf_locked' ? 'pdf_locked' : 'convert_failed');
+    if (context.mounted) showToast(context, s.t(error.code == 'pdf_locked' ? 'pdfProtected' : 'convertFailed'), warning: true);
   } catch (_) {
     pill.dismiss();
     IosAnalytics.appError('pdf_to_word', 'convert_failed');
     if (context.mounted) showToast(context, s.t('convertFailed'), warning: true);
   }
+}
+
+/// Draws every page of [path] and packs those pictures into a .docx.
+Future<Uint8List> _pdfPagesToWord(String path, {required void Function(double progress) onProgress}) async {
+  final count = await PlatformBridge.pdfPageCount(path);
+  if (count <= 0) throw StateError('empty');
+  final pages = <({Uint8List jpeg, double width, double height})>[];
+  for (var i = 0; i < count; i++) {
+    final page = await PlatformBridge.renderPdfPage(path, i);
+    if (page == null) throw StateError('page');
+    pages.add(page);
+    onProgress((i + 1) / count * 0.92);
+  }
+  return buildPageImageDocx(pages);
 }
 
 /// Print PDF: [entry] when given (e.g. the file just converted), otherwise "Select a file" with

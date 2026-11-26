@@ -20,6 +20,7 @@ import '../../services/app_analytics.dart';
 import '../../services/ocr_service.dart';
 import '../../services/office_layout.dart';
 import '../../services/office_pdf.dart';
+import '../../services/page_pdf.dart';
 import '../../services/pdf_rewrite.dart';
 import '../../services/pdf_text.dart';
 import '../../widgets/banner_slot.dart';
@@ -912,12 +913,23 @@ class _ReaderPageState extends State<ReaderPage> with WidgetsBindingObserver {
     });
     DocEntry? saved;
     try {
-      final bytes = await officeFileToPdf(
-        path,
-        onProgress: (progress) {
-          if (mounted) setState(() => _convertProgress = progress.clamp(0.0, 1.0));
-        },
-      );
+      Uint8List bytes;
+      try {
+        bytes = await viewOfficeToPdf(
+          path,
+          slides: _entry.kind == DocKind.ppt,
+          onProgress: (progress) {
+            if (mounted) setState(() => _convertProgress = progress.clamp(0.0, 1.0));
+          },
+        );
+      } catch (_) {
+        bytes = await officeFileToPdf(
+          path,
+          onProgress: (progress) {
+            if (mounted) setState(() => _convertProgress = progress.clamp(0.0, 1.0));
+          },
+        );
+      }
       final dot = name.lastIndexOf('.');
       final stem = dot > 0 ? name.substring(0, dot) : name;
       saved = await library.importBytes(bytes, name: '$stem.pdf', folder: 'convert');

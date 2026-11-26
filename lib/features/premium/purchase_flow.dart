@@ -69,6 +69,18 @@ Future<bool> buyPremium(BuildContext context, {required bool yearly, String scre
     final available = await billing.storeAvailable;
     if (!context.mounted) return false;
     plan = yearly ? billing.yearly : billing.monthly;
+    if (plan == null && Platform.isIOS) {
+      // The product list can be empty before the App Store answers. Still ask StoreKit:
+      // it loads the subscription and presents the sandbox payment sheet.
+      final id = yearly ? AppleProductIds.yearly : AppleProductIds.monthly;
+      plan = StorePlan(
+        id: id,
+        price: '',
+        rawPrice: 0,
+        currencyCode: '',
+        apple: ApplePlan.fromMap({'id': id}),
+      );
+    }
     if (plan == null && !available && kDebugMode) {
       // like the Android debug TEST MODE sheet (sheet_test_purchase.xml): back / outside cancels
       final prices = PlanPrices.of(s, billing);
