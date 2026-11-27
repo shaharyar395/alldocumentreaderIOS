@@ -6,13 +6,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../app_scope.dart';
 import '../l10n/s.dart';
 import '../native/native_colors.dart';
+import '../services/ad_manager.dart';
 import '../services/ad_remote_config.dart';
 import '../services/ad_service.dart';
 import '../services/ios_analytics.dart';
 import '../services/ios_growth.dart';
 
 class BannerSlot extends StatefulWidget {
-  const BannerSlot({super.key, this.reserveSpace = false, this.unit = 1});
+  const BannerSlot({super.key, this.reserveSpace = false, this.unit = 1, this.testAd = false});
 
   /// Keeps the banner's place with "Loading ad…" until the ad arrives (Language screen); the
   /// space goes away only if no ad comes. Never shown for Premium.
@@ -20,6 +21,9 @@ class BannerSlot extends StatefulWidget {
 
   /// 1 is the home banner. 2 is the banner on reader, lists, and tool screens.
   final int unit;
+
+  /// iOS language screen and the bar above the tabs: Google's test banner.
+  final bool testAd;
 
   @override
   State<BannerSlot> createState() => _BannerSlotState();
@@ -89,7 +93,7 @@ class _BannerSlotState extends State<BannerSlot> {
       return;
     }
     final ad = BannerAd(
-      adUnitId: AdUnits.bannerFor(widget.unit),
+      adUnitId: widget.testAd && Platform.isIOS ? AdManager.bannerTestId : AdUnits.bannerFor(widget.unit),
       size: size,
       request: const AdRequest(),
       listener: BannerAdListener(

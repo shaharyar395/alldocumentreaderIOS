@@ -209,7 +209,7 @@ class _MainShellState extends State<MainShell> with RouteAware {
                         children: [HomeTab(onHintsReady: _onHintsReady, visible: _index == 0), const ToolsTab(), const SettingsTab()],
                       ),
                     ),
-                    ColoredBox(color: c.bgScreen, child: const BannerSlot()),
+                    ColoredBox(color: c.bgScreen, child: const BannerSlot(testAd: true)),
                     SafeArea(
                       top: false,
                       child: Padding(

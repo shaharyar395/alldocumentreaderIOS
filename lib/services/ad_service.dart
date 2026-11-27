@@ -538,7 +538,7 @@ class AdService {
   Future<AppOpenAd?> _loadAppOpen() {
     final done = Completer<AppOpenAd?>();
     AppOpenAd.load(
-      adUnitId: AdUnits.appOpen,
+      adUnitId: Platform.isIOS ? AdManager.appOpenTestId : AdUnits.appOpen,
       request: const AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {

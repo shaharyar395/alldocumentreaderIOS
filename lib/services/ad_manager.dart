@@ -25,6 +25,12 @@ class AdManager {
       ? 'ca-app-pub-3940256099942544/1712485313'
       : 'ca-app-pub-3940256099942544/5224354917';
 
+  /// Google's official app-open test unit. iOS only; Android keeps its own unit.
+  static const appOpenTestId = 'ca-app-pub-3940256099942544/5575463023';
+
+  /// Google's official anchored adaptive banner test unit. iOS only.
+  static const bannerTestId = 'ca-app-pub-3940256099942544/2435281174';
+
   bool _started = false;
 
   /// Starts the SDK, then the two preloaders. Safe to call again.
