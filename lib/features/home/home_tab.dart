@@ -73,8 +73,8 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   int _loadStatus = 0;
   PageRoute<dynamic>? _route;
   FileLibrary? _library;
-  /// The collapsing home header + list (HomeScroll.kt): used to stop a leftover fling on touch.
-  final GlobalKey<NestedScrollViewState> _nested = GlobalKey<NestedScrollViewState>();
+  /// The home header and file list scroll together. Used to stop a leftover fling on touch.
+  final ScrollController _scroll = ScrollController();
 
   @override
   void initState() {
@@ -90,17 +90,13 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
   /// this tab is the one on screen.
   void _stopFling(PointerEvent event) {
     if (event is! PointerDownEvent || !widget.visible) return;
-    final nested = _nested.currentState;
-    if (nested == null) return;
-    for (final controller in [nested.outerController, nested.innerController]) {
-      for (final position in controller.positions) {
-        // A new finger down while the list is still moving is a leftover fling, not a drag.
-        if (!position.isScrollingNotifier.value) continue;
-        try {
-          position.jumpTo(position.pixels);
-        } catch (_) {}
-      }
-    }
+    if (!_scroll.hasClients) return;
+    final position = _scroll.position;
+    // A new finger down while the list is still moving is a leftover fling, not a drag.
+    if (!position.isScrollingNotifier.value) return;
+    try {
+      position.jumpTo(position.pixels);
+    } catch (_) {}
   }
 
   @override
@@ -135,6 +131,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
 
   @override
   void dispose() {
+    _scroll.dispose();
     GestureBinding.instance.pointerRouter.removeGlobalRoute(_stopFling);
     WidgetsBinding.instance.removeObserver(this);
     homeShowBookmarks.removeListener(_onSegment);
@@ -368,40 +365,21 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
     ];
 
     // the list part under the tabs (rvFiles / emptyView / loadingView / permissionView)
-    final Widget listArea;
+    final Widget listSliver;
     if (!known) {
-      listArea = ListView(padding: EdgeInsets.zero, physics: const AlwaysScrollableScrollPhysics(), children: const []);
+      listSliver = const SliverToBoxAdapter(child: SizedBox(height: 1));
     } else if (!usable || (!access && !firstLoad && files.isEmpty)) {
       // Android without access; iOS without a picked folder and nothing in Recent / Bookmarks yet
-      listArea = ListView(
-        padding: EdgeInsets.zero,
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [_AccessMissing(onGrant: _showAccessDialog)],
-      );
+      listSliver = SliverToBoxAdapter(child: _AccessMissing(onGrant: _showAccessDialog));
     } else if (firstLoad) {
-      listArea = ListView(
-        padding: EdgeInsets.zero,
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [_FirstLoad(label: s.t('homeLoadingFiles'))],
-      );
+      listSliver = SliverToBoxAdapter(child: _FirstLoad(label: s.t('homeLoadingFiles')));
     } else if (files.isEmpty) {
-      listArea = ListView(
-        padding: EdgeInsets.zero,
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [_EmptyList(label: s.t('homeEmpty'))],
-      );
+      listSliver = SliverToBoxAdapter(child: _EmptyList(label: s.t('homeEmpty')));
     } else {
-      listArea = NotificationListener<ScrollStartNotification>(
-        // scrolling closes an open swipe layer (FileSwipeHelper.onScrollStateChanged)
-        onNotification: (_) {
-          FileRow.openRow.value = null;
-          return false;
-        },
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(top: 2, bottom: kNavBarClearance),
-          itemCount: files.length,
-          itemBuilder: (context, index) {
+      listSliver = SliverPadding(
+        padding: const EdgeInsets.only(top: 2, bottom: kNavBarClearance),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
             final entry = files[index];
             return FileRow(
               key: ValueKey(entry.id),
@@ -412,7 +390,7 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
               onMore: () => showFileMenu(context, entry),
               onDelete: () => confirmDelete(context, entry),
             );
-          },
+          }, childCount: files.length),
         ),
       );
     }
@@ -497,41 +475,45 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
       color: c.bgScreen,
       child: SafeArea(
         bottom: false,
-        child: NestedScrollView(
-          key: _nested,
-          // fragment_home.xml (1.0.75): the header scrolls away, comes back as soon as the list is
-          // pulled the other way and snaps open / closed (scroll|enterAlways|snap)
-          floatHeaderSlivers: true,
-          headerSliverBuilder: (context, inner) => [
-            // scroll, so the header pushes Recent and Bookmarks down instead of drawing on top of them
-            SliverFloatingHeader(snapMode: FloatingHeaderSnapMode.scroll, child: header),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _TabsHeader(
-                color: c.bgScreen,
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 6),
-                    child: DsTextTabs(
-                      labels: [s.t('recent'), s.t('bookmarks')],
-                      index: bookmarks ? 1 : 0,
-                      onSelect: (i) {
-                        if ((i == 1) == homeShowBookmarks.value) return;
-                        logEvent(i == 0 ? 'recent_btn_clicked' : 'bookmarks_btn_clicked');
-                        homeShowBookmarks.value = i == 1;
-                      },
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          color: c.primary,
+          backgroundColor: c.surface,
+          child: NotificationListener<ScrollStartNotification>(
+            // scrolling closes an open swipe layer (FileSwipeHelper.onScrollStateChanged)
+            onNotification: (_) {
+              FileRow.openRow.value = null;
+              return false;
+            },
+            child: CustomScrollView(
+              controller: _scroll,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: header),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _TabsHeader(
+                    color: c.bgScreen,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(start: 6),
+                        child: DsTextTabs(
+                          labels: [s.t('recent'), s.t('bookmarks')],
+                          index: bookmarks ? 1 : 0,
+                          onSelect: (i) {
+                            if ((i == 1) == homeShowBookmarks.value) return;
+                            logEvent(i == 0 ? 'recent_btn_clicked' : 'bookmarks_btn_clicked');
+                            homeShowBookmarks.value = i == 1;
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+                listSliver,
+              ],
             ),
-          ],
-          body: RefreshIndicator(
-            onRefresh: _refresh,
-            color: c.primary,
-            backgroundColor: c.surface,
-            child: listArea,
           ),
         ),
       ),

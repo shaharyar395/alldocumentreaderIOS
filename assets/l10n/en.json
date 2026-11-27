@@ -267,6 +267,7 @@
   "splitEveryPage": "Every page",
   "pagesMenu": "Pages",
   "convertToPdf": "Convert to PDF",
+  "convertToWord": "Convert to Word",
   "savedSuccessfully": "Saved successfully",
   "convertFailed": "Conversion failed",
   "convertingProgress": "Converting… ({percent}%)",

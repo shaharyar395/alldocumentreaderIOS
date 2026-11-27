@@ -24,6 +24,7 @@ import '../../services/pdf_text.dart';
 import '../../services/platform_bridge.dart';
 import '../../widgets/chrome.dart';
 import '../create/blank_pages_page.dart';
+import '../create/convert_preview_page.dart';
 import '../create/image_pdf_page.dart';
 import '../create/merge_page.dart';
 import '../create/pdf_picker_page.dart';
@@ -308,54 +309,82 @@ bool canConvertOffice(String name, {required bool slides}) {
   return slides ? const {'pptx', 'ppsx', 'potx'}.contains(ext) : const {'docx', 'docm', 'dotx', 'txt'}.contains(ext);
 }
 
-/// Word to PDF (Word / TXT) or PPT to PDF: "Select a file" → "Converting… (x%)" → Converted
-/// successfully. The layout is kept (paragraph styles, tables, pictures, slides).
-Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry? entry}) async {
+/// Word to PDF (Word / TXT) or PPT to PDF: "Select a file" → the pages, with "Convert to PDF"
+/// → "Converting… (x%)" → Converted successfully. The layout is kept (paragraph styles, tables,
+/// pictures, slides). A file already on screen ([entry]) converts straight away.
+Future<void> convertOffice(
+  BuildContext context, {
+  required bool slides,
+  DocEntry? entry,
+  String? path,
+  String? fileName,
+  bool replaceOnSuccess = false,
+}) async {
   final s = S.of(context);
   final scope = AppScope.of(context);
-  String? path;
-  String name;
+  String? source = path;
+  var name = fileName ?? '';
   if (entry != null) {
     if (!canConvertOffice(entry.name, slides: slides)) {
       showToast(context, s.t('convertOldFormat'));
       return;
     }
-    path = entry.fullPath;
+    source = entry.fullPath;
     name = entry.name;
-  } else {
+  } else if (source == null) {
     final pick = await pickOnePdf(
       context,
       kinds: slides ? const {DocKind.ppt} : const {DocKind.word, DocKind.txt},
       extensions: slides
           ? const ['ppt', 'pptx', 'pptm', 'pps', 'ppsx', 'pot', 'potx', 'odp']
           : const ['doc', 'docx', 'docm', 'dot', 'dotx', 'rtf', 'odt', 'txt'],
-      accept: (name) => canConvertOffice(name, slides: slides),
+      accept: (picked) => canConvertOffice(picked, slides: slides),
       rejectMessage: s.t('convertOldFormat'),
       analyticsScreen: slides ? 'ppt_to_pdf' : 'word_to_pdf',
       pickEvent: slides ? 'ppt_to_pdf_pick_file_tapped' : 'word_to_pdf_pick_file_tapped',
     );
-    if (pick == null) return;
-    path = pick.path;
-    name = pick.name;
+    if (pick == null || !context.mounted) return;
+    final pickedPath = pick.path;
+    final pickedName = pick.name;
+    final screen = slides ? 'ppt_to_pdf' : 'word_to_pdf';
+    IosAnalytics.log('${screen}_file_selected', {'file_type': slides ? 'ppt' : 'word', 'screen': screen});
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ConvertPreviewPage(
+          path: pickedPath,
+          name: pickedName,
+          pdfToWord: false,
+          slides: slides,
+          onConvert: (preview) => convertOffice(
+            preview,
+            slides: slides,
+            path: pickedPath,
+            fileName: pickedName,
+            replaceOnSuccess: true,
+          ),
+        ),
+      ),
+    );
+    return;
   }
   if (!context.mounted) return;
   final screen = slides ? 'ppt_to_pdf' : 'word_to_pdf';
   IosAnalytics.activate(screen);
-  IosAnalytics.log('${screen}_file_selected', {'file_type': slides ? 'ppt' : 'word', 'screen': screen});
+  if (entry != null) IosAnalytics.log('${screen}_file_selected', {'file_type': slides ? 'ppt' : 'word', 'screen': screen});
   IosAnalytics.log('convert_button_tapped', {'screen': screen});
   final pill = ProgressPill(context)..show(s.t('convertingProgress', {'percent': '0'}));
   try {
     Uint8List bytes;
     try {
       bytes = await viewOfficeToPdf(
-        path,
+        source,
         slides: slides,
         onProgress: (value) => pill.show(s.t('convertingProgress', {'percent': '${(value * 100).clamp(0, 99).round()}'})),
       );
     } catch (_) {
       // the viewer layout could not be drawn: the older converter still produces a PDF
       bytes = await officeFileToPdf(
-        path,
+        source,
         onProgress: (value) => pill.show(s.t('convertingProgress', {'percent': '${(value * 100).clamp(0, 99).round()}'})),
       );
     }
@@ -368,16 +397,19 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
     IosAnalytics.left(screen);
     await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: true, wait: true);
     if (!context.mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SuccessPage(
-          entry: saved,
-          kind: ResultKind.converted,
-          feature: s.t(slides ? 'pptToPdf' : 'wordToPdf'),
-          featureKey: slides ? 'ppt_to_pdf' : 'word_to_pdf',
-        ),
+    final route = MaterialPageRoute(
+      builder: (_) => SuccessPage(
+        entry: saved,
+        kind: ResultKind.converted,
+        feature: s.t(slides ? 'pptToPdf' : 'wordToPdf'),
+        featureKey: slides ? 'ppt_to_pdf' : 'word_to_pdf',
       ),
     );
+    if (replaceOnSuccess) {
+      await Navigator.of(context).pushReplacement(route);
+    } else {
+      await Navigator.of(context).push(route);
+    }
   } catch (_) {
     pill.dismiss();
     IosAnalytics.appError(slides ? 'ppt_to_pdf' : 'word_to_pdf', 'convert_failed');
@@ -385,22 +417,47 @@ Future<void> convertOffice(BuildContext context, {required bool slides, DocEntry
   }
 }
 
-Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry, bool honorCooldown = true}) async {
+Future<void> convertPdfToWord(
+  BuildContext context, {
+  DocEntry? entry,
+  String? path,
+  String? fileName,
+  bool honorCooldown = true,
+  bool replaceOnSuccess = false,
+}) async {
   final s = S.of(context);
   final scope = AppScope.of(context);
-  String? path = entry?.fullPath;
-  var name = entry?.name ?? 'Document.pdf';
-  if (path == null) {
+  String? source = path ?? entry?.fullPath;
+  var name = fileName ?? entry?.name ?? 'Document.pdf';
+  if (source == null) {
     final pick = await pickOnePdf(context, analyticsScreen: 'pdf_to_word', pickEvent: 'pdf_to_word_pick_file_tapped');
-    if (pick == null) return;
-    path = pick.path;
-    name = pick.name;
+    if (pick == null || !context.mounted) return;
+    final pickedPath = pick.path;
+    final pickedName = pick.name;
+    IosAnalytics.log('pdf_to_word_file_selected', {'file_type': 'pdf', 'screen': 'pdf_to_word'});
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ConvertPreviewPage(
+          path: pickedPath,
+          name: pickedName,
+          pdfToWord: true,
+          slides: false,
+          onConvert: (preview) => convertPdfToWord(
+            preview,
+            path: pickedPath,
+            fileName: pickedName,
+            honorCooldown: honorCooldown,
+            replaceOnSuccess: true,
+          ),
+        ),
+      ),
+    );
+    return;
   }
   if (!context.mounted) return;
   IosAnalytics.activate('pdf_to_word');
-  IosAnalytics.log('pdf_to_word_file_selected', {'file_type': 'pdf', 'screen': 'pdf_to_word'});
+  if (entry != null) IosAnalytics.log('pdf_to_word_file_selected', {'file_type': 'pdf', 'screen': 'pdf_to_word'});
   IosAnalytics.log('convert_button_tapped', {'screen': 'pdf_to_word'});
-  final source = path;
   final pill = ProgressPill(context)..show(s.t('convertingProgress', {'percent': '0'}));
   try {
     final Uint8List docx;
@@ -436,9 +493,14 @@ Future<void> convertPdfToWord(BuildContext context, {DocEntry? entry, bool honor
     IosAnalytics.left('pdf_to_word');
     await scope.ads.showInterstitial(force: true, unit: 2, honorCooldown: honorCooldown, wait: true);
     if (!context.mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word')),
+    final route = MaterialPageRoute(
+      builder: (_) => SuccessPage(entry: saved, kind: ResultKind.converted, feature: s.t('pdfToWord'), featureKey: 'pdf_to_word'),
     );
+    if (replaceOnSuccess) {
+      await Navigator.of(context).pushReplacement(route);
+    } else {
+      await Navigator.of(context).push(route);
+    }
   } on PlatformException catch (error) {
     pill.dismiss();
     IosAnalytics.appError('pdf_to_word', error.code == 'pdf_locked' ? 'pdf_locked' : 'convert_failed');
