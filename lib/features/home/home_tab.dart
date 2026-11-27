@@ -503,7 +503,8 @@ class _HomeBodyState extends State<_HomeBody> with WidgetsBindingObserver, Route
           // pulled the other way and snaps open / closed (scroll|enterAlways|snap)
           floatHeaderSlivers: true,
           headerSliverBuilder: (context, inner) => [
-            SliverFloatingHeader(child: header),
+            // scroll, so the header pushes Recent and Bookmarks down instead of drawing on top of them
+            SliverFloatingHeader(snapMode: FloatingHeaderSnapMode.scroll, child: header),
             SliverPersistentHeader(
               pinned: true,
               delegate: _TabsHeader(

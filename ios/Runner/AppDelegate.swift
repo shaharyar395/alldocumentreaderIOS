@@ -1002,6 +1002,8 @@ final class IAPStore {
   private var dartReady = false
   private var updates: Task<Void, Never>?
   private var products: [String: Product] = [:]
+  /// Kept for the length of a purchase so StoreKit can present on a view that is in a window.
+  private var purchaseHostWindow: UIWindow?
 
   func start() {
     guard updates == nil else { return }
@@ -1156,35 +1158,70 @@ final class IAPStore {
   }
 
   /// Shows the App Store payment sheet on the screen that is open.
-  /// `purchase(options:)` leaves StoreKit to find a window itself. On current iOS that lookup
-  /// fails and the sandbox sheet never appears, so the sheet is anchored to the Flutter view.
+  /// A view StoreKit cannot use must not end the purchase: the sheet is tried on the Flutter
+  /// view, then on a window that is in the scene.
   private func confirmPurchase(
     of product: Product,
     options: Set<Product.PurchaseOption>
   ) async throws -> Product.PurchaseResult {
-    if let anchor = Self.purchaseAnchor() {
-      if #available(iOS 18.2, *) {
+    guard let anchor = Self.purchaseAnchor() else {
+      return try await product.purchase(options: options)
+    }
+    anchor.window.makeKeyAndVisible()
+    if #available(iOS 18.2, *) {
+      do {
         return try await product.purchase(confirmIn: anchor.controller, options: options)
+      } catch StoreKitError.userCancelled {
+        throw StoreKitError.userCancelled
+      } catch {
+        return try await purchaseInHostWindow(product: product, scene: anchor.scene, options: options)
       }
-      if #available(iOS 17.0, *) {
-        return try await product.purchase(confirmIn: anchor.scene, options: options)
-      }
+    }
+    if #available(iOS 17.0, *) {
+      return try await product.purchase(confirmIn: anchor.scene, options: options)
+    }
+    return try await product.purchase(options: options)
+  }
+
+  /// A clear window in the same scene, used only when the Flutter view cannot host the sheet.
+  private func purchaseInHostWindow(
+    product: Product,
+    scene: UIWindowScene,
+    options: Set<Product.PurchaseOption>
+  ) async throws -> Product.PurchaseResult {
+    let host = UIViewController()
+    host.view.backgroundColor = .clear
+    let window = UIWindow(windowScene: scene)
+    window.rootViewController = host
+    window.backgroundColor = .clear
+    window.windowLevel = .normal
+    window.makeKeyAndVisible()
+    purchaseHostWindow = window
+    defer {
+      window.isHidden = true
+      purchaseHostWindow = nil
+    }
+    if #available(iOS 18.2, *) {
+      return try await product.purchase(confirmIn: host, options: options)
+    }
+    if #available(iOS 17.0, *) {
+      return try await product.purchase(confirmIn: scene, options: options)
     }
     return try await product.purchase(options: options)
   }
 
   /// The view controller StoreKit can present on: the one whose view is still in the window.
-  private static func purchaseAnchor() -> (controller: UIViewController, scene: UIWindowScene)? {
+  private static func purchaseAnchor() -> (controller: UIViewController, scene: UIWindowScene, window: UIWindow)? {
     guard let scene = PlatformBridge.activeScene() else { return nil }
     let window = scene.windows.first { $0.isKeyWindow } ?? scene.windows.first { !$0.isHidden } ?? scene.windows.first
-    guard let root = window?.rootViewController else { return nil }
+    guard let window, let root = window.rootViewController else { return nil }
     var controller = root
     while let presented = controller.presentedViewController {
       if presented.view.window == nil { break }
       controller = presented
     }
     if controller.view.window == nil { controller = root }
-    return (controller, scene)
+    return (controller, scene, window)
   }
 
   /// Called after Dart has applied the StoreKit entitlement for this transaction.

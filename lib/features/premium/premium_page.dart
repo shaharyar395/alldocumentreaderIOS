@@ -345,10 +345,11 @@ class _PremiumPageState extends State<PremiumPage> with TickerProviderStateMixin
   Widget _body(S s, bool premium) {
     const features = [
       (ND.icStSubscriptions, 'featAdFree'),
-      (ND.dsToolsIcSign, 'featEditSign'),
-      (ND.dsToolsIcWord2pdf, 'featConvert'),
+      (ND.dsToolsIcScan, 'scanToPdf'),
+      (ND.dsToolsIcCreatePdf, 'createPdf'),
+      (ND.dsToolsIcMerge, 'mergePdf'),
+      (ND.dsToolsIcSplit, 'splitPdf'),
       (ND.icStWidget, 'featTemplates'),
-      (ND.dsToolsIcManagePages, 'featPages'),
     ];
     const reviews = [
       ('review1Title', 'review1Name', 'review1Text'),
